@@ -176,8 +176,8 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   vec3 light_dir(light_direction(0),light_direction(1),light_direction(2));
   light_dir = glm::normalize(light_dir);
   
-  std::unique_ptr<IShader> shader(new PhongShader(Model, Projection, View, viewport,
-                                            light_dir, model));
+  std::unique_ptr<IShader> shader(new PhongShaderTangent(Model, Projection, View, viewport,
+                                  light_dir, model));
   
   for(int i = 0; i < n; i++) {
     fill_tri(i, shader.get(), zbuffer, image);

@@ -60,6 +60,10 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
             vec3 light_dir, ModelInfo& model) :
   Model(Model), Projection(Projection), View(View), viewport(viewport),
   light_dir(light_dir), model(model) {
+  MVP = Projection * View * Model;
+  vp = glm::scale(glm::translate(Mat(1.0f),
+                                 vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
+                                 vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
   uniform_M = Model;
   uniform_MIT = glm::transpose(glm::inverse(uniform_M));
 }
@@ -67,7 +71,9 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
 vec3 PhongShader::vertex(int iface, int nthvert) {
   varying_uv[nthvert] = model.tex(iface,nthvert);
   vec3 gl_Vertex = model.vertex(iface,nthvert);
-  return glm::project(gl_Vertex, Model, Projection * View, viewport); // transform it to screen coordinates
+  vec4 clip = MVP * vec4(gl_Vertex,1);
+  clip /= clip.w;
+  return  vp*clip;// transform it to screen coordinates
 }
 
 bool PhongShader::fragment(vec3 bc, vec3 &color) {
@@ -88,5 +94,57 @@ bool PhongShader::fragment(vec3 bc, vec3 &color) {
       c[i]*(diff * model.diffuse_intensity + 
             spec * model.specular_intensity),1);
   }
+  return false;
+}
+
+PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
+                         vec3 light_dir, ModelInfo& model) :
+  Model(Model), Projection(Projection), View(View), viewport(viewport),
+  light_dir(light_dir), model(model) {
+  MVP = Projection * View * Model;
+  vp = glm::scale(glm::translate(Mat(1.0f),
+                                 vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
+                                 vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
+  uniform_M = Model;
+  uniform_MIT = glm::transpose(glm::inverse(uniform_M));
+}
+
+vec3 PhongShaderTangent::vertex(int iface, int nthvert) {
+  varying_uv[nthvert] = model.tex(iface,nthvert);
+  vec3 gl_Vertex = model.vertex(iface,nthvert);
+  vec4 clip = MVP * vec4(gl_Vertex,1);
+  varying_nrm[nthvert] = vec3(uniform_MIT*vec4(model.normal(iface, nthvert), 0.f));
+  varying_tri[nthvert] = clip;
+  clip /= clip.w;
+  ndc_tri[nthvert] = vec3(clip);
+  return vp*clip;
+}
+
+bool PhongShaderTangent::fragment(vec3 bc, vec3 &color) {
+  vec3 bn = normalize(varying_nrm[0] * bc.x + 
+    varying_nrm[1] * bc.y + 
+    varying_nrm[2] * bc.z);
+  vec3 uv = varying_uv[0] * bc.x + varying_uv[1] * bc.y + varying_uv[2] * bc.z;
+  
+  vec3 edge1 = ndc_tri[1] - ndc_tri[0];
+  vec3 edge2 = ndc_tri[2] - ndc_tri[0];
+  glm::vec2 deltaUV1 = varying_uv[1] - varying_uv[0];
+  glm::vec2 deltaUV2 = varying_uv[2] - varying_uv[0];  
+  
+  float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+  vec3 T;
+  vec3 B;
+  T =  deltaUV2.y * edge1 - deltaUV1.y * edge2;
+  B = -deltaUV2.x * edge1 + deltaUV1.x * edge2;
+  
+  T = normalize(T);
+  B = normalize(B);
+  
+  glm::mat3 TBN{T,B,bn};
+
+  vec3 n = glm::normalize(TBN * model.normal_uv(uv));
+
+  float diff = std::max(0.f, dot(n,light_dir));
+  color = model.diffuse(uv)*diff;
   return false;
 }
