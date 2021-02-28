@@ -63,15 +63,16 @@ void fill_tri(int vertex,
   vec3 v1 = shader->vertex(vertex,0);
   vec3 v2 = shader->vertex(vertex,1);
   vec3 v3 = shader->vertex(vertex,2);
+  
   vec3 bound_min = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
                         fmin(v1.y,fmin(v2.y,v3.y)),
                         fmin(v1.z,fmin(v2.z,v3.z)));
   vec3 bound_max = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
                         fmax(v1.y,fmax(v2.y,v3.y)),
                         fmax(v1.z,fmax(v2.z,v3.z)));
+  
   int nx = image.width();
   int ny = image.height();
-  
   
   int xmin =  std::min(std::max((int)floor(bound_min.x),0 ), 0);
   int xmax =  std::max(std::min((int)ceil(bound_max.x), nx),nx);
@@ -79,7 +80,7 @@ void fill_tri(int vertex,
   int ymax =  std::max(std::min((int)ceil(bound_max.y), ny ),ny);
   float area = edgeFunction(v1, v2, v3); 
   
-  vec3 color2;
+  vec3 color;
   for (uint32_t i = xmin; i < xmax; i++) {
     for (uint32_t j = ymin; j < ymax; j++) {
       vec3 p((float)i + 0.5f, (float)j + 0.5f, 0.0);
@@ -93,12 +94,21 @@ void fill_tri(int vertex,
         //Test depth buffer
         if(p.z < zbuffer(i,j)) {
           zbuffer(i,j) = p.z;
-          shader->fragment(bc,color2);
-          image.set_color(i,j,color2);
+          shader->fragment(bc,color);
+          image.set_color(i,j,color);
         }
       } 
     }
   }
+}
+
+void print_mat(Mat m) {
+  m = glm::transpose(m);
+  Rcpp::Rcout.precision(5);
+  Rcpp::Rcout << std::fixed << m[0][0] << " " << m[0][1] << " " << m[0][2] << " " << m[0][3] << "\n";
+  Rcpp::Rcout << std::fixed << m[1][0] << " " << m[1][1] << " " << m[1][2] << " " << m[1][3] << "\n";
+  Rcpp::Rcout << std::fixed << m[2][0] << " " << m[2][1] << " " << m[2][2] << " " << m[2][3] << "\n";
+  Rcpp::Rcout << std::fixed << m[3][0] << " " << m[3][1] << " " << m[3][2] << " " << m[3][3] << "\n";
 }
 
 // [[Rcpp::export]]
@@ -133,8 +143,11 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   NumericMatrix b(nx,ny);
   
   rayimage image(r,g,b,nx,ny);
-  
+
   NumericMatrix zbuffer(nx,ny);
+  NumericMatrix sbuffer(nx,ny);
+  rayimage shadowbuffer(sbuffer,sbuffer,sbuffer,nx,ny);
+  
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<float>::infinity() ) ;
 
   vec3 ambient(ambient_color(0),ambient_color(1),ambient_color(2)); 
@@ -174,15 +187,53 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   }
   
   vec3 light_dir(light_direction(0),light_direction(1),light_direction(2));
-  light_dir = glm::normalize(light_dir);
+  // light_dir = glm::normalize(light_dir);
   
-  std::unique_ptr<IShader> shader(new PhongShaderTangent(Model, Projection, View, viewport,
-                                  light_dir, model));
+  //Calculate Shadow Map
+  float near_plane = 1.0f, far_plane = 7.5f;
+  // glm::mat4 lightProjection(1);
+  glm::mat4 lightProjection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, near_plane, far_plane);
+  glm::mat4 lightView = glm::lookAt(light_dir,
+                                    glm::vec3( 0.0f, 0.0f,  0.0f),
+                                    glm::vec3( 0.0f, 1.0f,  0.0f));
+  // print_mat(lightProjection);
+  // Rcpp::Rcout << "\n";
+  // print_mat(lightView);
+  // Rcpp::Rcout << "\n";
   
+  glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+  
+  std::unique_ptr<IShader> depthshader(new DepthShader(Model, lightProjection, lightView, viewport,
+                                                       light_dir, model));
+  for(int i = 0; i < n; i++) {
+    fill_tri(i, depthshader.get(), zbuffer, shadowbuffer);
+  }
+  
+  Mat vp = glm::scale(glm::translate(Mat(1.0f),
+                      vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)),
+                      vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
+  // print_mat(vp);
+  // Rcpp::Rcout << "\n";
+  Mat M = vp*lightProjection*lightView*Model;
+  // print_mat(M);
+  // Rcpp::Rcout << "\n";
+  Mat uniform_Mshadow_ = M*glm::inverse(vp*Projection*View*Model);
+  // print_mat(uniform_Mshadow_);
+
+  //Calculate Image
+  std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<float>::infinity() ) ;
+  
+  // std::unique_ptr<IShader> shader(new PhongShader(Model, Projection, View, viewport,
+  //                                                     glm::normalize(light_dir), model));
+  std::unique_ptr<IShader> shader(new ShadowMapShader(Model, Projection, View, viewport,
+                                                      glm::normalize(light_dir), model, 
+                                                      shadowbuffer, uniform_Mshadow_));
+
   for(int i = 0; i < n; i++) {
     fill_tri(i, shader.get(), zbuffer, image);
-  } 
+  }
   
+  //Free memory
   stbi_image_free(texture);
   stbi_image_free(normal_texture);
   stbi_image_free(specular_texture);

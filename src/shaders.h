@@ -18,6 +18,11 @@ class IShader {
     virtual bool fragment(vec3 bc, vec3 &color) = 0;
 };
 
+static void print_vec(vec3 m) {
+  Rcpp::Rcout.precision(5);
+  Rcpp::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << " " << m[3] << "\n";
+}
+
 
 class GouraudShader : public IShader {
   public:
@@ -117,6 +122,49 @@ public:
   Mat uniform_M;   //  Projection*ModelView
   Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
   
+};
+
+struct DepthShader : public IShader {
+  DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
+              vec3 light_dir, ModelInfo& model);
+  virtual vec3 vertex(int iface, int nthvert);
+  virtual bool fragment(vec3 bar, vec3 &color);
+  
+  Mat Model;
+  Mat Projection;
+  Mat View;
+  Mat MVP;
+  Mat vp;
+  vec4 viewport;
+  vec3 light_dir;
+  ModelInfo model;
+  vec3 varying_uv[3];
+  vec3 varying_tri[3];
+  vec3 varying_nrm[3];  
+};
+
+struct ShadowMapShader : public IShader {
+  ShadowMapShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
+                  vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
+                  Mat uniform_Mshadow_);
+  virtual vec3 vertex(int iface, int nthvert);
+  virtual bool fragment(vec3 bar, vec3 &color);
+
+  Mat Model;
+  Mat Projection;
+  Mat View;
+  Mat MVP;
+  Mat vp;
+  Mat uniform_Mshadow;
+  vec4 viewport;
+  vec3 light_dir;
+  ModelInfo model;
+  vec3 varying_uv[3];
+  vec3 varying_tri[3];
+  vec3 varying_nrm[3];
+  Mat uniform_M;   //  Projection*ModelView
+  Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
+  rayimage shadowbuffer;
 };
 
 #endif
