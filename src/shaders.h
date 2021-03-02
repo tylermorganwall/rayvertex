@@ -27,26 +27,35 @@ static void print_vec(vec3 m) {
 class GouraudShader : public IShader {
   public:
     GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-                  vec3 light_dir, ModelInfo& model) :
-    Model(Model), Projection(Projection), View(View), viewport(viewport),
-    light_dir(light_dir), model(model){};
+                  vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
+                  Mat uniform_Mshadow_, bool has_shadow_map);
+    
     virtual vec3 vertex(int iface, int nthvert);
     virtual bool fragment(vec3 bc, vec3 &color);
+    
     Mat Model;
     Mat Projection;
     Mat View;
+    Mat MVP;
+    Mat vp;
+    Mat uniform_Mshadow;
+    Mat uniform_M;   //  Projection*ModelView
+    Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
     vec4 viewport;
     vec3 light_dir;
     ModelInfo model;
-    vec3 varying_intensity; // written by vertex shader, read by fragment shader -> specific to Gouraud shadows
+    vec3 varying_tri[3];
+    vec3 varying_nrm[3];
+    vec3 varying_intensity;
+    rayimage shadowbuffer;
+    bool has_shadow_map;
 };
 
-struct Shader : public IShader {
+struct DiffuseShader : public IShader {
   public:
-    Shader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-           vec3 light_dir, ModelInfo& model) :
-    Model(Model), Projection(Projection), View(View), viewport(viewport),
-    light_dir(light_dir), model(model){};
+    DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
+           vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
+           Mat uniform_Mshadow_, bool has_shadow_map);
     
     virtual vec3 vertex(int iface, int nthvert);
     virtual bool fragment(vec3 bc, vec3 &color);
@@ -54,16 +63,26 @@ struct Shader : public IShader {
     Mat Model;
     Mat Projection;
     Mat View;
+    Mat MVP;
+    Mat vp;
+    Mat uniform_Mshadow;
+    Mat uniform_M;   //  Projection*ModelView
+    Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
     vec4 viewport;
     vec3 light_dir;
     ModelInfo model;
-    vec3 varying_intensity; // written by vertex shader, read by fragment shader -> specific to Gouraud shadows
+    vec3 varying_intensity; 
     vec3 varying_uv[3];
+    vec3 varying_tri[3];
+    rayimage shadowbuffer;
+    bool has_shadow_map;
+    
 };
 
-struct NormalShader : public IShader {
-  NormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-               vec3 light_dir, ModelInfo& model);
+struct DiffuseNormalShader : public IShader {
+  DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
+               vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
+               Mat uniform_Mshadow_, bool has_shadow_map);
   
   virtual vec3 vertex(int iface, int nthvert);
   virtual bool fragment(vec3 bc, vec3 &color);
@@ -71,18 +90,82 @@ struct NormalShader : public IShader {
   Mat Model;
   Mat Projection;
   Mat View;
+  Mat MVP;
+  Mat vp;
+  Mat uniform_Mshadow;
+  Mat uniform_M;   //  Projection*ModelView
+  Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
   vec4 viewport;
   vec3 light_dir;
   ModelInfo model;
   vec3 varying_uv[3];
-  Mat uniform_M;   //  Projection*ModelView
-  Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
+  vec3 varying_tri[3];
+  rayimage shadowbuffer;
+  bool has_shadow_map;
+  
+};
+
+class DiffuseShaderTangent : public IShader {
+  public:
+    DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
+                       vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
+                       Mat uniform_Mshadow_, bool has_shadow_map);
+    virtual vec3 vertex(int iface, int nthvert);
+    virtual bool fragment(vec3 bc, vec3 &color);
+    
+    Mat Model;
+    Mat Projection;
+    Mat View;
+    Mat MVP;
+    Mat vp;
+    Mat uniform_Mshadow;
+    vec4 viewport;
+    vec3 light_dir;
+    ModelInfo model;
+    vec3 varying_uv[3];
+    vec3 varying_tri[4];
+    vec3 varying_nrm[3];
+    vec3 ndc_tri[3];
+    Mat uniform_M;   //  Projection*ModelView
+    Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
+    rayimage shadowbuffer;
+    bool has_shadow_map;
+    
 };
 
 class PhongShader : public IShader {
+  public:
+    PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
+                      vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
+                      Mat uniform_Mshadow_, bool has_shadow_map);
+    
+    virtual vec3 vertex(int iface, int nthvert);
+    virtual bool fragment(vec3 bc, vec3 &color);
+    
+    Mat Model;
+    Mat Projection;
+    Mat View;
+    Mat MVP;
+    Mat vp;
+    Mat uniform_Mshadow;
+    vec4 viewport;
+    vec3 light_dir;
+    ModelInfo model;
+    vec3 varying_uv[3];
+    Mat uniform_M;   //  Projection*ModelView
+    Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
+    vec3 varying_tri[3];
+    vec3 varying_nrm[3];
+    rayimage shadowbuffer;
+    bool has_shadow_map;
+    
+};
+
+class PhongNormalShader : public IShader {
 public:
-  PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-               vec3 light_dir, ModelInfo& model);
+  PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
+               vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
+               Mat uniform_Mshadow_, bool has_shadow_map);
 
   virtual vec3 vertex(int iface, int nthvert);
   virtual bool fragment(vec3 bc, vec3 &color);
@@ -92,18 +175,24 @@ public:
   Mat View;
   Mat MVP;
   Mat vp;
+  Mat uniform_Mshadow;
+  Mat uniform_M;   //  Projection*ModelView
+  Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
   vec4 viewport;
   vec3 light_dir;
   ModelInfo model;
+  vec3 varying_tri[3];
   vec3 varying_uv[3];
-  Mat uniform_M;   //  Projection*ModelView
-  Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
+  rayimage shadowbuffer;
+  bool has_shadow_map;
+  
 };
 
 class PhongShaderTangent : public IShader {
 public:
   PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-                     vec3 light_dir, ModelInfo& model);
+                     vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
+                     Mat uniform_Mshadow_, bool has_shadow_map);
   virtual vec3 vertex(int iface, int nthvert);
   virtual bool fragment(vec3 bc, vec3 &color);
   
@@ -112,6 +201,7 @@ public:
   Mat View;
   Mat MVP;
   Mat vp;
+  Mat uniform_Mshadow;
   vec4 viewport;
   vec3 light_dir;
   ModelInfo model;
@@ -121,6 +211,8 @@ public:
   vec3 ndc_tri[3];
   Mat uniform_M;   //  Projection*ModelView
   Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
+  rayimage shadowbuffer;
+  bool has_shadow_map;
   
 };
 
@@ -143,10 +235,10 @@ struct DepthShader : public IShader {
   vec3 varying_nrm[3];  
 };
 
-struct ShadowMapShader : public IShader {
-  ShadowMapShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
+struct PhongShaderShadowMap : public IShader {
+  PhongShaderShadowMap(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                   vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
-                  Mat uniform_Mshadow_);
+                  Mat uniform_Mshadow_, bool has_shadow_map);
   virtual vec3 vertex(int iface, int nthvert);
   virtual bool fragment(vec3 bar, vec3 &color);
 
@@ -165,6 +257,9 @@ struct ShadowMapShader : public IShader {
   Mat uniform_M;   //  Projection*ModelView
   Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
   rayimage shadowbuffer;
+  bool has_shadow_map;
+  
 };
+
 
 #endif

@@ -79,6 +79,7 @@ void fill_tri(int vertex,
   int ymin =  std::min(std::max((int)floor(bound_min.y),0), 0);
   int ymax =  std::max(std::min((int)ceil(bound_max.y), ny ),ny);
   float area = edgeFunction(v1, v2, v3); 
+// Rcpp::Rcout << xmin << " " << xmax << " " << ymin << " " << ymax << "\n";
   
   vec3 color;
   for (uint32_t i = xmin; i < xmax; i++) {
@@ -118,18 +119,32 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
                CharacterVector texture_location,     
                CharacterVector normal_texture_location, 
                CharacterVector specular_texture_location,
+               NumericVector model_color,
                NumericVector lookfrom,
                NumericVector lookat,
                float fov,
                NumericVector light_direction,
                NumericVector ambient_color, 
                float exponent, float specular_intensity, float diffuse_intensity, 
+               int type,
+               bool has_texture,
+               bool has_normal_texture,
+               bool has_specular_texture,
+               bool has_shadow_map,
                float near_clip = 0.1,
                float  far_clip = 100) {
-  vec3    eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
-  vec3 center(lookat(0),lookat(1),lookat(2));  //lookat
+  vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
+  vec3 center(lookat(0),lookat(1),lookat(2));    //lookat
+  vec3 cam_up = vec3(0.,1.,0.);
+  vec3 color(model_color(0),model_color(1),model_color(2));
+  vec3 ambient(ambient_color(0),ambient_color(1),ambient_color(2)); 
+  vec3 light_dir(light_direction(0),light_direction(1),light_direction(2));
   
-  glm::mat4 View     = glm::lookAt(eye, center, vec3(0.,1.,0.));
+  if(glm::dot(eye-center,cam_up) == 1) {
+    cam_up = vec3(0.f,0.f,1.0f);
+  }
+  
+  glm::mat4 View       = glm::lookAt(eye, center, cam_up);
   glm::mat4 Model      = glm::translate(Mat(1.0f), vec3(0.0f, 0.0f, 0.0f));
   glm::mat4 Projection = glm::perspective(glm::radians(fov), 
                                           (float)nx / (float)ny, 
@@ -142,43 +157,38 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   NumericMatrix g(nx,ny);
   NumericMatrix b(nx,ny);
   
+  //Create buffers
   rayimage image(r,g,b,nx,ny);
-
   NumericMatrix zbuffer(nx,ny);
   NumericMatrix sbuffer(nx,ny);
   rayimage shadowbuffer(sbuffer,sbuffer,sbuffer,nx,ny);
-  
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<float>::infinity() ) ;
-
-  vec3 ambient(ambient_color(0),ambient_color(1),ambient_color(2)); 
   
+  //Load textures
   float* texture;
   float* normal_texture;
   float* specular_texture;
+  int nx_t, ny_t, nn_t, nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st = 0;
   
-  int nx_t = 0;
-  int ny_t = 0;
-  int nn_t = 0;
-  int nx_nt = 0;
-  int ny_nt = 0;
-  int nn_nt = 0;
-  int nx_st = 0;
-  int ny_st = 0;
-  int nn_st = 0;
-  texture = stbi_loadf(texture_location(0), &nx_t, &ny_t, &nn_t, 4);
-  normal_texture = stbi_loadf(normal_texture_location(0), &nx_nt, &ny_nt, &nn_nt, 4);
-  specular_texture = stbi_loadf(specular_texture_location(0), 
-                                &nx_st, &ny_st, &nn_st, 4);
-  
-  if(nx_t == 0 || ny_t == 0 || nn_t == 0) {
-    throw std::runtime_error("image loading failed");
+  if(has_texture) {
+    texture = stbi_loadf(texture_location(0), &nx_t, &ny_t, &nn_t, 4);
+    if(nx_t == 0 || ny_t == 0 || nn_t == 0) {
+      throw std::runtime_error("Texture loading failed");
+    }
   }
-  
-  ModelInfo model(verts, inds, texcoords, normals,
-                  texture, normal_texture, specular_texture, 
-                  ambient, exponent, specular_intensity, diffuse_intensity,
-                  nx_t, ny_t, nn_t,
-                  nx_nt, ny_nt, nn_nt);
+  if(has_normal_texture) {
+    normal_texture = stbi_loadf(normal_texture_location(0), &nx_nt, &ny_nt, &nn_nt, 4);
+    if(nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
+      throw std::runtime_error("Normal texture loading failed");
+    }
+  }
+  if(has_specular_texture) {
+    specular_texture = stbi_loadf(specular_texture_location(0), 
+                                  &nx_st, &ny_st, &nn_st, 4);
+    if(nx_st == 0 || ny_st == 0 || nn_st == 0) {
+      throw std::runtime_error("Specular texture loading failed");
+    }
+  }
   
   int n = inds.nrow();
   int cols = inds.ncol();
@@ -186,57 +196,87 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
     throw std::runtime_error("Too few columns in index matrix");
   }
   
-  vec3 light_dir(light_direction(0),light_direction(1),light_direction(2));
-  // light_dir = glm::normalize(light_dir);
-  
+  //Create model object
+  ModelInfo model(verts, inds, texcoords, normals,
+                  texture, normal_texture, specular_texture, 
+                  ambient, exponent, specular_intensity, diffuse_intensity,
+                  nx_t, ny_t, nn_t,
+                  nx_nt, ny_nt, nn_nt,
+                  has_texture, has_normal_texture, has_specular_texture,
+                  color);
+
   //Calculate Shadow Map
   float near_plane = 1.0f, far_plane = 7.5f;
-  // glm::mat4 lightProjection(1);
+  vec3 light_up = vec3(0.,1.,0.);
+  if(glm::dot(light_up,glm::normalize(light_dir)) == 1) {
+    light_up = vec3(0.f,0.f,1.0f);
+  }
+  //Change to bounding box scene
+  
   glm::mat4 lightProjection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, near_plane, far_plane);
   glm::mat4 lightView = glm::lookAt(light_dir,
                                     glm::vec3( 0.0f, 0.0f,  0.0f),
-                                    glm::vec3( 0.0f, 1.0f,  0.0f));
-  // print_mat(lightProjection);
-  // Rcpp::Rcout << "\n";
-  // print_mat(lightView);
-  // Rcpp::Rcout << "\n";
-  
+                                    light_up);
   glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-  
+
   std::unique_ptr<IShader> depthshader(new DepthShader(Model, lightProjection, lightView, viewport,
                                                        light_dir, model));
-  for(int i = 0; i < n; i++) {
-    fill_tri(i, depthshader.get(), zbuffer, shadowbuffer);
+  if(has_shadow_map) {
+    for(int i = 0; i < n; i++) {
+      fill_tri(i, depthshader.get(), zbuffer, shadowbuffer);
+    }
   }
   
   Mat vp = glm::scale(glm::translate(Mat(1.0f),
                       vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)),
                       vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
-  // print_mat(vp);
-  // Rcpp::Rcout << "\n";
   Mat M = vp*lightProjection*lightView*Model;
-  // print_mat(M);
-  // Rcpp::Rcout << "\n";
   Mat uniform_Mshadow_ = M*glm::inverse(vp*Projection*View*Model);
-  // print_mat(uniform_Mshadow_);
 
   //Calculate Image
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<float>::infinity() ) ;
+  std::unique_ptr<IShader> shader;
   
-  // std::unique_ptr<IShader> shader(new PhongShader(Model, Projection, View, viewport,
-  //                                                     glm::normalize(light_dir), model));
-  std::unique_ptr<IShader> shader(new ShadowMapShader(Model, Projection, View, viewport,
-                                                      glm::normalize(light_dir), model, 
-                                                      shadowbuffer, uniform_Mshadow_));
-
+  if(type == 1) {
+    shader = std::unique_ptr<IShader>(new GouraudShader(Model, Projection, View, viewport,
+                                                    glm::normalize(light_dir), model,
+                                                    shadowbuffer, uniform_Mshadow_, has_shadow_map));
+  } else if (type == 2) {
+    shader = std::unique_ptr<IShader>(new DiffuseShader(Model, Projection, View, viewport,
+                                                        glm::normalize(light_dir), model,
+                                                        shadowbuffer, uniform_Mshadow_, has_shadow_map));
+  } else if (type == 3) {
+    shader = std::unique_ptr<IShader>(new PhongShader(Model, Projection, View, viewport,
+                                                      glm::normalize(light_dir), model,
+                                                      shadowbuffer, uniform_Mshadow_, has_shadow_map));
+  } else if (type == 4) {
+    shader = std::unique_ptr<IShader>(new DiffuseNormalShader(Model, Projection, View, viewport,
+                                                      glm::normalize(light_dir), model,
+                                                      shadowbuffer, uniform_Mshadow_, has_shadow_map));
+  } else if (type == 5) {
+    shader = std::unique_ptr<IShader>(new DiffuseShaderTangent(Model, Projection, View, viewport,
+                                                              glm::normalize(light_dir), model,
+                                                              shadowbuffer, uniform_Mshadow_, has_shadow_map));
+  } else if (type == 6) {
+    shader = std::unique_ptr<IShader>(new PhongNormalShader(Model, Projection, View, viewport,
+                                                            glm::normalize(light_dir), model,
+                                                            shadowbuffer, uniform_Mshadow_, has_shadow_map));
+  }
+  
   for(int i = 0; i < n; i++) {
     fill_tri(i, shader.get(), zbuffer, image);
   }
   
   //Free memory
-  stbi_image_free(texture);
-  stbi_image_free(normal_texture);
-  stbi_image_free(specular_texture);
+  if(has_texture) {
+    stbi_image_free(texture);
+  }
+  if(has_normal_texture) {
+    stbi_image_free(normal_texture);
+  }
+  if(has_specular_texture) {
+    stbi_image_free(specular_texture);
+  }
   
   
   return(List::create(_["r"] = r, _["g"] = g, _["b"] = b));
