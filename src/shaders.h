@@ -5,6 +5,7 @@
 #include "model.h"
 #include "gtc/matrix_transform.hpp"
 #include "gtc/matrix_access.hpp"
+#include "gtc/matrix_inverse.hpp"
 
 
 typedef glm::vec4 vec4;
@@ -20,7 +21,7 @@ class IShader {
 
 static void print_vec(vec3 m) {
   Rcpp::Rcout.precision(5);
-  Rcpp::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << " " << m[3] << "\n";
+  Rcpp::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << "\n";
 }
 
 

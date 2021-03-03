@@ -21,7 +21,7 @@ class ModelInfo {
               int nx_t, int ny_t, int nn_t,
               int nx_nt, int ny_nt, int nn_nt,
               bool has_texture, bool has_normal_texture, bool has_specular_texture,
-              vec3 model_color) :
+              vec3 model_color, bool tbn) :
       verts(verts), inds(inds), texcoords(texcoords), normals(normals), texture(texture), 
       normal_texture(normal_texture),
       specular_texture(specular_texture),
@@ -31,7 +31,7 @@ class ModelInfo {
       nx_nt(nx_nt), ny_nt(ny_nt), nn_nt(nn_nt),
       has_texture(has_texture), 
       has_normal_texture(has_normal_texture), 
-      has_specular_texture(has_specular_texture) {
+      has_specular_texture(has_specular_texture), tbn(tbn) {
       color = model_color;
       has_normals = normals.nrow() == verts.nrow();
     }
@@ -49,14 +49,14 @@ class ModelInfo {
     vec3 tex(int iface, int nthvert) {
       return(vec3(texcoords(inds(iface,nthvert) - 1, 0),
                   texcoords(inds(iface,nthvert) - 1, 1),
-                  0));
+                  0.0f));
     }
     float specular(vec3 uv) {
       return(has_specular_texture ? trivalue(uv.x,uv.y,specular_texture, nx_t, ny_t, nn_t).x : 1.0f);
     }
     vec3 normal_uv(vec3 uv) {
-      vec3 output = trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f-1.0f;
-      return(vec3(output.x,output.y,output.z));
+      vec3 n = trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt);
+      return(tbn ? n : n * 2.0f - 1.0f);
     }
     vec3 diffuse(vec3 uv) {
       return(has_texture ? trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t) : color);
@@ -84,6 +84,7 @@ class ModelInfo {
     bool has_texture, has_normal_texture, has_specular_texture;
     bool has_normals;
     vec3 color;
+    bool tbn;
     
 };
 

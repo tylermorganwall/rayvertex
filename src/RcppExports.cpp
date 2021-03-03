@@ -6,8 +6,8 @@
 using namespace Rcpp;
 
 // rasterize
-List rasterize(NumericMatrix verts, IntegerMatrix inds, NumericMatrix texcoords, NumericMatrix normals, int nx, int ny, CharacterVector texture_location, CharacterVector normal_texture_location, CharacterVector specular_texture_location, NumericVector model_color, NumericVector lookfrom, NumericVector lookat, float fov, NumericVector light_direction, NumericVector ambient_color, float exponent, float specular_intensity, float diffuse_intensity, int type, bool has_texture, bool has_normal_texture, bool has_specular_texture, bool has_shadow_map, float near_clip, float far_clip);
-RcppExport SEXP _raysterizer_rasterize(SEXP vertsSEXP, SEXP indsSEXP, SEXP texcoordsSEXP, SEXP normalsSEXP, SEXP nxSEXP, SEXP nySEXP, SEXP texture_locationSEXP, SEXP normal_texture_locationSEXP, SEXP specular_texture_locationSEXP, SEXP model_colorSEXP, SEXP lookfromSEXP, SEXP lookatSEXP, SEXP fovSEXP, SEXP light_directionSEXP, SEXP ambient_colorSEXP, SEXP exponentSEXP, SEXP specular_intensitySEXP, SEXP diffuse_intensitySEXP, SEXP typeSEXP, SEXP has_textureSEXP, SEXP has_normal_textureSEXP, SEXP has_specular_textureSEXP, SEXP has_shadow_mapSEXP, SEXP near_clipSEXP, SEXP far_clipSEXP) {
+List rasterize(NumericMatrix verts, IntegerMatrix inds, NumericMatrix texcoords, NumericMatrix normals, int nx, int ny, CharacterVector texture_location, CharacterVector normal_texture_location, CharacterVector specular_texture_location, NumericVector model_color, NumericVector lookfrom, NumericVector lookat, float fov, NumericVector light_direction, NumericVector ambient_color, float exponent, float specular_intensity, float diffuse_intensity, int type, bool has_texture, bool has_normal_texture, bool has_specular_texture, bool has_shadow_map, bool tbn, float near_clip, float far_clip);
+RcppExport SEXP _raysterizer_rasterize(SEXP vertsSEXP, SEXP indsSEXP, SEXP texcoordsSEXP, SEXP normalsSEXP, SEXP nxSEXP, SEXP nySEXP, SEXP texture_locationSEXP, SEXP normal_texture_locationSEXP, SEXP specular_texture_locationSEXP, SEXP model_colorSEXP, SEXP lookfromSEXP, SEXP lookatSEXP, SEXP fovSEXP, SEXP light_directionSEXP, SEXP ambient_colorSEXP, SEXP exponentSEXP, SEXP specular_intensitySEXP, SEXP diffuse_intensitySEXP, SEXP typeSEXP, SEXP has_textureSEXP, SEXP has_normal_textureSEXP, SEXP has_specular_textureSEXP, SEXP has_shadow_mapSEXP, SEXP tbnSEXP, SEXP near_clipSEXP, SEXP far_clipSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -34,9 +34,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type has_normal_texture(has_normal_textureSEXP);
     Rcpp::traits::input_parameter< bool >::type has_specular_texture(has_specular_textureSEXP);
     Rcpp::traits::input_parameter< bool >::type has_shadow_map(has_shadow_mapSEXP);
+    Rcpp::traits::input_parameter< bool >::type tbn(tbnSEXP);
     Rcpp::traits::input_parameter< float >::type near_clip(near_clipSEXP);
     Rcpp::traits::input_parameter< float >::type far_clip(far_clipSEXP);
-    rcpp_result_gen = Rcpp::wrap(rasterize(verts, inds, texcoords, normals, nx, ny, texture_location, normal_texture_location, specular_texture_location, model_color, lookfrom, lookat, fov, light_direction, ambient_color, exponent, specular_intensity, diffuse_intensity, type, has_texture, has_normal_texture, has_specular_texture, has_shadow_map, near_clip, far_clip));
+    rcpp_result_gen = Rcpp::wrap(rasterize(verts, inds, texcoords, normals, nx, ny, texture_location, normal_texture_location, specular_texture_location, model_color, lookfrom, lookat, fov, light_direction, ambient_color, exponent, specular_intensity, diffuse_intensity, type, has_texture, has_normal_texture, has_specular_texture, has_shadow_map, tbn, near_clip, far_clip));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -56,7 +57,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_raysterizer_rasterize", (DL_FUNC) &_raysterizer_rasterize, 25},
+    {"_raysterizer_rasterize", (DL_FUNC) &_raysterizer_rasterize, 26},
     {"_raysterizer_wireframe", (DL_FUNC) &_raysterizer_wireframe, 4},
     {NULL, NULL, 0}
 };

@@ -131,6 +131,7 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
                bool has_normal_texture,
                bool has_specular_texture,
                bool has_shadow_map,
+               bool tbn,
                float near_clip = 0.1,
                float  far_clip = 100) {
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
@@ -140,7 +141,7 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   vec3 ambient(ambient_color(0),ambient_color(1),ambient_color(2)); 
   vec3 light_dir(light_direction(0),light_direction(1),light_direction(2));
   
-  if(glm::dot(eye-center,cam_up) == 1) {
+  if(std::fabs(glm::dot(eye-center,cam_up)) == 1) {
     cam_up = vec3(0.f,0.f,1.0f);
   }
   
@@ -203,12 +204,12 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
                   nx_t, ny_t, nn_t,
                   nx_nt, ny_nt, nn_nt,
                   has_texture, has_normal_texture, has_specular_texture,
-                  color);
+                  color, tbn);
 
   //Calculate Shadow Map
   float near_plane = 1.0f, far_plane = 7.5f;
   vec3 light_up = vec3(0.,1.,0.);
-  if(glm::dot(light_up,glm::normalize(light_dir)) == 1) {
+  if(std::fabs(glm::dot(light_up,glm::normalize(light_dir))) == 1) {
     light_up = vec3(0.f,0.f,1.0f);
   }
   //Change to bounding box scene
@@ -261,6 +262,12 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
     shader = std::unique_ptr<IShader>(new PhongNormalShader(Model, Projection, View, viewport,
                                                             glm::normalize(light_dir), model,
                                                             shadowbuffer, uniform_Mshadow_, has_shadow_map));
+  } else if (type == 7) {
+    shader = std::unique_ptr<IShader>(new PhongShaderTangent(Model, Projection, View, viewport,
+                                                            glm::normalize(light_dir), model,
+                                                            shadowbuffer, uniform_Mshadow_, has_shadow_map));
+  } else {
+    throw std::runtime_error("shader not recognized");
   }
   
   for(int i = 0; i < n; i++) {

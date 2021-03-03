@@ -11,7 +11,7 @@
 #'@export
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
-rasterize_obj  = function(obj_model, width=400, height=400,
+rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                           fov=20,lookfrom=c(0,0,10),lookat=c(0,0,0),
                           type = "diffuse", color="darkred",
                           texture_location = NA,
@@ -48,7 +48,7 @@ rasterize_obj  = function(obj_model, width=400, height=400,
     specular_texture_location = path.expand(specular_texture_location)
   } 
   
-  typeval = switch(type, "gouraud" = 1, "diffuse" = 2, "phong" = 3)
+  typeval = switch(type, "vertex" = 1, "diffuse" = 2, "phong" = 3)
   if(has_normal_texture) {
     if(typeval == 2) {
       if(!tangent_space_normals) {
@@ -87,11 +87,17 @@ rasterize_obj  = function(obj_model, width=400, height=400,
                         has_texture = has_texture, 
                         has_normal_texture=has_normal_texture,
                         has_specular_texture=has_specular_texture,
-                        has_shadow_map=shadow_map)
+                        has_shadow_map=shadow_map,
+                        tbn = tangent_space_normals)
   
   retmat = array(0,dim=c(dim(imagelist$r)[2:1],3))
   retmat[,,1] = rayimage::render_reorient(imagelist$r,transpose = TRUE, flipx = TRUE)
   retmat[,,2] = rayimage::render_reorient(imagelist$g,transpose = TRUE, flipx = TRUE)
   retmat[,,3] = rayimage::render_reorient(imagelist$b,transpose = TRUE, flipx = TRUE)
-  rayimage::plot_image(scales::rescale(retmat,to=c(0,1)))
+  retmat = sqrt(retmat)
+  if(is.na(filename)) {
+    rayimage::plot_image(retmat)
+  } else {
+    rayimage:::save_png(retmat, filename = filename)
+  }
 }
