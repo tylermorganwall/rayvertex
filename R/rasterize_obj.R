@@ -17,10 +17,13 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                           texture_location = NA,
                           normal_texture_location = NA,
                           specular_texture_location = NA,
+                          emissive_texture_location = NA,
                           light_direction=c(1,1,1), ambient_color=c(0,0,0), 
-                          exponent=32, specular_intensity = 0.6,
+                          exponent=32, specular_intensity = 0.6, emission_intensity = 1,
                           diffuse_intensity = 1, tangent_space_normals = FALSE,
-                          shadow_map = FALSE) {
+                          shadow_map = FALSE, calc_ambient = FALSE, 
+                          ambient_intensity = 10, ambient_radius = 0.1,
+                          tonemap = "none", debug = "none", shadow_map_bias = 0.005) {
   obj = readobj::read.obj(obj_model)
   # for(i in seq_len(length(obj$shapes))) {
   vertices = t(obj$shapes[[1]]$positions)
@@ -37,6 +40,7 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
   has_texture = !is.na(texture_location) && file.exists(texture_location)
   has_normal_texture = !is.na(normal_texture_location) && file.exists(normal_texture_location)
   has_specular_texture = !is.na(specular_texture_location) && file.exists(specular_texture_location)
+  has_emissive_texture = !is.na(emissive_texture_location) && file.exists(emissive_texture_location)
   
   if(has_texture) {
     texture_location = path.expand(texture_location)
@@ -46,6 +50,9 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
   } 
   if(has_specular_texture) {
     specular_texture_location = path.expand(specular_texture_location)
+  } 
+  if(has_emissive_texture) {
+    emissive_texture_location = path.expand(emissive_texture_location)
   } 
   
   typeval = switch(type, "vertex" = 1, "diffuse" = 2, "phong" = 3)
@@ -64,6 +71,7 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
       }
     }
   }
+  tonemap = switch(tonemap, "gamma" = 1, "uncharted" = 2, "hbd" = 3, "none"=4, 1)
   
   imagelist = rasterize(vertices,
                         indices,
@@ -74,11 +82,13 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                         texture_location = texture_location,
                         normal_texture_location = normal_texture_location,
                         specular_texture_location = specular_texture_location,
+                        emissive_texture_location = emissive_texture_location,
                         model_color = color,
                         ambient_color = ambient_color,
                         exponent = exponent,
                         specular_intensity = specular_intensity,
                         diffuse_intensity = diffuse_intensity,
+                        emission_intensity = emission_intensity,
                         lookfrom=lookfrom,
                         lookat=lookat,
                         fov=fov,
@@ -87,14 +97,37 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                         has_texture = has_texture, 
                         has_normal_texture=has_normal_texture,
                         has_specular_texture=has_specular_texture,
-                        has_shadow_map=shadow_map,
-                        tbn = tangent_space_normals)
-  
+                        has_emissive_texture = has_emissive_texture,
+                        has_shadow_map=shadow_map, 
+                        calc_ambient = calc_ambient, 
+                        tbn = tangent_space_normals, ambient_radius = ambient_radius,
+                        shadow_map_bias=shadow_map_bias)
+  imagelist$amb = (imagelist$amb)^ambient_intensity
+  if(calc_ambient) {
+    imagelist$r = imagelist$r * imagelist$amb
+    imagelist$g = imagelist$g * imagelist$amb
+    imagelist$b = imagelist$b * imagelist$amb
+  }
+  if(debug == "normals") {
+    norm_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
+    norm_array[,,1] = (imagelist$normalx+1)/2
+    norm_array[,,2] = (imagelist$normaly+1)/2
+    norm_array[,,3] = (imagelist$normalz+1)/2
+    norm_array = rayimage::render_reorient(norm_array,transpose = TRUE, flipx = TRUE)
+    rayimage::plot_image(norm_array)
+    return(invisible(norm_array))
+  }
+
   retmat = array(0,dim=c(dim(imagelist$r)[2:1],3))
+  if(tonemap != 4) {
+    imagelist = tonemap_image(imagelist$r,imagelist$g,imagelist$b,tonemap)
+  }
+  
   retmat[,,1] = rayimage::render_reorient(imagelist$r,transpose = TRUE, flipx = TRUE)
   retmat[,,2] = rayimage::render_reorient(imagelist$g,transpose = TRUE, flipx = TRUE)
   retmat[,,3] = rayimage::render_reorient(imagelist$b,transpose = TRUE, flipx = TRUE)
-  retmat = sqrt(retmat)
+  retmat = rayimage::render_convolution(retmat, min_value = 1)
+  
   if(is.na(filename)) {
     rayimage::plot_image(retmat)
   } else {

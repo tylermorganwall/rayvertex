@@ -2,8 +2,8 @@
 
 vec3 trivalue(float uu, float vv,  float* data, 
               int nx, int ny, int channels) {
-  int i = uu * nx;
-  int j = (1-vv) * ny - 0.00001;
+  int i = uu * (float)nx;
+  int j = (1-vv) * (float)ny;
   if (i < 0) i = 0;
   if (j < 0) j = 0;
   if (i > nx-1) i = nx-1;

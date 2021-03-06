@@ -17,13 +17,20 @@ rasterize_obj(
   texture_location = NA,
   normal_texture_location = NA,
   specular_texture_location = NA,
+  emissive_texture_location = NA,
   light_direction = c(1, 1, 1),
   ambient_color = c(0, 0, 0),
   exponent = 32,
   specular_intensity = 0.6,
+  emission_intensity = 1,
   diffuse_intensity = 1,
   tangent_space_normals = FALSE,
-  shadow_map = FALSE
+  shadow_map = FALSE,
+  calc_ambient = FALSE,
+  ambient_intensity = 10,
+  ambient_radius = 0.1,
+  tonemap = "gamma",
+  debug = NA
 )
 }
 \arguments{
