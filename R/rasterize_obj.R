@@ -127,7 +127,7 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
   retmat[,,2] = rayimage::render_reorient(imagelist$g,transpose = TRUE, flipx = TRUE)
   retmat[,,3] = rayimage::render_reorient(imagelist$b,transpose = TRUE, flipx = TRUE)
   retmat = rayimage::render_convolution(retmat, min_value = 1)
-  
+  retmat[retmat > 1] = 1
   if(is.na(filename)) {
     rayimage::plot_image(retmat)
   } else {

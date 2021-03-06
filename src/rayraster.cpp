@@ -61,9 +61,13 @@ void fill_tri(int vertex,
               NumericMatrix &zbuffer, 
               rayimage& image, rayimage& normal_buffer,
               rayimage& position_buffer) { 
-  vec3 v1 = shader->vertex(vertex,0);
-  vec3 v2 = shader->vertex(vertex,1);
-  vec3 v3 = shader->vertex(vertex,2);
+  vec4 v1_ndc = shader->vertex(vertex,0);
+  vec4 v2_ndc = shader->vertex(vertex,1);
+  vec4 v3_ndc = shader->vertex(vertex,2);
+  
+  vec3 v1 = v1_ndc/v1_ndc.w;
+  vec3 v2 = v2_ndc/v2_ndc.w;
+  vec3 v3 = v3_ndc/v3_ndc.w;
   
   vec3 bound_min = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
                         fmin(v1.y,fmin(v2.y,v3.y)),
@@ -88,30 +92,33 @@ void fill_tri(int vertex,
   // auto worker  = [&image, &shader, &zbuffer,
   //                 &v1, &v2, &v3, &normal_buffer, &position_buffer,
   //                 xmin, xmax, ymin, ymax](int i) {
-    vec3 color;
-    vec3 position;
-    vec3 normal;
-    for (uint32_t i = xmin; i < xmax; i++) {
-      for (uint32_t j = ymin; j < ymax; j++) {
-        vec3 p((float)i + 0.5f, (float)j + 0.5f, 0.0);
-        vec3 pts[3] = {v1,v2,v3};
-        vec3 bc  = barycentric(pts, p);
+  vec3 color;
+  vec3 position;
+  vec3 normal;
+  vec3 pts[3] = {v1,v2,v3};
+
+  for (uint32_t i = xmin; i < xmax; i++) {
+    for (uint32_t j = ymin; j < ymax; j++) {
+      vec3 p((float)i + 0.5f, (float)j + 0.5f, 0.0);
+      vec3 bc  = barycentric(pts, p);
+      //Test if within triangle
+      if (bc.x > 0 && bc.y > 0 && bc.z > 0) {
+        vec3 bc_clip    = vec3(bc.x/v1_ndc.w, bc.y/v2_ndc.w, bc.z/v3_ndc.w);
+        bc_clip = bc_clip/(bc_clip.x+bc_clip.y+bc_clip.z);
+        p.z = v1.z * bc_clip.x + v2.z * bc_clip.y + v3.z * bc_clip.z;
+        //Test depth buffer
+        if(p.z > zbuffer(i,j)) continue;
         
-        //Test if within triangle
-        if (bc.x > 0 && bc.y > 0 && bc.z > 0) { 
-          p.z = v1.z * bc.x + v2.z * bc.y + v3.z * bc.z;
-          
-          //Test depth buffer
-          if(p.z < zbuffer(i,j)) {
-            zbuffer(i,j) = p.z;
-            shader->fragment(bc,color,position,normal);
-            image.set_color(i,j,color);
-            normal_buffer.set_color(i,j,normal);
-            position_buffer.set_color(i,j,position);
-          }
-        } 
+        bool discard = shader->fragment(bc_clip,color,position,normal);
+        if(!discard) {
+          zbuffer(i,j) = p.z;
+          image.set_color(i,j,color);
+          normal_buffer.set_color(i,j,normal);
+          position_buffer.set_color(i,j,position);
+        }
       }
     }
+  }
   //thread version 20% slower
   // };
   // for(int i = xmin; i < xmax; i++) {
@@ -347,11 +354,12 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   // List multicore_b_buffers(n_core);
   // 
   // for(int i = 0; i < n_core; i++) {
-  //   multicore_depth_buffers(i) = NumericMatrix(nx,ny);
+  //   NumericMatrix temp(nx,ny);
+  //   std::fill(temp.begin(), temp.end(), std::numeric_limits<float>::infinity() ) ;
+  //   multicore_depth_buffers(i) = temp;
   //   multicore_r_buffers(i) = NumericMatrix(nx,ny);
   //   multicore_g_buffers(i) = NumericMatrix(nx,ny);
   //   multicore_b_buffers(i) = NumericMatrix(nx,ny);
-  //   
   // }
   
   for(int i = 0; i < n; i++) {

@@ -17,14 +17,13 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   
 };
 
-vec3 GouraudShader::vertex(int iface, int nthvert) {
+vec4 GouraudShader::vertex(int iface, int nthvert) {
   varying_intensity[nthvert] = std::fmax(0.f, dot(model.normal(iface, nthvert),light_dir));
   varying_nrm[nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   varying_pos[nthvert] = vec3(View * Model * vec4(model.vertex(iface, nthvert),1.0f));
   varying_world_nrm[nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
 
   vec4 clip = vp * MVP * vec4(model.vertex(iface, nthvert),1.0f);
-  clip = clip/clip.w;
   varying_tri[nthvert] = clip;
   return (clip);
 }
@@ -64,7 +63,7 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
 };
 
 
-vec3 DiffuseShader::vertex(int iface, int nthvert) {
+vec4 DiffuseShader::vertex(int iface, int nthvert) {
   varying_uv[nthvert] = model.tex(iface,nthvert);
   vec4 clip = vp * MVP * vec4(model.vertex(iface,nthvert),1.0f);
   varying_pos[nthvert] = uniform_MIT * vec4(model.vertex(iface, nthvert),1.0f);
@@ -75,7 +74,6 @@ vec3 DiffuseShader::vertex(int iface, int nthvert) {
         glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
                    model.vertex(iface,2)-model.vertex(iface,0))),
                    light_dir));
-  clip = clip/clip.w;
   varying_tri[nthvert] = clip;
   return (clip);
 }
@@ -118,13 +116,12 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
 };
 
 
-vec3 DiffuseNormalShader::vertex(int iface, int nthvert) {
+vec4 DiffuseNormalShader::vertex(int iface, int nthvert) {
   varying_uv[nthvert] = model.tex(iface,nthvert);
   varying_pos[nthvert] = vec3(View * Model * vec4(model.vertex(iface, nthvert),1.0f));
   varying_world_nrm[nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   
   vec4 clip = vp * MVP * vec4(model.vertex(iface,nthvert),1.0f);
-  clip = clip/clip.w;
   varying_tri[nthvert] = clip;
   return (clip);
 }
@@ -166,7 +163,7 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
   l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
 }
 
-vec3 DiffuseShaderTangent::vertex(int iface, int nthvert) {
+vec4 DiffuseShaderTangent::vertex(int iface, int nthvert) {
   varying_uv[nthvert] = model.tex(iface,nthvert);
   varying_nrm[nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   varying_pos[nthvert] = vec3(View * Model * vec4(model.vertex(iface, nthvert),1.0f));
@@ -177,7 +174,6 @@ vec3 DiffuseShaderTangent::vertex(int iface, int nthvert) {
   vec4 ndc = MVP  * vec4(gl_Vertex, 1.0f);
   ndc_tri[nthvert] = vec3(ndc/ndc.w);
   vec4 clip = vp*MVP * vec4(gl_Vertex, 1.0f);
-  clip /= clip.w;
   varying_tri[nthvert] = vec3(clip);
   return clip;
 }
@@ -229,7 +225,7 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
 }
 
-vec3 PhongShader::vertex(int iface, int nthvert) {
+vec4 PhongShader::vertex(int iface, int nthvert) {
   varying_uv[nthvert] = model.tex(iface,nthvert);
   varying_pos[nthvert] = uniform_M * vec4(model.vertex(iface, nthvert),1.0f);
 
@@ -238,7 +234,6 @@ vec3 PhongShader::vertex(int iface, int nthvert) {
     varying_nrm[nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   }
   vec4 clip = vp * MVP * vec4(model.vertex(iface,nthvert),1.0f);
-  clip /= clip.w;
   varying_tri[nthvert] = clip;
   return clip;
 }
@@ -293,14 +288,13 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
   
 }
 
-vec3 PhongNormalShader::vertex(int iface, int nthvert) {
+vec4 PhongNormalShader::vertex(int iface, int nthvert) {
   varying_uv[nthvert] = model.tex(iface,nthvert);
   varying_pos[nthvert] = vec3(View * Model * vec4(model.vertex(iface, nthvert),1.0f));
   varying_world_nrm[nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   
   vec3 gl_Vertex = model.vertex(iface,nthvert);
   vec4 clip = vp * MVP * vec4(gl_Vertex, 1.0f);
-  clip = clip/clip.w;
   varying_tri[nthvert] = clip;
   return clip;
 }
@@ -354,7 +348,7 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
   l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
 }
 
-vec3 PhongShaderTangent::vertex(int iface, int nthvert) {
+vec4 PhongShaderTangent::vertex(int iface, int nthvert) {
   varying_uv[nthvert] = model.tex(iface,nthvert);
   varying_nrm[nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   varying_pos[nthvert] = vec3(View * Model * vec4(model.vertex(iface, nthvert),1.0f));
@@ -364,7 +358,6 @@ vec3 PhongShaderTangent::vertex(int iface, int nthvert) {
   vec4 clip = MVP * vec4(gl_Vertex,1.0f);
   ndc_tri[nthvert] = clip/clip.w;
   clip = vp * clip;
-  clip /= clip.w;
   varying_tri[nthvert] = clip;
   return clip;
 }
@@ -420,11 +413,10 @@ DepthShader::DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
 }
 
-vec3 DepthShader::vertex(int iface, int nthvert) {
+vec4 DepthShader::vertex(int iface, int nthvert) {
   vec3 gl_Vertex = model.vertex(iface,nthvert);
   vec4 clip = vp*MVP * vec4(gl_Vertex,1);
   varying_tri[nthvert] = clip;
-  clip /= clip.w;
   return  clip;// transform it to screen coordinates
 }
 

@@ -15,7 +15,7 @@ typedef glm::mat4x4 Mat;
 
 class IShader {
   public:
-    virtual vec3 vertex(int iface, int nthvert) = 0;
+    virtual vec4 vertex(int iface, int nthvert) = 0;
     virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal) = 0;
 };
 
@@ -27,7 +27,7 @@ class GouraudShader : public IShader {
                   vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
                   Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
     
-    virtual vec3 vertex(int iface, int nthvert);
+    virtual vec4 vertex(int iface, int nthvert);
     virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal);
     
     Mat Model;
@@ -60,7 +60,7 @@ struct DiffuseShader : public IShader {
            vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
            Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
     
-    virtual vec3 vertex(int iface, int nthvert);
+    virtual vec4 vertex(int iface, int nthvert);
     virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal);
     
     Mat Model;
@@ -93,7 +93,7 @@ struct DiffuseNormalShader : public IShader {
                vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
                Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
   
-  virtual vec3 vertex(int iface, int nthvert);
+  virtual vec4 vertex(int iface, int nthvert);
   virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal);
   
   Mat Model;
@@ -126,7 +126,7 @@ class DiffuseShaderTangent : public IShader {
     DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                        vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
                        Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
-    virtual vec3 vertex(int iface, int nthvert);
+    virtual vec4 vertex(int iface, int nthvert);
     virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal);
     
     Mat Model;
@@ -162,7 +162,7 @@ class PhongShader : public IShader {
                       vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
                       Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
     
-    virtual vec3 vertex(int iface, int nthvert);
+    virtual vec4 vertex(int iface, int nthvert);
     virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal);
     
     Mat Model;
@@ -197,7 +197,7 @@ public:
                vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
                Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
 
-  virtual vec3 vertex(int iface, int nthvert);
+  virtual vec4 vertex(int iface, int nthvert);
   virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal);
 
   Mat Model;
@@ -229,7 +229,7 @@ public:
   PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                      vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
                      Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
-  virtual vec3 vertex(int iface, int nthvert);
+  virtual vec4 vertex(int iface, int nthvert);
   virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal);
   
   Mat Model;
@@ -262,7 +262,7 @@ public:
 struct DepthShader : public IShader {
   DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
               vec3 light_dir, ModelInfo& model);
-  virtual vec3 vertex(int iface, int nthvert);
+  virtual vec4 vertex(int iface, int nthvert);
   virtual bool fragment(vec3 bar, vec3 &color, vec3& pos, vec3& normal);
   
   Mat Model;
@@ -289,7 +289,7 @@ struct PhongShaderShadowMap : public IShader {
   PhongShaderShadowMap(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                   vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
                   Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
-  virtual vec3 vertex(int iface, int nthvert);
+  virtual vec4 vertex(int iface, int nthvert);
   virtual bool fragment(vec3 bar, vec3 &color, vec3& pos, vec3& normal);
 
   Mat Model;
