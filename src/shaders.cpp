@@ -28,7 +28,7 @@ vec4 GouraudShader::vertex(int iface, int nthvert) {
   return (clip);
 }
 
-bool GouraudShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal) {
+bool GouraudShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
   float shadow = 1.0f;
   if(has_shadow_map) {
     vec3 n = normalize(varying_nrm[0] * bc.x + varying_nrm[1] * bc.y + varying_nrm[2] * bc.z);
@@ -59,7 +59,19 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   uniform_M = View * Model;
   uniform_MIT = glm::inverseTranspose(uniform_M);
   l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
-  
+  for(int i = 0; i < model.inds.nrow(); i++ ) {
+    std::vector<vec3> tempuv(3);
+    std::vector<vec3> temptri(3);
+    std::vector<vec3> temppos(3);
+    std::vector<vec3> tempnrm(3);
+    vec3 temp;
+    
+    vec_varying_intensity.push_back(temp);
+    vec_varying_uv.push_back(tempuv);
+    vec_varying_tri.push_back(temptri);
+    vec_varying_pos.push_back(temppos);
+    vec_varying_world_nrm.push_back(tempnrm);
+  }
 };
 
 
@@ -76,26 +88,42 @@ vec4 DiffuseShader::vertex(int iface, int nthvert) {
     std::fmax(0.f, dot(normalize(vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f))),l)) : 
     std::fmax(0.f, dot(varying_world_nrm[nthvert], light_dir));
   varying_tri[nthvert] = clip;
+  
+  vec_varying_intensity[iface][nthvert] = model.has_normals ?
+    std::fmax(0.f, dot(normalize(vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f))),l)) : 
+    std::fmax(0.f, dot(varying_world_nrm[nthvert], light_dir));
+  vec_varying_uv[iface][nthvert] = varying_uv[nthvert];
+  vec_varying_tri[iface][nthvert] = varying_tri[nthvert];
+  vec_varying_pos[iface][nthvert] = varying_pos[nthvert];
+  vec_varying_world_nrm[iface][nthvert] = varying_world_nrm[nthvert];
   return (clip);
 }
 
-bool DiffuseShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal) {
+bool DiffuseShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
   float shadow = 1.0f;
   if(has_shadow_map) {
-    vec4 sb_p = uniform_Mshadow * vec4(varying_tri[0] * bc.x + varying_tri[1] * bc.y + varying_tri[2] * bc.z, 1.0f);
+    // vec4 sb_p = uniform_Mshadow * vec4(varying_tri[0] * bc.x + varying_tri[1] * bc.y + varying_tri[2] * bc.z, 1.0f);
+    vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
+    
     sb_p = sb_p/sb_p.w;
     if(sb_p[0] >= 0 && sb_p[0] < shadowbuffer.width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffer.height()) {
       float bias = shadow_map_bias;
       shadow = shadowbuffer.get_color(int(sb_p[0]),int(sb_p[1])).x > sb_p[2]-bias ? 1 : 0;
     }
   }
-  float intensity = dot(varying_intensity,bc);
-  vec3 uv = varying_uv[0] * bc.x + varying_uv[1] * bc.y + varying_uv[2] * bc.z;
+  // float intensity = dot(varying_intensity,bc);
+  float intensity = dot(vec_varying_intensity[iface],bc);
+  
+  // vec3 uv = varying_uv[0] * bc.x + varying_uv[1] * bc.y + varying_uv[2] * bc.z;
+  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  
   color = model.has_texture ? model.diffuse(uv)*intensity : model.color * intensity;
   color *= shadow;
   color += model.emissive(uv);
-  pos =  varying_pos[0] * bc.x + varying_pos[1] * bc.y + varying_pos[2] * bc.z;;
-  normal =  varying_world_nrm[0] * bc.x + varying_world_nrm[1] * bc.y + varying_world_nrm[2] * bc.z;;
+  // pos =  varying_pos[0] * bc.x + varying_pos[1] * bc.y + varying_pos[2] * bc.z;;
+  // normal =  varying_world_nrm[0] * bc.x + varying_world_nrm[1] * bc.y + varying_world_nrm[2] * bc.z;;
+  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
+  normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;;
   
   return false; 
 }
@@ -127,7 +155,7 @@ vec4 DiffuseNormalShader::vertex(int iface, int nthvert) {
   return (clip);
 }
 
-bool DiffuseNormalShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal) {
+bool DiffuseNormalShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
   float shadow = 1.0f;
   if(has_shadow_map) {
     vec4 sb_p = uniform_Mshadow * vec4(varying_tri[0] * bc.x + varying_tri[1] * bc.y + varying_tri[2] * bc.z, 1.0f);
@@ -179,7 +207,7 @@ vec4 DiffuseShaderTangent::vertex(int iface, int nthvert) {
   return clip;
 }
 
-bool DiffuseShaderTangent::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal) {
+bool DiffuseShaderTangent::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
   float shadow = 1.0f;
   if(has_shadow_map) {
     vec4 sb_p = uniform_Mshadow * vec4(varying_tri[0] * bc.x + varying_tri[1] * bc.y + varying_tri[2] * bc.z, 1.0f);
@@ -240,7 +268,7 @@ vec4 PhongShader::vertex(int iface, int nthvert) {
   return clip;
 }
 
-bool PhongShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal) {
+bool PhongShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
   float shadow = 1.0f;
   if(has_shadow_map) {
     vec4 sb_p = uniform_Mshadow * vec4(varying_tri[0] * bc.x + varying_tri[1] * bc.y + varying_tri[2] * bc.z, 1.0f);
@@ -302,7 +330,7 @@ vec4 PhongNormalShader::vertex(int iface, int nthvert) {
   return clip;
 }
 
-bool PhongNormalShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal) {
+bool PhongNormalShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
   float shadow = 1.0f;
   if(has_shadow_map) {
     vec4 sb_p = uniform_Mshadow * vec4(varying_tri[0] * bc.x + varying_tri[1] * bc.y + varying_tri[2] * bc.z, 1.0f); 
@@ -365,7 +393,7 @@ vec4 PhongShaderTangent::vertex(int iface, int nthvert) {
   return clip;
 }
 
-bool PhongShaderTangent::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal) {
+bool PhongShaderTangent::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
   float shadow = 1.0f;
   if(has_shadow_map) {
     vec4 sb_p = uniform_Mshadow * vec4(varying_tri[0] * bc.x + varying_tri[1] * bc.y + varying_tri[2] * bc.z, 1.0f);
@@ -423,7 +451,7 @@ vec4 DepthShader::vertex(int iface, int nthvert) {
   return  clip;
 }
 
-bool DepthShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal) {
+bool DepthShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
   vec3 p = varying_tri[0] * bc.x + varying_tri[1] * bc.y + varying_tri[2] * bc.z;
   color = vec3(p.z);
   return false;

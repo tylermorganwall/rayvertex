@@ -3,7 +3,10 @@
 #ifndef RAYRASTERH
 #define RAYRASTERH
 
+// // [[Rcpp::depends(RcppParallel)]]
 #include "Rcpp.h"
+// #include <RcppParallel.h>
+// #include <RcppParallel/TinyThread.h>
 
 #include <functional>
 #include <algorithm>
@@ -17,11 +20,13 @@
 #include "rayimage.h"
 #include "model.h"
 #include "single_sample.h"
+// [[Rcpp::depends(RcppThread)]]
+#include "RcppThread.h"
 
+#include "filltri.h"
 
 using namespace Rcpp;
-
-
+// using namespace RcppParallel;
 
 
 inline vec3 clamp(const vec3& c, float clamplow, float clamphigh) {
@@ -44,100 +49,54 @@ inline vec3 clamp(const vec3& c, float clamplow, float clamphigh) {
   return(temp);
 }
 
-inline float DifferenceOfProducts(float a, float b, float c, float d) {
-  float cd = c * d;
-  float err = std::fma(-c, d, cd);
-  float dop = std::fma(a, b, -cd);
-  return(dop + err);
-}
-
-float edgeFunction(const vec3 &a, const vec3 &b, const vec3 &c) { 
-  // return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x); 
-  return(DifferenceOfProducts((c.x - a.x),(b.y - a.y),(c.y - a.y),(b.x - a.x)));
-} 
-
-void fill_tri(int vertex,
-              IShader* shader,
-              NumericMatrix &zbuffer, 
-              rayimage& image, rayimage& normal_buffer,
-              rayimage& position_buffer) { 
-  vec4 v1_ndc = shader->vertex(vertex,0);
-  vec4 v2_ndc = shader->vertex(vertex,1);
-  vec4 v3_ndc = shader->vertex(vertex,2);
-  
-  vec3 v1 = v1_ndc/v1_ndc.w;
-  vec3 v2 = v2_ndc/v2_ndc.w;
-  vec3 v3 = v3_ndc/v3_ndc.w;
-  
-  //Backface culling
-  if(cross(v2-v1, v3-v2).z > 0) {
-    vec3 bound_min = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
-                          fmin(v1.y,fmin(v2.y,v3.y)),
-                          fmin(v1.z,fmin(v2.z,v3.z)));
-    vec3 bound_max = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
-                          fmax(v1.y,fmax(v2.y,v3.y)),
-                          fmax(v1.z,fmax(v2.z,v3.z)));
-    
-    int nx = image.width();
-    int ny = image.height();
-    
-    int xmin =  std::min(std::max((int)floor(bound_min.x),0 ), 0);
-    int xmax =  std::max(std::min((int)ceil(bound_max.x), nx),nx);
-    int ymin =  std::min(std::max((int)floor(bound_min.y),0), 0);
-    int ymax =  std::max(std::min((int)ceil(bound_max.y), ny ),ny);
-    float area = edgeFunction(v3, v2, v1); 
-    float inv_area = 1.0f/area;
-    
-    vec3 color;
-    vec3 position;
-    vec3 normal;
-
-    float p_step_32 = -(v2.x-v3.x);
-    float p_step_13 = -(v3.x-v1.x);
-    float p_step_21 = -(v1.x-v2.x);
-    
-    float pi_step_32 = (v2.y-v3.y);
-    float pi_step_13 = (v3.y-v1.y);
-    float pi_step_21 = (v1.y-v2.y);
-    float v1_inv_w = 1.0f/v1_ndc.w;
-    float v2_inv_w = 1.0f/v2_ndc.w;
-    float v3_inv_w = 1.0f/v3_ndc.w;
-    
-    vec3 p  = vec3((float)xmin + 0.5f, (float)ymin + 0.5f, 0.0f);
-    
-    float w1_init = edgeFunction(v3, v2, p);
-    float w2_init = edgeFunction(v1, v3, p);
-    float w3_init = edgeFunction(v2, v1, p);
-    
-    //Need to update w1_p and w1 in reference to their base value--repeated addition results in
-    //tearing of polygons due to loss of precision.
-    for (uint32_t i = xmin; i < xmax; i++) {
-      float w1_p = w1_init + (i-xmin) * pi_step_32;
-      float w2_p = w2_init + (i-xmin) * pi_step_13;
-      float w3_p = w3_init + (i-xmin) * pi_step_21;
-      for (uint32_t j = ymin; j < ymax; j++) {
-        float w1 = w1_p + (j-ymin) * p_step_32;
-        float w2 = w2_p + (j-ymin) * p_step_13;
-        float w3 = w3_p + (j-ymin) * p_step_21;
-        if (w1 >= 0 && w2 >= 0 && w3 >= 0) {
-          vec3 bc       = vec3(w1, w2, w3)*inv_area;
-          vec3 bc_clip  = vec3(bc.x*v1_inv_w, bc.y*v2_inv_w, bc.z*v3_inv_w);
-          bc_clip      /= (bc_clip.x + bc_clip.y + bc_clip.z);
-          float z = v1.z * bc_clip.x + v2.z * bc_clip.y + v3.z * bc_clip.z;
-          if(z > zbuffer(i,j)) continue;
-
-          bool discard = shader->fragment(bc_clip, color, position, normal);
-          if(!discard) {
-            zbuffer(i,j) = z;
-            // image.set_color(i,j,color);
-            // normal_buffer.set_color(i,j,normal);
-            // position_buffer.set_color(i,j,position);
-          }
-        } 
-      }
-    }
-  }
-}
+// tbb::mutex lock;
+// 
+// struct FillTriParallel : public Worker {
+//   // source vector
+//   RMatrix<double> vertices;
+//   RMatrix<int> indices;
+//   RMatrix<double> zbuffer;
+//   RMatrix<double> rbuffer;
+//   RMatrix<double> bbuffer;
+//   RMatrix<double> gbuffer;
+//   IShader* shader;
+//   
+//   // constructors
+//   FillTriParallel(NumericMatrix vertices,
+//                   IntegerMatrix indices,
+//                   NumericMatrix zbuffer,
+//                   NumericMatrix rbuffer,
+//                   NumericMatrix gbuffer,
+//                   NumericMatrix bbuffer,
+//                   IShader* shader) : vertices(vertices), 
+//                   indices(indices), zbuffer(zbuffer), rbuffer(rbuffer),
+//                   bbuffer(bbuffer), gbuffer(gbuffer), shader(shader) {}
+//   FillTriParallel(const FillTriParallel& tris, Split) : 
+//     vertices(tris.vertices), 
+//     indices(tris.indices), zbuffer(tris.zbuffer), rbuffer(tris.rbuffer),
+//     bbuffer(tris.bbuffer), gbuffer(tris.gbuffer), shader(tris.shader) {}
+//   
+//   void operator()(std::size_t begin, std::size_t end) {
+//     for(size_t i = begin; i < end; i++) {
+//       fill_tri_raw(i, shader, zbuffer, rbuffer, gbuffer, bbuffer, lock);
+//     }
+//   }
+//   
+//   void join(const FillTriParallel& rhs, Split) {
+//     // for(int i = 0; i < zbuffer.nrow(); i++) {
+//       // for(int j = 0; j <  zbuffer.ncol(); j++) {
+//         // while(!lock.try_lock())
+//         // if(rhs.zbuffer(i,j) < zbuffer(i,j)) {
+//         //   rbuffer(i,j) = rhs.rbuffer(i,j);
+//         //   gbuffer(i,j) = rhs.gbuffer(i,j);
+//         //   bbuffer(i,j) = rhs.bbuffer(i,j);
+//         //   zbuffer(i,j) = rhs.zbuffer(i,j);
+//         // }
+//         // lock.unlock();
+//       // }
+//     // }
+//   };
+// };
 
 template<class T>
 inline T lerp(float t, T v1, T v2) {
@@ -311,6 +270,7 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
 
   std::unique_ptr<IShader> depthshader(new DepthShader(Model, lightProjection, lightView, viewport,
                                                        light_dir, model));
+  
   if(has_shadow_map) {
     for(int i = 0; i < n; i++) {
       fill_tri(i, depthshader.get(), zbuffer, shadowbuffer, normalbuffer, positionbuffer);
@@ -326,7 +286,7 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   //Calculate Image
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<float>::infinity() ) ;
   std::unique_ptr<IShader> shader;
-  
+
   if(type == 1) {
     shader = std::unique_ptr<IShader>(new GouraudShader(Model, Projection, View, viewport,
                                                     glm::normalize(light_dir), model,
@@ -365,23 +325,89 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   } else {
     throw std::runtime_error("shader not recognized");
   }
-  // int n_core = 4;
-  // List multicore_depth_buffers(n_core);
-  // List multicore_r_buffers(n_core);
-  // List multicore_g_buffers(n_core);
-  // List multicore_b_buffers(n_core);
-  // 
-  // for(int i = 0; i < n_core; i++) {
-  //   NumericMatrix temp(nx,ny);
-  //   std::fill(temp.begin(), temp.end(), std::numeric_limits<float>::infinity() ) ;
-  //   multicore_depth_buffers(i) = temp;
-  //   multicore_r_buffers(i) = NumericMatrix(nx,ny);
-  //   multicore_g_buffers(i) = NumericMatrix(nx,ny);
-  //   multicore_b_buffers(i) = NumericMatrix(nx,ny);
-  // }
-  for(int i = 0; i < n; i++) {
-    fill_tri(i, shader.get(), zbuffer, image, normalbuffer, positionbuffer);
+  
+  int blocksize = 32;
+  std::vector<std::vector<vec4> > ndc_verts(3, std::vector<vec4>(n));
+  std::vector<std::vector<float> > ndc_inv_w(3, std::vector<float>(n));
+  std::vector<vec3> min_bounds(n);
+  std::vector<vec3> max_bounds(n);
+  
+  std::vector<std::vector<int> > blocks;
+  std::vector<vec2> min_block_bound;
+  std::vector<vec2> max_block_bound;
+  
+  int nx_blocks = ceil((float)nx/(float)blocksize);
+  int ny_blocks = ceil((float)ny/(float)blocksize);
+  
+  for(int i = 0; i < nx; i += blocksize) {
+    for(int j = 0; j < ny; j += blocksize) {
+      std::vector<int> temp;
+      blocks.push_back(temp);
+      min_block_bound.push_back(vec2(i,j));
+      max_block_bound.push_back(vec2(std::min(i+blocksize,nx),std::min(j+blocksize,ny)));
+    }
   }
+  
+  for(int i = 0; i < n; i++) {
+    ndc_verts[0][i] = shader->vertex(i,0);
+    ndc_verts[1][i] = shader->vertex(i,1);
+    ndc_verts[2][i] = shader->vertex(i,2);
+    
+    ndc_inv_w[0][i] = 1.0f/ndc_verts[0][i].w;
+    ndc_inv_w[1][i] = 1.0f/ndc_verts[1][i].w;
+    ndc_inv_w[2][i] = 1.0f/ndc_verts[2][i].w;
+    
+    ndc_verts[0][i] *= ndc_inv_w[0][i];
+    ndc_verts[1][i] *= ndc_inv_w[1][i];
+    ndc_verts[2][i] *= ndc_inv_w[2][i];
+    
+    min_bounds[i] = vec3(fmin(ndc_verts[0][i].x,fmin(ndc_verts[1][i].x,ndc_verts[2][i].x)),
+                         fmin(ndc_verts[0][i].y,fmin(ndc_verts[1][i].y,ndc_verts[2][i].y)),
+                         fmin(ndc_verts[0][i].z,fmin(ndc_verts[1][i].z,ndc_verts[2][i].z)));
+    
+    max_bounds[i] = vec3(fmax(ndc_verts[0][i].x,fmax(ndc_verts[1][i].x,ndc_verts[2][i].x)),
+                         fmax(ndc_verts[0][i].y,fmax(ndc_verts[1][i].y,ndc_verts[2][i].y)),
+                         fmax(ndc_verts[0][i].z,fmax(ndc_verts[1][i].z,ndc_verts[2][i].z)));
+    
+    int min_x_block = floor(min_bounds[i].x / (float)blocksize);
+    int min_y_block = floor(min_bounds[i].y / (float)blocksize);
+    int max_x_block =  ceil(max_bounds[i].x / (float)blocksize);
+    int max_y_block =  ceil(max_bounds[i].y / (float)blocksize);
+    if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks && min_y_block < ny_blocks) {
+      for(int j = min_x_block; j < max_x_block; j++) {
+        for(int k = min_y_block; k < max_y_block; k++) {
+          blocks[k + nx_blocks * j].push_back(i);
+        }
+      }
+    }
+  }
+  
+  // for(int i = 0; i < n; i++) {
+  //   fill_tri(i, shader.get(), zbuffer, image, normalbuffer, positionbuffer);
+  // }
+  
+  
+  auto sp = shader.get();
+  auto task = [sp, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
+               &zbuffer, &image, &normalbuffer, &positionbuffer] (unsigned int i) {
+                 std::unique_ptr<IShader> shader;
+    fill_tri_blocks(blocks[i],
+                    ndc_verts,
+                    ndc_inv_w,
+                    min_block_bound[i],
+                    max_block_bound[i],
+                    sp, 
+                    zbuffer, 
+                    image, 
+                    normalbuffer, 
+                    positionbuffer);
+  };
+
+  RcppThread::ThreadPool pool(8);
+  for(int i = 0; i < nx_blocks*ny_blocks; i++) {
+    pool.push(task, i);
+  }
+  pool.join();
 
   //Ambient occlusion
   if(calc_ambient) {
@@ -463,7 +489,6 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
       }
     }
   }
-  
   
   //Free memory
   if(has_texture) {

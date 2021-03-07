@@ -10,11 +10,6 @@ typedef glm::vec3 vec3;
 typedef glm::vec2 vec2;
 typedef glm::mat4x4 Mat;
 
-static void print_vec(vec3 m) {
-  Rcpp::Rcout.precision(5);
-  Rcpp::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << "\n";
-}
-
 class ModelInfo {
   public:
     ModelInfo(Rcpp::NumericMatrix& verts, Rcpp::IntegerMatrix& inds, 
