@@ -8,5 +8,5 @@ Maintainer: Your Name <your@email.com>
 Description: One paragraph description of what the package does as one or more full sentences.
 License: GPL (>= 2)
 Imports: Rcpp (>= 1.0.6)
-LinkingTo: Rcpp
+LinkingTo: Rcpp, spacefillr
 RoxygenNote: 7.1.1

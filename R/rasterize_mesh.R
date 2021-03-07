@@ -11,31 +11,32 @@
 #'@export
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
-rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
-                          fov=20,lookfrom=c(0,0,10),lookat=c(0,0,0),
-                          type = "diffuse", color="darkred",
-                          texture_location = NA,
-                          normal_texture_location = NA,
-                          specular_texture_location = NA,
-                          emissive_texture_location = NA,
-                          light_direction=c(1,1,1), ambient_color=c(0,0,0), 
-                          exponent=32, specular_intensity = 0.6, emission_intensity = 1,
-                          diffuse_intensity = 1, tangent_space_normals = FALSE,
-                          shadow_map = FALSE, calc_ambient = FALSE, 
-                          ambient_intensity = 10, ambient_radius = 0.1,
-                          tonemap = "none", debug = "none", shadow_map_bias = 0.005) {
-  obj = readobj::read.obj(obj_model)
-  # for(i in seq_len(length(obj$shapes))) {
-  vertices = t(obj$shapes[[1]]$positions)
-  indices = t(obj$shapes[[1]]$indices)+1
-  texcoords = matrix(obj$shapes[[1]]$texcoords,ncol=2,byrow=TRUE)
-  normals = matrix(obj$shapes[[1]]$normal,ncol=3,byrow=TRUE)
-  # }
-  
-  
-  if(type == "gouraud" && nrow(normals) != nrow(vertices)) {
-    type = "diffuse"
-    warning("setting type to `diffuse`--Gouraud shading requires vertex normals for every vertex")
+rasterize_mesh  = function(vertices, indices = NULL, texcoords = NULL, normals = NULL,
+                           filename = NA, width=400, height=400,
+                           fov=20,lookfrom=c(0,0,10),lookat=c(0,0,0),
+                           type = "diffuse", color="darkred",
+                           texture_location = NA,
+                           normal_texture_location = NA,
+                           specular_texture_location = NA,
+                           emissive_texture_location = NA,
+                           light_direction=c(1,1,1), ambient_color=c(0,0,0), 
+                           exponent=32, specular_intensity = 0.6, emission_intensity = 1,
+                           diffuse_intensity = 1, tangent_space_normals = FALSE,
+                           shadow_map = FALSE, calc_ambient = FALSE, 
+                           ambient_intensity = 10, ambient_radius = 0.1,
+                           tonemap = "none", debug = "none", shadow_map_bias = 0.005) {
+  if(is.null(indices)) {
+    if(length(vertices) %% 3 != 0) {
+      stop("If no indices matrix provided, number of rows in `vertices` must be a multiple of 3")
+    }
+    indices = matrix(1:length(vertices),ncol=3,byrow=TRUE)
+  } else {
+    if(ncol(indices) != 3 && nrow(indices) == 3) {
+      indices = t(indices)
+    }
+  }
+  if(ncol(vertices) != 3 && nrow(vertices) == 3) {
+    vertices = t(vertices)
   }
   has_normals = TRUE
   if(is.null(normals)) {
@@ -47,8 +48,13 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
     has_texcoords = FALSE
     texcoords = matrix(0)
   }
-  color = convert_color(color)
 
+  if(type == "vertex" && nrow(normals) != nrow(vertices)) {
+    type = "diffuse"
+    warning("setting type to `diffuse`--Gouraud shading requires vertex normals for every vertex")
+  }
+  color = convert_color(color)
+  
   has_texture = !is.na(texture_location) && file.exists(texture_location)
   has_normal_texture = !is.na(normal_texture_location) && file.exists(normal_texture_location)
   has_specular_texture = !is.na(specular_texture_location) && file.exists(specular_texture_location)
@@ -84,6 +90,7 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
     }
   }
   tonemap = switch(tonemap, "gamma" = 1, "uncharted" = 2, "hbd" = 3, "none"=4, 1)
+  
   imagelist = rasterize(vertices,
                         indices,
                         nx=width,

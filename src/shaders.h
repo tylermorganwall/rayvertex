@@ -16,7 +16,7 @@ typedef glm::mat4x4 Mat;
 class IShader {
   public:
     virtual vec4 vertex(int iface, int nthvert) = 0;
-    virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal) = 0;
+    virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal) = 0;
 };
 
 
@@ -28,7 +28,7 @@ class GouraudShader : public IShader {
                   Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
     
     virtual vec4 vertex(int iface, int nthvert);
-    virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal);
+    virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal);
     
     Mat Model;
     Mat Projection;
@@ -61,7 +61,7 @@ struct DiffuseShader : public IShader {
            Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
     
     virtual vec4 vertex(int iface, int nthvert);
-    virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal);
+    virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal);
     
     Mat Model;
     Mat Projection;
@@ -69,8 +69,8 @@ struct DiffuseShader : public IShader {
     Mat MVP;
     Mat vp;
     Mat uniform_Mshadow;
-    Mat uniform_M;   //  Projection*ModelView
-    Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
+    Mat uniform_M;
+    Mat uniform_MIT;
     vec4 viewport;
     vec3 light_dir;
     vec3 l;
@@ -94,7 +94,7 @@ struct DiffuseNormalShader : public IShader {
                Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
   
   virtual vec4 vertex(int iface, int nthvert);
-  virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal);
+  virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal);
   
   Mat Model;
   Mat Projection;
@@ -127,7 +127,7 @@ class DiffuseShaderTangent : public IShader {
                        vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
                        Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
     virtual vec4 vertex(int iface, int nthvert);
-    virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal);
+    virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal);
     
     Mat Model;
     Mat Projection;
@@ -163,7 +163,7 @@ class PhongShader : public IShader {
                       Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
     
     virtual vec4 vertex(int iface, int nthvert);
-    virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal);
+    virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal);
     
     Mat Model;
     Mat Projection;
@@ -198,7 +198,7 @@ public:
                Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
 
   virtual vec4 vertex(int iface, int nthvert);
-  virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal);
+  virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal);
 
   Mat Model;
   Mat Projection;
@@ -230,7 +230,7 @@ public:
                      vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
                      Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
   virtual vec4 vertex(int iface, int nthvert);
-  virtual bool fragment(vec3 bc, vec3 &color, vec3& pos, vec3& normal);
+  virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal);
   
   Mat Model;
   Mat Projection;
@@ -263,7 +263,7 @@ struct DepthShader : public IShader {
   DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
               vec3 light_dir, ModelInfo& model);
   virtual vec4 vertex(int iface, int nthvert);
-  virtual bool fragment(vec3 bar, vec3 &color, vec3& pos, vec3& normal);
+  virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal);
   
   Mat Model;
   Mat Projection;
@@ -290,7 +290,7 @@ struct PhongShaderShadowMap : public IShader {
                   vec3 light_dir, ModelInfo& model, rayimage& shadowbuffer,
                   Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias);
   virtual vec4 vertex(int iface, int nthvert);
-  virtual bool fragment(vec3 bar, vec3 &color, vec3& pos, vec3& normal);
+  virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal);
 
   Mat Model;
   Mat Projection;

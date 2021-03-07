@@ -28,7 +28,7 @@ class ModelInfo {
               int nx_nt, int ny_nt, int nn_nt,
               int nx_st, int ny_st, int nn_st,
               int nx_et, int ny_et, int nn_et,
-              
+              bool has_normals_, bool has_texcoords,
               bool has_texture, bool has_normal_texture, bool has_specular_texture,
               bool has_emissive_texture,
               vec3 model_color, bool tbn) :
@@ -48,7 +48,8 @@ class ModelInfo {
       has_specular_texture(has_specular_texture), has_emissive_texture(has_emissive_texture),
       tbn(tbn) {
       color = model_color;
-      has_normals = normals.nrow() == verts.nrow();
+      has_normals = normals.nrow() == verts.nrow() && has_normals_;
+      has_texcoords = has_texcoords;
       specular_color = vec3(1.0f,1.0f,1.0f);
     }
     
@@ -107,7 +108,7 @@ class ModelInfo {
     int nx_et, ny_et, nn_et;
     
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
-    bool has_normals;
+    bool has_normals, has_texcoords;
     vec3 color, specular_color;
     bool tbn;
 };

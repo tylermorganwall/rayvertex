@@ -16,8 +16,11 @@
 #include "shaders.h"
 #include "rayimage.h"
 #include "model.h"
+#include "single_sample.h"
 
 using namespace Rcpp;
+
+
 
 
 inline vec3 clamp(const vec3& c, float clamplow, float clamphigh) {
@@ -44,18 +47,6 @@ float edgeFunction(const vec3 &a, const vec3 &b, const vec3 &c) {
   return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x); 
 } 
 
-vec3 barycentric(vec3 *pts, vec3 P) { 
-  vec3 u = cross(vec3(pts[2][0]-pts[0][0], pts[1][0]-pts[0][0], pts[0][0]-P[0]),
-                 vec3(pts[2][1]-pts[0][1], pts[1][1]-pts[0][1], pts[0][1]-P[1]));
-  /* `pts` and `P` has integer value as coordinates
-   so `abs(u[2])` < 1 means `u[2]` is 0, that means
-   triangle is degenerate, in this case return something with negative coordinates */
-  if (std::fabs(u[2])>1e-2) {
-    return vec3(1.0f-(u.x+u.y)/u.z, u.y/u.z, u.x/u.z); 
-  }
-  return vec3(-1,1,1);
-} 
-
 void fill_tri(int vertex,
               IShader* shader,
               NumericMatrix &zbuffer, 
@@ -69,62 +60,73 @@ void fill_tri(int vertex,
   vec3 v2 = v2_ndc/v2_ndc.w;
   vec3 v3 = v3_ndc/v3_ndc.w;
   
-  vec3 bound_min = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
-                        fmin(v1.y,fmin(v2.y,v3.y)),
-                        fmin(v1.z,fmin(v2.z,v3.z)));
-  vec3 bound_max = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
-                        fmax(v1.y,fmax(v2.y,v3.y)),
-                        fmax(v1.z,fmax(v2.z,v3.z)));
-  
-  int nx = image.width();
-  int ny = image.height();
-  
-  int xmin =  std::min(std::max((int)floor(bound_min.x),0 ), 0);
-  int xmax =  std::max(std::min((int)ceil(bound_max.x), nx),nx);
-  int ymin =  std::min(std::max((int)floor(bound_min.y),0), 0);
-  int ymax =  std::max(std::min((int)ceil(bound_max.y), ny ),ny);
-  float area = edgeFunction(v1, v2, v3); 
+  //Backface culling
+  if(cross(v2-v1, v3-v2).z > 0) {
+    vec3 bound_min = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
+                          fmin(v1.y,fmin(v2.y,v3.y)),
+                          fmin(v1.z,fmin(v2.z,v3.z)));
+    vec3 bound_max = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
+                          fmax(v1.y,fmax(v2.y,v3.y)),
+                          fmax(v1.z,fmax(v2.z,v3.z)));
+    
+    int nx = image.width();
+    int ny = image.height();
+    
+    int xmin =  std::min(std::max((int)floor(bound_min.x),0 ), 0);
+    int xmax =  std::max(std::min((int)ceil(bound_max.x), nx),nx);
+    int ymin =  std::min(std::max((int)floor(bound_min.y),0), 0);
+    int ymax =  std::max(std::min((int)ceil(bound_max.y), ny ),ny);
+    float area = edgeFunction(v3, v2, v1); 
+    float inv_area = 1/area;
+    
+    vec3 color;
+    vec3 position;
+    vec3 normal;
+    vec3 bc_clip;
+    vec3 bc;
+    
+    float p_step_32 = -(v2.x-v3.x);
+    float p_step_13 = -(v3.x-v1.x);
+    float p_step_21 = -(v1.x-v2.x);
+    
+    float pi_step_32 = (v2.y-v3.y);
+    float pi_step_13 = (v3.y-v1.y);
+    float pi_step_21 = (v1.y-v2.y);
+    vec3 p  = vec3((float)xmin + 0.5f, (float)ymin + 0.5f, 0.0f);
+    
+    float w1_init = edgeFunction(v3, v2, p);
+    float w2_init = edgeFunction(v1, v3, p);
+    float w3_init = edgeFunction(v2, v1, p);
+    
+    for (uint32_t i = xmin; i < xmax; i++) {
+      float w1 = w1_init;
+      float w2 = w2_init;
+      float w3 = w3_init;
+      for (uint32_t j = ymin; j < ymax; j++) {
+        if (w1 >= 0 && w2 >= 0 && w3 >= 0) {
+          bc = vec3(w1,w2,w3)*inv_area;
+          bc_clip    = vec3(bc.x/v1_ndc.w, bc.y/v2_ndc.w, bc.z/v3_ndc.w);
+          bc_clip /= (bc_clip.x+bc_clip.y+bc_clip.z);
+          p.z = v1.z * bc_clip.x + v2.z * bc_clip.y + v3.z * bc_clip.z;
+          if(p.z > zbuffer(i,j)) continue;
 
-  // vec3 color;
-  // vec3 position;
-  // vec3 normal;
-  // RcppThread::ThreadPool pool(8);
-  // auto worker  = [&image, &shader, &zbuffer,
-  //                 &v1, &v2, &v3, &normal_buffer, &position_buffer,
-  //                 xmin, xmax, ymin, ymax](int i) {
-  vec3 color;
-  vec3 position;
-  vec3 normal;
-  vec3 pts[3] = {v1,v2,v3};
-
-  for (uint32_t i = xmin; i < xmax; i++) {
-    for (uint32_t j = ymin; j < ymax; j++) {
-      vec3 p((float)i + 0.5f, (float)j + 0.5f, 0.0);
-      vec3 bc  = barycentric(pts, p);
-      //Test if within triangle
-      if (bc.x > 0 && bc.y > 0 && bc.z > 0) {
-        vec3 bc_clip    = vec3(bc.x/v1_ndc.w, bc.y/v2_ndc.w, bc.z/v3_ndc.w);
-        bc_clip = bc_clip/(bc_clip.x+bc_clip.y+bc_clip.z);
-        p.z = v1.z * bc_clip.x + v2.z * bc_clip.y + v3.z * bc_clip.z;
-        //Test depth buffer
-        if(p.z > zbuffer(i,j)) continue;
-        
-        bool discard = shader->fragment(bc_clip,color,position,normal);
-        if(!discard) {
-          zbuffer(i,j) = p.z;
-          image.set_color(i,j,color);
-          normal_buffer.set_color(i,j,normal);
-          position_buffer.set_color(i,j,position);
+          bool discard = shader->fragment(bc_clip, color, position, normal);
+          if(!discard) {
+            zbuffer(i,j) = p.z;
+            image.set_color(i,j,color);
+            normal_buffer.set_color(i,j,normal);
+            position_buffer.set_color(i,j,position);
+          }
         }
+        w1 += p_step_32;
+        w2 += p_step_13;
+        w3 += p_step_21;
       }
+      w1_init += pi_step_32;
+      w2_init += pi_step_13;
+      w3_init += pi_step_21;
     }
   }
-  //thread version 20% slower
-  // };
-  // for(int i = xmin; i < xmax; i++) {
-  //   pool.push(worker, i);
-  // }
-  // pool.join();
 }
 
 template<class T>
@@ -155,9 +157,13 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
                float fov,
                NumericVector light_direction,
                NumericVector ambient_color, 
-               float exponent, float specular_intensity, float diffuse_intensity, 
+               float exponent, 
+               float specular_intensity, 
+               float diffuse_intensity, 
                float emission_intensity,
                int type,
+               bool has_normals,
+               bool has_texcoords,
                bool has_texture,
                bool has_normal_texture,
                bool has_specular_texture,
@@ -266,6 +272,7 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
     throw std::runtime_error("Too few columns in index matrix");
   }
   
+  
   //Create model object
   ModelInfo model(verts, inds, texcoords, normals,
                   texture, normal_texture, specular_texture, emissive_texture,
@@ -274,6 +281,7 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
                   nx_nt, ny_nt, nn_nt,
                   nx_st, ny_st, nn_st,
                   nx_et, ny_et, nn_et,
+                  has_normals, has_texcoords,
                   has_texture, has_normal_texture, has_specular_texture, has_emissive_texture,
                   color, tbn);
 
@@ -361,20 +369,19 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   //   multicore_g_buffers(i) = NumericMatrix(nx,ny);
   //   multicore_b_buffers(i) = NumericMatrix(nx,ny);
   // }
-  
   for(int i = 0; i < n; i++) {
     fill_tri(i, shader.get(), zbuffer, image, normalbuffer, positionbuffer);
   }
-  
+
   //Ambient occlusion
   if(calc_ambient) {
     int kernelSize=64;
     vec3 kernel[kernelSize];
     for (int i = 0; i < kernelSize; ++i) {
       kernel[i] = normalize(vec3(
-        unif_rand() * 2.0f - 1.0f,
-        unif_rand() * 2.0f - 1.0f,
-        unif_rand()));
+        spacefillr::sobol_single(i,0,0) * 2.0f - 1.0f,
+        spacefillr::sobol_single(i,1,0) * 2.0f - 1.0f,
+        spacefillr::sobol_single(i,2,0)));
       float scale = float(i) / float(kernelSize);
       scale = lerp(0.1f, 1.0f, scale * scale);
       kernel[i] *= scale;
@@ -384,9 +391,9 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
     vec3 noise[noiseSize];
     for (int i = 0; i < noiseSize; ++i) {
       noise[i] = normalize(vec3(
-        unif_rand() * 2.0f - 1.0f,
-        unif_rand() * 2.0f - 1.0f,
-        unif_rand()));
+        spacefillr::sobol_single(i,0,1) * 2.0f - 1.0f,
+        spacefillr::sobol_single(i,1,1) * 2.0f - 1.0f,
+        spacefillr::sobol_single(i,2,1)));
     }
     float uRadius = 1;
     for (int x = 0; x < nx; x++) {
@@ -408,7 +415,6 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
           // get sample position:
           vec3 sample = tbn * kernel[i];
           sample = sample * ambient_radius + origin;
-
           // project sample position:
           vec4 offset = vec4(sample, 1.0);
           offset = vp * Projection * offset;
@@ -463,8 +469,7 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
     stbi_image_free(emissive_texture);
   }
   
-  
-  
+
   return(List::create(_["r"] = r, _["g"] = g, _["b"] = b, _["amb"] = abuffer, _["depth"] = zbuffer,
                       _["normalx"] = nxbuffer, _["normaly"] = nybuffer, _["normalz"] = nzbuffer,
                       _["positionx"] = xxbuffer, _["positiony"] = yybuffer, _["positionz"] = zzbuffer));
