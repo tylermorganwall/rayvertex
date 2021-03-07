@@ -18,6 +18,7 @@
 #include "model.h"
 #include "single_sample.h"
 
+
 using namespace Rcpp;
 
 
@@ -43,8 +44,16 @@ inline vec3 clamp(const vec3& c, float clamplow, float clamphigh) {
   return(temp);
 }
 
+inline float DifferenceOfProducts(float a, float b, float c, float d) {
+  float cd = c * d;
+  float err = std::fma(-c, d, cd);
+  float dop = std::fma(a, b, -cd);
+  return(dop + err);
+}
+
 float edgeFunction(const vec3 &a, const vec3 &b, const vec3 &c) { 
-  return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x); 
+  // return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x); 
+  return(DifferenceOfProducts((c.x - a.x),(b.y - a.y),(c.y - a.y),(b.x - a.x)));
 } 
 
 void fill_tri(int vertex,
@@ -77,14 +86,12 @@ void fill_tri(int vertex,
     int ymin =  std::min(std::max((int)floor(bound_min.y),0), 0);
     int ymax =  std::max(std::min((int)ceil(bound_max.y), ny ),ny);
     float area = edgeFunction(v3, v2, v1); 
-    float inv_area = 1/area;
+    float inv_area = 1.0f/area;
     
     vec3 color;
     vec3 position;
     vec3 normal;
-    vec3 bc_clip;
-    vec3 bc;
-    
+
     float p_step_32 = -(v2.x-v3.x);
     float p_step_13 = -(v3.x-v1.x);
     float p_step_21 = -(v1.x-v2.x);
@@ -92,39 +99,42 @@ void fill_tri(int vertex,
     float pi_step_32 = (v2.y-v3.y);
     float pi_step_13 = (v3.y-v1.y);
     float pi_step_21 = (v1.y-v2.y);
+    float v1_inv_w = 1.0f/v1_ndc.w;
+    float v2_inv_w = 1.0f/v2_ndc.w;
+    float v3_inv_w = 1.0f/v3_ndc.w;
+    
     vec3 p  = vec3((float)xmin + 0.5f, (float)ymin + 0.5f, 0.0f);
     
     float w1_init = edgeFunction(v3, v2, p);
     float w2_init = edgeFunction(v1, v3, p);
     float w3_init = edgeFunction(v2, v1, p);
     
+    //Need to update w1_p and w1 in reference to their base value--repeated addition results in
+    //tearing of polygons due to loss of precision.
     for (uint32_t i = xmin; i < xmax; i++) {
-      float w1 = w1_init;
-      float w2 = w2_init;
-      float w3 = w3_init;
+      float w1_p = w1_init + (i-xmin) * pi_step_32;
+      float w2_p = w2_init + (i-xmin) * pi_step_13;
+      float w3_p = w3_init + (i-xmin) * pi_step_21;
       for (uint32_t j = ymin; j < ymax; j++) {
+        float w1 = w1_p + (j-ymin) * p_step_32;
+        float w2 = w2_p + (j-ymin) * p_step_13;
+        float w3 = w3_p + (j-ymin) * p_step_21;
         if (w1 >= 0 && w2 >= 0 && w3 >= 0) {
-          bc = vec3(w1,w2,w3)*inv_area;
-          bc_clip    = vec3(bc.x/v1_ndc.w, bc.y/v2_ndc.w, bc.z/v3_ndc.w);
-          bc_clip /= (bc_clip.x+bc_clip.y+bc_clip.z);
-          p.z = v1.z * bc_clip.x + v2.z * bc_clip.y + v3.z * bc_clip.z;
-          if(p.z > zbuffer(i,j)) continue;
+          vec3 bc       = vec3(w1, w2, w3)*inv_area;
+          vec3 bc_clip  = vec3(bc.x*v1_inv_w, bc.y*v2_inv_w, bc.z*v3_inv_w);
+          bc_clip      /= (bc_clip.x + bc_clip.y + bc_clip.z);
+          float z = v1.z * bc_clip.x + v2.z * bc_clip.y + v3.z * bc_clip.z;
+          if(z > zbuffer(i,j)) continue;
 
           bool discard = shader->fragment(bc_clip, color, position, normal);
           if(!discard) {
-            zbuffer(i,j) = p.z;
-            image.set_color(i,j,color);
-            normal_buffer.set_color(i,j,normal);
-            position_buffer.set_color(i,j,position);
+            zbuffer(i,j) = z;
+            // image.set_color(i,j,color);
+            // normal_buffer.set_color(i,j,normal);
+            // position_buffer.set_color(i,j,position);
           }
-        }
-        w1 += p_step_32;
-        w2 += p_step_13;
-        w3 += p_step_21;
+        } 
       }
-      w1_init += pi_step_32;
-      w2_init += pi_step_13;
-      w3_init += pi_step_21;
     }
   }
 }
