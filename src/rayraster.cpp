@@ -260,6 +260,30 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   if(std::fabs(glm::dot(light_up,glm::normalize(light_dir))) == 1) {
     light_up = vec3(0.f,0.f,1.0f);
   }
+  
+  //Set up blocks
+  int blocksize = 32;
+  std::vector<std::vector<vec4> > ndc_verts(3, std::vector<vec4>(n));
+  std::vector<std::vector<float> > ndc_inv_w(3, std::vector<float>(n));
+  std::vector<vec3> min_bounds(n);
+  std::vector<vec3> max_bounds(n);
+  
+  std::vector<std::vector<int> > blocks;
+  std::vector<vec2> min_block_bound;
+  std::vector<vec2> max_block_bound;
+  
+  int nx_blocks = ceil((float)nx/(float)blocksize);
+  int ny_blocks = ceil((float)ny/(float)blocksize);
+  
+  for(int i = 0; i < nx; i += blocksize) {
+    for(int j = 0; j < ny; j += blocksize) {
+      std::vector<int> temp;
+      blocks.push_back(temp);
+      min_block_bound.push_back(vec2(i,j));
+      max_block_bound.push_back(vec2(std::min(i+blocksize,nx),std::min(j+blocksize,ny)));
+    }
+  }
+  
   //Change to bounding box scene
   
   glm::mat4 lightProjection = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, near_plane, far_plane);
@@ -271,11 +295,19 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   std::unique_ptr<IShader> depthshader(new DepthShader(Model, lightProjection, lightView, viewport,
                                                        light_dir, model));
   
+  
   if(has_shadow_map) {
     for(int i = 0; i < n; i++) {
       fill_tri(i, depthshader.get(), zbuffer, shadowbuffer, normalbuffer, positionbuffer);
     }
   }
+  
+  // //Clear out block info from depth
+  // for(int j = 0; j < nx_blocks; j++) {
+  //   for(int k = 0; k < ny_blocks; k++) {
+  //     blocks[k + nx_blocks * j].clear();
+  //   }
+  // }
   
   Mat vp = glm::scale(glm::translate(Mat(1.0f),
                       vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)),
@@ -325,54 +357,33 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   } else {
     throw std::runtime_error("shader not recognized");
   }
-  
-  int blocksize = 32;
-  std::vector<std::vector<vec4> > ndc_verts(3, std::vector<vec4>(n));
-  std::vector<std::vector<float> > ndc_inv_w(3, std::vector<float>(n));
-  std::vector<vec3> min_bounds(n);
-  std::vector<vec3> max_bounds(n);
-  
-  std::vector<std::vector<int> > blocks;
-  std::vector<vec2> min_block_bound;
-  std::vector<vec2> max_block_bound;
-  
-  int nx_blocks = ceil((float)nx/(float)blocksize);
-  int ny_blocks = ceil((float)ny/(float)blocksize);
-  
-  for(int i = 0; i < nx; i += blocksize) {
-    for(int j = 0; j < ny; j += blocksize) {
-      std::vector<int> temp;
-      blocks.push_back(temp);
-      min_block_bound.push_back(vec2(i,j));
-      max_block_bound.push_back(vec2(std::min(i+blocksize,nx),std::min(j+blocksize,ny)));
-    }
-  }
-  
+
+
   for(int i = 0; i < n; i++) {
     ndc_verts[0][i] = shader->vertex(i,0);
     ndc_verts[1][i] = shader->vertex(i,1);
     ndc_verts[2][i] = shader->vertex(i,2);
-    
+
     ndc_inv_w[0][i] = 1.0f/ndc_verts[0][i].w;
     ndc_inv_w[1][i] = 1.0f/ndc_verts[1][i].w;
     ndc_inv_w[2][i] = 1.0f/ndc_verts[2][i].w;
-    
-    ndc_verts[0][i] *= ndc_inv_w[0][i];
-    ndc_verts[1][i] *= ndc_inv_w[1][i];
-    ndc_verts[2][i] *= ndc_inv_w[2][i];
-    
-    min_bounds[i] = vec3(fmin(ndc_verts[0][i].x,fmin(ndc_verts[1][i].x,ndc_verts[2][i].x)),
-                         fmin(ndc_verts[0][i].y,fmin(ndc_verts[1][i].y,ndc_verts[2][i].y)),
-                         fmin(ndc_verts[0][i].z,fmin(ndc_verts[1][i].z,ndc_verts[2][i].z)));
-    
-    max_bounds[i] = vec3(fmax(ndc_verts[0][i].x,fmax(ndc_verts[1][i].x,ndc_verts[2][i].x)),
-                         fmax(ndc_verts[0][i].y,fmax(ndc_verts[1][i].y,ndc_verts[2][i].y)),
-                         fmax(ndc_verts[0][i].z,fmax(ndc_verts[1][i].z,ndc_verts[2][i].z)));
-    
-    int min_x_block = floor(min_bounds[i].x / (float)blocksize);
-    int min_y_block = floor(min_bounds[i].y / (float)blocksize);
-    int max_x_block =  ceil(max_bounds[i].x / (float)blocksize);
-    int max_y_block =  ceil(max_bounds[i].y / (float)blocksize);
+
+    vec3 v1 = ndc_verts[0][i] * ndc_inv_w[0][i];
+    vec3 v2 = ndc_verts[1][i] * ndc_inv_w[1][i];
+    vec3 v3 = ndc_verts[2][i] * ndc_inv_w[2][i];
+
+    min_bounds[i] = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
+                         fmin(v1.y,fmin(v2.y,v3.y)),
+                         fmin(v1.z,fmin(v2.z,v3.z)));
+
+    max_bounds[i] = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
+                         fmax(v1.y,fmax(v2.y,v3.y)),
+                         fmax(v1.z,fmax(v2.z,v3.z)));
+
+    int min_x_block = std::fmax(floor(min_bounds[i].x / (float)blocksize),0);
+    int min_y_block = std::fmax(floor(min_bounds[i].y / (float)blocksize),0);
+    int max_x_block = std::fmin(ceil(max_bounds[i].x / (float)blocksize), nx_blocks);
+    int max_y_block = std::fmin(ceil(max_bounds[i].y / (float)blocksize), ny_blocks);
     if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks && min_y_block < ny_blocks) {
       for(int j = min_x_block; j < max_x_block; j++) {
         for(int k = min_y_block; k < max_y_block; k++) {
@@ -385,8 +396,7 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   // for(int i = 0; i < n; i++) {
   //   fill_tri(i, shader.get(), zbuffer, image, normalbuffer, positionbuffer);
   // }
-  
-  
+
   auto sp = shader.get();
   auto task = [sp, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
                &zbuffer, &image, &normalbuffer, &positionbuffer] (unsigned int i) {
@@ -396,10 +406,10 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
                     ndc_inv_w,
                     min_block_bound[i],
                     max_block_bound[i],
-                    sp, 
-                    zbuffer, 
-                    image, 
-                    normalbuffer, 
+                    sp,
+                    zbuffer,
+                    image,
+                    normalbuffer,
                     positionbuffer);
   };
 
@@ -422,7 +432,7 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
       scale = lerp(0.1f, 1.0f, scale * scale);
       kernel[i] *= scale;
     }
-    
+
     int noiseSize=16;
     vec3 noise[noiseSize];
     for (int i = 0; i < noiseSize; ++i) {
@@ -455,7 +465,7 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
           vec4 offset = vec4(sample, 1.0);
           offset = vp * Projection * offset;
           offset /= offset.w;
-          
+
           if((int)offset.x >= 0 && (int)offset.x < nx && (int)offset.y >= 0 && (int)offset.y < ny) {
             float sampleDepth = zzbuffer((int)offset.x, (int)offset.y);
             // range check & accumulate:

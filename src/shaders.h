@@ -42,12 +42,13 @@ class GouraudShader : public IShader {
     vec3 light_dir;
     vec3 l;
     ModelInfo model;
-    vec3 varying_tri[3];
-    vec3 varying_nrm[3];
-    vec3 varying_pos[3];
-    vec3 varying_world_nrm[3];
     
-    vec3 varying_intensity;
+    std::vector<vec3> vec_varying_intensity;
+    std::vector<std::vector<vec3> > vec_varying_uv;
+    std::vector<std::vector<vec3> > vec_varying_tri;
+    std::vector<std::vector<vec3> > vec_varying_pos;
+    std::vector<std::vector<vec3> > vec_varying_world_nrm;
+    
     rayimage shadowbuffer;
     bool has_shadow_map;
     float shadow_map_bias;
@@ -76,18 +77,13 @@ struct DiffuseShader : public IShader {
     vec3 l;
     
     ModelInfo model;
-    vec3 varying_intensity; 
-    
+
     std::vector<vec3> vec_varying_intensity;
     std::vector<std::vector<vec3> > vec_varying_uv;
     std::vector<std::vector<vec3> > vec_varying_tri;
     std::vector<std::vector<vec3> > vec_varying_pos;
     std::vector<std::vector<vec3> > vec_varying_world_nrm;
     
-    vec3 varying_uv[3];
-    vec3 varying_tri[3];
-    vec3 varying_pos[3];
-    vec3 varying_world_nrm[3];
     rayimage shadowbuffer;
     bool has_shadow_map;
     float shadow_map_bias;
@@ -116,10 +112,11 @@ struct DiffuseNormalShader : public IShader {
   vec3 l;
   
   ModelInfo model;
-  vec3 varying_uv[3];
-  vec3 varying_tri[3];
-  vec3 varying_pos[3];
-  vec3 varying_world_nrm[3];
+  
+  std::vector<std::vector<vec3> > vec_varying_uv;
+  std::vector<std::vector<vec3> > vec_varying_tri;
+  std::vector<std::vector<vec3> > vec_varying_pos;
+  std::vector<std::vector<vec3> > vec_varying_world_nrm;
   
   rayimage shadowbuffer;
   bool has_shadow_map;
@@ -147,12 +144,14 @@ class DiffuseShaderTangent : public IShader {
     vec3 l;
     
     ModelInfo model;
-    vec3 varying_uv[3];
-    vec3 varying_tri[4];
-    vec3 varying_nrm[3];
-    vec3 ndc_tri[3];
-    vec3 varying_pos[3];
-    vec3 varying_world_nrm[3];
+    
+    std::vector<vec3> vec_varying_intensity;
+    std::vector<std::vector<vec3> > vec_varying_uv;
+    std::vector<std::vector<vec3> > vec_varying_tri;
+    std::vector<std::vector<vec3> > vec_varying_pos;
+    std::vector<std::vector<vec3> > vec_varying_ndc_tri;
+    std::vector<std::vector<vec3> > vec_varying_world_nrm;
+    std::vector<std::vector<vec3> > vec_varying_nrm;
     
     Mat uniform_M;   //  Projection*ModelView
     Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
@@ -181,15 +180,18 @@ class PhongShader : public IShader {
     vec4 viewport;
     vec3 light_dir;
     vec3 l;
-    
-    ModelInfo model;
-    vec3 varying_uv[3];
     Mat uniform_M;   //  Projection*ModelView
     Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
-    vec3 varying_tri[3];
-    vec3 varying_nrm[3];
-    vec3 varying_pos[3];
-    vec3 varying_world_nrm[3];
+    
+    
+    ModelInfo model;
+    
+    std::vector<vec3> vec_varying_intensity;
+    std::vector<std::vector<vec3> > vec_varying_uv;
+    std::vector<std::vector<vec3> > vec_varying_tri;
+    std::vector<std::vector<vec3> > vec_varying_nrm;
+    std::vector<std::vector<vec3> > vec_varying_pos;
+    std::vector<std::vector<vec3> > vec_varying_world_nrm;
     
     rayimage shadowbuffer;
     bool has_shadow_map;
@@ -219,10 +221,11 @@ public:
   vec3 light_dir;
   vec3 l;
   ModelInfo model;
-  vec3 varying_tri[3];
-  vec3 varying_uv[3];
-  vec3 varying_pos[3];
-  vec3 varying_world_nrm[3];
+  
+  std::vector<std::vector<vec3> > vec_varying_uv;
+  std::vector<std::vector<vec3> > vec_varying_tri;
+  std::vector<std::vector<vec3> > vec_varying_pos;
+  std::vector<std::vector<vec3> > vec_varying_world_nrm;
   
   rayimage shadowbuffer;
   bool has_shadow_map;
@@ -250,12 +253,14 @@ public:
   vec3 l;
   
   ModelInfo model;
-  vec3 varying_uv[3];
-  vec3 varying_tri[4];
-  vec3 varying_nrm[3];
-  vec3 ndc_tri[3];
-  vec3 varying_pos[3];
-  vec3 varying_world_nrm[3];
+  
+  
+  std::vector<std::vector<vec3> > vec_varying_uv;
+  std::vector<std::vector<vec3> > vec_varying_tri;
+  std::vector<std::vector<vec3> > vec_varying_pos;
+  std::vector<std::vector<vec3> > vec_varying_ndc_tri;
+  std::vector<std::vector<vec3> > vec_varying_world_nrm;
+  std::vector<std::vector<vec3> > vec_varying_nrm;
   
   Mat uniform_M;   //  Projection*ModelView
   Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
@@ -282,11 +287,13 @@ struct DepthShader : public IShader {
   vec3 l;
   
   ModelInfo model;
-  vec3 varying_uv[3];
-  vec3 varying_tri[3];
-  vec3 varying_nrm[3];  
-  vec3 varying_pos[3];
-  vec3 varying_world_nrm[3];
+  
+  std::vector<vec3> vec_varying_intensity;
+  std::vector<std::vector<vec3> > vec_varying_uv;
+  std::vector<std::vector<vec4> > vec_varying_tri;
+  std::vector<std::vector<vec3> > vec_varying_pos;
+  std::vector<std::vector<vec3> > vec_varying_world_nrm;
+  
   float shadow_map_bias;
   
   
@@ -310,11 +317,12 @@ struct PhongShaderShadowMap : public IShader {
   vec3 l;
   
   ModelInfo model;
-  vec3 varying_uv[3];
-  vec3 varying_tri[3];
-  vec3 varying_nrm[3];
-  vec3 varying_pos[3];
-  vec3 varying_world_nrm[3];
+  
+  std::vector<vec3> vec_varying_intensity;
+  std::vector<std::vector<vec3> > vec_varying_uv;
+  std::vector<std::vector<vec3> > vec_varying_tri;
+  std::vector<std::vector<vec3> > vec_varying_pos;
+  std::vector<std::vector<vec3> > vec_varying_world_nrm;
   
   Mat uniform_M;   //  Projection*ModelView
   Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
