@@ -48,10 +48,19 @@ bool GouraudShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& norma
     vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
     sb_p = sb_p/sb_p.w;
     if(sb_p[0] >= 0 && sb_p[0] < shadowbuffer.width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffer.height()) {
+      shadow = 0.0f;
       float bias = shadow_map_bias;
-      shadow = shadowbuffer.get_color(int(sb_p[0]),int(sb_p[1])).x > sb_p[2]-bias ? 1 : 0;
-    } 
+      int i = int(sb_p[0]);
+      int j = int(sb_p[1]);
+      for(int x = -2; x <= 2; ++x) {
+        for(int y = -2; y <= 2; ++y) {
+          shadow +=shadowbuffer.get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1 : 0;    
+        }    
+      }
+      shadow /= 25;
+    }
   }
+  
   color = shadow * model.color * dot(vec_varying_intensity[iface],bc);
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
   normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;;
@@ -67,7 +76,7 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
-  MVP = vp * Projection * View * Model;
+  MVP = Projection * View * Model;
   uniform_Mshadow = uniform_Mshadow_;
   uniform_M = View * Model;
   uniform_MIT = glm::inverseTranspose(uniform_M);
@@ -90,17 +99,14 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
 
 vec4 DiffuseShader::vertex(int iface, int nthvert) {
   vec4 clip = vp * MVP * vec4(model.vertex(iface,nthvert),1.0f);
-    
   vec_varying_uv[iface][nthvert] = model.tex(iface,nthvert);
   vec_varying_tri[iface][nthvert] = clip/clip.w;
-  vec_varying_pos[iface][nthvert] = uniform_MIT * vec4(model.vertex(iface, nthvert),1.0f);
+  vec_varying_pos[iface][nthvert] = uniform_M * vec4(model.vertex(iface, nthvert),1.0f);
   vec_varying_world_nrm[iface][nthvert] = model.has_normals ?
-  uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
+    uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
     uniform_MIT * normalize(vec4(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
                                             model.vertex(iface,2)-model.vertex(iface,0)),0.0f));
-  vec_varying_intensity[iface][nthvert] = model.has_normals ?
-    std::fmax(0.f, dot(normalize(vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f))),l)) : 
-    std::fmax(0.f, dot(vec_varying_world_nrm[iface][nthvert], light_dir));
+  vec_varying_intensity[iface][nthvert] = std::fmax(0.f, dot(vec_varying_world_nrm[iface][nthvert], l));
   return (clip);
 }
 
@@ -108,22 +114,28 @@ bool DiffuseShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& norma
   float shadow = 1.0f;
   if(has_shadow_map) {
     vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
-    
     sb_p = sb_p/sb_p.w;
     if(sb_p[0] >= 0 && sb_p[0] < shadowbuffer.width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffer.height()) {
+      shadow = 0.0f;
       float bias = shadow_map_bias;
-      shadow = shadowbuffer.get_color(int(sb_p[0]),int(sb_p[1])).x > sb_p[2]-bias ? 1 : 0;
+      int i = int(sb_p[0]);
+      int j = int(sb_p[1]);
+      for(int x = -2; x <= 2; ++x) {
+        for(int y = -2; y <= 2; ++y) {
+          shadow +=shadowbuffer.get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1 : 0;    
+        }    
+      }
+      shadow /= 25;
     }
   }
   float intensity = dot(vec_varying_intensity[iface],bc);
-  
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   
-  color = model.has_texture ? model.diffuse(uv)*intensity : model.color * intensity;
+  color = model.has_texture ? model.diffuse(uv)*intensity : model.color * intensity * model.diffuse_intensity;
   color *= shadow;
   color += model.emissive(uv);
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
-  normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;;
+  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
+  normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;
   
   return false; 
 }
@@ -173,9 +185,17 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3&
     vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
     sb_p = sb_p/sb_p.w;
     if(sb_p[0] >= 0 && sb_p[0] < shadowbuffer.width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffer.height()) {
+      shadow = 0.0f;
       float bias = shadow_map_bias;
-      shadow = shadowbuffer.get_color(int(sb_p[0]),int(sb_p[1])).x > sb_p[2]-bias ? 1 : 0;
-    } 
+      int i = int(sb_p[0]);
+      int j = int(sb_p[1]);
+      for(int x = -2; x <= 2; ++x) {
+        for(int y = -2; y <= 2; ++y) {
+          shadow +=shadowbuffer.get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1 : 0;    
+        }    
+      }
+      shadow /= 25;
+    }
   }
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec3 n = normalize(vec3(uniform_MIT * vec4(model.normal_uv(uv), 0.0f)));
@@ -318,9 +338,17 @@ bool PhongShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal,
     vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
     sb_p = sb_p/sb_p.w;
     if(sb_p[0] >= 0 && sb_p[0] < shadowbuffer.width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffer.height()) {
+      shadow = 0.0f;
       float bias = shadow_map_bias;
-      shadow = shadowbuffer.get_color(int(sb_p[0]),int(sb_p[1])).x > sb_p[2]-bias ? 1 : 0;
-    } 
+      int i = int(sb_p[0]);
+      int j = int(sb_p[1]);
+      for(int x = -2; x <= 2; ++x) {
+        for(int y = -2; y <= 2; ++y) {
+          shadow +=shadowbuffer.get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1 : 0;    
+        }    
+      }
+      shadow /= 25;
+    }
   }
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec3 n = model.has_normals ?  normalize(vec_varying_nrm[iface][0] * bc.x + vec_varying_nrm[iface][1] * bc.y + vec_varying_nrm[iface][2] * bc.z) :
@@ -393,9 +421,17 @@ bool PhongNormalShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& n
     vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
     sb_p = sb_p/sb_p.w;
     if(sb_p[0] >= 0 && sb_p[0] < shadowbuffer.width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffer.height()) {
+      shadow = 0.0f;
       float bias = shadow_map_bias;
-      shadow = shadowbuffer.get_color(int(sb_p[0]),int(sb_p[1])).x > sb_p[2]-bias ? 1 : 0;
-    } 
+      int i = int(sb_p[0]);
+      int j = int(sb_p[1]);
+      for(int x = -2; x <= 2; ++x) {
+        for(int y = -2; y <= 2; ++y) {
+          shadow +=shadowbuffer.get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1 : 0;    
+        }    
+      }
+      shadow /= 25;
+    }
   }
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
 
@@ -471,9 +507,17 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& 
     vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
     sb_p = sb_p/sb_p.w;
     if(sb_p[0] >= 0 && sb_p[0] < shadowbuffer.width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffer.height()) {
+      shadow = 0.0f;
       float bias = shadow_map_bias;
-      shadow = shadowbuffer.get_color(int(sb_p[0]),int(sb_p[1])).x > sb_p[2]-bias ? 1 : 0;
-    } 
+      int i = int(sb_p[0]);
+      int j = int(sb_p[1]);
+      for(int x = -2; x <= 2; ++x) {
+        for(int y = -2; y <= 2; ++y) {
+          shadow +=shadowbuffer.get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1 : 0;    
+        }    
+      }
+      shadow /= 25;
+    }
   }
   vec3 bn = (vec_varying_nrm[iface][0] * bc.x + 
     vec_varying_nrm[iface][1] * bc.y + 

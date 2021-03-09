@@ -14,17 +14,27 @@
 rasterize_mesh  = function(vertices, indices = NULL, texcoords = NULL, normals = NULL,
                            filename = NA, width=400, height=400,
                            fov=20,lookfrom=c(0,0,10),lookat=c(0,0,0),
-                           type = "diffuse", color="darkred",
+                           type = "diffuse", color="darkred",background = "white",
                            texture_location = NA,
                            normal_texture_location = NA,
                            specular_texture_location = NA,
                            emissive_texture_location = NA,
+                           parallel=TRUE,
                            light_direction=c(1,1,1), ambient_color=c(0,0,0), 
                            exponent=32, specular_intensity = 0.6, emission_intensity = 1,
                            diffuse_intensity = 1, tangent_space_normals = FALSE,
                            shadow_map = FALSE, calc_ambient = FALSE, 
                            ambient_intensity = 10, ambient_radius = 0.1,
                            tonemap = "none", debug = "none", shadow_map_bias = 0.005) {
+  if(!is.null(options("cores")[[1]])) {
+    numbercores = options("cores")[[1]]
+  } else {
+    numbercores = parallel::detectCores()
+  }
+  if(!parallel) {
+    numbercores = 1
+  }
+  
   if(is.null(indices)) {
     if(length(vertices) %% 3 != 0) {
       stop("If no indices matrix provided, number of rows in `vertices` must be a multiple of 3")
@@ -121,13 +131,20 @@ rasterize_mesh  = function(vertices, indices = NULL, texcoords = NULL, normals =
                         has_shadow_map=shadow_map, 
                         calc_ambient = calc_ambient, 
                         tbn = tangent_space_normals, ambient_radius = ambient_radius,
-                        shadow_map_bias=shadow_map_bias)
-  imagelist$amb = (imagelist$amb)^ambient_intensity
+                        shadow_map_bias=shadow_map_bias,
+                        numbercores=numbercores)
   if(calc_ambient) {
+    imagelist$amb = (imagelist$amb)^ambient_intensity
     imagelist$r = imagelist$r * imagelist$amb
     imagelist$g = imagelist$g * imagelist$amb
     imagelist$b = imagelist$b * imagelist$amb
   }
+  
+  imagelist$r[is.infinite(imagelist$depth)] = bg_color[1]
+  imagelist$g[is.infinite(imagelist$depth)] = bg_color[2]
+  imagelist$b[is.infinite(imagelist$depth)] = bg_color[3]
+  
+  
   if(debug == "normals") {
     norm_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
     norm_array[,,1] = (imagelist$normalx+1)/2

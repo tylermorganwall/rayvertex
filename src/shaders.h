@@ -17,6 +17,7 @@ class IShader {
   public:
     virtual vec4 vertex(int iface, int nthvert) = 0;
     virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) = 0;
+    virtual ~IShader() {};
 };
 
 

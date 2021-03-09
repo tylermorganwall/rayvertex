@@ -25,6 +25,13 @@ class rayimage {
     vec3 get_color(int i, int j) {
       return(vec3(r(i,j),g(i,j),b(i,j)));
     }
+    vec3 get_color_bounded(int i, int j) {
+      i = i > nx-1 ? nx-1 : i;
+      j = j > ny-1 ? ny-1 : j;
+      i = i < 0 ? 0 : i;
+      j = j < 0 ? 0 : j;
+      return(vec3(r(i,j),g(i,j),b(i,j)));
+    }
     int width() {
       return(nx);
     }

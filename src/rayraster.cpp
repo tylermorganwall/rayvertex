@@ -49,55 +49,6 @@ inline vec3 clamp(const vec3& c, float clamplow, float clamphigh) {
   return(temp);
 }
 
-// tbb::mutex lock;
-// 
-// struct FillTriParallel : public Worker {
-//   // source vector
-//   RMatrix<double> vertices;
-//   RMatrix<int> indices;
-//   RMatrix<double> zbuffer;
-//   RMatrix<double> rbuffer;
-//   RMatrix<double> bbuffer;
-//   RMatrix<double> gbuffer;
-//   IShader* shader;
-//   
-//   // constructors
-//   FillTriParallel(NumericMatrix vertices,
-//                   IntegerMatrix indices,
-//                   NumericMatrix zbuffer,
-//                   NumericMatrix rbuffer,
-//                   NumericMatrix gbuffer,
-//                   NumericMatrix bbuffer,
-//                   IShader* shader) : vertices(vertices), 
-//                   indices(indices), zbuffer(zbuffer), rbuffer(rbuffer),
-//                   bbuffer(bbuffer), gbuffer(gbuffer), shader(shader) {}
-//   FillTriParallel(const FillTriParallel& tris, Split) : 
-//     vertices(tris.vertices), 
-//     indices(tris.indices), zbuffer(tris.zbuffer), rbuffer(tris.rbuffer),
-//     bbuffer(tris.bbuffer), gbuffer(tris.gbuffer), shader(tris.shader) {}
-//   
-//   void operator()(std::size_t begin, std::size_t end) {
-//     for(size_t i = begin; i < end; i++) {
-//       fill_tri_raw(i, shader, zbuffer, rbuffer, gbuffer, bbuffer, lock);
-//     }
-//   }
-//   
-//   void join(const FillTriParallel& rhs, Split) {
-//     // for(int i = 0; i < zbuffer.nrow(); i++) {
-//       // for(int j = 0; j <  zbuffer.ncol(); j++) {
-//         // while(!lock.try_lock())
-//         // if(rhs.zbuffer(i,j) < zbuffer(i,j)) {
-//         //   rbuffer(i,j) = rhs.rbuffer(i,j);
-//         //   gbuffer(i,j) = rhs.gbuffer(i,j);
-//         //   bbuffer(i,j) = rhs.bbuffer(i,j);
-//         //   zbuffer(i,j) = rhs.zbuffer(i,j);
-//         // }
-//         // lock.unlock();
-//       // }
-//     // }
-//   };
-// };
-
 template<class T>
 inline T lerp(float t, T v1, T v2) {
   return((1-t) * v1 + t * v2);
@@ -142,6 +93,7 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
                bool tbn,
                float ambient_radius,
                float shadow_map_bias,
+               int numbercores,
                float near_clip = 0.1,
                float  far_clip = 100) {
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
@@ -262,7 +214,7 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   }
   
   //Set up blocks
-  int blocksize = 32;
+  int blocksize = 4;
   std::vector<std::vector<vec4> > ndc_verts(3, std::vector<vec4>(n));
   std::vector<std::vector<float> > ndc_inv_w(3, std::vector<float>(n));
   std::vector<vec3> min_bounds(n);
@@ -292,22 +244,72 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
                                     light_up);
   glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
-  std::unique_ptr<IShader> depthshader(new DepthShader(Model, lightProjection, lightView, viewport,
-                                                       light_dir, model));
-  
+  IShader* depthshader = new DepthShader(Model, lightProjection, lightView, viewport,
+                                                       light_dir, model);
   
   if(has_shadow_map) {
     for(int i = 0; i < n; i++) {
-      fill_tri(i, depthshader.get(), zbuffer, shadowbuffer, normalbuffer, positionbuffer);
+      ndc_verts[0][i] = depthshader->vertex(i,0);
+      ndc_verts[1][i] = depthshader->vertex(i,1);
+      ndc_verts[2][i] = depthshader->vertex(i,2);
+      
+      ndc_inv_w[0][i] = 1.0f/ndc_verts[0][i].w;
+      ndc_inv_w[1][i] = 1.0f/ndc_verts[1][i].w;
+      ndc_inv_w[2][i] = 1.0f/ndc_verts[2][i].w;
+      
+      vec3 v1 = ndc_verts[0][i] * ndc_inv_w[0][i];
+      vec3 v2 = ndc_verts[1][i] * ndc_inv_w[1][i];
+      vec3 v3 = ndc_verts[2][i] * ndc_inv_w[2][i];
+      
+      min_bounds[i] = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
+                           fmin(v1.y,fmin(v2.y,v3.y)),
+                           fmin(v1.z,fmin(v2.z,v3.z)));
+      
+      max_bounds[i] = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
+                           fmax(v1.y,fmax(v2.y,v3.y)),
+                           fmax(v1.z,fmax(v2.z,v3.z)));
+      
+      int min_x_block = std::fmax(floor(min_bounds[i].x / (float)blocksize),0);
+      int min_y_block = std::fmax(floor(min_bounds[i].y / (float)blocksize),0);
+      int max_x_block = std::fmin(ceil(max_bounds[i].x / (float)blocksize), nx_blocks);
+      int max_y_block = std::fmin(ceil(max_bounds[i].y / (float)blocksize), ny_blocks);
+      if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks && min_y_block < ny_blocks) {
+        for(int j = min_x_block; j < max_x_block; j++) {
+          for(int k = min_y_block; k < max_y_block; k++) {
+            blocks[k + ny_blocks * j].push_back(i); 
+          }
+        }
+      }
+    }
+    
+    auto sp = depthshader;
+    auto task = [sp, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
+                 &zbuffer, &shadowbuffer, &normalbuffer, &positionbuffer] (unsigned int i) {
+      fill_tri_blocks(blocks[i],
+                      ndc_verts,
+                      ndc_inv_w,
+                      min_block_bound[i],
+                      max_block_bound[i],
+                      sp,
+                      zbuffer,
+                      shadowbuffer,
+                      normalbuffer,
+                      positionbuffer);
+    };
+    
+    RcppThread::ThreadPool pool2(numbercores);
+    for(int i = 0; i < nx_blocks*ny_blocks; i++) {
+      pool2.push(task, i);
+    }
+    pool2.join();
+
+    //Clear out block info from depth
+    for(int j = 0; j < nx_blocks; j++) {
+      for(int k = 0; k < ny_blocks; k++) {
+        blocks[k + ny_blocks * j].clear();
+      }
     }
   }
-  
-  // //Clear out block info from depth
-  // for(int j = 0; j < nx_blocks; j++) {
-  //   for(int k = 0; k < ny_blocks; k++) {
-  //     blocks[k + nx_blocks * j].clear();
-  //   }
-  // }
   
   Mat vp = glm::scale(glm::translate(Mat(1.0f),
                       vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)),
@@ -317,47 +319,46 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
 
   //Calculate Image
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<float>::infinity() ) ;
-  std::unique_ptr<IShader> shader;
+  IShader* shader;
 
   if(type == 1) {
-    shader = std::unique_ptr<IShader>(new GouraudShader(Model, Projection, View, viewport,
+    shader = new GouraudShader(Model, Projection, View, viewport,
                                                     glm::normalize(light_dir), model,
                                                     shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                                    shadow_map_bias));
+                                                    shadow_map_bias);
   } else if (type == 2) {
-    shader = std::unique_ptr<IShader>(new DiffuseShader(Model, Projection, View, viewport,
+    shader = new DiffuseShader(Model, Projection, View, viewport,
                                                         glm::normalize(light_dir), model,
                                                         shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                                        shadow_map_bias));
+                                                        shadow_map_bias);
   } else if (type == 3) {
-    shader = std::unique_ptr<IShader>(new PhongShader(Model, Projection, View, viewport,
+    shader = new PhongShader(Model, Projection, View, viewport,
                                                       glm::normalize(light_dir), model,
                                                       shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                                      shadow_map_bias));
+                                                      shadow_map_bias);
   } else if (type == 4) {
-    shader = std::unique_ptr<IShader>(new DiffuseNormalShader(Model, Projection, View, viewport,
+    shader = new DiffuseNormalShader(Model, Projection, View, viewport,
                                                       glm::normalize(light_dir), model,
                                                       shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                                      shadow_map_bias));
+                                                      shadow_map_bias);
   } else if (type == 5) {
-    shader = std::unique_ptr<IShader>(new DiffuseShaderTangent(Model, Projection, View, viewport,
+    shader = new DiffuseShaderTangent(Model, Projection, View, viewport,
                                                               glm::normalize(light_dir), model,
                                                               shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                                              shadow_map_bias));
+                                                              shadow_map_bias);
   } else if (type == 6) {
-    shader = std::unique_ptr<IShader>(new PhongNormalShader(Model, Projection, View, viewport,
+    shader = new PhongNormalShader(Model, Projection, View, viewport,
                                                             glm::normalize(light_dir), model,
                                                             shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                                            shadow_map_bias));
+                                                            shadow_map_bias);
   } else if (type == 7) {
-    shader = std::unique_ptr<IShader>(new PhongShaderTangent(Model, Projection, View, viewport,
+    shader = new PhongShaderTangent(Model, Projection, View, viewport,
                                                             glm::normalize(light_dir), model,
                                                             shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                                            shadow_map_bias));
+                                                            shadow_map_bias);
   } else {
     throw std::runtime_error("shader not recognized");
   }
-
 
   for(int i = 0; i < n; i++) {
     ndc_verts[0][i] = shader->vertex(i,0);
@@ -387,20 +388,15 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
     if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks && min_y_block < ny_blocks) {
       for(int j = min_x_block; j < max_x_block; j++) {
         for(int k = min_y_block; k < max_y_block; k++) {
-          blocks[k + nx_blocks * j].push_back(i);
+          blocks[k + ny_blocks * j].push_back(i);
         }
       }
     }
   }
-  
-  // for(int i = 0; i < n; i++) {
-  //   fill_tri(i, shader.get(), zbuffer, image, normalbuffer, positionbuffer);
-  // }
 
-  auto sp = shader.get();
+  auto sp = shader;
   auto task = [sp, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
                &zbuffer, &image, &normalbuffer, &positionbuffer] (unsigned int i) {
-                 std::unique_ptr<IShader> shader;
     fill_tri_blocks(blocks[i],
                     ndc_verts,
                     ndc_inv_w,
@@ -413,7 +409,7 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
                     positionbuffer);
   };
 
-  RcppThread::ThreadPool pool(8);
+  RcppThread::ThreadPool pool(numbercores);
   for(int i = 0; i < nx_blocks*ny_blocks; i++) {
     pool.push(task, i);
   }
@@ -499,6 +495,9 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
       }
     }
   }
+  
+  delete depthshader;
+  delete shader;
   
   //Free memory
   if(has_texture) {

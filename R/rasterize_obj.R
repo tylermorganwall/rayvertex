@@ -13,16 +13,17 @@
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
 rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                           fov=20,lookfrom=c(0,0,10),lookat=c(0,0,0),
-                          type = "diffuse", color="darkred",
+                          type = "diffuse", color="darkred", background = "white",
                           texture_location = NA,
                           normal_texture_location = NA,
                           specular_texture_location = NA,
                           emissive_texture_location = NA,
+                          parallel = TRUE,
                           light_direction=c(1,1,1), ambient_color=c(0,0,0), 
                           exponent=32, specular_intensity = 0.6, emission_intensity = 1,
                           diffuse_intensity = 1, tangent_space_normals = FALSE,
                           shadow_map = FALSE, calc_ambient = FALSE, 
-                          ambient_intensity = 10, ambient_radius = 0.1,
+                          ambient_intensity = 10, ambient_radius = 0.1, 
                           tonemap = "none", debug = "none", shadow_map_bias = 0.005) {
   obj = readobj::read.obj(obj_model)
   # for(i in seq_len(length(obj$shapes))) {
@@ -32,6 +33,14 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
   normals = matrix(obj$shapes[[1]]$normal,ncol=3,byrow=TRUE)
   # }
   
+  if(!is.null(options("cores")[[1]])) {
+    numbercores = options("cores")[[1]]
+  } else {
+    numbercores = parallel::detectCores()
+  }
+  if(!parallel) {
+    numbercores = 1
+  }
   
   if(type == "gouraud" && nrow(normals) != nrow(vertices)) {
     type = "diffuse"
@@ -48,6 +57,7 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
     texcoords = matrix(0)
   }
   color = convert_color(color)
+  bg_color = convert_color(background)
 
   has_texture = !is.na(texture_location) && file.exists(texture_location)
   has_normal_texture = !is.na(normal_texture_location) && file.exists(normal_texture_location)
@@ -114,9 +124,10 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                         has_shadow_map=shadow_map, 
                         calc_ambient = calc_ambient, 
                         tbn = tangent_space_normals, ambient_radius = ambient_radius,
-                        shadow_map_bias=shadow_map_bias)
-  imagelist$amb = (imagelist$amb)^ambient_intensity
+                        shadow_map_bias=shadow_map_bias,
+                        numbercores=numbercores)
   if(calc_ambient) {
+    imagelist$amb = (imagelist$amb)^ambient_intensity
     imagelist$r = imagelist$r * imagelist$amb
     imagelist$g = imagelist$g * imagelist$amb
     imagelist$b = imagelist$b * imagelist$amb
@@ -131,15 +142,19 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
     return(invisible(norm_array))
   }
   
+  imagelist$r[is.infinite(imagelist$depth)] = bg_color[1]
+  imagelist$g[is.infinite(imagelist$depth)] = bg_color[2]
+  imagelist$b[is.infinite(imagelist$depth)] = bg_color[3]
+  
   retmat = array(0,dim=c(dim(imagelist$r)[2:1],3))
   if(tonemap != 4) {
     imagelist = tonemap_image(imagelist$r,imagelist$g,imagelist$b,tonemap)
   }
-  
   retmat[,,1] = rayimage::render_reorient(imagelist$r,transpose = TRUE, flipx = TRUE)
   retmat[,,2] = rayimage::render_reorient(imagelist$g,transpose = TRUE, flipx = TRUE)
   retmat[,,3] = rayimage::render_reorient(imagelist$b,transpose = TRUE, flipx = TRUE)
   retmat = rayimage::render_convolution(retmat, min_value = 1)
+  
   retmat[retmat > 1] = 1
   if(is.na(filename)) {
     rayimage::plot_image(retmat)

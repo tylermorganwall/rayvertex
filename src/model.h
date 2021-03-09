@@ -58,6 +58,7 @@ class ModelInfo {
                   normals(inds(iface,nthvert) - 1, 1),
                   normals(inds(iface,nthvert) - 1, 2)));
     }
+    //Check if memory leak, possibly due to indices
     vec3 tex(int iface, int nthvert) {
       return(vec3(texcoords(inds(iface,nthvert) - 1, 0),
                   texcoords(inds(iface,nthvert) - 1, 1),

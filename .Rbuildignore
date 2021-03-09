@@ -1,2 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.github$
+^.+\.png$
+^.+\.mp4$
+^.+\.tga$
+^.+\.obj$
