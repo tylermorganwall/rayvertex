@@ -26,12 +26,35 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                           ambient_intensity = 10, ambient_radius = 0.1, 
                           tonemap = "none", debug = "none", shadow_map_bias = 0.005) {
   obj = readobj::read.obj(obj_model)
-  # for(i in seq_len(length(obj$shapes))) {
-  vertices = t(obj$shapes[[1]]$positions)
-  indices = t(obj$shapes[[1]]$indices)+1
-  texcoords = matrix(obj$shapes[[1]]$texcoords,ncol=2,byrow=TRUE)
-  normals = matrix(obj$shapes[[1]]$normal,ncol=3,byrow=TRUE)
-  # }
+  
+  max_indices = 0
+  has_norms = rep(FALSE,length(obj$shapes))
+  has_tex = rep(FALSE,length(obj$shapes))
+  
+  for(i in seq_len(length(obj$shapes))) {
+    obj$shapes[[i]]$positions = t(obj$shapes[[i]]$positions)
+    obj$shapes[[i]]$indices = t(obj$shapes[[i]]$indices)+1
+    obj$shapes[[i]]$texcoords = matrix(obj$shapes[[i]]$texcoords,ncol=2,byrow=TRUE)
+    obj$shapes[[i]]$normals = t(obj$shapes[[i]]$normals)
+    max_indices = max(c(max_indices,nrow(obj$shapes[[i]]$indices)))
+    has_norms[i] = nrow(obj$shapes[[i]]$normal) == nrow(obj$shapes[[i]]$positions)
+    has_tex[i] = nrow(obj$shapes[[i]]$normal) == nrow(obj$shapes[[i]]$texcoords)
+  }
+  
+  for(i in seq_len(length(obj$materials))) {
+    if(!is.null(obj$materials[[i]]$diffuse_texname) && obj$materials[[i]]$diffuse_texname != "") {
+      obj$materials[[i]]$diffuse_texname = path.expand(obj$materials[[i]]$diffuse_texname)
+    }
+    if(!is.null(obj$materials[[i]]$normal_texname) && obj$materials[[i]]$normal_texname != "") {
+      obj$materials[[i]]$specular_texname = path.expand(obj$materials[[i]]$specular_texname)
+    }
+    if(!is.null(obj$materials[[i]]$normal_texname) && obj$materials[[i]]$normal_texname != "") {
+      obj$materials[[i]]$normal_texname = path.expand(obj$materials[[i]]$normal_texname)
+    }
+    if(!is.null(obj$materials[[i]]$emissive_texname) && obj$materials[[i]]$emissive_texname != "") {
+      obj$materials[[i]]$emissive_texname = path.expand(obj$materials[[i]]$emissive_texname)
+    }
+  }
   
   if(!is.null(options("cores")[[1]])) {
     numbercores = options("cores")[[1]]
@@ -46,64 +69,34 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
     type = "diffuse"
     warning("setting type to `diffuse`--Gouraud shading requires vertex normals for every vertex")
   }
-  has_normals = TRUE
-  if(is.null(normals)) {
-    has_normals = FALSE
-    normals = matrix(0)
-  }
-  has_texcoords = TRUE
-  if(is.null(texcoords)) {
-    has_texcoords = FALSE
-    texcoords = matrix(0)
-  }
   color = convert_color(color)
   bg_color = convert_color(background)
-
-  has_texture = !is.na(texture_location) && file.exists(texture_location)
-  has_normal_texture = !is.na(normal_texture_location) && file.exists(normal_texture_location)
-  has_specular_texture = !is.na(specular_texture_location) && file.exists(specular_texture_location)
-  has_emissive_texture = !is.na(emissive_texture_location) && file.exists(emissive_texture_location)
   
-  if(has_texture) {
-    texture_location = path.expand(texture_location)
-  } 
-  if(has_normal_texture) {
-    normal_texture_location = path.expand(normal_texture_location)
-  } 
-  if(has_specular_texture) {
-    specular_texture_location = path.expand(specular_texture_location)
-  } 
-  if(has_emissive_texture) {
-    emissive_texture_location = path.expand(emissive_texture_location)
-  } 
-  
-  typeval = switch(type, "vertex" = 1, "diffuse" = 2, "phong" = 3)
-  if(has_normal_texture) {
-    if(typeval == 2) {
-      if(!tangent_space_normals) {
-        typeval = 4
-      } else {
-        typeval = 5
+  typeval = switch(type, "vertex" = 1, "diffuse" = 2, "phong" = 3, 1)
+  typevals = rep(1,length(obj$shapes))
+  for(i in seq_len(length(obj$shapes))) {
+    if(has_norms[i]) {
+      if(typeval == 2) {
+        if(!tangent_space_normals) {
+          typevals[i] = 4
+        } else {
+          typevals[i] = 5
+        }
+      } else if (typeval == 3) {
+        if(!tangent_space_normals) {
+          typevals[i] = 6
+        } else {
+          typevals[i] = 7
+        }
       }
-    } else if (typeval == 3) {
-      if(!tangent_space_normals) {
-        typeval = 6
-      } else {
-        typeval = 7
-      }
+    } else {
+      typevals[i] = typeval
     }
   }
   tonemap = switch(tonemap, "gamma" = 1, "uncharted" = 2, "hbd" = 3, "none"=4, 1)
-  imagelist = rasterize(vertices,
-                        indices,
+  imagelist = rasterize(obj,
                         nx=width,
                         ny=height,
-                        texcoords = texcoords, 
-                        normals=normals,
-                        texture_location = texture_location,
-                        normal_texture_location = normal_texture_location,
-                        specular_texture_location = specular_texture_location,
-                        emissive_texture_location = emissive_texture_location,
                         model_color = color,
                         ambient_color = ambient_color,
                         exponent = exponent,
@@ -114,18 +107,13 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                         lookat=lookat,
                         fov=fov,
                         light_direction=light_direction,
-                        type = typeval,
-                        has_normals = has_normals,
-                        has_texcoords = has_texcoords,
-                        has_texture = has_texture, 
-                        has_normal_texture=has_normal_texture,
-                        has_specular_texture=has_specular_texture,
-                        has_emissive_texture = has_emissive_texture,
+                        type = typevals,
                         has_shadow_map=shadow_map, 
                         calc_ambient = calc_ambient, 
                         tbn = tangent_space_normals, ambient_radius = ambient_radius,
                         shadow_map_bias=shadow_map_bias,
-                        numbercores=numbercores)
+                        numbercores=numbercores, max_indices = max_indices,
+                        has_normals_vec=has_norms, has_tex_vec=has_tex)
   if(calc_ambient) {
     imagelist$amb = (imagelist$amb)^ambient_intensity
     imagelist$r = imagelist$r * imagelist$amb

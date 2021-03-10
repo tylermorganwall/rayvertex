@@ -23,10 +23,11 @@
 // [[Rcpp::depends(RcppThread)]]
 #include "RcppThread.h"
 
+#include "material.h"
+
 #include "filltri.h"
 
 using namespace Rcpp;
-// using namespace RcppParallel;
 
 
 inline vec3 clamp(const vec3& c, float clamplow, float clamphigh) {
@@ -64,13 +65,8 @@ void print_mat(Mat m) {
 }
 
 // [[Rcpp::export]]
-List rasterize(NumericMatrix verts, IntegerMatrix inds, 
-               NumericMatrix texcoords, NumericMatrix normals,
+List rasterize(List mesh,
                int nx, int ny,
-               CharacterVector texture_location,     
-               CharacterVector normal_texture_location, 
-               CharacterVector specular_texture_location,
-               CharacterVector emissive_texture_location,
                NumericVector model_color,
                NumericVector lookfrom,
                NumericVector lookat,
@@ -81,19 +77,17 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
                float specular_intensity, 
                float diffuse_intensity, 
                float emission_intensity,
-               int type,
-               bool has_normals,
-               bool has_texcoords,
-               bool has_texture,
-               bool has_normal_texture,
-               bool has_specular_texture,
-               bool has_emissive_texture,
+               IntegerVector typevals,
                bool has_shadow_map,
                bool calc_ambient, 
                bool tbn,
                float ambient_radius,
                float shadow_map_bias,
                int numbercores,
+               int max_indices,
+               LogicalVector has_normals_vec,
+               LogicalVector has_tex_vec,
+               
                float near_clip = 0.1,
                float  far_clip = 100) {
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
@@ -152,149 +146,268 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<float>::infinity() ) ;
   
-  //Load textures
-  float* texture;
-  float* normal_texture;
-  float* specular_texture;
-  float* emissive_texture;
-  
-  int nx_t, ny_t, nn_t, nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et = 0;
-  
-  if(has_texture) {
-    texture = stbi_loadf(texture_location(0), &nx_t, &ny_t, &nn_t, 4);
-    if(nx_t == 0 || ny_t == 0 || nn_t == 0) {
-      throw std::runtime_error("Texture loading failed");
-    }
-  }
-  if(has_normal_texture) {
-    normal_texture = stbi_loadf(normal_texture_location(0), &nx_nt, &ny_nt, &nn_nt, 4);
-    if(nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
-      throw std::runtime_error("Normal texture loading failed");
-    }
-  }
-  if(has_specular_texture) {
-    specular_texture = stbi_loadf(specular_texture_location(0), 
-                                  &nx_st, &ny_st, &nn_st, 4);
-    if(nx_st == 0 || ny_st == 0 || nn_st == 0) {
-      throw std::runtime_error("Specular texture loading failed");
-    }
-  }
-  if(has_emissive_texture) {
-    emissive_texture = stbi_loadf(emissive_texture_location(0), 
-                                  &nx_et, &ny_et, &nn_et, 4);
-    if(nx_et == 0 || ny_et == 0 || nn_et == 0) {
-      throw std::runtime_error("Emissive texture loading failed");
-    }
-  }
-  
-  int n = inds.nrow();
-  int cols = inds.ncol();
-  if(cols < 2) {
-    throw std::runtime_error("Too few columns in index matrix");
-  }
   
   
-  //Create model object
-  ModelInfo model(verts, inds, texcoords, normals,
-                  texture, normal_texture, specular_texture, emissive_texture,
-                  ambient, exponent, specular_intensity, diffuse_intensity, emission_intensity,
-                  nx_t, ny_t, nn_t,
-                  nx_nt, ny_nt, nn_nt,
-                  nx_st, ny_st, nn_st,
-                  nx_et, ny_et, nn_et,
-                  has_normals, has_texcoords,
-                  has_texture, has_normal_texture, has_specular_texture, has_emissive_texture,
-                  color, tbn);
-
   //Calculate Shadow Map
   float near_plane = 1.0f, far_plane = 7.5f;
   vec3 light_up = vec3(0.,1.,0.);
   if(std::fabs(glm::dot(light_up,glm::normalize(light_dir))) == 1) {
     light_up = vec3(0.f,0.f,1.0f);
   }
+  //Change to bounding box scene
+  glm::mat4 lightProjection = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, near_plane, far_plane);
+  glm::mat4 lightView = glm::lookAt(light_dir,
+                                    glm::vec3( 0.0f, 0.0f,  0.0f),
+                                    light_up);
+  
+  Mat vp = glm::scale(glm::translate(Mat(1.0f),
+                                     vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)),
+                                     vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
+  Mat M = vp*lightProjection*lightView*Model;
+  Mat uniform_Mshadow_ = M*glm::inverse(vp*Projection*View*Model);
+  
+  ///
+  //Parse mesh3d
+  //
+  
+  //Start by generating a shader for every material
+  std::vector<material_info> mat_info;
+  std::vector<IShader*> shaders;
+  
+  List materials = as<List>(mesh["materials"]);
+  int number_materials = materials.size();
+  for(int i = 0; i < number_materials; i++) {
+    List single_material = as<List>(materials(i));
+    NumericVector ambient = as<NumericVector>(single_material["ambient"]);
+    NumericVector diffuse = as<NumericVector>(single_material["diffuse"]);
+    NumericVector specular = as<NumericVector>(single_material["specular"]);
+    NumericVector transmittance = as<NumericVector>(single_material["transmittance"]);
+    NumericVector emission = as<NumericVector>(single_material["emission"]);
+    float shininess = as<float>(single_material["shininess"]);
+    float ior = as<float>(single_material["ior"]);
+    float dissolve = as<float>(single_material["dissolve"]);
+    float illum = as<float>(single_material["illum"]);
+    String ambient_texname = as<String>(single_material["ambient_texname"]);
+    String diffuse_texname = as<String>(single_material["diffuse_texname"]);
+    String specular_texname = as<String>(single_material["specular_texname"]);
+    String normal_texname = as<String>(single_material["normal_texname"]);
+    String emissive_texname = as<String>(single_material["emissive_texname"]);
+    bool has_norms = has_normals_vec(i);
+    bool has_tex = has_tex_vec(i);
+    
+    material_info temp = {
+      vec3(ambient(0),ambient(1),ambient(2)),
+      vec3(diffuse(0),diffuse(1),diffuse(2)),
+      vec3(specular(0),specular(1),specular(2)),
+      vec3(transmittance(0),transmittance(1),transmittance(2)),
+      vec3(emission(0),emission(1),emission(2)),
+      shininess,
+      ior,
+      dissolve,
+      illum,
+      ambient_texname,
+      diffuse_texname,
+      specular_texname,
+      normal_texname,
+      emissive_texname,
+      max_indices,
+      emission_intensity,
+      diffuse_intensity,
+      specular_intensity,
+      has_norms,
+      has_tex
+    };
+    mat_info.push_back(temp);
+    
+    IShader* shader;
+    int type = typevals(i);
+    if(type == 1) {
+      shader = new GouraudShader(Model, Projection, View, viewport,
+                                 glm::normalize(light_dir), 
+                                 shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                                 shadow_map_bias,mat_info[i]);
+    } else if (type == 2) {
+      shader = new DiffuseShader(Model, Projection, View, viewport,
+                                 glm::normalize(light_dir), 
+                                 shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                                 shadow_map_bias,mat_info[i]);
+    } else if (type == 3) {
+      shader = new PhongShader(Model, Projection, View, viewport,
+                               glm::normalize(light_dir), 
+                               shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                               shadow_map_bias,mat_info[i]);
+    } else if (type == 4) {
+      shader = new DiffuseNormalShader(Model, Projection, View, viewport,
+                                       glm::normalize(light_dir), 
+                                       shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                                       shadow_map_bias,mat_info[i]);
+    } else if (type == 5) {
+      shader = new DiffuseShaderTangent(Model, Projection, View, viewport,
+                                        glm::normalize(light_dir), 
+                                        shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                                        shadow_map_bias,mat_info[i]);
+    } else if (type == 6) {
+      shader = new PhongNormalShader(Model, Projection, View, viewport,
+                                     glm::normalize(light_dir), 
+                                     shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                                     shadow_map_bias,mat_info[i]);
+    } else if (type == 7) {
+      shader = new PhongShaderTangent(Model, Projection, View, viewport,
+                                      glm::normalize(light_dir),
+                                      shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                                      shadow_map_bias,mat_info[i]);
+    } else {
+      throw std::runtime_error("shader not recognized");
+    }
+    shaders.push_back(shader);
+  }
+  
+  //Default material initialize
+  
+  material_info default_mat = {
+    vec3(ambient_color(0),ambient_color(1),ambient_color(2)),
+    vec3(model_color(0),model_color(1),model_color(2)),
+    vec3(0.8),
+    vec3(1.0),
+    vec3(0.0),
+    32,
+    1.0,
+    0.0,
+    0.0,
+    "",
+    "",
+    "",
+    "",
+    "",
+    max_indices, //Maybe
+    0.0,
+    1.0,
+    1.0,
+    false,
+    false
+  };
+  
+  IShader* default_shader = new DiffuseShader(Model, Projection, View, viewport,
+                             glm::normalize(light_dir), 
+                             shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                             shadow_map_bias, default_mat);
+  shaders.push_back(default_shader);
+  
+  List shapes = as<List>(mesh["shapes"]);
+  int number_shapes = shapes.size();
+
+  std::vector<ModelInfo> models;
+
+  std::vector<std::vector<std::vector<vec4>  > > ndc_verts;
+  std::vector<std::vector<std::vector<float> > > ndc_inv_w;
+  std::vector<std::vector<vec3> > min_bounds;
+  std::vector<std::vector<vec3> > max_bounds;
+  
+  for(int i = 0; i < number_shapes; i++) {
+    List single_shape = as<List>(shapes(i));
+    NumericMatrix shape_verts = as<NumericMatrix>(single_shape["positions"]);
+    NumericMatrix shape_normals = as<NumericMatrix>(single_shape["normals"]);
+    NumericMatrix shape_texcoords = as<NumericMatrix>(single_shape["texcoords"]);
+    IntegerMatrix shape_inds = as<IntegerMatrix>(single_shape["indices"]);
+    IntegerVector shape_materials = as<IntegerVector>(single_shape["material_ids"]);
+    
+    int n = shape_inds.nrow();
+    
+    ndc_verts.push_back(std::vector<std::vector<vec4>  >(3, std::vector<vec4>(n)));
+    ndc_inv_w.push_back(std::vector<std::vector<float> >(3, std::vector<float>(n)));
+    min_bounds.push_back(std::vector<vec3>(n));
+    max_bounds.push_back(std::vector<vec3>(n));
+    
+    
+    //Create model object
+    ModelInfo model(shape_verts, shape_inds, shape_texcoords, shape_normals, shape_materials,
+                    has_normals_vec(i), has_tex_vec(i), tbn);
+    models.push_back(model);
+  }
+
   
   //Set up blocks
   int blocksize = 4;
-  std::vector<std::vector<vec4> > ndc_verts(3, std::vector<vec4>(n));
-  std::vector<std::vector<float> > ndc_inv_w(3, std::vector<float>(n));
-  std::vector<vec3> min_bounds(n);
-  std::vector<vec3> max_bounds(n);
   
-  std::vector<std::vector<int> > blocks;
+  //First index model, then block, then index
+  std::vector<std::vector<std::vector<int> > > blocks(models.size());
+  
   std::vector<vec2> min_block_bound;
   std::vector<vec2> max_block_bound;
   
   int nx_blocks = ceil((float)nx/(float)blocksize);
   int ny_blocks = ceil((float)ny/(float)blocksize);
   
+  std::vector<std::vector<int> > single_model_blocks;
   for(int i = 0; i < nx; i += blocksize) {
     for(int j = 0; j < ny; j += blocksize) {
-      std::vector<int> temp;
-      blocks.push_back(temp);
+      for(int k = 0; k < models.size(); k++) {
+        std::vector<int> temp;
+        blocks[k].push_back(temp);
+      }
       min_block_bound.push_back(vec2(i,j));
       max_block_bound.push_back(vec2(std::min(i+blocksize,nx),std::min(j+blocksize,ny)));
     }
   }
-  
-  //Change to bounding box scene
-  
-  glm::mat4 lightProjection = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, near_plane, far_plane);
-  glm::mat4 lightView = glm::lookAt(light_dir,
-                                    glm::vec3( 0.0f, 0.0f,  0.0f),
-                                    light_up);
-  glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
-  IShader* depthshader = new DepthShader(Model, lightProjection, lightView, viewport,
-                                                       light_dir, model);
-  
+  IShader* depthshader = new DepthShader(Model, lightProjection, lightView, viewport, light_dir, max_indices);
+
   if(has_shadow_map) {
-    for(int i = 0; i < n; i++) {
-      ndc_verts[0][i] = depthshader->vertex(i,0);
-      ndc_verts[1][i] = depthshader->vertex(i,1);
-      ndc_verts[2][i] = depthshader->vertex(i,2);
-      
-      ndc_inv_w[0][i] = 1.0f/ndc_verts[0][i].w;
-      ndc_inv_w[1][i] = 1.0f/ndc_verts[1][i].w;
-      ndc_inv_w[2][i] = 1.0f/ndc_verts[2][i].w;
-      
-      vec3 v1 = ndc_verts[0][i] * ndc_inv_w[0][i];
-      vec3 v2 = ndc_verts[1][i] * ndc_inv_w[1][i];
-      vec3 v3 = ndc_verts[2][i] * ndc_inv_w[2][i];
-      
-      min_bounds[i] = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
-                           fmin(v1.y,fmin(v2.y,v3.y)),
-                           fmin(v1.z,fmin(v2.z,v3.z)));
-      
-      max_bounds[i] = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
-                           fmax(v1.y,fmax(v2.y,v3.y)),
-                           fmax(v1.z,fmax(v2.z,v3.z)));
-      
-      int min_x_block = std::fmax(floor(min_bounds[i].x / (float)blocksize),0);
-      int min_y_block = std::fmax(floor(min_bounds[i].y / (float)blocksize),0);
-      int max_x_block = std::fmin(ceil(max_bounds[i].x / (float)blocksize), nx_blocks);
-      int max_y_block = std::fmin(ceil(max_bounds[i].y / (float)blocksize), ny_blocks);
-      if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks && min_y_block < ny_blocks) {
-        for(int j = min_x_block; j < max_x_block; j++) {
-          for(int k = min_y_block; k < max_y_block; k++) {
-            blocks[k + ny_blocks * j].push_back(i); 
+    for(int model_num = 0; model_num < models.size(); model_num++ ) {
+      ModelInfo &shp = models[model_num];
+      for(int i = 0; i < shp.num_indices; i++) {
+        ndc_verts[model_num][0][i] = depthshader->vertex(i,0, shp);
+        ndc_verts[model_num][1][i] = depthshader->vertex(i,1, shp);
+        ndc_verts[model_num][2][i] = depthshader->vertex(i,2, shp);
+        
+        ndc_inv_w[model_num][0][i] = 1.0f/ndc_verts[model_num][0][i].w;
+        ndc_inv_w[model_num][1][i] = 1.0f/ndc_verts[model_num][1][i].w;
+        ndc_inv_w[model_num][2][i] = 1.0f/ndc_verts[model_num][2][i].w;
+        
+        vec3 v1 = ndc_verts[model_num][0][i] * ndc_inv_w[model_num][0][i];
+        vec3 v2 = ndc_verts[model_num][1][i] * ndc_inv_w[model_num][1][i];
+        vec3 v3 = ndc_verts[model_num][2][i] * ndc_inv_w[model_num][2][i];
+        
+        min_bounds[model_num][i] = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
+                             fmin(v1.y,fmin(v2.y,v3.y)),
+                             fmin(v1.z,fmin(v2.z,v3.z)));
+        
+        max_bounds[model_num][i] = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
+                             fmax(v1.y,fmax(v2.y,v3.y)),
+                             fmax(v1.z,fmax(v2.z,v3.z)));
+        
+        int min_x_block = std::fmax(floor(min_bounds[model_num][i].x / (float)blocksize),0);
+        int min_y_block = std::fmax(floor(min_bounds[model_num][i].y / (float)blocksize),0);
+        int max_x_block = std::fmin(ceil(max_bounds[model_num][i].x / (float)blocksize), nx_blocks);
+        int max_y_block = std::fmin(ceil(max_bounds[model_num][i].y / (float)blocksize), ny_blocks);
+        if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks && min_y_block < ny_blocks) {
+          for(int j = min_x_block; j < max_x_block; j++) {
+            for(int k = min_y_block; k < max_y_block; k++) {
+              blocks[model_num][k + ny_blocks * j].push_back(i); 
+            }
           }
         }
       }
     }
     
-    auto sp = depthshader;
-    auto task = [sp, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
-                 &zbuffer, &shadowbuffer, &normalbuffer, &positionbuffer] (unsigned int i) {
-      fill_tri_blocks(blocks[i],
+    std::vector<IShader* > depth_vec;
+    for(int i = 0; i < shaders.size(); i++ ) {
+      depth_vec.push_back(depthshader);
+    }
+    auto task = [&depth_vec, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
+                 &zbuffer, &shadowbuffer, &normalbuffer, &positionbuffer, &models] (unsigned int i) {
+      fill_tri_blocks(blocks,
                       ndc_verts,
                       ndc_inv_w,
                       min_block_bound[i],
                       max_block_bound[i],
-                      sp,
+                      depth_vec,
                       zbuffer,
                       shadowbuffer,
                       normalbuffer,
-                      positionbuffer);
+                      positionbuffer,
+                      models,
+                      i);
     };
     
     RcppThread::ThreadPool pool2(numbercores);
@@ -310,103 +423,61 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
       }
     }
   }
-  
-  Mat vp = glm::scale(glm::translate(Mat(1.0f),
-                      vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)),
-                      vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
-  Mat M = vp*lightProjection*lightView*Model;
-  Mat uniform_Mshadow_ = M*glm::inverse(vp*Projection*View*Model);
 
   //Calculate Image
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<float>::infinity() ) ;
-  IShader* shader;
 
-  if(type == 1) {
-    shader = new GouraudShader(Model, Projection, View, viewport,
-                                                    glm::normalize(light_dir), model,
-                                                    shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                                    shadow_map_bias);
-  } else if (type == 2) {
-    shader = new DiffuseShader(Model, Projection, View, viewport,
-                                                        glm::normalize(light_dir), model,
-                                                        shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                                        shadow_map_bias);
-  } else if (type == 3) {
-    shader = new PhongShader(Model, Projection, View, viewport,
-                                                      glm::normalize(light_dir), model,
-                                                      shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                                      shadow_map_bias);
-  } else if (type == 4) {
-    shader = new DiffuseNormalShader(Model, Projection, View, viewport,
-                                                      glm::normalize(light_dir), model,
-                                                      shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                                      shadow_map_bias);
-  } else if (type == 5) {
-    shader = new DiffuseShaderTangent(Model, Projection, View, viewport,
-                                                              glm::normalize(light_dir), model,
-                                                              shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                                              shadow_map_bias);
-  } else if (type == 6) {
-    shader = new PhongNormalShader(Model, Projection, View, viewport,
-                                                            glm::normalize(light_dir), model,
-                                                            shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                                            shadow_map_bias);
-  } else if (type == 7) {
-    shader = new PhongShaderTangent(Model, Projection, View, viewport,
-                                                            glm::normalize(light_dir), model,
-                                                            shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                                            shadow_map_bias);
-  } else {
-    throw std::runtime_error("shader not recognized");
-  }
-
-  for(int i = 0; i < n; i++) {
-    ndc_verts[0][i] = shader->vertex(i,0);
-    ndc_verts[1][i] = shader->vertex(i,1);
-    ndc_verts[2][i] = shader->vertex(i,2);
-
-    ndc_inv_w[0][i] = 1.0f/ndc_verts[0][i].w;
-    ndc_inv_w[1][i] = 1.0f/ndc_verts[1][i].w;
-    ndc_inv_w[2][i] = 1.0f/ndc_verts[2][i].w;
-
-    vec3 v1 = ndc_verts[0][i] * ndc_inv_w[0][i];
-    vec3 v2 = ndc_verts[1][i] * ndc_inv_w[1][i];
-    vec3 v3 = ndc_verts[2][i] * ndc_inv_w[2][i];
-
-    min_bounds[i] = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
-                         fmin(v1.y,fmin(v2.y,v3.y)),
-                         fmin(v1.z,fmin(v2.z,v3.z)));
-
-    max_bounds[i] = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
-                         fmax(v1.y,fmax(v2.y,v3.y)),
-                         fmax(v1.z,fmax(v2.z,v3.z)));
-
-    int min_x_block = std::fmax(floor(min_bounds[i].x / (float)blocksize),0);
-    int min_y_block = std::fmax(floor(min_bounds[i].y / (float)blocksize),0);
-    int max_x_block = std::fmin(ceil(max_bounds[i].x / (float)blocksize), nx_blocks);
-    int max_y_block = std::fmin(ceil(max_bounds[i].y / (float)blocksize), ny_blocks);
-    if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks && min_y_block < ny_blocks) {
-      for(int j = min_x_block; j < max_x_block; j++) {
-        for(int k = min_y_block; k < max_y_block; k++) {
-          blocks[k + ny_blocks * j].push_back(i);
+  for(int model_num = 0; model_num < models.size(); model_num++ ) {
+    ModelInfo &shp = models[model_num];
+    for(int i = 0; i < shp.num_indices; i++) {
+      int mat_num = shp.materials[i] != -1 ? shp.materials[i] : shaders.size()-1;
+      ndc_verts[model_num][0][i] = shaders[mat_num]->vertex(i,0, shp);
+      ndc_verts[model_num][1][i] = shaders[mat_num]->vertex(i,1, shp);
+      ndc_verts[model_num][2][i] = shaders[mat_num]->vertex(i,2, shp);
+  
+      ndc_inv_w[model_num][0][i] = 1.0f/ndc_verts[model_num][0][i].w;
+      ndc_inv_w[model_num][1][i] = 1.0f/ndc_verts[model_num][1][i].w;
+      ndc_inv_w[model_num][2][i] = 1.0f/ndc_verts[model_num][2][i].w;
+  
+      vec3 v1 = ndc_verts[model_num][0][i] * ndc_inv_w[model_num][0][i];
+      vec3 v2 = ndc_verts[model_num][1][i] * ndc_inv_w[model_num][1][i];
+      vec3 v3 = ndc_verts[model_num][2][i] * ndc_inv_w[model_num][2][i];
+  
+      min_bounds[model_num][i] = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
+                           fmin(v1.y,fmin(v2.y,v3.y)),
+                           fmin(v1.z,fmin(v2.z,v3.z)));
+  
+      max_bounds[model_num][i] = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
+                           fmax(v1.y,fmax(v2.y,v3.y)),
+                           fmax(v1.z,fmax(v2.z,v3.z)));
+  
+      int min_x_block = std::fmax(floor(min_bounds[model_num][i].x / (float)blocksize),0);
+      int min_y_block = std::fmax(floor(min_bounds[model_num][i].y / (float)blocksize),0);
+      int max_x_block = std::fmin(ceil(max_bounds[model_num][i].x / (float)blocksize), nx_blocks);
+      int max_y_block = std::fmin(ceil(max_bounds[model_num][i].y / (float)blocksize), ny_blocks);
+      if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks && min_y_block < ny_blocks) {
+        for(int j = min_x_block; j < max_x_block; j++) {
+          for(int k = min_y_block; k < max_y_block; k++) {
+            blocks[model_num][k + ny_blocks * j].push_back(i);
+          }
         }
       }
     }
   }
 
-  auto sp = shader;
-  auto task = [sp, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
+  auto task = [&shaders, &models, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
                &zbuffer, &image, &normalbuffer, &positionbuffer] (unsigned int i) {
-    fill_tri_blocks(blocks[i],
+    fill_tri_blocks(blocks,
                     ndc_verts,
                     ndc_inv_w,
                     min_block_bound[i],
                     max_block_bound[i],
-                    sp,
+                    shaders,
                     zbuffer,
                     image,
                     normalbuffer,
-                    positionbuffer);
+                    positionbuffer,
+                    models,i);
   };
 
   RcppThread::ThreadPool pool(numbercores);
@@ -437,7 +508,6 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
         spacefillr::sobol_single(i,1,1) * 2.0f - 1.0f,
         spacefillr::sobol_single(i,2,1)));
     }
-    float uRadius = 1;
     for (int x = 0; x < nx; x++) {
       for (int y = 0; y < ny; y++) {
         if (nxbuffer(x,y) == 0 && nybuffer(x,y) == 0 && nzbuffer(x,y) == 0) {
@@ -497,22 +567,9 @@ List rasterize(NumericMatrix verts, IntegerMatrix inds,
   }
   
   delete depthshader;
-  delete shader;
-  
-  //Free memory
-  if(has_texture) {
-    stbi_image_free(texture);
+  for(int i = 0; i < shaders.size(); i++) {
+    delete shaders[i];
   }
-  if(has_normal_texture) {
-    stbi_image_free(normal_texture);
-  }
-  if(has_specular_texture) {
-    stbi_image_free(specular_texture);
-  }
-  if(has_emissive_texture) {
-    stbi_image_free(emissive_texture);
-  }
-  
 
   return(List::create(_["r"] = r, _["g"] = g, _["b"] = b, _["amb"] = abuffer, _["depth"] = zbuffer,
                       _["normalx"] = nxbuffer, _["normaly"] = nybuffer, _["normalz"] = nzbuffer,
