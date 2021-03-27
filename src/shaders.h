@@ -34,8 +34,8 @@ class GouraudShader : public IShader {
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
     virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
-    float specular(vec3 uv) {
-      return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st).x : 1.0f);
+    vec3 specular(vec3 uv) {
+      return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
     }
     vec3 emissive(vec3 uv) {
       return(has_emissive_texture ? material.emission_intensity * 
@@ -81,6 +81,7 @@ class GouraudShader : public IShader {
     float* specular_texture;
     float* emissive_texture;
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
+    bool has_normals;
     
     
 };
@@ -95,8 +96,8 @@ struct DiffuseShader : public IShader {
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
     virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
-    float specular(vec3 uv) {
-      return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st).x : 1.0f);
+    vec3 specular(vec3 uv) {
+      return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
     }
     vec3 emissive(vec3 uv) {
       return(has_emissive_texture ? material.emission_intensity * 
@@ -106,7 +107,7 @@ struct DiffuseShader : public IShader {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
     }
     vec3 diffuse(vec3 uv) {
-      return(has_texture ? material.diffuse_intensity * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : material.diffuse);
+      return(has_texture ? material.diffuse_intensity * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : material.diffuse * material.diffuse_intensity);
     }
     vec3 ambient(vec3 uv) {
       return(material.ambient);
@@ -127,7 +128,7 @@ struct DiffuseShader : public IShader {
 
     std::vector<vec3> vec_varying_intensity;
     std::vector<std::vector<vec3> > vec_varying_uv;
-    std::vector<std::vector<vec3> > vec_varying_tri;
+    std::vector<std::vector<vec4> > vec_varying_tri;
     std::vector<std::vector<vec3> > vec_varying_pos;
     std::vector<std::vector<vec3> > vec_varying_world_nrm;
     
@@ -144,6 +145,7 @@ struct DiffuseShader : public IShader {
     float* specular_texture;
     float* emissive_texture;
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
+    bool has_normals;
     
     
 };
@@ -156,8 +158,8 @@ struct DiffuseNormalShader : public IShader {
   ~DiffuseNormalShader();
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
-  float specular(vec3 uv) {
-    return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st).x : 1.0f);
+  vec3 specular(vec3 uv) {
+    return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
   }
   vec3 emissive(vec3 uv) {
     return(has_emissive_texture ? material.emission_intensity * 
@@ -202,6 +204,7 @@ struct DiffuseNormalShader : public IShader {
   float* specular_texture;
   float* emissive_texture;
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
+  bool has_normals;
   
   
 };
@@ -213,8 +216,8 @@ class DiffuseShaderTangent : public IShader {
                        Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
                        material_info mat_info);
     ~DiffuseShaderTangent();
-    float specular(vec3 uv) {
-      return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st).x : 1.0f);
+    vec3 specular(vec3 uv) {
+      return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
     }
     vec3 emissive(vec3 uv) {
       return(has_emissive_texture ? material.emission_intensity * 
@@ -265,6 +268,7 @@ class DiffuseShaderTangent : public IShader {
     float* specular_texture;
     float* emissive_texture;
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
+    bool has_normals;
     
     
 };
@@ -279,8 +283,8 @@ class PhongShader : public IShader {
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
     virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
-    float specular(vec3 uv) {
-      return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st).x : 1.0f);
+    vec3 specular(vec3 uv) {
+      return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
     }
     vec3 emissive(vec3 uv) {
       return(has_emissive_texture ? material.emission_intensity * 
@@ -327,6 +331,7 @@ class PhongShader : public IShader {
     float* specular_texture;
     float* emissive_texture;
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
+    bool has_normals;
     
 };
 
@@ -340,8 +345,8 @@ public:
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
-  float specular(vec3 uv) {
-    return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st).x : 1.0f);
+  vec3 specular(vec3 uv) {
+    return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
   }
   vec3 emissive(vec3 uv) {
     return(has_emissive_texture ? material.emission_intensity * 
@@ -386,6 +391,7 @@ public:
   float* specular_texture;
   float* emissive_texture;
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
+  bool has_normals;
   
   
 };
@@ -400,8 +406,8 @@ public:
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
-  float specular(vec3 uv) {
-    return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st).x : 1.0f);
+  vec3 specular(vec3 uv) {
+    return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
   }
   vec3 emissive(vec3 uv) {
     return(has_emissive_texture ? material.emission_intensity * 
@@ -448,6 +454,7 @@ public:
   float* specular_texture;
   float* emissive_texture;
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
+  bool has_normals;
   
   
 };

@@ -6,8 +6,8 @@
 using namespace Rcpp;
 
 // rasterize
-List rasterize(List mesh, int nx, int ny, NumericVector model_color, NumericVector lookfrom, NumericVector lookat, float fov, NumericVector light_direction, NumericVector ambient_color, float exponent, float specular_intensity, float diffuse_intensity, float emission_intensity, IntegerVector typevals, bool has_shadow_map, bool calc_ambient, bool tbn, float ambient_radius, float shadow_map_bias, int numbercores, int max_indices, LogicalVector has_normals_vec, LogicalVector has_tex_vec, float near_clip, float far_clip);
-RcppExport SEXP _raysterizer_rasterize(SEXP meshSEXP, SEXP nxSEXP, SEXP nySEXP, SEXP model_colorSEXP, SEXP lookfromSEXP, SEXP lookatSEXP, SEXP fovSEXP, SEXP light_directionSEXP, SEXP ambient_colorSEXP, SEXP exponentSEXP, SEXP specular_intensitySEXP, SEXP diffuse_intensitySEXP, SEXP emission_intensitySEXP, SEXP typevalsSEXP, SEXP has_shadow_mapSEXP, SEXP calc_ambientSEXP, SEXP tbnSEXP, SEXP ambient_radiusSEXP, SEXP shadow_map_biasSEXP, SEXP numbercoresSEXP, SEXP max_indicesSEXP, SEXP has_normals_vecSEXP, SEXP has_tex_vecSEXP, SEXP near_clipSEXP, SEXP far_clipSEXP) {
+List rasterize(List mesh, int nx, int ny, NumericVector model_color, NumericVector lookfrom, NumericVector lookat, float fov, NumericVector light_direction, NumericVector ambient_color, float exponent, float specular_intensity, float diffuse_intensity, float emission_intensity, IntegerVector typevals, bool has_shadow_map, bool calc_ambient, bool tbn, float ambient_radius, float shadow_map_bias, int numbercores, int max_indices, LogicalVector has_normals_vec, LogicalVector has_tex_vec, LogicalVector has_texture, LogicalVector has_normal_texture, LogicalVector has_specular_texture, LogicalVector has_emissive_texture, int block_size, bool use_default_material, bool override_exponent, float near_clip, float far_clip, float shadow_map_intensity, NumericVector bounds, IntegerVector shadowdims);
+RcppExport SEXP _raysterizer_rasterize(SEXP meshSEXP, SEXP nxSEXP, SEXP nySEXP, SEXP model_colorSEXP, SEXP lookfromSEXP, SEXP lookatSEXP, SEXP fovSEXP, SEXP light_directionSEXP, SEXP ambient_colorSEXP, SEXP exponentSEXP, SEXP specular_intensitySEXP, SEXP diffuse_intensitySEXP, SEXP emission_intensitySEXP, SEXP typevalsSEXP, SEXP has_shadow_mapSEXP, SEXP calc_ambientSEXP, SEXP tbnSEXP, SEXP ambient_radiusSEXP, SEXP shadow_map_biasSEXP, SEXP numbercoresSEXP, SEXP max_indicesSEXP, SEXP has_normals_vecSEXP, SEXP has_tex_vecSEXP, SEXP has_textureSEXP, SEXP has_normal_textureSEXP, SEXP has_specular_textureSEXP, SEXP has_emissive_textureSEXP, SEXP block_sizeSEXP, SEXP use_default_materialSEXP, SEXP override_exponentSEXP, SEXP near_clipSEXP, SEXP far_clipSEXP, SEXP shadow_map_intensitySEXP, SEXP boundsSEXP, SEXP shadowdimsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -34,9 +34,19 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type max_indices(max_indicesSEXP);
     Rcpp::traits::input_parameter< LogicalVector >::type has_normals_vec(has_normals_vecSEXP);
     Rcpp::traits::input_parameter< LogicalVector >::type has_tex_vec(has_tex_vecSEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type has_texture(has_textureSEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type has_normal_texture(has_normal_textureSEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type has_specular_texture(has_specular_textureSEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type has_emissive_texture(has_emissive_textureSEXP);
+    Rcpp::traits::input_parameter< int >::type block_size(block_sizeSEXP);
+    Rcpp::traits::input_parameter< bool >::type use_default_material(use_default_materialSEXP);
+    Rcpp::traits::input_parameter< bool >::type override_exponent(override_exponentSEXP);
     Rcpp::traits::input_parameter< float >::type near_clip(near_clipSEXP);
     Rcpp::traits::input_parameter< float >::type far_clip(far_clipSEXP);
-    rcpp_result_gen = Rcpp::wrap(rasterize(mesh, nx, ny, model_color, lookfrom, lookat, fov, light_direction, ambient_color, exponent, specular_intensity, diffuse_intensity, emission_intensity, typevals, has_shadow_map, calc_ambient, tbn, ambient_radius, shadow_map_bias, numbercores, max_indices, has_normals_vec, has_tex_vec, near_clip, far_clip));
+    Rcpp::traits::input_parameter< float >::type shadow_map_intensity(shadow_map_intensitySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type bounds(boundsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type shadowdims(shadowdimsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rasterize(mesh, nx, ny, model_color, lookfrom, lookat, fov, light_direction, ambient_color, exponent, specular_intensity, diffuse_intensity, emission_intensity, typevals, has_shadow_map, calc_ambient, tbn, ambient_radius, shadow_map_bias, numbercores, max_indices, has_normals_vec, has_tex_vec, has_texture, has_normal_texture, has_specular_texture, has_emissive_texture, block_size, use_default_material, override_exponent, near_clip, far_clip, shadow_map_intensity, bounds, shadowdims));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -70,7 +80,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_raysterizer_rasterize", (DL_FUNC) &_raysterizer_rasterize, 25},
+    {"_raysterizer_rasterize", (DL_FUNC) &_raysterizer_rasterize, 35},
     {"_raysterizer_tonemap_image", (DL_FUNC) &_raysterizer_tonemap_image, 4},
     {"_raysterizer_wireframe", (DL_FUNC) &_raysterizer_wireframe, 4},
     {NULL, NULL, 0}

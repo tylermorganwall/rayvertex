@@ -12,7 +12,7 @@
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
 rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
-                          fov=20,lookfrom=c(0,0,10),lookat=c(0,0,0),
+                          fov=20,lookfrom=c(0,0,10),lookat=NULL, #Sanitize lookfrom and lookat inputs
                           type = "diffuse", color="darkred", background = "white",
                           texture_location = NA,
                           normal_texture_location = NA,
@@ -21,16 +21,26 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                           parallel = TRUE,
                           light_direction=c(1,1,1), ambient_color=c(0,0,0), 
                           exponent=32, specular_intensity = 0.6, emission_intensity = 1,
+                          override_exponent = FALSE,
                           diffuse_intensity = 1, tangent_space_normals = FALSE,
                           shadow_map = FALSE, calc_ambient = FALSE, 
                           ambient_intensity = 10, ambient_radius = 0.1, 
-                          tonemap = "none", debug = "none", shadow_map_bias = 0.005) {
+                          tonemap = "none", debug = "none", 
+                          shadow_map_bias = -0.001, shadow_map_intensity = 0.5,
+                          near_plane = 0.1, far_plane = 100,
+                          block_size = 4, shape = NULL, shadow_map_dims = NULL) {
   obj = readobj::read.obj(obj_model)
-  
+  if(!is.null(shape)) {
+    if(length(obj$shapes) < shape) {
+      stop("shape requested exceeds number of shapes in OBJ file")
+    }
+    obj$shapes = obj$shapes[shape]
+  }
   max_indices = 0
   has_norms = rep(FALSE,length(obj$shapes))
   has_tex = rep(FALSE,length(obj$shapes))
   
+  bounds = c(Inf,Inf,Inf,-Inf,-Inf,-Inf)
   for(i in seq_len(length(obj$shapes))) {
     obj$shapes[[i]]$positions = t(obj$shapes[[i]]$positions)
     obj$shapes[[i]]$indices = t(obj$shapes[[i]]$indices)+1
@@ -39,20 +49,57 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
     max_indices = max(c(max_indices,nrow(obj$shapes[[i]]$indices)))
     has_norms[i] = nrow(obj$shapes[[i]]$normal) == nrow(obj$shapes[[i]]$positions)
     has_tex[i] = nrow(obj$shapes[[i]]$normal) == nrow(obj$shapes[[i]]$texcoords)
+    
+    #Compute bounding box
+    tempboundsmin = apply(obj$shapes[[i]]$positions,2,min)
+    tempboundsmax = apply(obj$shapes[[i]]$positions,2,max)
+    bounds[1:3] = c(min(c(bounds[1],tempboundsmin[1])),
+                    min(c(bounds[2],tempboundsmin[2])),
+                    min(c(bounds[3],tempboundsmin[3])))
+    bounds[4:6] = c(max(c(bounds[4],tempboundsmax[1])),
+                    max(c(bounds[5],tempboundsmax[2])),
+                    max(c(bounds[6],tempboundsmax[3])))
+                    
+  }
+  if(is.null(lookat)) {
+    lookat = (bounds[1:3] + bounds[4:6])/2
+    message(sprintf("Setting `lookat` to: c(%0.2f, %0.2f, %0.2f)",lookat[1],lookat[2],lookat[3]))
+  }
+    
+  use_default_material = FALSE
+  if(length(obj$materials) > 0) {
+    has_texture          = rep(FALSE,length(obj$materials))
+    has_normal_texture   = rep(FALSE,length(obj$materials))
+    has_specular_texture = rep(FALSE,length(obj$materials))
+    has_emissive_texture = rep(FALSE,length(obj$materials))
+  } else {
+    use_default_material = TRUE
+    has_texture          = FALSE
+    has_normal_texture   = FALSE
+    has_specular_texture = FALSE
+    has_emissive_texture = FALSE
   }
   
   for(i in seq_len(length(obj$materials))) {
     if(!is.null(obj$materials[[i]]$diffuse_texname) && obj$materials[[i]]$diffuse_texname != "") {
+      has_texture[i] = TRUE
       obj$materials[[i]]$diffuse_texname = path.expand(obj$materials[[i]]$diffuse_texname)
     }
-    if(!is.null(obj$materials[[i]]$normal_texname) && obj$materials[[i]]$normal_texname != "") {
+    if(!is.null(obj$materials[[i]]$specular_texname) && obj$materials[[i]]$specular_texname != "") {
+      has_specular_texture[i] = TRUE
       obj$materials[[i]]$specular_texname = path.expand(obj$materials[[i]]$specular_texname)
     }
     if(!is.null(obj$materials[[i]]$normal_texname) && obj$materials[[i]]$normal_texname != "") {
+      has_normal_texture[i] = TRUE
+      
       obj$materials[[i]]$normal_texname = path.expand(obj$materials[[i]]$normal_texname)
     }
     if(!is.null(obj$materials[[i]]$emissive_texname) && obj$materials[[i]]$emissive_texname != "") {
+      has_emissive_texture[i] = TRUE
+      
       obj$materials[[i]]$emissive_texname = path.expand(obj$materials[[i]]$emissive_texname)
+    } else if (is.null(obj$materials[[i]]$emissive_texname) ) {
+      obj$materials[[i]]$emissive_texname = ""
     }
   }
   
@@ -73,24 +120,35 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
   bg_color = convert_color(background)
   
   typeval = switch(type, "vertex" = 1, "diffuse" = 2, "phong" = 3, 1)
-  typevals = rep(1,length(obj$shapes))
-  for(i in seq_len(length(obj$shapes))) {
-    if(has_norms[i]) {
-      if(typeval == 2) {
-        if(!tangent_space_normals) {
-          typevals[i] = 4
-        } else {
-          typevals[i] = 5
+  typevals = rep(typeval,length(obj$shapes))
+  if(!use_default_material) {
+    for(i in seq_len(length(obj$materials))) {
+      if(has_normal_texture[i]) {
+        if(typeval == 2) {
+          if(!tangent_space_normals) {
+            typevals[i] = 4
+          } else {
+            typevals[i] = 5
+          }
+        } else if (typeval == 3) {
+          if(!tangent_space_normals) {
+            typevals[i] = 6
+          } else {
+            typevals[i] = 7
+          }
         }
-      } else if (typeval == 3) {
-        if(!tangent_space_normals) {
-          typevals[i] = 6
-        } else {
-          typevals[i] = 7
-        }
+      } else {
+        typevals[i] = typeval
       }
-    } else {
-      typevals[i] = typeval
+    }
+  }
+  if(is.null(shadow_map_dims)) {
+    shadow_map_dims = c(width,height)
+  } else {
+    if(length(shadow_map_dims) == 1 && is.numeric(shadow_map_dims) && shadow_map_dims > 0) {
+      shadow_map_dims = c(width,height)*shadow_map_dims
+    } else if(length(shadow_map_dims) != 2) {
+      stop("shadow_map_dims must be vector of length 2")
     }
   }
   tonemap = switch(tonemap, "gamma" = 1, "uncharted" = 2, "hbd" = 3, "none"=4, 1)
@@ -113,7 +171,16 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                         tbn = tangent_space_normals, ambient_radius = ambient_radius,
                         shadow_map_bias=shadow_map_bias,
                         numbercores=numbercores, max_indices = max_indices,
-                        has_normals_vec=has_norms, has_tex_vec=has_tex)
+                        has_normals_vec=has_norms, has_tex_vec=has_tex,
+                        has_texture,          
+                        has_normal_texture,   
+                        has_specular_texture, 
+                        has_emissive_texture,
+                        block_size = block_size, use_default_material = use_default_material,
+                        override_exponent = override_exponent,
+                        near_plane, far_plane,
+                        shadow_map_intensity,
+                        bounds, shadow_map_dims)
   if(calc_ambient) {
     imagelist$amb = (imagelist$amb)^ambient_intensity
     imagelist$r = imagelist$r * imagelist$amb
@@ -128,6 +195,32 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
     norm_array = rayimage::render_reorient(norm_array,transpose = TRUE, flipx = TRUE)
     rayimage::plot_image(norm_array)
     return(invisible(norm_array))
+  }
+  if(debug == "depth") {
+    depth_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
+    depth_array[,,1] = (imagelist$depth)
+    depth_array[,,2] = (imagelist$depth)
+    depth_array[,,3] = (imagelist$depth)
+    depth_array = rayimage::render_reorient(depth_array,transpose = TRUE, flipx = TRUE)
+    depth_array[is.infinite(depth_array)] = 1.2
+    scale_factor = max(depth_array) - min(depth_array)
+    depth_array = (depth_array - min(depth_array))/scale_factor
+    rayimage::plot_image(depth_array)
+    return(invisible(depth_array))
+  }
+  if(debug == "position") {
+    pos_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
+    imagelist$positionx = scales::rescale(imagelist$positionx,to=c(0,1))
+    imagelist$positiony = scales::rescale(imagelist$positiony,to=c(0,1))
+    imagelist$positionz = scales::rescale(imagelist$positionz,to=c(0,1))
+    
+    pos_array[,,1] = (imagelist$positionx)
+    pos_array[,,2] = (imagelist$positiony)
+    pos_array[,,3] = (imagelist$positionz)
+    pos_array = rayimage::render_reorient(pos_array,transpose = TRUE, flipx = TRUE)
+    pos_array[is.infinite(pos_array)] = 1
+    rayimage::plot_image(pos_array)
+    return(invisible(pos_array))
   }
   
   imagelist$r[is.infinite(imagelist$depth)] = bg_color[1]
@@ -149,4 +242,5 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
   } else {
     rayimage:::save_png(retmat, filename = filename)
   }
+  return(invisible(retmat))
 }

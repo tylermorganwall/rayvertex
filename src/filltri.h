@@ -12,6 +12,11 @@ static void print_vec(vec3 m) {
   RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << "\n";
 }
 
+static void print_vec(vec4 m) {
+  // RcppThread::Rcout.precision(5);
+  RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << " " << m[3] << "\n";
+}
+
 inline float DifferenceOfProducts(float a, float b, float c, float d) {
   float cd = c * d;
   float err = std::fma(-c, d, cd);
@@ -19,11 +24,12 @@ inline float DifferenceOfProducts(float a, float b, float c, float d) {
   return(dop + err);
 }
 
-float edgeFunction(const vec3 &a, const vec3 &b, const vec3 &c) { 
+float edgeFunction(const vec3 &a, const vec3 &b, const vec3 &c) {
   return(DifferenceOfProducts((c.x - a.x),(b.y - a.y),(c.y - a.y),(b.x - a.x)));
-} 
+}
 
-void fill_tri_blocks(std::vector<std::vector<std::vector<int> > >  block_faces,
+
+void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                      std::vector<std::vector<std::vector<vec4> >  >& ndc_verts,
                      std::vector<std::vector<std::vector<float> > >& ndc_inv_w,
                      vec2 min_block_bound,
@@ -34,12 +40,12 @@ void fill_tri_blocks(std::vector<std::vector<std::vector<int> > >  block_faces,
                      rayimage& normal_buffer,
                      rayimage& position_buffer,
                      std::vector<ModelInfo> &models,
-                     int block_i) { 
+                     bool depth) { 
   for(int model_num = 0; model_num < models.size(); model_num++ ) {
     ModelInfo &shp = models[model_num];
-    for(int entry=0; entry < block_faces[model_num][block_i].size(); entry++) {
-      int face = block_faces[model_num][block_i][entry];
-      
+    for(int entry=0; entry < block_faces[model_num].size(); entry++) {
+      int face = block_faces[model_num][entry];
+
       vec3 v1 = ndc_verts[model_num][0][face] * ndc_inv_w[model_num][0][face];
       vec3 v2 = ndc_verts[model_num][1][face] * ndc_inv_w[model_num][1][face];
       vec3 v3 = ndc_verts[model_num][2][face] * ndc_inv_w[model_num][2][face];
@@ -48,8 +54,10 @@ void fill_tri_blocks(std::vector<std::vector<std::vector<int> > >  block_faces,
       float v2_ndc_inv_w = ndc_inv_w[model_num][1][face];
       float v3_ndc_inv_w = ndc_inv_w[model_num][2][face];
       
-      //Backface culling
-      if(cross(v2-v1, v3-v2).z > 0) {
+      //Backface culling/Front face culling for shadow maps
+      bool culled = !depth ? cross(v2-v1, v3-v2).z > 0 : cross(v2-v1, v3-v2).z < 0;
+      float sgn = !depth ? 1.0f : -1.0f;
+      if(culled) {
         vec3 bound_min = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
                               fmin(v1.y,fmin(v2.y,v3.y)),
                               fmin(v1.z,fmin(v2.z,v3.z)));
@@ -62,28 +70,28 @@ void fill_tri_blocks(std::vector<std::vector<std::vector<int> > >  block_faces,
         int ymin =  std::min(std::max((int)floor(bound_min.y),(int)min_block_bound.y), (int)min_block_bound.y);
         int ymax =  std::max(std::min((int)ceil(bound_max.y), (int)max_block_bound.y ),(int)max_block_bound.y);
   
-        float area = edgeFunction(v3, v2, v1); 
+        float area = sgn * edgeFunction(v3, v2, v1); 
         float inv_area = 1.0f/area;
         
         vec3 color;
         vec3 position;
         vec3 normal;
         
-        float p_step_32 = -(v2.x-v3.x);
-        float p_step_13 = -(v3.x-v1.x);
-        float p_step_21 = -(v1.x-v2.x);
+        float p_step_32 = -(v2.x-v3.x) * sgn;
+        float p_step_13 = -(v3.x-v1.x) * sgn;
+        float p_step_21 = -(v1.x-v2.x) * sgn;
         
-        float pi_step_32 = (v2.y-v3.y);
-        float pi_step_13 = (v3.y-v1.y);
-        float pi_step_21 = (v1.y-v2.y);
+        float pi_step_32 = (v2.y-v3.y) * sgn;
+        float pi_step_13 = (v3.y-v1.y) * sgn;
+        float pi_step_21 = (v1.y-v2.y) * sgn;
         
         vec3 p  = vec3((float)xmin + 0.5f, (float)ymin + 0.5f, 0.0f);
         
-        float w1_init = edgeFunction(v3, v2, p);
-        float w2_init = edgeFunction(v1, v3, p);
-        float w3_init = edgeFunction(v2, v1, p);
+        float w1_init = sgn * edgeFunction(v3, v2, p);
+        float w2_init = sgn * edgeFunction(v1, v3, p);
+        float w3_init = sgn * edgeFunction(v2, v1, p);
         
-        //Need to update w1_p and w1 in reference to their base value--repeated addition results in
+        //This updates w1_p and w1 from their base value--repeated addition results in
         //tearing of polygons due to loss of precision.
         for (uint32_t i = xmin; i < xmax; i++) {
           float w1_p = w1_init + (i-xmin) * pi_step_32;
@@ -99,15 +107,22 @@ void fill_tri_blocks(std::vector<std::vector<std::vector<int> > >  block_faces,
               vec3 bc_clip  = vec3(bc.x*v1_ndc_inv_w, bc.y*v2_ndc_inv_w, bc.z*v3_ndc_inv_w);
               bc_clip      /= (bc_clip.x + bc_clip.y + bc_clip.z);
               
-              float z = v1.z * bc_clip.x + v2.z * bc_clip.y + v3.z * bc_clip.z;
+              //Using bc_clip results in wrong zbuffer values here--bug?
+              // float z = v1.z * bc_clip.x + v2.z * bc_clip.y + v3.z * bc_clip.z;
+              float z = v1.z * bc.x + v2.z * bc.y + v3.z * bc.z;
               if(z > zbuffer(i,j)) continue;
-              int mat_num = shp.materials[i] != -1 ? shp.materials[i] : shaders.size()-1;
+
+              int mat_num = shp.materials[face] >= 0 && shp.materials[face] < shaders.size() ? 
+                shp.materials[face] : shaders.size()-1;
               bool discard = shaders[mat_num]->fragment(bc_clip, color, position, normal, face);
+              
               if(!discard) {
                 zbuffer(i,j) = z;
                 image.set_color(i,j,color);
-                normal_buffer.set_color(i,j,normal);
-                position_buffer.set_color(i,j,position);
+                if(!depth) {
+                  normal_buffer.set_color(i,j,normal);
+                  position_buffer.set_color(i,j,position);
+                }
               }
             } 
           }

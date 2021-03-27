@@ -87,31 +87,53 @@ List rasterize(List mesh,
                int max_indices,
                LogicalVector has_normals_vec,
                LogicalVector has_tex_vec,
-               
-               float near_clip = 0.1,
-               float  far_clip = 100) {
+               LogicalVector has_texture,  
+               LogicalVector has_normal_texture,
+               LogicalVector has_specular_texture,
+               LogicalVector has_emissive_texture,
+               int block_size,
+               bool use_default_material,
+               bool override_exponent,
+               float near_clip,
+               float  far_clip,
+               float shadow_map_intensity,
+               NumericVector bounds,
+               IntegerVector shadowdims) {
+  //Convert R vectors to glm::vec3
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
   vec3 center(lookat(0),lookat(1),lookat(2));    //lookat
-  vec3 cam_up = vec3(0.,1.,0.);
+  vec3 cam_up = vec3(0.0,1.0f,0.0);
   vec3 color(model_color(0),model_color(1),model_color(2));
   vec3 ambient(ambient_color(0),ambient_color(1),ambient_color(2)); 
   vec3 light_dir(light_direction(0),light_direction(1),light_direction(2));
-  
-  if(std::fabs(glm::dot(eye-center,cam_up)) == 1) {
+ 
+  //Account for colinear camera direction/cam_up vectors
+  if(glm::length(glm::cross(eye-center,cam_up)) == 0) {
     cam_up = vec3(0.f,0.f,1.0f);
   }
   
   //Turn off gamma correction or get seams in textures/normal maps
   stbi_ldr_to_hdr_gamma(1.0f);
     
-  glm::mat4 View       = glm::lookAt(eye, center, cam_up);
-  glm::mat4 Model      = glm::translate(Mat(1.0f), vec3(0.0f, 0.0f, 0.0f));
-  glm::mat4 Projection = glm::perspective(glm::radians(fov), 
+  //Generate MVP matrices
+  Mat View       = glm::lookAt(eye, center, cam_up);
+  Mat Model      = glm::translate(Mat(1.0f), vec3(0.0f, 0.0f, 0.0f));
+  Mat Projection = glm::perspective(glm::radians(fov), 
                                           (float)nx / (float)ny, 
                                           near_clip, 
                                           far_clip);
   vec4 viewport(0.0f, 0.0f, (float)nx-1, (float)ny-1);
-
+  vec4 viewport_depth(0.0f, 0.0f, (float)shadowdims(0)-1, (float)shadowdims(1)-1);
+  int nx_d = shadowdims(0);
+  int ny_d = shadowdims(1);
+  
+  Mat vp = glm::scale(glm::translate(Mat(1.0f),
+                      vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)),
+                      vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
+  
+  Mat vp_shadow = glm::scale(glm::translate(Mat(1.0f),
+                             vec3(viewport_depth[2]/2.0f,viewport_depth[3]/2.0f,1.0f/2.0f)),
+                             vec3(viewport_depth[2]/2.0f,viewport_depth[3]/2.0f,1.0f/2.0f));
   //Initialize output matrices
   NumericMatrix r(nx,ny);
   NumericMatrix g(nx,ny);
@@ -122,10 +144,13 @@ List rasterize(List mesh,
   
   //Depth buffer
   NumericMatrix zbuffer(nx,ny);
-  NumericMatrix sbuffer(nx,ny);
+  NumericMatrix sbuffer(shadowdims(0),shadowdims(1));
+  NumericMatrix zbuffer_depth(shadowdims(0),shadowdims(1));
+  
   NumericMatrix abuffer(nx,ny);
   
-  std::fill(abuffer.begin(), abuffer.end(), 1.0 ) ;
+  //Fill ambient occlusion buffer
+  std::fill(abuffer.begin(), abuffer.end(), 1.0f ) ;
   
   
   //Position space buffer
@@ -138,33 +163,37 @@ List rasterize(List mesh,
   NumericMatrix nybuffer(nx,ny);
   NumericMatrix nzbuffer(nx,ny);
 
-  rayimage shadowbuffer(sbuffer,sbuffer,sbuffer,nx,ny);
+  //Initialize rayimage buffers
+  rayimage shadowbuffer(sbuffer,sbuffer,sbuffer,shadowdims(0),shadowdims(1),shadow_map_intensity);
   rayimage ambientbuffer(abuffer,abuffer,abuffer,nx,ny);
   rayimage positionbuffer(xxbuffer,yybuffer,zzbuffer,nx,ny);
   rayimage normalbuffer(nxbuffer,nybuffer,nzbuffer,nx,ny);
   
-  
+  //Initialize zbuffer
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<float>::infinity() ) ;
+  std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<float>::infinity() ) ;
   
-  
-  
-  //Calculate Shadow Map
-  float near_plane = 1.0f, far_plane = 7.5f;
+  //Initialize Shadow Map bounds and orientation
+  //If changed to 0.1-100.0 doesn't work anymore
+  float near_plane = 1.0f, far_plane = 10.0f;
   vec3 light_up = vec3(0.,1.,0.);
-  if(std::fabs(glm::dot(light_up,glm::normalize(light_dir))) == 1) {
+  if(glm::length(glm::cross(light_up,light_dir)) == 0) {
     light_up = vec3(0.f,0.f,1.0f);
   }
-  //Change to bounding box scene
-  glm::mat4 lightProjection = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, near_plane, far_plane);
-  glm::mat4 lightView = glm::lookAt(light_dir,
-                                    glm::vec3( 0.0f, 0.0f,  0.0f),
-                                    light_up);
   
-  Mat vp = glm::scale(glm::translate(Mat(1.0f),
-                                     vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)),
-                                     vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
-  Mat M = vp*lightProjection*lightView*Model;
-  Mat uniform_Mshadow_ = M*glm::inverse(vp*Projection*View*Model);
+  vec3 sceneboundmin = vec3(bounds(0),bounds(1),bounds(2));
+  vec3 sceneboundmax = vec3(bounds(3),bounds(4),bounds(5));
+  float scene_diag = glm::length(sceneboundmax-sceneboundmin);
+  vec3 scene_center = (sceneboundmax+sceneboundmin)/2.0f;
+  
+  glm::mat4 lightProjection = glm::ortho(-scene_diag/2, scene_diag/2, -scene_diag/2, scene_diag/2, 
+                                         near_plane, far_plane);
+  glm::mat4 lightView = glm::lookAt(scene_center+light_dir,
+                                    scene_center,
+                                    light_up);
+
+  Mat M = vp_shadow*lightProjection*lightView*Model;
+  Mat uniform_Mshadow_ = M * glm::inverse(vp * Projection * View * Model);
   
   ///
   //Parse mesh3d
@@ -183,7 +212,7 @@ List rasterize(List mesh,
     NumericVector specular = as<NumericVector>(single_material["specular"]);
     NumericVector transmittance = as<NumericVector>(single_material["transmittance"]);
     NumericVector emission = as<NumericVector>(single_material["emission"]);
-    float shininess = as<float>(single_material["shininess"]);
+    float shininess = !override_exponent ? as<float>(single_material["shininess"]) : exponent;
     float ior = as<float>(single_material["ior"]);
     float dissolve = as<float>(single_material["dissolve"]);
     float illum = as<float>(single_material["illum"]);
@@ -192,15 +221,20 @@ List rasterize(List mesh,
     String specular_texname = as<String>(single_material["specular_texname"]);
     String normal_texname = as<String>(single_material["normal_texname"]);
     String emissive_texname = as<String>(single_material["emissive_texname"]);
-    bool has_norms = has_normals_vec(i);
-    bool has_tex = has_tex_vec(i);
+    // bool has_norms = has_normals_vec(i);
+    // bool has_tex = has_tex_vec(i);
+    
+    bool has_texture_single          = has_texture(i);
+    bool has_normal_texture_single   = has_normal_texture(i);
+    bool has_specular_texture_single = has_specular_texture(i);
+    bool has_emissive_texture_single = has_emissive_texture(i);
     
     material_info temp = {
       vec3(ambient(0),ambient(1),ambient(2)),
       vec3(diffuse(0),diffuse(1),diffuse(2)),
       vec3(specular(0),specular(1),specular(2)),
-      vec3(transmittance(0),transmittance(1),transmittance(2)),
-      vec3(emission(0),emission(1),emission(2)),
+      vec3(transmittance(0),transmittance(1),transmittance(2)), //Not used currently
+      vec3(emission(0),emission(1),emission(2)),                //Not used currently
       shininess,
       ior,
       dissolve,
@@ -214,8 +248,12 @@ List rasterize(List mesh,
       emission_intensity,
       diffuse_intensity,
       specular_intensity,
-      has_norms,
-      has_tex
+      true, //THIS SHOULD BE FIXED, but isn't currently used -- has_norms
+      true, //THIS SHOULD BE FIXED, but isn't currently used -- has_tex
+      has_texture_single,
+      has_normal_texture_single,
+      has_specular_texture_single,
+      has_emissive_texture_single
     };
     mat_info.push_back(temp);
     
@@ -262,47 +300,63 @@ List rasterize(List mesh,
     shaders.push_back(shader);
   }
   
-  //Default material initialize
-  
+  //Initialize default material
+  Rcpp::String fill("");
   material_info default_mat = {
     vec3(ambient_color(0),ambient_color(1),ambient_color(2)),
-    vec3(model_color(0),model_color(1),model_color(2)),
-    vec3(0.8),
+    color,
     vec3(1.0),
     vec3(0.0),
-    32,
+    vec3(0.0),
+    exponent,
     1.0,
     0.0,
     0.0,
-    "",
-    "",
-    "",
-    "",
-    "",
-    max_indices, //Maybe
-    0.0,
-    1.0,
-    1.0,
+    fill,fill,fill,fill,fill,
+    max_indices,              //Maybe an issue?
+    emission_intensity,
+    diffuse_intensity,
+    specular_intensity,
+    true, //THIS SHOULD BE FIXED, but isn't currently used -- has_norms
+    true, //THIS SHOULD BE FIXED, but isn't currently used -- has_tex
+    false,
+    false,
     false,
     false
   };
   
-  IShader* default_shader = new DiffuseShader(Model, Projection, View, viewport,
+  //Add default shader to vector
+  if(typevals(0) == 1) {
+    shaders.push_back(new GouraudShader(Model, Projection, View, viewport,
+                               glm::normalize(light_dir), 
+                               shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                               shadow_map_bias,default_mat));
+  } else if (typevals(0) == 2 || typevals(0) == 4 || typevals(0) == 5) {
+    shaders.push_back(new DiffuseShader(Model, Projection, View, viewport,
+                               glm::normalize(light_dir), 
+                               shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                               shadow_map_bias,default_mat));
+  } else if (typevals(0) == 3 || typevals(0) == 6 || typevals(0) == 7) {
+    shaders.push_back(new PhongShader(Model, Projection, View, viewport,
                              glm::normalize(light_dir), 
                              shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                             shadow_map_bias, default_mat);
-  shaders.push_back(default_shader);
+                             shadow_map_bias,default_mat));
+  }
   
+  
+  //Initialize Model vectors
   List shapes = as<List>(mesh["shapes"]);
   int number_shapes = shapes.size();
-
   std::vector<ModelInfo> models;
 
+  //Initialize vertex storage vectors
   std::vector<std::vector<std::vector<vec4>  > > ndc_verts;
   std::vector<std::vector<std::vector<float> > > ndc_inv_w;
-  std::vector<std::vector<vec3> > min_bounds;
-  std::vector<std::vector<vec3> > max_bounds;
+  std::vector<std::vector<std::vector<vec4>  > > ndc_verts_depth;
+  std::vector<std::vector<std::vector<float> > > ndc_inv_w_depth;
   
+  //Fill vectors for each shape in the model
+  //order: [model_num][triangle vertex][face]
   for(int i = 0; i < number_shapes; i++) {
     List single_shape = as<List>(shapes(i));
     NumericMatrix shape_verts = as<NumericMatrix>(single_shape["positions"]);
@@ -310,14 +364,15 @@ List rasterize(List mesh,
     NumericMatrix shape_texcoords = as<NumericMatrix>(single_shape["texcoords"]);
     IntegerMatrix shape_inds = as<IntegerMatrix>(single_shape["indices"]);
     IntegerVector shape_materials = as<IntegerVector>(single_shape["material_ids"]);
-    
+
     int n = shape_inds.nrow();
     
     ndc_verts.push_back(std::vector<std::vector<vec4>  >(3, std::vector<vec4>(n)));
     ndc_inv_w.push_back(std::vector<std::vector<float> >(3, std::vector<float>(n)));
-    min_bounds.push_back(std::vector<vec3>(n));
-    max_bounds.push_back(std::vector<vec3>(n));
-    
+    if(has_shadow_map) {
+      ndc_verts_depth.push_back(std::vector<std::vector<vec4>  >(3, std::vector<vec4>(n)));
+      ndc_inv_w_depth.push_back(std::vector<std::vector<float> >(3, std::vector<float>(n)));
+    }
     
     //Create model object
     ModelInfo model(shape_verts, shape_inds, shape_texcoords, shape_normals, shape_materials,
@@ -325,103 +380,151 @@ List rasterize(List mesh,
     models.push_back(model);
   }
 
-  
   //Set up blocks
-  int blocksize = 4;
+  int blocksize = block_size;
   
-  //First index model, then block, then index
-  std::vector<std::vector<std::vector<int> > > blocks(models.size());
+  //Inner-most index model, then block, then index
+  std::vector<std::vector<std::vector<int> > > blocks;
   
   std::vector<vec2> min_block_bound;
   std::vector<vec2> max_block_bound;
-  
   int nx_blocks = ceil((float)nx/(float)blocksize);
   int ny_blocks = ceil((float)ny/(float)blocksize);
   
   std::vector<std::vector<int> > single_model_blocks;
+
+  //Generate block bounds
   for(int i = 0; i < nx; i += blocksize) {
     for(int j = 0; j < ny; j += blocksize) {
-      for(int k = 0; k < models.size(); k++) {
-        std::vector<int> temp;
-        blocks[k].push_back(temp);
-      }
       min_block_bound.push_back(vec2(i,j));
       max_block_bound.push_back(vec2(std::min(i+blocksize,nx),std::min(j+blocksize,ny)));
     }
   }
-
-  IShader* depthshader = new DepthShader(Model, lightProjection, lightView, viewport, light_dir, max_indices);
+  
+  //Generate a group of index vectors for each model
+  for(int i = 0; i < nx_blocks; i++) {
+    for(int j = 0; j < ny_blocks; j++) {
+      std::vector<std::vector<int> > temp;
+      blocks.push_back(temp);
+      //This is a vector of all the models for that block
+      //blocks[j + ny_blocks * i]
+      for(int k = 0; k < models.size(); k++) {
+        std::vector<int> model_inds_temp;
+        //This is a vector for per-model indices in that specific block
+        //blocks[j + ny_blocks * i][model_num]
+        blocks[j + ny_blocks * i].push_back(model_inds_temp);
+      }
+    }
+  }
+  
+  //Inner-most index model, then block, then index
+  std::vector<std::vector<std::vector<int> > > blocks_depth;
+  
+  std::vector<vec2> min_block_bound_depth;
+  std::vector<vec2> max_block_bound_depth;
+  int nx_blocks_depth = ceil((float)nx_d/(float)blocksize);
+  int ny_blocks_depth = ceil((float)ny_d/(float)blocksize);
+  
+  std::vector<std::vector<int> > single_model_blocks_depth;
+  
+  //Generate block bounds
+  for(int i = 0; i < nx_d; i += blocksize) {
+    for(int j = 0; j < ny_d; j += blocksize) {
+      min_block_bound_depth.push_back(vec2(i,j));
+      max_block_bound_depth.push_back(vec2(std::min(i+blocksize,nx_d),std::min(j+blocksize,ny_d)));
+    }
+  }
+  
+  //Generate a group of index vectors for each model
+  for(int i = 0; i < nx_blocks_depth; i++) {
+    for(int j = 0; j < ny_blocks_depth; j++) {
+      std::vector<std::vector<int> > temp;
+      blocks_depth.push_back(temp);
+      //This is a vector of all the models for that block
+      //blocks[j + ny_blocks * i]
+      for(int k = 0; k < models.size(); k++) {
+        std::vector<int> model_inds_temp;
+        //This is a vector for per-model indices in that specific block
+        //blocks[j + ny_blocks * i][model_num]
+        blocks_depth[j + ny_blocks_depth * i].push_back(model_inds_temp);
+      }
+    }
+  }
+  
+  std::vector<IShader*> depthshaders;
+  for(int i = 0; i < number_materials+1; i++ ) {
+    depthshaders.push_back(new DepthShader(Model, lightProjection, 
+                                           lightView, viewport_depth, light_dir, 
+                                           max_indices));
+  }
 
   if(has_shadow_map) {
     for(int model_num = 0; model_num < models.size(); model_num++ ) {
       ModelInfo &shp = models[model_num];
       for(int i = 0; i < shp.num_indices; i++) {
-        ndc_verts[model_num][0][i] = depthshader->vertex(i,0, shp);
-        ndc_verts[model_num][1][i] = depthshader->vertex(i,1, shp);
-        ndc_verts[model_num][2][i] = depthshader->vertex(i,2, shp);
+        int mat_num = shp.materials[i] >= 0 && shp.materials[i] < shaders.size() ? 
+          shp.materials[i] : shaders.size()-1;
         
-        ndc_inv_w[model_num][0][i] = 1.0f/ndc_verts[model_num][0][i].w;
-        ndc_inv_w[model_num][1][i] = 1.0f/ndc_verts[model_num][1][i].w;
-        ndc_inv_w[model_num][2][i] = 1.0f/ndc_verts[model_num][2][i].w;
+        ndc_verts_depth[model_num][0][i] = depthshaders[mat_num]->vertex(i,0, shp);
+        ndc_verts_depth[model_num][1][i] = depthshaders[mat_num]->vertex(i,1, shp);
+        ndc_verts_depth[model_num][2][i] = depthshaders[mat_num]->vertex(i,2, shp);
         
-        vec3 v1 = ndc_verts[model_num][0][i] * ndc_inv_w[model_num][0][i];
-        vec3 v2 = ndc_verts[model_num][1][i] * ndc_inv_w[model_num][1][i];
-        vec3 v3 = ndc_verts[model_num][2][i] * ndc_inv_w[model_num][2][i];
+        ndc_verts[model_num][0][i].w = ndc_verts[model_num][0][i].w < near_clip ? near_clip : ndc_verts[model_num][0][i].w;
+        ndc_verts[model_num][1][i].w = ndc_verts[model_num][1][i].w < near_clip ? near_clip : ndc_verts[model_num][1][i].w;
+        ndc_verts[model_num][2][i].w = ndc_verts[model_num][2][i].w < near_clip ? near_clip : ndc_verts[model_num][2][i].w;
+
+        ndc_inv_w_depth[model_num][0][i] = 1.0f/ndc_verts_depth[model_num][0][i].w;
+        ndc_inv_w_depth[model_num][1][i] = 1.0f/ndc_verts_depth[model_num][1][i].w;
+        ndc_inv_w_depth[model_num][2][i] = 1.0f/ndc_verts_depth[model_num][2][i].w;
         
-        min_bounds[model_num][i] = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
-                             fmin(v1.y,fmin(v2.y,v3.y)),
-                             fmin(v1.z,fmin(v2.z,v3.z)));
+        vec3 v1 = ndc_verts_depth[model_num][0][i] * ndc_inv_w_depth[model_num][0][i];
+        vec3 v2 = ndc_verts_depth[model_num][1][i] * ndc_inv_w_depth[model_num][1][i];
+        vec3 v3 = ndc_verts_depth[model_num][2][i] * ndc_inv_w_depth[model_num][2][i];
         
-        max_bounds[model_num][i] = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
-                             fmax(v1.y,fmax(v2.y,v3.y)),
-                             fmax(v1.z,fmax(v2.z,v3.z)));
+        vec3 min_bounds = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
+                               fmin(v1.y,fmin(v2.y,v3.y)),
+                               fmin(v1.z,fmin(v2.z,v3.z)));
         
-        int min_x_block = std::fmax(floor(min_bounds[model_num][i].x / (float)blocksize),0);
-        int min_y_block = std::fmax(floor(min_bounds[model_num][i].y / (float)blocksize),0);
-        int max_x_block = std::fmin(ceil(max_bounds[model_num][i].x / (float)blocksize), nx_blocks);
-        int max_y_block = std::fmin(ceil(max_bounds[model_num][i].y / (float)blocksize), ny_blocks);
-        if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks && min_y_block < ny_blocks) {
+        vec3 max_bounds = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
+                               fmax(v1.y,fmax(v2.y,v3.y)),
+                               fmax(v1.z,fmax(v2.z,v3.z)));
+        
+        int min_x_block = std::fmax(floor(min_bounds.x / (float)blocksize), 0);
+        int min_y_block = std::fmax(floor(min_bounds.y / (float)blocksize), 0);
+        int max_x_block = std::fmin(ceil(max_bounds.x  / (float)blocksize), nx_blocks_depth);
+        int max_y_block = std::fmin(ceil(max_bounds.y  / (float)blocksize), ny_blocks_depth);
+        if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks_depth && min_y_block < ny_blocks_depth) {
           for(int j = min_x_block; j < max_x_block; j++) {
             for(int k = min_y_block; k < max_y_block; k++) {
-              blocks[model_num][k + ny_blocks * j].push_back(i); 
+              blocks_depth[k + ny_blocks_depth * j][model_num].push_back(i); 
             }
           }
         }
       }
     }
     
-    std::vector<IShader* > depth_vec;
-    for(int i = 0; i < shaders.size(); i++ ) {
-      depth_vec.push_back(depthshader);
-    }
-    auto task = [&depth_vec, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
-                 &zbuffer, &shadowbuffer, &normalbuffer, &positionbuffer, &models] (unsigned int i) {
-      fill_tri_blocks(blocks,
-                      ndc_verts,
-                      ndc_inv_w,
-                      min_block_bound[i],
-                      max_block_bound[i],
-                      depth_vec,
-                      zbuffer,
+    //Calculate shadow buffer
+    auto task = [&depthshaders, &blocks_depth, &ndc_verts_depth, &ndc_inv_w_depth,  
+                 &min_block_bound_depth, &max_block_bound_depth,
+                 &zbuffer_depth, &shadowbuffer, &normalbuffer, &positionbuffer, &models] (unsigned int i) {
+      fill_tri_blocks(blocks_depth[i],
+                      ndc_verts_depth,
+                      ndc_inv_w_depth,
+                      min_block_bound_depth[i],
+                      max_block_bound_depth[i],
+                      depthshaders,
+                      zbuffer_depth,
                       shadowbuffer,
                       normalbuffer,
                       positionbuffer,
-                      models,
-                      i);
+                      models, true);
     };
     
     RcppThread::ThreadPool pool2(numbercores);
-    for(int i = 0; i < nx_blocks*ny_blocks; i++) {
+    for(int i = 0; i < nx_blocks_depth*ny_blocks_depth; i++) {
       pool2.push(task, i);
     }
     pool2.join();
-
-    //Clear out block info from depth
-    for(int j = 0; j < nx_blocks; j++) {
-      for(int k = 0; k < ny_blocks; k++) {
-        blocks[k + ny_blocks * j].clear();
-      }
-    }
   }
 
   //Calculate Image
@@ -430,35 +533,42 @@ List rasterize(List mesh,
   for(int model_num = 0; model_num < models.size(); model_num++ ) {
     ModelInfo &shp = models[model_num];
     for(int i = 0; i < shp.num_indices; i++) {
-      int mat_num = shp.materials[i] != -1 ? shp.materials[i] : shaders.size()-1;
+
+      int mat_num = shp.materials[i] >= 0 && shp.materials[i] < shaders.size() ?
+        shp.materials[i] : shaders.size()-1;
       ndc_verts[model_num][0][i] = shaders[mat_num]->vertex(i,0, shp);
       ndc_verts[model_num][1][i] = shaders[mat_num]->vertex(i,1, shp);
       ndc_verts[model_num][2][i] = shaders[mat_num]->vertex(i,2, shp);
-  
+    
+      //Depth clamping
+      ndc_verts[model_num][0][i].w = ndc_verts[model_num][0][i].w < near_clip ? near_clip : ndc_verts[model_num][0][i].w;
+      ndc_verts[model_num][1][i].w = ndc_verts[model_num][1][i].w < near_clip ? near_clip : ndc_verts[model_num][1][i].w;
+      ndc_verts[model_num][2][i].w = ndc_verts[model_num][2][i].w < near_clip ? near_clip : ndc_verts[model_num][2][i].w;
+
       ndc_inv_w[model_num][0][i] = 1.0f/ndc_verts[model_num][0][i].w;
       ndc_inv_w[model_num][1][i] = 1.0f/ndc_verts[model_num][1][i].w;
       ndc_inv_w[model_num][2][i] = 1.0f/ndc_verts[model_num][2][i].w;
-  
+      
       vec3 v1 = ndc_verts[model_num][0][i] * ndc_inv_w[model_num][0][i];
       vec3 v2 = ndc_verts[model_num][1][i] * ndc_inv_w[model_num][1][i];
       vec3 v3 = ndc_verts[model_num][2][i] * ndc_inv_w[model_num][2][i];
-  
-      min_bounds[model_num][i] = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
-                           fmin(v1.y,fmin(v2.y,v3.y)),
-                           fmin(v1.z,fmin(v2.z,v3.z)));
-  
-      max_bounds[model_num][i] = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
-                           fmax(v1.y,fmax(v2.y,v3.y)),
-                           fmax(v1.z,fmax(v2.z,v3.z)));
-  
-      int min_x_block = std::fmax(floor(min_bounds[model_num][i].x / (float)blocksize),0);
-      int min_y_block = std::fmax(floor(min_bounds[model_num][i].y / (float)blocksize),0);
-      int max_x_block = std::fmin(ceil(max_bounds[model_num][i].x / (float)blocksize), nx_blocks);
-      int max_y_block = std::fmin(ceil(max_bounds[model_num][i].y / (float)blocksize), ny_blocks);
+      
+      vec3 min_bounds = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
+                             fmin(v1.y,fmin(v2.y,v3.y)),
+                             fmin(v1.z,fmin(v2.z,v3.z)));
+      
+      vec3 max_bounds = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
+                             fmax(v1.y,fmax(v2.y,v3.y)),
+                             fmax(v1.z,fmax(v2.z,v3.z)));
+      
+      int min_x_block = std::fmax(floor(min_bounds.x / (float)blocksize), 0);
+      int min_y_block = std::fmax(floor(min_bounds.y / (float)blocksize), 0);
+      int max_x_block = std::fmin(ceil(max_bounds.x  / (float)blocksize), nx_blocks);
+      int max_y_block = std::fmin(ceil(max_bounds.y  / (float)blocksize), ny_blocks);
       if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks && min_y_block < ny_blocks) {
         for(int j = min_x_block; j < max_x_block; j++) {
           for(int k = min_y_block; k < max_y_block; k++) {
-            blocks[model_num][k + ny_blocks * j].push_back(i);
+            blocks[k + ny_blocks * j][model_num].push_back(i);
           }
         }
       }
@@ -467,7 +577,7 @@ List rasterize(List mesh,
 
   auto task = [&shaders, &models, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
                &zbuffer, &image, &normalbuffer, &positionbuffer] (unsigned int i) {
-    fill_tri_blocks(blocks,
+    fill_tri_blocks(blocks[i],
                     ndc_verts,
                     ndc_inv_w,
                     min_block_bound[i],
@@ -477,7 +587,7 @@ List rasterize(List mesh,
                     image,
                     normalbuffer,
                     positionbuffer,
-                    models,i);
+                    models, false);
   };
 
   RcppThread::ThreadPool pool(numbercores);
@@ -566,7 +676,9 @@ List rasterize(List mesh,
     }
   }
   
-  delete depthshader;
+  for(int i = 0; i < depthshaders.size(); i++) {
+    delete depthshaders[i];
+  }
   for(int i = 0; i < shaders.size(); i++) {
     delete shaders[i];
   }

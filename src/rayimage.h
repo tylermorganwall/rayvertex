@@ -16,7 +16,8 @@ vec3 trivalue(float uu, float vv,  float* data,
 class rayimage {
   public:
     rayimage(Rcpp::NumericMatrix &r_, Rcpp::NumericMatrix &g_, Rcpp::NumericMatrix &b_,
-             int nx, int ny) : r(r_), g(g_), b(b_), nx(nx), ny(ny) {};
+             int nx, int ny, float shadow_map_intensity = 0.0f) : r(r_), g(g_), b(b_), nx(nx), ny(ny),
+             shadow_map_intensity(shadow_map_intensity) {};
     void set_color(int i, int j, vec3 col) {
       r(i,j) = col.r;
       g(i,j) = col.g;
@@ -38,11 +39,15 @@ class rayimage {
     int height() {
       return(ny);
     }
+    float get_shadow_intensity() {
+      return(shadow_map_intensity);
+    }
   private:
     Rcpp::NumericMatrix r; 
     Rcpp::NumericMatrix g; 
     Rcpp::NumericMatrix b;
     int nx, ny;
+    float shadow_map_intensity;
 };
 
 

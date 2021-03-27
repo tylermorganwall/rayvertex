@@ -26,6 +26,10 @@ struct material_info {
   float specular_intensity;
   bool has_normals;
   bool has_tex;
+  bool has_texture;
+  bool has_normal_texture;
+  bool has_specular_texture;
+  bool has_emissive_texture;
 };
 
 #endif
