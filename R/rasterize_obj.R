@@ -12,14 +12,16 @@
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
 rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
-                          fov=20,lookfrom=c(0,0,10),lookat=NULL, #Sanitize lookfrom and lookat inputs
+                          fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0), #Sanitize lookfrom and lookat inputs
+                          scale_obj = 1,
+                          point_light_info = NULL,
                           type = "diffuse", color="darkred", background = "white",
                           texture_location = NA,
                           normal_texture_location = NA,
                           specular_texture_location = NA,
                           emissive_texture_location = NA,
                           parallel = TRUE,
-                          light_direction=c(1,1,1), ambient_color=c(0,0,0), 
+                          light_direction=c(1,1,1), light_intensity=1.0, ambient_color=c(0,0,0), 
                           exponent=32, specular_intensity = 0.6, emission_intensity = 1,
                           override_exponent = FALSE,
                           diffuse_intensity = 1, tangent_space_normals = FALSE,
@@ -29,7 +31,7 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                           shadow_map_bias = -0.001, shadow_map_intensity = 0.5,
                           near_plane = 0.1, far_plane = 100,
                           block_size = 4, shape = NULL, shadow_map_dims = NULL) {
-  obj = readobj::read.obj(obj_model)
+  obj = read_obj(obj_model)
   if(!is.null(shape)) {
     if(length(obj$shapes) < shape) {
       stop("shape requested exceeds number of shapes in OBJ file")
@@ -40,27 +42,36 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
   has_norms = rep(FALSE,length(obj$shapes))
   has_tex = rep(FALSE,length(obj$shapes))
   
+  #lights
+  if(!is.null(point_light_info)) {
+    if(ncol(point_light_info) != 9) {
+      stop("point_light_info must have 9 cols")
+    }
+    lightinfo = point_light_info
+  } else {
+    lightinfo = matrix(nrow=0,ncol=9)
+  }
+  
   bounds = c(Inf,Inf,Inf,-Inf,-Inf,-Inf)
   for(i in seq_len(length(obj$shapes))) {
-    obj$shapes[[i]]$positions = t(obj$shapes[[i]]$positions)
-    obj$shapes[[i]]$indices = t(obj$shapes[[i]]$indices)+1
-    obj$shapes[[i]]$texcoords = matrix(obj$shapes[[i]]$texcoords,ncol=2,byrow=TRUE)
-    obj$shapes[[i]]$normals = t(obj$shapes[[i]]$normals)
-    max_indices = max(c(max_indices,nrow(obj$shapes[[i]]$indices)))
-    has_norms[i] = nrow(obj$shapes[[i]]$normal) == nrow(obj$shapes[[i]]$positions)
-    has_tex[i] = nrow(obj$shapes[[i]]$normal) == nrow(obj$shapes[[i]]$texcoords)
+    obj$shapes[[i]]$indices = (obj$shapes[[i]]$indices)+1
+    obj$shapes[[i]]$tex_indices = (obj$shapes[[i]]$tex_indices)+1
+    obj$shapes[[i]]$norm_indices = (obj$shapes[[i]]$norm_indices)+1
     
-    #Compute bounding box
-    tempboundsmin = apply(obj$shapes[[i]]$positions,2,min)
-    tempboundsmax = apply(obj$shapes[[i]]$positions,2,max)
-    bounds[1:3] = c(min(c(bounds[1],tempboundsmin[1])),
-                    min(c(bounds[2],tempboundsmin[2])),
-                    min(c(bounds[3],tempboundsmin[3])))
-    bounds[4:6] = c(max(c(bounds[4],tempboundsmax[1])),
-                    max(c(bounds[5],tempboundsmax[2])),
-                    max(c(bounds[6],tempboundsmax[3])))
-                    
+    max_indices = max(c(max_indices,nrow(obj$shapes[[i]]$indices)))
+    has_norms[i] = nrow(obj$shapes[[i]]$indices) == nrow(obj$shapes[[i]]$norm_indices)
+    has_tex[i] = nrow(obj$shapes[[i]]$indices) == nrow(obj$shapes[[i]]$tex_indices)
   }
+  obj$vertices = obj$vertices * scale_obj
+  tempboundsmin = apply(obj$vertices,2,min)
+  tempboundsmax = apply(obj$vertices,2,max)
+  bounds[1:3] = c(min(c(bounds[1],tempboundsmin[1])),
+                  min(c(bounds[2],tempboundsmin[2])),
+                  min(c(bounds[3],tempboundsmin[3])))
+  bounds[4:6] = c(max(c(bounds[4],tempboundsmax[1])),
+                  max(c(bounds[5],tempboundsmax[2])),
+                  max(c(bounds[6],tempboundsmax[3])))
+  
   if(is.null(lookat)) {
     lookat = (bounds[1:3] + bounds[4:6])/2
     message(sprintf("Setting `lookat` to: c(%0.2f, %0.2f, %0.2f)",lookat[1],lookat[2],lookat[3]))
@@ -152,7 +163,7 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
     }
   }
   tonemap = switch(tonemap, "gamma" = 1, "uncharted" = 2, "hbd" = 3, "none"=4, 1)
-  imagelist = rasterize(obj,
+  imagelist = rasterize(obj,lightinfo,
                         nx=width,
                         ny=height,
                         model_color = color,
@@ -180,7 +191,7 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                         override_exponent = override_exponent,
                         near_plane, far_plane,
                         shadow_map_intensity,
-                        bounds, shadow_map_dims)
+                        bounds, shadow_map_dims, camera_up,light_intensity)
   if(calc_ambient) {
     imagelist$amb = (imagelist$amb)^ambient_intensity
     imagelist$r = imagelist$r * imagelist$amb

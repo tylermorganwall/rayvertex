@@ -55,8 +55,12 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
       float v3_ndc_inv_w = ndc_inv_w[model_num][2][face];
       
       //Backface culling/Front face culling for shadow maps
-      bool culled = !depth ? cross(v2-v1, v3-v2).z > 0 : cross(v2-v1, v3-v2).z < 0;
-      float sgn = !depth ? 1.0f : -1.0f;
+      // bool culled = !depth ? cross(v2-v1, v3-v2).z > 0 : cross(v2-v1, v3-v2).z < 0;
+      // float sgn = !depth ? 1.0f : -1.0f;
+      
+      bool culled = cross(v2-v1, v3-v2).z > 0 ;
+      float sgn = 1.0f;
+      
       if(culled) {
         vec3 bound_min = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
                               fmin(v1.y,fmin(v2.y,v3.y)),

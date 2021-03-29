@@ -26,6 +26,7 @@
 #include "material.h"
 
 #include "filltri.h"
+#include "light.h"
 
 using namespace Rcpp;
 
@@ -65,7 +66,7 @@ void print_mat(Mat m) {
 }
 
 // [[Rcpp::export]]
-List rasterize(List mesh,
+List rasterize(List mesh, NumericMatrix lightinfo,
                int nx, int ny,
                NumericVector model_color,
                NumericVector lookfrom,
@@ -98,11 +99,13 @@ List rasterize(List mesh,
                float  far_clip,
                float shadow_map_intensity,
                NumericVector bounds,
-               IntegerVector shadowdims) {
+               IntegerVector shadowdims,
+               NumericVector camera_up,
+               float lightintensity) {
   //Convert R vectors to glm::vec3
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
   vec3 center(lookat(0),lookat(1),lookat(2));    //lookat
-  vec3 cam_up = vec3(0.0,1.0f,0.0);
+  vec3 cam_up = vec3(camera_up(0),camera_up(1),camera_up(2));
   vec3 color(model_color(0),model_color(1),model_color(2));
   vec3 ambient(ambient_color(0),ambient_color(1),ambient_color(2)); 
   vec3 light_dir(light_direction(0),light_direction(1),light_direction(2));
@@ -176,6 +179,8 @@ List rasterize(List mesh,
   //Initialize Shadow Map bounds and orientation
   //If changed to 0.1-100.0 doesn't work anymore
   float near_plane = 1.0f, far_plane = 10.0f;
+  // float near_plane = 0.1f, far_plane = 100.0f;
+  
   vec3 light_up = vec3(0.,1.,0.);
   if(glm::length(glm::cross(light_up,light_dir)) == 0) {
     light_up = vec3(0.f,0.f,1.0f);
@@ -183,17 +188,25 @@ List rasterize(List mesh,
   
   vec3 sceneboundmin = vec3(bounds(0),bounds(1),bounds(2));
   vec3 sceneboundmax = vec3(bounds(3),bounds(4),bounds(5));
-  float scene_diag = glm::length(sceneboundmax-sceneboundmin);
+  float scene_diag = glm::length(sceneboundmax-sceneboundmin)+0.5;
   vec3 scene_center = (sceneboundmax+sceneboundmin)/2.0f;
   
   glm::mat4 lightProjection = glm::ortho(-scene_diag/2, scene_diag/2, -scene_diag/2, scene_diag/2, 
                                          near_plane, far_plane);
-  glm::mat4 lightView = glm::lookAt(scene_center+light_dir,
+  glm::mat4 lightView = glm::lookAt(scene_center+light_dir*scene_diag,
                                     scene_center,
                                     light_up);
 
   Mat M = vp_shadow*lightProjection*lightView*Model;
   Mat uniform_Mshadow_ = M * glm::inverse(vp * Projection * View * Model);
+  
+  std::vector<Light> point_lights;
+  for(int i = 0; i < lightinfo.nrow(); i++) {
+    vec3 light_position = View * Model * vec4(lightinfo(i,0),lightinfo(i,1),lightinfo(i,2),1.0);
+    point_lights.push_back(Light(light_position,
+                                 vec3(lightinfo(i,3),lightinfo(i,4),lightinfo(i,5)),
+                                 lightinfo(i,6),lightinfo(i,7),lightinfo(i,8)));
+  }
   
   ///
   //Parse mesh3d
@@ -263,37 +276,37 @@ List rasterize(List mesh,
       shader = new GouraudShader(Model, Projection, View, viewport,
                                  glm::normalize(light_dir), 
                                  shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                 shadow_map_bias,mat_info[i]);
+                                 shadow_map_bias,mat_info[i], point_lights, lightintensity);
     } else if (type == 2) {
       shader = new DiffuseShader(Model, Projection, View, viewport,
                                  glm::normalize(light_dir), 
                                  shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                 shadow_map_bias,mat_info[i]);
+                                 shadow_map_bias,mat_info[i], point_lights, lightintensity);
     } else if (type == 3) {
       shader = new PhongShader(Model, Projection, View, viewport,
                                glm::normalize(light_dir), 
                                shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                               shadow_map_bias,mat_info[i]);
+                               shadow_map_bias,mat_info[i], point_lights, lightintensity);
     } else if (type == 4) {
       shader = new DiffuseNormalShader(Model, Projection, View, viewport,
                                        glm::normalize(light_dir), 
                                        shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                       shadow_map_bias,mat_info[i]);
+                                       shadow_map_bias,mat_info[i], point_lights, lightintensity);
     } else if (type == 5) {
       shader = new DiffuseShaderTangent(Model, Projection, View, viewport,
                                         glm::normalize(light_dir), 
                                         shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                        shadow_map_bias,mat_info[i]);
+                                        shadow_map_bias,mat_info[i], point_lights, lightintensity);
     } else if (type == 6) {
       shader = new PhongNormalShader(Model, Projection, View, viewport,
                                      glm::normalize(light_dir), 
                                      shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                     shadow_map_bias,mat_info[i]);
+                                     shadow_map_bias,mat_info[i], point_lights, lightintensity);
     } else if (type == 7) {
       shader = new PhongShaderTangent(Model, Projection, View, viewport,
                                       glm::normalize(light_dir),
                                       shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                      shadow_map_bias,mat_info[i]);
+                                      shadow_map_bias,mat_info[i], point_lights, lightintensity);
     } else {
       throw std::runtime_error("shader not recognized");
     }
@@ -330,17 +343,17 @@ List rasterize(List mesh,
     shaders.push_back(new GouraudShader(Model, Projection, View, viewport,
                                glm::normalize(light_dir), 
                                shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                               shadow_map_bias,default_mat));
+                               shadow_map_bias,default_mat, point_lights, lightintensity));
   } else if (typevals(0) == 2 || typevals(0) == 4 || typevals(0) == 5) {
     shaders.push_back(new DiffuseShader(Model, Projection, View, viewport,
                                glm::normalize(light_dir), 
                                shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                               shadow_map_bias,default_mat));
+                               shadow_map_bias,default_mat, point_lights, lightintensity));
   } else if (typevals(0) == 3 || typevals(0) == 6 || typevals(0) == 7) {
     shaders.push_back(new PhongShader(Model, Projection, View, viewport,
                              glm::normalize(light_dir), 
                              shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                             shadow_map_bias,default_mat));
+                             shadow_map_bias,default_mat, point_lights, lightintensity));
   }
   
   
@@ -357,12 +370,17 @@ List rasterize(List mesh,
   
   //Fill vectors for each shape in the model
   //order: [model_num][triangle vertex][face]
+  NumericMatrix mesh_verts = as<NumericMatrix>(mesh["vertices"]);
+  NumericMatrix mesh_texcoords = as<NumericMatrix>(mesh["texcoords"]);
+  NumericMatrix mesh_normals = as<NumericMatrix>(mesh["normals"]);
+  
   for(int i = 0; i < number_shapes; i++) {
     List single_shape = as<List>(shapes(i));
-    NumericMatrix shape_verts = as<NumericMatrix>(single_shape["positions"]);
-    NumericMatrix shape_normals = as<NumericMatrix>(single_shape["normals"]);
-    NumericMatrix shape_texcoords = as<NumericMatrix>(single_shape["texcoords"]);
+    // NumericMatrix shape_normals = as<NumericMatrix>(single_shape["normals"]);
+    // NumericMatrix shape_texcoords = as<NumericMatrix>(single_shape["texcoords"]);
     IntegerMatrix shape_inds = as<IntegerMatrix>(single_shape["indices"]);
+    IntegerMatrix tex_inds = as<IntegerMatrix>(single_shape["tex_indices"]);
+    IntegerMatrix norm_inds = as<IntegerMatrix>(single_shape["norm_indices"]);
     IntegerVector shape_materials = as<IntegerVector>(single_shape["material_ids"]);
 
     int n = shape_inds.nrow();
@@ -375,7 +393,9 @@ List rasterize(List mesh,
     }
     
     //Create model object
-    ModelInfo model(shape_verts, shape_inds, shape_texcoords, shape_normals, shape_materials,
+    ModelInfo model(mesh_verts, mesh_texcoords, mesh_normals,
+                    shape_inds, tex_inds, norm_inds, 
+                    shape_materials,
                     has_normals_vec(i), has_tex_vec(i), tbn);
     models.push_back(model);
   }
@@ -602,9 +622,9 @@ List rasterize(List mesh,
     vec3 kernel[kernelSize];
     for (int i = 0; i < kernelSize; ++i) {
       kernel[i] = normalize(vec3(
-        spacefillr::sobol_single(i,0,0) * 2.0f - 1.0f,
-        spacefillr::sobol_single(i,1,0) * 2.0f - 1.0f,
-        spacefillr::sobol_single(i,2,0)));
+        spacefillr::sobol_owen_single(i,0,0) * 2.0f - 1.0f,
+        spacefillr::sobol_owen_single(i,1,0) * 2.0f - 1.0f,
+        spacefillr::sobol_owen_single(i,2,0)));
       float scale = float(i) / float(kernelSize);
       scale = lerp(0.1f, 1.0f, scale * scale);
       kernel[i] *= scale;
@@ -614,9 +634,9 @@ List rasterize(List mesh,
     vec3 noise[noiseSize];
     for (int i = 0; i < noiseSize; ++i) {
       noise[i] = normalize(vec3(
-        spacefillr::sobol_single(i,0,1) * 2.0f - 1.0f,
-        spacefillr::sobol_single(i,1,1) * 2.0f - 1.0f,
-        spacefillr::sobol_single(i,2,1)));
+        spacefillr::sobol_owen_single(i,0,1) * 2.0f - 1.0f,
+        spacefillr::sobol_owen_single(i,1,1) * 2.0f - 1.0f,
+        spacefillr::sobol_owen_single(i,2,1)));
     }
     for (int x = 0; x < nx; x++) {
       for (int y = 0; y < ny; y++) {
@@ -628,7 +648,7 @@ List rasterize(List mesh,
         normal = normalize(normal);
         int noisex = x % 4;
         int noisey = y % 4;
-        vec3 rvec = noise[noisex + 4*noisey];
+        vec3 rvec = noise[noisex + 8*noisey];
         vec3 tangent = normalize(rvec - normal * dot(rvec, normal));
         vec3 bitangent = cross(normal, tangent);
         glm::mat3 tbn{tangent, bitangent, normal};

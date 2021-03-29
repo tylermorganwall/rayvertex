@@ -17,6 +17,7 @@ rasterize_mesh(
   lookat = c(0, 0, 0),
   type = "diffuse",
   color = "darkred",
+  background = "white",
   texture_location = NA,
   normal_texture_location = NA,
   specular_texture_location = NA,

@@ -6,6 +6,7 @@
 #include "gtc/matrix_transform.hpp"
 #include "gtc/matrix_access.hpp"
 #include "gtc/matrix_inverse.hpp"
+#include "light.h"
 
 #include "material.h"
 
@@ -29,7 +30,7 @@ class GouraudShader : public IShader {
     GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                   vec3 light_dir,  rayimage& shadowbuffer,
                   Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-                  material_info mat_info);
+                  material_info mat_info,  std::vector<Light>& point_lights, float lightintensity);
     ~GouraudShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -82,7 +83,8 @@ class GouraudShader : public IShader {
     float* emissive_texture;
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
-    
+    std::vector<Light> plights;
+    float dirlightintensity;
     
 };
 
@@ -91,7 +93,7 @@ struct DiffuseShader : public IShader {
     DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
            vec3 light_dir, rayimage& shadowbuffer,
            Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-           material_info mat_info);
+           material_info mat_info,  std::vector<Light>& point_lights, float lightintensity);
     ~DiffuseShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -146,6 +148,8 @@ struct DiffuseShader : public IShader {
     float* emissive_texture;
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
+    std::vector<Light> plights;
+    float dirlightintensity;
     
     
 };
@@ -154,7 +158,7 @@ struct DiffuseNormalShader : public IShader {
   DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                vec3 light_dir,  rayimage& shadowbuffer,
                Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-               material_info mat_info);
+               material_info mat_info,  std::vector<Light>& point_lights, float lightintensity);
   ~DiffuseNormalShader();
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
@@ -206,6 +210,8 @@ struct DiffuseNormalShader : public IShader {
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
   
+  std::vector<Light> plights;
+  float dirlightintensity;
   
 };
 
@@ -214,7 +220,7 @@ class DiffuseShaderTangent : public IShader {
     DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                        vec3 light_dir,  rayimage& shadowbuffer,
                        Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-                       material_info mat_info);
+                       material_info mat_info,  std::vector<Light>& point_lights, float lightintensity);
     ~DiffuseShaderTangent();
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
@@ -270,6 +276,8 @@ class DiffuseShaderTangent : public IShader {
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
     
+    std::vector<Light> plights;
+    float dirlightintensity;
     
 };
 
@@ -278,7 +286,7 @@ class PhongShader : public IShader {
     PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                       vec3 light_dir,  rayimage& shadowbuffer,
                       Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-                      material_info mat_info);
+                      material_info mat_info,  std::vector<Light>& point_lights, float lightintensity);
     ~PhongShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -332,6 +340,8 @@ class PhongShader : public IShader {
     float* emissive_texture;
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
+    std::vector<Light> plights;
+    float dirlightintensity;
     
 };
 
@@ -340,7 +350,7 @@ public:
   PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                vec3 light_dir,  rayimage& shadowbuffer,
                Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-               material_info mat_info);
+               material_info mat_info,  std::vector<Light>& point_lights, float lightintensity);
   ~PhongNormalShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -393,6 +403,8 @@ public:
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
   
+  std::vector<Light> plights;
+  float dirlightintensity;
   
 };
 
@@ -401,7 +413,7 @@ public:
   PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                      vec3 light_dir,  rayimage& shadowbuffer,
                      Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-                     material_info mat_info);
+                     material_info mat_info,  std::vector<Light>& point_lights, float lightintensity);
   ~PhongShaderTangent();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -456,6 +468,8 @@ public:
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
   
+  std::vector<Light> plights;
+  float dirlightintensity;
   
 };
 
