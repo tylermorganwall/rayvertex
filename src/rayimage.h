@@ -10,7 +10,7 @@ typedef glm::vec3 vec3;
 typedef glm::vec2 vec2;
 typedef glm::mat4x4 Mat;
 
-vec3 trivalue(float uu, float vv,  float* data, 
+vec4 trivalue(float uu, float vv,  float* data, 
               int nx, int ny, int channels);
 
 class rayimage {

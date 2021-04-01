@@ -24,13 +24,17 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                           light_direction=c(1,1,1), light_intensity=1.0, ambient_color=c(0,0,0), 
                           exponent=32, specular_intensity = 0.6, emission_intensity = 1,
                           override_exponent = FALSE,
-                          diffuse_intensity = 1, tangent_space_normals = FALSE,
+                          diffuse_intensity = 1, tangent_space_normals = TRUE,
                           shadow_map = FALSE, calc_ambient = FALSE, 
                           ambient_intensity = 10, ambient_radius = 0.1, 
                           tonemap = "none", debug = "none", 
                           shadow_map_bias = -0.001, shadow_map_intensity = 0.5,
-                          near_plane = 0.1, far_plane = 100,
+                          near_plane = 0.1, far_plane = 100, culling = "back",
+                          shader = "default", double_sided = FALSE,
                           block_size = 4, shape = NULL, shadow_map_dims = NULL) {
+  if(!file.exists(obj_model)) {
+    stop(obj_model, " not found in current directory.")
+  }
   obj = read_obj(obj_model)
   if(!is.null(shape)) {
     if(length(obj$shapes) < shape) {
@@ -51,12 +55,15 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
   } else {
     lightinfo = matrix(nrow=0,ncol=9)
   }
+  culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
+  shaderval = switch(shader, "default" = 1, "diffuse" = 2, "phong" = 3, "color" = 4, 1)
+  
   
   bounds = c(Inf,Inf,Inf,-Inf,-Inf,-Inf)
   for(i in seq_len(length(obj$shapes))) {
-    obj$shapes[[i]]$indices = (obj$shapes[[i]]$indices)+1
-    obj$shapes[[i]]$tex_indices = (obj$shapes[[i]]$tex_indices)+1
-    obj$shapes[[i]]$norm_indices = (obj$shapes[[i]]$norm_indices)+1
+    obj$shapes[[i]]$indices = (obj$shapes[[i]]$indices)
+    obj$shapes[[i]]$tex_indices = (obj$shapes[[i]]$tex_indices)
+    obj$shapes[[i]]$norm_indices = (obj$shapes[[i]]$norm_indices)
     
     max_indices = max(c(max_indices,nrow(obj$shapes[[i]]$indices)))
     has_norms[i] = nrow(obj$shapes[[i]]$indices) == nrow(obj$shapes[[i]]$norm_indices)
@@ -80,12 +87,14 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
   use_default_material = FALSE
   if(length(obj$materials) > 0) {
     has_texture          = rep(FALSE,length(obj$materials))
+    has_ambient_texture  = rep(FALSE,length(obj$materials))
     has_normal_texture   = rep(FALSE,length(obj$materials))
     has_specular_texture = rep(FALSE,length(obj$materials))
     has_emissive_texture = rep(FALSE,length(obj$materials))
   } else {
     use_default_material = TRUE
     has_texture          = FALSE
+    has_ambient_texture  = FALSE
     has_normal_texture   = FALSE
     has_specular_texture = FALSE
     has_emissive_texture = FALSE
@@ -95,6 +104,10 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
     if(!is.null(obj$materials[[i]]$diffuse_texname) && obj$materials[[i]]$diffuse_texname != "") {
       has_texture[i] = TRUE
       obj$materials[[i]]$diffuse_texname = path.expand(obj$materials[[i]]$diffuse_texname)
+    }
+    if(!is.null(obj$materials[[i]]$ambient_texname) && obj$materials[[i]]$ambient_texname != "") {
+      has_ambient_texture[i] = TRUE
+      obj$materials[[i]]$ambient_texname = path.expand(obj$materials[[i]]$ambient_texname)
     }
     if(!is.null(obj$materials[[i]]$specular_texname) && obj$materials[[i]]$specular_texname != "") {
       has_specular_texture[i] = TRUE
@@ -130,26 +143,28 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
   color = convert_color(color)
   bg_color = convert_color(background)
   
-  typeval = switch(type, "vertex" = 1, "diffuse" = 2, "phong" = 3, 1)
-  typevals = rep(typeval,length(obj$shapes))
-  if(!use_default_material) {
-    for(i in seq_len(length(obj$materials))) {
-      if(has_normal_texture[i]) {
-        if(typeval == 2) {
-          if(!tangent_space_normals) {
-            typevals[i] = 4
-          } else {
-            typevals[i] = 5
+  typeval = switch(type, "vertex" = 1, "diffuse" = 2, "phong" = 3, "color" = 8, 1)
+  typevals = rep(typeval,length(obj$materials))
+  if(typeval != 8) {
+    if(!use_default_material) {
+      for(i in seq_len(length(obj$materials))) {
+        if(has_normal_texture[i]) {
+          if(typeval == 2) {
+            if(!tangent_space_normals) {
+              typevals[i] = 4
+            } else {
+              typevals[i] = 5
+            }
+          } else if (typeval == 3) {
+            if(!tangent_space_normals) {
+              typevals[i] = 6
+            } else {
+              typevals[i] = 7
+            }
           }
-        } else if (typeval == 3) {
-          if(!tangent_space_normals) {
-            typevals[i] = 6
-          } else {
-            typevals[i] = 7
-          }
+        } else {
+          typevals[i] = typeval
         }
-      } else {
-        typevals[i] = typeval
       }
     }
   }
@@ -163,7 +178,8 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
     }
   }
   tonemap = switch(tonemap, "gamma" = 1, "uncharted" = 2, "hbd" = 3, "none"=4, 1)
-  imagelist = rasterize(obj,lightinfo,
+  imagelist = rasterize(obj,
+                        lightinfo,
                         nx=width,
                         ny=height,
                         model_color = color,
@@ -179,11 +195,15 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                         type = typevals,
                         has_shadow_map=shadow_map, 
                         calc_ambient = calc_ambient, 
-                        tbn = tangent_space_normals, ambient_radius = ambient_radius,
+                        tbn = tangent_space_normals, 
+                        ambient_radius = ambient_radius,
                         shadow_map_bias=shadow_map_bias,
-                        numbercores=numbercores, max_indices = max_indices,
-                        has_normals_vec=has_norms, has_tex_vec=has_tex,
-                        has_texture,          
+                        numbercores=numbercores, 
+                        max_indices = max_indices,
+                        has_normals_vec=has_norms, 
+                        has_tex_vec=has_tex,
+                        has_texture,       
+                        has_ambient_texture,
                         has_normal_texture,   
                         has_specular_texture, 
                         has_emissive_texture,
@@ -191,7 +211,7 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                         override_exponent = override_exponent,
                         near_plane, far_plane,
                         shadow_map_intensity,
-                        bounds, shadow_map_dims, camera_up,light_intensity)
+                        bounds, shadow_map_dims, camera_up,light_intensity, culling, double_sided)
   if(calc_ambient) {
     imagelist$amb = (imagelist$amb)^ambient_intensity
     imagelist$r = imagelist$r * imagelist$amb
@@ -232,6 +252,15 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
     pos_array[is.infinite(pos_array)] = 1
     rayimage::plot_image(pos_array)
     return(invisible(pos_array))
+  }
+  if(debug == "uv") {
+    uv_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
+    uv_array[,,1] = (imagelist$uvx)
+    uv_array[,,2] = (imagelist$uvy)
+    uv_array[,,3] = (imagelist$uvz)
+    uv_array = rayimage::render_reorient(uv_array,transpose = TRUE, flipx = TRUE)
+    rayimage::plot_image(uv_array)
+    return(invisible(uv_array))
   }
   
   imagelist$r[is.infinite(imagelist$depth)] = bg_color[1]

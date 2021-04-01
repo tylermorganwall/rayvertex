@@ -27,6 +27,7 @@ struct material_info {
   bool has_normals;
   bool has_tex;
   bool has_texture;
+  bool has_ambient_texture;
   bool has_normal_texture;
   bool has_specular_texture;
   bool has_emissive_texture;

@@ -21,25 +21,24 @@ class ModelInfo {
       inds(inds), tex_inds(tex_inds), norm_inds(norm_inds), 
       materials(materials),
       tbn(tbn) {
-      has_normals = normals.nrow() == inds.nrow() && has_normals_;
+      has_normals = has_normals_;
       has_texcoords = has_texcoords_;
       num_indices = inds.nrow();
     }
     
     vec3 vertex(int iface, int nthvert) { 
-      return(vec3(verts(inds(iface,nthvert) - 1, 0),
-                  verts(inds(iface,nthvert) - 1, 1),
-                  verts(inds(iface,nthvert) - 1, 2)));
+      return(vec3(verts(inds(iface,nthvert), 0),
+                  verts(inds(iface,nthvert), 1),
+                  verts(inds(iface,nthvert), 2)));
     }
     vec3 normal(int iface, int nthvert) {
-      return(vec3(normals(norm_inds(iface,nthvert) - 1, 0),
-                  normals(norm_inds(iface,nthvert) - 1, 1),
-                  normals(norm_inds(iface,nthvert) - 1, 2)));
+      return(vec3(normals(norm_inds(iface,nthvert), 0),
+                  normals(norm_inds(iface,nthvert), 1),
+                  normals(norm_inds(iface,nthvert), 2)));
     }
-    //Check if memory leak, possibly due to indices
     vec3 tex(int iface, int nthvert) {
-      return(vec3(texcoords(tex_inds(iface,nthvert) - 1, 0),
-                  texcoords(tex_inds(iface,nthvert) - 1, 1),
+      return(vec3(texcoords(tex_inds(iface,nthvert), 0),
+                  texcoords(tex_inds(iface,nthvert), 1),
                   0.0f));
     }
     

@@ -9,7 +9,8 @@ List load_obj(std::string inputfile, std::string basedir) {
   tinyobj::ObjReader reader;
   tinyobj::ObjReaderConfig reader_config;
   reader_config.mtl_search_path = "./"; // Path to material files
-
+  reader_config.triangulate = true;
+  
   if (!reader.ParseFromFile(inputfile, reader_config)) {
     if (!reader.Error().empty()) {
       std::cerr << "TinyObjReader: " << reader.Error();
@@ -59,9 +60,9 @@ List load_obj(std::string inputfile, std::string basedir) {
       norm_inds.push_back(m.indices[j].normal_index);
     }
     
-    single_shape["indices"]      = Rcpp::transpose(IntegerMatrix(nv_face, inds.size()/nv_face,inds.begin() ));
-    single_shape["tex_indices"]  = Rcpp::transpose(IntegerMatrix(nv_face, tex_inds.size()/nv_face,tex_inds.begin() ));
-    single_shape["norm_indices"] = Rcpp::transpose(IntegerMatrix(nv_face, norm_inds.size()/nv_face,norm_inds.begin() ));
+    single_shape["indices"]      = Rcpp::transpose(IntegerMatrix(nv_face, inds.size()/nv_face,      inds.begin()      ));
+    single_shape["tex_indices"]  = Rcpp::transpose(IntegerMatrix(nv_face, tex_inds.size()/nv_face,  tex_inds.begin()  ));
+    single_shape["norm_indices"] = Rcpp::transpose(IntegerMatrix(nv_face, norm_inds.size()/nv_face, norm_inds.begin() ));
     single_shape["material_ids"] = Rcpp::transpose(NumericMatrix(1L, mats.size(), mats.begin()));
     single_shape["name"]         = shapes[s].name;
     shape_list[s]                = single_shape;

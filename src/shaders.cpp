@@ -4,13 +4,11 @@
 #include "stb_image.h"
 
 
- void print_vec(vec3 m) {
-  // RcppThread::Rcout.precision(5);
+void print_vec(vec3 m) {
   RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << "\n";
 }
 
- void print_vec(vec4 m) {
-  // RcppThread::Rcout.precision(5);
+void print_vec(vec4 m) {
   RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << " " << m[3] << "\n";
 }
 
@@ -19,10 +17,12 @@ IShader::~IShader() {}
 GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                              vec3 light_dir, rayimage& shadowbuffer,
                              Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-                             material_info mat_info,  std::vector<Light>& point_lights, float lightintensity) :
+                             material_info mat_info,  std::vector<Light>& point_lights, float lightintensity,
+                             bool double_sided) :
   Projection(Projection), View(View), viewport(viewport),
   light_dir(light_dir), shadowbuffer(shadowbuffer), has_shadow_map(has_shadow_map),
-  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity) {
+  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity),
+  double_sided(double_sided) {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -35,14 +35,20 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 4);
+    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
     if(nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
+  if(material.has_ambient_texture) {
+    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    if(nx_a == 0 || ny_a == 0 || nn_a == 0) {
+      throw std::runtime_error("Ambient Texture loading failed");
+    }
+  }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 4);
+    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
     if(nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
@@ -50,7 +56,7 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   if(material.has_specular_texture) {
     has_specular_texture = true;
     specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 4);
+                                  &nx_st, &ny_st, &nn_st, 0);
     if(nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
@@ -58,7 +64,7 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
     emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 4);
+                                  &nx_et, &ny_et, &nn_et, 0);
     if(nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -83,6 +89,9 @@ GouraudShader::~GouraudShader() {
   if(has_texture) {
     stbi_image_free(texture);
   }
+  if(material.has_ambient_texture) {
+    stbi_image_free(ambient_texture);
+  }
   if(has_normal_texture) {
     stbi_image_free(normal_texture);
   }
@@ -100,7 +109,7 @@ vec4 GouraudShader::vertex(int iface, int nthvert, ModelInfo& model) {
   vec_varying_world_nrm[iface][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   vec4 clip = vp * MVP * vec4(model.vertex(iface, nthvert),1.0f);
   
-  vec_varying_tri[iface][nthvert] = clip/clip.w;
+  vec_varying_tri[iface][nthvert] = clip;
   has_normals = model.has_normals;
   return (clip);
 }
@@ -131,9 +140,122 @@ bool GouraudShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& norma
   return(false);
 }
 
+
+ColorShader::~ColorShader() {
+  if(has_texture) {
+    stbi_image_free(texture);
+  }
+  if(material.has_ambient_texture) {
+    stbi_image_free(ambient_texture);
+  }
+  if(has_normal_texture) {
+    stbi_image_free(normal_texture);
+  }
+  if(has_specular_texture) {
+    stbi_image_free(specular_texture);
+  }
+  if(has_emissive_texture) {
+    stbi_image_free(emissive_texture);
+  }
+}
+
+ColorShader::ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
+                             material_info mat_info,
+                             bool double_sided) :
+  Projection(Projection), View(View), viewport(viewport), material(mat_info),
+  double_sided(double_sided)  {
+  vp = glm::scale(glm::translate(Mat(1.0f),
+                                 vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
+                                 vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
+  MVP = Projection * View * Model;
+  uniform_M = View * Model;
+  uniform_MIT = glm::inverseTranspose(uniform_M);
+
+  has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
+  if(material.has_texture) {
+    has_texture = true;
+    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
+    if(nx_t == 0 || ny_t == 0 || nn_t == 0) {
+      throw std::runtime_error("Texture loading failed");
+    }
+  }
+  if(material.has_ambient_texture) {
+    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    if(nx_a == 0 || ny_a == 0 || nn_a == 0) {
+      throw std::runtime_error("Ambient Texture loading failed");
+    }
+  }
+  if(material.has_normal_texture) {
+    has_normal_texture = true;
+    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
+    if(nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
+      throw std::runtime_error("Normal texture loading failed");
+    }
+  }
+  if(material.has_specular_texture) {
+    has_specular_texture = true;
+    specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
+                                  &nx_st, &ny_st, &nn_st, 0);
+    if(nx_st == 0 || ny_st == 0 || nn_st == 0) {
+      throw std::runtime_error("Specular texture loading failed");
+    }
+  }
+  if(material.has_emissive_texture) {
+    has_emissive_texture = true;
+    emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
+                                  &nx_et, &ny_et, &nn_et, 0);
+    if(nx_et == 0 || ny_et == 0 || nn_et == 0) {
+      throw std::runtime_error("Emissive texture loading failed");
+    }
+  }
+  
+  for(int i = 0; i < material.max_indices; i++ ) {
+    std::vector<vec3> tempuv(3);
+    std::vector<vec4> temptri(3);
+    std::vector<vec3> temppos(3);
+    std::vector<vec3> tempnrm(3);
+    
+    vec_varying_uv.push_back(tempuv);
+    vec_varying_tri.push_back(temptri);
+    vec_varying_pos.push_back(temppos);
+    vec_varying_world_nrm.push_back(tempnrm);
+  }
+};
+
+
+vec4 ColorShader::vertex(int iface, int nthvert, ModelInfo& model) {
+  vec4 clip = MVP * vec4(model.vertex(iface,nthvert),1.0f);
+  vec_varying_uv[iface][nthvert] = model.tex(iface,nthvert);
+  vec_varying_tri[iface][nthvert] =  vp * clip;
+  vec_varying_pos[iface][nthvert] = uniform_M * vec4(model.vertex(iface, nthvert),1.0f);
+  vec_varying_world_nrm[iface][nthvert] = model.has_normals ?
+    uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
+    uniform_MIT * normalize(vec4(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
+                                            model.vertex(iface,2)-model.vertex(iface,0)),0.0f));
+  return (vec_varying_tri[iface][nthvert]);
+}
+
+bool ColorShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
+  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec4 diffuse_color = diffuse(uv);
+  if(diffuse_color.w == 0.0) return true;
+  
+  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
+  normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;
+  
+  color = vec3(diffuse_color);
+  //Emissive and ambient terms
+  color += emissive(uv);
+  color += ambient(uv);
+  return false; 
+}
+
 DiffuseShader::~DiffuseShader() {
   if(has_texture) {
     stbi_image_free(texture);
+  }
+  if(material.has_ambient_texture) {
+    stbi_image_free(ambient_texture);
   }
   if(has_normal_texture) {
     stbi_image_free(normal_texture);
@@ -149,10 +271,12 @@ DiffuseShader::~DiffuseShader() {
 DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
               vec3 light_dir, rayimage& shadowbuffer,
               Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-              material_info mat_info,  std::vector<Light>& point_lights, float lightintensity) :
+              material_info mat_info,  std::vector<Light>& point_lights, float lightintensity,
+              bool double_sided) :
   Projection(Projection), View(View), viewport(viewport),
   light_dir(light_dir), shadowbuffer(shadowbuffer), has_shadow_map(has_shadow_map),
-  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity){
+  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity),
+  double_sided(double_sided) {
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
@@ -165,14 +289,20 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 4);
+    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
     if(nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
+  if(material.has_ambient_texture) {
+    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    if(nx_a == 0 || ny_a == 0 || nn_a == 0) {
+      throw std::runtime_error("Ambient Texture loading failed");
+    }
+  }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 4);
+    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
     if(nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
@@ -180,7 +310,7 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   if(material.has_specular_texture) {
     has_specular_texture = true;
     specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 4);
+                                  &nx_st, &ny_st, &nn_st, 0);
     if(nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
@@ -188,7 +318,7 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
     emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 4);
+                                  &nx_et, &ny_et, &nn_et, 0);
     if(nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -221,12 +351,30 @@ vec4 DiffuseShader::vertex(int iface, int nthvert, ModelInfo& model) {
     uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
     uniform_MIT * normalize(vec4(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
                                             model.vertex(iface,2)-model.vertex(iface,0)),0.0f));
+
+  // if(double_sided) {
+  //   vec3 face_dir =  glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
+  //                               model.vertex(iface,2)-model.vertex(iface,0));
+  //   if(model.has_normals) {
+  //     vec_varying_world_nrm[iface][nthvert] *= dot(model.normal(iface, nthvert), face_dir) > 0 ?
+  //       -1.0f : 1.0f;
+  //   } else {
+  //     face_dir = uniform_MIT * vec4(face_dir,0.0f);
+  //     vec_varying_world_nrm[iface][nthvert] *= dot(vec_varying_world_nrm[iface][nthvert], face_dir) > 0 ?
+  //       1.0f : -1.0f;
+  //   }
+  // }
+    
   vec_varying_intensity[iface][nthvert] = std::fmax(0.f, dot(vec_varying_world_nrm[iface][nthvert], l));
   has_normals = model.has_normals;
   return (vec_varying_tri[iface][nthvert]);
 }
 
 bool DiffuseShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
+  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec4 diffuse_color = diffuse(uv);
+  if(diffuse_color.w == 0.0) return true;
+  
   float shadow = 1.0f;
   if(has_shadow_map) {
     vec4 sb_p = uniform_Mshadow * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
@@ -248,13 +396,11 @@ bool DiffuseShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& norma
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;
   
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
-  vec3 diffuse_color = diffuse(uv);
   //Directional light contribution
-  color = diffuse_color * intensity * shadow;
+  color = vec3(diffuse_color) * intensity * shadow;
   
   for(int i = 0; i < plights.size(); i++) {
-    color += diffuse_color * plights[i].CalcPointLightAtten(pos) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
+    color += vec3(diffuse_color) * plights[i].CalcPointLightAtten(pos) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
   }
 
   //Emissive and ambient terms
@@ -267,6 +413,9 @@ bool DiffuseShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& norma
 DiffuseNormalShader::~DiffuseNormalShader() {
   if(has_texture) {
     stbi_image_free(texture);
+  }
+  if(material.has_ambient_texture) {
+    stbi_image_free(ambient_texture);
   }
   if(has_normal_texture) {
     stbi_image_free(normal_texture);
@@ -282,10 +431,12 @@ DiffuseNormalShader::~DiffuseNormalShader() {
 DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
              vec3 light_dir, rayimage& shadowbuffer,
              Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-             material_info mat_info,  std::vector<Light>& point_lights, float lightintensity) :
+             material_info mat_info,  std::vector<Light>& point_lights, float lightintensity,
+             bool double_sided) :
   Projection(Projection), View(View), viewport(viewport),
   light_dir(light_dir), shadowbuffer(shadowbuffer), has_shadow_map(has_shadow_map),
-  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity) {
+  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity),
+  double_sided(double_sided)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -294,14 +445,20 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 4);
+    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
     if(nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
+  if(material.has_ambient_texture) {
+    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    if(nx_a == 0 || ny_a == 0 || nn_a == 0) {
+      throw std::runtime_error("Ambient Texture loading failed");
+    }
+  }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 4);
+    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
     if(nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
@@ -309,7 +466,7 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
   if(material.has_specular_texture) {
     has_specular_texture = true;
     specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 4);
+                                  &nx_st, &ny_st, &nn_st, 0);
     if(nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
@@ -317,7 +474,7 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
     emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 4);
+                                  &nx_et, &ny_et, &nn_et, 0);
     if(nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -349,13 +506,17 @@ vec4 DiffuseNormalShader::vertex(int iface, int nthvert, ModelInfo& model) {
   vec_varying_world_nrm[iface][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   
   vec4 clip = vp * MVP * vec4(model.vertex(iface,nthvert),1.0f);
-  vec_varying_tri[iface][nthvert] = clip/clip.w;
+  vec_varying_tri[iface][nthvert] = clip;
   has_normals = model.has_normals;
   
   return (clip);
 }
 
 bool DiffuseNormalShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
+  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec4 diffuse_color = diffuse(uv);
+  if(diffuse_color.w == 0.0) return true;
+  
   float shadow = 1.0f;
   if(has_shadow_map) {
     vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
@@ -373,12 +534,11 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3&
       shadow /= 25;
     }
   }
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec3 n = normalize(vec3(uniform_MIT * vec4(normal_uv(uv), 0.0f)));
   float intensity = std::fmax(0.f, dot(n,l));
   vec3 emit = emissive(uv);
   
-  color = emit + diffuse(uv) * intensity * shadow;
+  color = emit + vec3(diffuse_color) * intensity * shadow;
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
   normal = n;
   return false;
@@ -387,6 +547,9 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3&
 DiffuseShaderTangent::~DiffuseShaderTangent() {
   if(has_texture) {
     stbi_image_free(texture);
+  }
+  if(material.has_ambient_texture) {
+    stbi_image_free(ambient_texture);
   }
   if(has_normal_texture) {
     stbi_image_free(normal_texture);
@@ -402,10 +565,12 @@ DiffuseShaderTangent::~DiffuseShaderTangent() {
 DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                                        vec3 light_dir, rayimage& shadowbuffer,
                                        Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-                                       material_info mat_info,  std::vector<Light>& point_lights, float lightintensity) :
+                                       material_info mat_info,  std::vector<Light>& point_lights, float lightintensity,
+                                       bool double_sided) :
   Projection(Projection), View(View), viewport(viewport),
   light_dir(light_dir), shadowbuffer(shadowbuffer), has_shadow_map(has_shadow_map),
-  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity) {
+  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity),
+  double_sided(double_sided)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -418,14 +583,20 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 4);
+    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
     if(nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
+  if(material.has_ambient_texture) {
+    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    if(nx_a == 0 || ny_a == 0 || nn_a == 0) {
+      throw std::runtime_error("Ambient Texture loading failed");
+    }
+  }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 4);
+    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
     if(nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
@@ -433,7 +604,7 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
   if(material.has_specular_texture) {
     has_specular_texture = true;
     specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 4);
+                                  &nx_st, &ny_st, &nn_st, 0);
     if(nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
@@ -441,7 +612,7 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
     emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 4);
+                                  &nx_et, &ny_et, &nn_et, 0);
     if(nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -475,27 +646,38 @@ vec4 DiffuseShaderTangent::vertex(int iface, int nthvert, ModelInfo& model) {
 
   vec4 ndc = MVP  * vec4(gl_Vertex, 1.0f);
   vec_varying_ndc_tri[iface][nthvert] = vec3(ndc/ndc.w);
-  vec4 clip = vp*MVP * vec4(gl_Vertex, 1.0f);
-  vec_varying_tri[iface][nthvert] = clip/clip.w;
+  vec4 clip = vp * MVP * vec4(gl_Vertex, 1.0f);
+  vec_varying_tri[iface][nthvert] = clip;
   has_normals = model.has_normals;
   
   return clip;
 }
 
 bool DiffuseShaderTangent::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
+  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec4 diffuse_color = diffuse(uv);
+  if(diffuse_color.w == 0.0) return true;
+  
   float shadow = 1.0f;
   if(has_shadow_map) {
     vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
     sb_p = sb_p/sb_p.w;
     if(sb_p[0] >= 0 && sb_p[0] < shadowbuffer.width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffer.height()) {
+      shadow = 0.0f;
       float bias = shadow_map_bias;
-      shadow = shadowbuffer.get_color(int(sb_p[0]),int(sb_p[1])).x > sb_p[2]-bias ? 1.0f : shadowbuffer.get_shadow_intensity();
-    } 
+      int i = int(sb_p[0]);
+      int j = int(sb_p[1]);
+      for(int x = -2; x <= 2; ++x) {
+        for(int y = -2; y <= 2; ++y) {
+          shadow += shadowbuffer.get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0f : shadowbuffer.get_shadow_intensity();    
+        }    
+      }
+      shadow /= 25;
+    }
   }
   vec3 bn = normalize(vec_varying_nrm[iface][0] * bc.x + 
     vec_varying_nrm[iface][1] * bc.y + 
     vec_varying_nrm[iface][2] * bc.z);
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
 
   glm::mat3 A{(vec_varying_ndc_tri[iface][1] - vec_varying_ndc_tri[iface][0]),
               (vec_varying_ndc_tri[iface][2] - vec_varying_ndc_tri[iface][0]),bn};
@@ -510,7 +692,7 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3
   vec3 emit = emissive(uv);
   
   float diff = std::fmax(0.f, dot(n,l));
-  color = emit +  diffuse(uv)*diff*shadow;
+  color = emit +  vec3(diffuse_color)*diff*shadow + ambient(uv);
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   normal =  n;
   
@@ -520,6 +702,9 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3
 PhongShader::~PhongShader() {
   if(has_texture) {
     stbi_image_free(texture);
+  }
+  if(material.has_ambient_texture) {
+    stbi_image_free(ambient_texture);
   }
   if(has_normal_texture) {
     stbi_image_free(normal_texture);
@@ -535,10 +720,12 @@ PhongShader::~PhongShader() {
 PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                                      vec3 light_dir, rayimage& shadowbuffer,
                                      Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-                                     material_info mat_info,  std::vector<Light>& point_lights, float lightintensity) :
+                                     material_info mat_info,  std::vector<Light>& point_lights, float lightintensity,
+                                     bool double_sided) :
   Projection(Projection), View(View), viewport(viewport),
   light_dir(light_dir), shadowbuffer(shadowbuffer), has_shadow_map(has_shadow_map),
-  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity) {
+  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity),
+  double_sided(double_sided)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -547,14 +734,20 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 4);
+    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
     if(nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
+  if(material.has_ambient_texture) {
+    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    if(nx_a == 0 || ny_a == 0 || nn_a == 0) {
+      throw std::runtime_error("Ambient Texture loading failed");
+    }
+  }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 4);
+    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
     if(nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
@@ -562,7 +755,7 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   if(material.has_specular_texture) {
     has_specular_texture = true;
     specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 4);
+                                  &nx_st, &ny_st, &nn_st, 0);
     if(nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
@@ -570,7 +763,7 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
     emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 4);
+                                  &nx_et, &ny_et, &nn_et, 0);
     if(nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -612,6 +805,10 @@ vec4 PhongShader::vertex(int iface, int nthvert, ModelInfo& model) {
 }
 
 bool PhongShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
+  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec4 diffuse_color = diffuse(uv);
+  if(diffuse_color.w == 0.0) return true;
+  
   float shadow = 1.0f;
   if(has_shadow_map) {
     vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
@@ -629,14 +826,14 @@ bool PhongShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal,
       shadow /= 25;
     }
   }
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
-  vec3 n = has_normals ?  normalize(vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z) :
+  vec3 n = has_normals ?  
+    normalize(vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z) :
     normalize(glm::cross(vec_varying_tri[iface][1]-vec_varying_tri[iface][0],vec_varying_tri[iface][2]-vec_varying_tri[iface][0]));
   vec3 r = normalize(2.0f*dot(n,l)*n - l);
- vec3 spec = specular(uv) * std::pow(std::fmax(r.z, 0.0f),
-                material.shininess);
+  vec3 spec = specular(uv) * std::pow(std::fmax(r.z, 0.0f), material.shininess);
+  
   float diff = std::fmax(0.f, dot(n,l));
-  vec3 c = diffuse(uv);
+  vec3 c = vec3(diffuse_color);
   vec3 ambient = material.ambient;
   vec3 emit = emissive(uv);
   for (int i=0; i<3; i++) {
@@ -654,6 +851,9 @@ PhongNormalShader::~PhongNormalShader() {
   if(has_texture) {
     stbi_image_free(texture);
   }
+  if(material.has_ambient_texture) {
+    stbi_image_free(ambient_texture);
+  }
   if(has_normal_texture) {
     stbi_image_free(normal_texture);
   }
@@ -668,10 +868,12 @@ PhongNormalShader::~PhongNormalShader() {
 PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
             vec3 light_dir, rayimage& shadowbuffer,
             Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-            material_info mat_info,  std::vector<Light>& point_lights, float lightintensity) :
+            material_info mat_info,  std::vector<Light>& point_lights, float lightintensity,
+            bool double_sided) :
   Projection(Projection), View(View), viewport(viewport),
   light_dir(light_dir), shadowbuffer(shadowbuffer), has_shadow_map(has_shadow_map),
-  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity) {
+  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity),
+  double_sided(double_sided)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -684,14 +886,20 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 4);
+    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
     if(nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
+  if(material.has_ambient_texture) {
+    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    if(nx_a == 0 || ny_a == 0 || nn_a == 0) {
+      throw std::runtime_error("Ambient Texture loading failed");
+    }
+  }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 4);
+    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
     if(nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
@@ -699,7 +907,7 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
   if(material.has_specular_texture) {
     has_specular_texture = true;
     specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 4);
+                                  &nx_st, &ny_st, &nn_st, 0);
     if(nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
@@ -707,7 +915,7 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
     emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 4);
+                                  &nx_et, &ny_et, &nn_et, 0);
     if(nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -737,13 +945,17 @@ vec4 PhongNormalShader::vertex(int iface, int nthvert, ModelInfo& model) {
   
   vec3 gl_Vertex = model.vertex(iface,nthvert);
   vec4 clip = vp * MVP * vec4(gl_Vertex, 1.0f);
-  vec_varying_tri[iface][nthvert] = clip/clip.w;
+  vec_varying_tri[iface][nthvert] = clip;
   has_normals = model.has_normals;
   
   return clip;
 }
 
 bool PhongNormalShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
+  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec4 diffuse_color = diffuse(uv);
+  if(diffuse_color.w == 0.0) return true;
+  
   float shadow = 1.0f;
   if(has_shadow_map) {
     vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
@@ -761,14 +973,12 @@ bool PhongNormalShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& n
       shadow /= 25;
     }
   }
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
-
   vec3 n = normalize(vec3(uniform_MIT * vec4(normal_uv(uv),0.0f)));
   vec3 r = normalize(2.0f*dot(n,l)*n - l);
- vec3 spec = specular(uv) * std::pow(std::fmax(r.z, 0.0f),
+  vec3 spec = specular(uv) * std::pow(std::fmax(r.z, 0.0f),
                         material.shininess);
   float diff = std::fmax(0.f, dot(n,l));
-  vec3 c = diffuse(uv);
+  vec3 c = vec3(diffuse_color);
   vec3 ambient = material.ambient;
   vec3 emit = emissive(uv);
   for (int i=0; i<3; i++) {
@@ -786,6 +996,9 @@ PhongShaderTangent::~PhongShaderTangent() {
   if(has_texture) {
     stbi_image_free(texture);
   }
+  if(material.has_ambient_texture) {
+    stbi_image_free(ambient_texture);
+  }
   if(has_normal_texture) {
     stbi_image_free(normal_texture);
   }
@@ -800,10 +1013,12 @@ PhongShaderTangent::~PhongShaderTangent() {
 PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                          vec3 light_dir, rayimage& shadowbuffer,
                          Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-                         material_info mat_info,  std::vector<Light>& point_lights, float lightintensity) :
+                         material_info mat_info,  std::vector<Light>& point_lights, float lightintensity,
+                         bool double_sided) :
   Projection(Projection), View(View), viewport(viewport),
   light_dir(light_dir), shadowbuffer(shadowbuffer), has_shadow_map(has_shadow_map),
-  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity) {
+  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity),
+  double_sided(double_sided)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -816,14 +1031,20 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 4);
+    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
     if(nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
+  if(material.has_ambient_texture) {
+    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    if(nx_a == 0 || ny_a == 0 || nn_a == 0) {
+      throw std::runtime_error("Ambient Texture loading failed");
+    }
+  }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 4);
+    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
     if(nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
@@ -831,7 +1052,7 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
   if(material.has_specular_texture) {
     has_specular_texture = true;
     specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 4);
+                                  &nx_st, &ny_st, &nn_st, 0);
     if(nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
@@ -839,7 +1060,7 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
     emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 4);
+                                  &nx_et, &ny_et, &nn_et, 0);
     if(nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -880,6 +1101,10 @@ vec4 PhongShaderTangent::vertex(int iface, int nthvert, ModelInfo& model) {
 }
 
 bool PhongShaderTangent::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
+  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec4 diffuse_color = diffuse(uv);
+  if(diffuse_color.w == 0.0) return true;
+  
   float shadow = 1.0f;
   if(has_shadow_map) {
     vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
@@ -900,7 +1125,6 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& 
   vec3 bn = (vec_varying_nrm[iface][0] * bc.x + 
     vec_varying_nrm[iface][1] * bc.y + 
     vec_varying_nrm[iface][2] * bc.z);
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
 
   glm::mat3 A{(vec_varying_ndc_tri[iface][1] - vec_varying_ndc_tri[iface][0]),
               (vec_varying_ndc_tri[iface][2] - vec_varying_ndc_tri[iface][0]),bn};
@@ -913,10 +1137,10 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& 
   vec3 n = normalize(B * normal_uv(uv));
   
   vec3 r = normalize(2.0f*dot(n,l)*n - l);
- vec3 spec = specular(uv) * std::pow(std::fmax(r.z, 0.0f),
+  vec3 spec = specular(uv) * std::pow(std::fmax(r.z, 0.0f),
                 material.shininess);
   float diff = std::fmax(0.f, dot(n,l));
-  vec3 c = diffuse(uv);
+  vec3 c = vec3(diffuse_color);
   vec3 ambient = material.ambient;
   vec3 emit = emissive(uv);
   for (int i=0; i<3; i++) {
@@ -930,19 +1154,34 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& 
   return false;
 }
 
-DepthShader::~DepthShader() {}
+DepthShader::~DepthShader() {
+  if(material.has_texture) {
+    stbi_image_free(texture);
+  }
+}
 
 DepthShader::DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-                         vec3 light_dir, int mat_info) :
+                         vec3 light_dir,  material_info mat_info, int mat_ind) :
   Projection(Projection), View(View), viewport(viewport),
-  light_dir(light_dir) {
+  light_dir(light_dir),  material(mat_info) {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                   vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
                   vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
-  for(int i = 0; i < mat_info; i++ ) {
+  has_texture = false;
+  if(mat_info.has_texture) {
+    has_texture = true;
+    texture = stbi_loadf(mat_info.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
+    if(nx_t == 0 || ny_t == 0 || nn_t == 0) {
+      throw std::runtime_error("Texture loading failed");
+    }
+  }
+  for(int i = 0; i < mat_ind; i++ ) {
     std::vector<vec4> temptri(3);
+    std::vector<vec3> tempuv(3);
+    
     vec_varying_tri.push_back(temptri);
+    vec_varying_uv.push_back(tempuv);
   }
 }
 
@@ -950,10 +1189,16 @@ vec4 DepthShader::vertex(int iface, int nthvert, ModelInfo& model) {
   vec3 gl_Vertex = model.vertex(iface,nthvert);
   vec4 clip = vp * MVP * vec4(gl_Vertex,1.0f);
   vec_varying_tri[iface][nthvert] = clip;
+  vec_varying_uv[iface][nthvert] = model.tex(iface,nthvert);
+  
   return  clip;
 }
 
 bool DepthShader::fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) {
+  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec4 diffuse_color = diffuse(uv);
+  if(diffuse_color.w == 0.0) return true;
+  
   vec4 p = vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z;
   color = vec3(p.z);
   return false;

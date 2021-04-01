@@ -89,6 +89,7 @@ List rasterize(List mesh, NumericMatrix lightinfo,
                LogicalVector has_normals_vec,
                LogicalVector has_tex_vec,
                LogicalVector has_texture,  
+               LogicalVector has_ambient_texture,
                LogicalVector has_normal_texture,
                LogicalVector has_specular_texture,
                LogicalVector has_emissive_texture,
@@ -101,7 +102,7 @@ List rasterize(List mesh, NumericMatrix lightinfo,
                NumericVector bounds,
                IntegerVector shadowdims,
                NumericVector camera_up,
-               float lightintensity) {
+               float lightintensity, int culling, bool double_sided) {
   //Convert R vectors to glm::vec3
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
   vec3 center(lookat(0),lookat(1),lookat(2));    //lookat
@@ -165,12 +166,18 @@ List rasterize(List mesh, NumericMatrix lightinfo,
   NumericMatrix nxbuffer(nx,ny);
   NumericMatrix nybuffer(nx,ny);
   NumericMatrix nzbuffer(nx,ny);
+  
+  //UV buffer
+  NumericMatrix uvxbuffer(nx,ny);
+  NumericMatrix uvybuffer(nx,ny);
+  NumericMatrix uvzbuffer(nx,ny);
 
   //Initialize rayimage buffers
   rayimage shadowbuffer(sbuffer,sbuffer,sbuffer,shadowdims(0),shadowdims(1),shadow_map_intensity);
   rayimage ambientbuffer(abuffer,abuffer,abuffer,nx,ny);
   rayimage positionbuffer(xxbuffer,yybuffer,zzbuffer,nx,ny);
   rayimage normalbuffer(nxbuffer,nybuffer,nzbuffer,nx,ny);
+  rayimage uvbuffer(uvxbuffer,uvybuffer,uvzbuffer,nx,ny);
   
   //Initialize zbuffer
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<float>::infinity() ) ;
@@ -238,6 +245,8 @@ List rasterize(List mesh, NumericMatrix lightinfo,
     // bool has_tex = has_tex_vec(i);
     
     bool has_texture_single          = has_texture(i);
+    bool has_ambient_texture_single  = has_ambient_texture(i);
+    
     bool has_normal_texture_single   = has_normal_texture(i);
     bool has_specular_texture_single = has_specular_texture(i);
     bool has_emissive_texture_single = has_emissive_texture(i);
@@ -264,6 +273,7 @@ List rasterize(List mesh, NumericMatrix lightinfo,
       true, //THIS SHOULD BE FIXED, but isn't currently used -- has_norms
       true, //THIS SHOULD BE FIXED, but isn't currently used -- has_tex
       has_texture_single,
+      has_ambient_texture_single,
       has_normal_texture_single,
       has_specular_texture_single,
       has_emissive_texture_single
@@ -276,37 +286,39 @@ List rasterize(List mesh, NumericMatrix lightinfo,
       shader = new GouraudShader(Model, Projection, View, viewport,
                                  glm::normalize(light_dir), 
                                  shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                 shadow_map_bias,mat_info[i], point_lights, lightintensity);
+                                 shadow_map_bias,mat_info[i], point_lights, lightintensity, double_sided);
     } else if (type == 2) {
       shader = new DiffuseShader(Model, Projection, View, viewport,
                                  glm::normalize(light_dir), 
                                  shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                 shadow_map_bias,mat_info[i], point_lights, lightintensity);
+                                 shadow_map_bias,mat_info[i], point_lights, lightintensity, double_sided);
     } else if (type == 3) {
       shader = new PhongShader(Model, Projection, View, viewport,
                                glm::normalize(light_dir), 
                                shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                               shadow_map_bias,mat_info[i], point_lights, lightintensity);
+                               shadow_map_bias,mat_info[i], point_lights, lightintensity, double_sided);
     } else if (type == 4) {
       shader = new DiffuseNormalShader(Model, Projection, View, viewport,
                                        glm::normalize(light_dir), 
                                        shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                       shadow_map_bias,mat_info[i], point_lights, lightintensity);
+                                       shadow_map_bias,mat_info[i], point_lights, lightintensity, double_sided);
     } else if (type == 5) {
       shader = new DiffuseShaderTangent(Model, Projection, View, viewport,
                                         glm::normalize(light_dir), 
                                         shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                        shadow_map_bias,mat_info[i], point_lights, lightintensity);
+                                        shadow_map_bias,mat_info[i], point_lights, lightintensity, double_sided);
     } else if (type == 6) {
       shader = new PhongNormalShader(Model, Projection, View, viewport,
                                      glm::normalize(light_dir), 
                                      shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                     shadow_map_bias,mat_info[i], point_lights, lightintensity);
+                                     shadow_map_bias,mat_info[i], point_lights, lightintensity, double_sided);
     } else if (type == 7) {
       shader = new PhongShaderTangent(Model, Projection, View, viewport,
                                       glm::normalize(light_dir),
                                       shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                      shadow_map_bias,mat_info[i], point_lights, lightintensity);
+                                      shadow_map_bias,mat_info[i], point_lights, lightintensity, double_sided);
+    } else if (type == 8) {
+      shader = new ColorShader(Model, Projection, View, viewport,mat_info[i], double_sided);
     } else {
       throw std::runtime_error("shader not recognized");
     }
@@ -335,25 +347,30 @@ List rasterize(List mesh, NumericMatrix lightinfo,
     false,
     false,
     false,
+    false,
     false
   };
+  
+  mat_info.push_back(default_mat);
   
   //Add default shader to vector
   if(typevals(0) == 1) {
     shaders.push_back(new GouraudShader(Model, Projection, View, viewport,
                                glm::normalize(light_dir), 
                                shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                               shadow_map_bias,default_mat, point_lights, lightintensity));
+                               shadow_map_bias,default_mat, point_lights, lightintensity, double_sided));
   } else if (typevals(0) == 2 || typevals(0) == 4 || typevals(0) == 5) {
     shaders.push_back(new DiffuseShader(Model, Projection, View, viewport,
                                glm::normalize(light_dir), 
                                shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                               shadow_map_bias,default_mat, point_lights, lightintensity));
+                               shadow_map_bias,default_mat, point_lights, lightintensity, double_sided));
   } else if (typevals(0) == 3 || typevals(0) == 6 || typevals(0) == 7) {
     shaders.push_back(new PhongShader(Model, Projection, View, viewport,
                              glm::normalize(light_dir), 
                              shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                             shadow_map_bias,default_mat, point_lights, lightintensity));
+                             shadow_map_bias,default_mat, point_lights, lightintensity, double_sided));
+  } else if (typevals(0) == 8) {
+    shaders.push_back(new ColorShader(Model, Projection, View, viewport,default_mat, double_sided));
   }
   
   
@@ -376,8 +393,6 @@ List rasterize(List mesh, NumericMatrix lightinfo,
   
   for(int i = 0; i < number_shapes; i++) {
     List single_shape = as<List>(shapes(i));
-    // NumericMatrix shape_normals = as<NumericMatrix>(single_shape["normals"]);
-    // NumericMatrix shape_texcoords = as<NumericMatrix>(single_shape["texcoords"]);
     IntegerMatrix shape_inds = as<IntegerMatrix>(single_shape["indices"]);
     IntegerMatrix tex_inds = as<IntegerMatrix>(single_shape["tex_indices"]);
     IntegerMatrix norm_inds = as<IntegerMatrix>(single_shape["norm_indices"]);
@@ -475,6 +490,7 @@ List rasterize(List mesh, NumericMatrix lightinfo,
   for(int i = 0; i < number_materials+1; i++ ) {
     depthshaders.push_back(new DepthShader(Model, lightProjection, 
                                            lightView, viewport_depth, light_dir, 
+                                           mat_info[i],
                                            max_indices));
   }
 
@@ -526,7 +542,8 @@ List rasterize(List mesh, NumericMatrix lightinfo,
     //Calculate shadow buffer
     auto task = [&depthshaders, &blocks_depth, &ndc_verts_depth, &ndc_inv_w_depth,  
                  &min_block_bound_depth, &max_block_bound_depth,
-                 &zbuffer_depth, &shadowbuffer, &normalbuffer, &positionbuffer, &models] (unsigned int i) {
+                 &zbuffer_depth, &shadowbuffer, &normalbuffer, &positionbuffer, &uvbuffer, 
+                 &models, culling] (unsigned int i) {
       fill_tri_blocks(blocks_depth[i],
                       ndc_verts_depth,
                       ndc_inv_w_depth,
@@ -537,7 +554,8 @@ List rasterize(List mesh, NumericMatrix lightinfo,
                       shadowbuffer,
                       normalbuffer,
                       positionbuffer,
-                      models, true);
+                      uvbuffer,
+                      models, true, culling);
     };
     
     RcppThread::ThreadPool pool2(numbercores);
@@ -564,6 +582,11 @@ List rasterize(List mesh, NumericMatrix lightinfo,
       ndc_verts[model_num][0][i].w = ndc_verts[model_num][0][i].w < near_clip ? near_clip : ndc_verts[model_num][0][i].w;
       ndc_verts[model_num][1][i].w = ndc_verts[model_num][1][i].w < near_clip ? near_clip : ndc_verts[model_num][1][i].w;
       ndc_verts[model_num][2][i].w = ndc_verts[model_num][2][i].w < near_clip ? near_clip : ndc_verts[model_num][2][i].w;
+      
+      //Depth clamping
+      ndc_verts[model_num][0][i].w = ndc_verts[model_num][0][i].w > far_clip ? far_clip : ndc_verts[model_num][0][i].w;
+      ndc_verts[model_num][1][i].w = ndc_verts[model_num][1][i].w > far_clip ? far_clip : ndc_verts[model_num][1][i].w;
+      ndc_verts[model_num][2][i].w = ndc_verts[model_num][2][i].w > far_clip ? far_clip : ndc_verts[model_num][2][i].w;
 
       ndc_inv_w[model_num][0][i] = 1.0f/ndc_verts[model_num][0][i].w;
       ndc_inv_w[model_num][1][i] = 1.0f/ndc_verts[model_num][1][i].w;
@@ -596,7 +619,8 @@ List rasterize(List mesh, NumericMatrix lightinfo,
   }
 
   auto task = [&shaders, &models, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
-               &zbuffer, &image, &normalbuffer, &positionbuffer] (unsigned int i) {
+               &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer, 
+               culling] (unsigned int i) {
     fill_tri_blocks(blocks[i],
                     ndc_verts,
                     ndc_inv_w,
@@ -607,7 +631,8 @@ List rasterize(List mesh, NumericMatrix lightinfo,
                     image,
                     normalbuffer,
                     positionbuffer,
-                    models, false);
+                    uvbuffer,
+                    models, false, culling);
   };
 
   RcppThread::ThreadPool pool(numbercores);
@@ -705,7 +730,8 @@ List rasterize(List mesh, NumericMatrix lightinfo,
 
   return(List::create(_["r"] = r, _["g"] = g, _["b"] = b, _["amb"] = abuffer, _["depth"] = zbuffer,
                       _["normalx"] = nxbuffer, _["normaly"] = nybuffer, _["normalz"] = nzbuffer,
-                      _["positionx"] = xxbuffer, _["positiony"] = yybuffer, _["positionz"] = zzbuffer));
+                      _["positionx"] = xxbuffer, _["positiony"] = yybuffer, _["positionz"] = zzbuffer,
+                      _["uvx"] = uvxbuffer, _["uvy"] = uvybuffer, _["uvz"] = uvzbuffer));
 }
 
 #endif
