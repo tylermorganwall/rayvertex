@@ -30,7 +30,6 @@
 
 using namespace Rcpp;
 
-
 inline vec3 clamp(const vec3& c, float clamplow, float clamphigh) {
   vec3 temp = c;
   if(c[0] > clamphigh) {
@@ -416,9 +415,8 @@ List rasterize(List mesh, NumericMatrix lightinfo,
   }
   
   //For alpha transparency
-  std::vector<std::vector<float> > alpha_depths(nx*ny);
+  std::vector<std::map<float, alpha_info> > alpha_depths(nx*ny);
   
-
   //Set up blocks
   int blocksize = block_size;
   
@@ -625,8 +623,8 @@ List rasterize(List mesh, NumericMatrix lightinfo,
   }
 
   auto task = [&shaders, &models, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
-               &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer, &alpha_depths, 
-               culling] (unsigned int i) {
+               &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer, 
+               &alpha_depths, culling] (unsigned int i) {
     fill_tri_blocks(blocks[i],
                     ndc_verts,
                     ndc_inv_w,
@@ -641,6 +639,7 @@ List rasterize(List mesh, NumericMatrix lightinfo,
                     models, false, culling,
                     alpha_depths);
   };
+
 
   RcppThread::ThreadPool pool(numbercores);
   for(int i = 0; i < nx_blocks*ny_blocks; i++) {
@@ -723,6 +722,24 @@ List rasterize(List mesh, NumericMatrix lightinfo,
         }
         if(counter > 0) {
           abuffer(x,y) = result / float(counter);
+        }
+      }
+    }
+  }
+  
+  for(int i = 0; i < nx; i++) {
+    for(int j = 0; j < ny; j++) {
+      for(std::map<float, alpha_info>::reverse_iterator it = alpha_depths[j + ny*i].rbegin();
+          it != alpha_depths[j + ny*i].rend(); ++it) {
+        if(it->first < zbuffer(i,j)) {
+          zbuffer(i,j) = it->first;
+          vec4 temp_col = it->second.color;
+          vec3 old_color = image.get_color(i,j);
+          vec3 new_color = vec3(temp_col)*temp_col.w + vec3(old_color)*(1-temp_col.w);
+          image.set_color(i,j,new_color);
+          normalbuffer.set_color(i,j,it->second.normal);
+          positionbuffer.set_color(i,j,it->second.position);
+          uvbuffer.set_color(i,j,it->second.uv);
         }
       }
     }

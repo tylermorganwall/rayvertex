@@ -1244,7 +1244,7 @@ bool DepthShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   if(diffuse_color.w == 0.0) return true;
   
   vec4 p = vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z;
-  color = vec4(p.z);
+  color = vec4(p.z,p.z,p.z,diffuse_color.w);
   return false;
 }
 

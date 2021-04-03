@@ -47,7 +47,7 @@ class GouraudShader : public IShader {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
     }
     vec3 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
@@ -112,7 +112,7 @@ struct ColorShader : public IShader {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
     }
     vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
@@ -171,7 +171,7 @@ struct DiffuseShader : public IShader {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
     }
     vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
@@ -240,7 +240,7 @@ struct DiffuseNormalShader : public IShader {
     return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
   }
   vec4 diffuse(vec3 uv) {
-    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
   }
   vec4 ambient(vec3 uv) {
     return(material.has_ambient_texture ? 
@@ -306,7 +306,7 @@ class DiffuseShaderTangent : public IShader {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
     }
     vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
@@ -381,7 +381,7 @@ class PhongShader : public IShader {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
     }
     vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
@@ -450,7 +450,7 @@ public:
     return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
   }
   vec4 diffuse(vec3 uv) {
-    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
   }
   vec4 ambient(vec3 uv) {
     return(material.has_ambient_texture ? 
@@ -519,7 +519,7 @@ public:
     return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
   }
   vec4 diffuse(vec3 uv) {
-    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
   }
   vec4 ambient(vec3 uv) {
     return(material.has_ambient_texture ? 
@@ -578,7 +578,7 @@ struct DepthShader : public IShader {
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec4 diffuse(vec3 uv) {
-    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
   }
   Mat Model;
   Mat Projection;

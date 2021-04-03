@@ -13,7 +13,10 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                      rayimage& uv_buffer,
                      std::vector<ModelInfo> &models,
                      bool depth, int culling, 
-                     std::vector<std::vector<float> >& alpha_depths) {
+                     std::vector<std::map<float, alpha_info> >& alpha_depths) {
+  int nx = image.width();
+  int ny = image.height();
+  
   for(int model_num = 0; model_num < models.size(); model_num++ ) {
     ModelInfo &shp = models[model_num];
     for(int entry=0; entry < block_faces[model_num].size(); entry++) {
@@ -92,19 +95,29 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
               int mat_num = shp.materials[face] >= 0 && shp.materials[face] < shaders.size() ? 
               shp.materials[face] : shaders.size()-1;
               bool discard = shaders[mat_num]->fragment(bc_clip, color, position, normal, face);
-              
               if(!discard) {
-                // RcppThread::Rcout << color. << "\n";
-                // if(color.w >= 1.0f) {
-                  zbuffer(i,j) = z;
-                  image.set_color(i,j,vec3(color));
-                  if(!depth) {
+                if (depth) {
+                  if(color.w >= 1.0f) {
+                    zbuffer(i,j) = z;
+                    image.set_color(i,j,vec3(color));
+                  }
+                } else {
+                  if(color.w >= 1.0f) {
+                    zbuffer(i,j) = z;
+                    image.set_color(i,j,vec3(color));
                     normal_buffer.set_color(i,j,normal);
                     position_buffer.set_color(i,j,position);
                     uv_buffer.set_color(i,j,bc_clip);
+                  } else {
+                    alpha_info tmp_data;
+                    tmp_data.color = color;
+                    tmp_data.normal = normal;
+                    tmp_data.position = position;
+                    tmp_data.uv = bc_clip;
+                    alpha_depths[j + ny*i][z] = tmp_data;
                   }
-                // }
-              } 
+                }
+              }
             } 
           }
         }

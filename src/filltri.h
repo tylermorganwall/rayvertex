@@ -6,6 +6,13 @@
 #include "shaders.h"
 #include "RcppThread.h"
 
+struct alpha_info {
+  vec4 color;
+  vec3 normal;
+  vec3 position;
+  vec3 uv;
+};
+
 
 static void print_vec(vec3 m) {
   RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << "\n";
@@ -40,6 +47,6 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                      rayimage& uv_buffer,
                      std::vector<ModelInfo> &models,
                      bool depth, int cullin,
-                     std::vector<std::vector<float> >& alpha_depths);
+                     std::vector<std::map<float, alpha_info> >& alpha_depths);
 
 #endif
