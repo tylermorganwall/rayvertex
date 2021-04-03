@@ -39,6 +39,7 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                      rayimage& position_buffer,
                      rayimage& uv_buffer,
                      std::vector<ModelInfo> &models,
-                     bool depth, int culling);
+                     bool depth, int cullin,
+                     std::vector<std::vector<float> >& alpha_depths);
 
 #endif

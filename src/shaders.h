@@ -19,7 +19,7 @@ typedef glm::mat4x4 Mat;
 class IShader {
   public:
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model) = 0;
-    virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface) = 0;
+    virtual bool fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) = 0;
     virtual ~IShader();
 };
 
@@ -35,24 +35,24 @@ class GouraudShader : public IShader {
     ~GouraudShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-    virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
+    virtual bool fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
     }
-    vec3 emissive(vec3 uv) {
+    vec4 emissive(vec3 uv) {
       return(has_emissive_texture ? material.emission_intensity * 
-               trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec3(0.0f));
+             trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
     }
     vec3 normal_uv(vec3 uv) {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? material.diffuse_intensity * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
     }
     vec3 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
                material.ambient * vec3(trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a))  : 
-               vec4(material.ambient,1.0f));
+               vec4(material.ambient,0.0f));
     }
     
     Mat Model;
@@ -73,11 +73,10 @@ class GouraudShader : public IShader {
     std::vector<std::vector<vec3> > vec_varying_pos;
     std::vector<std::vector<vec3> > vec_varying_world_nrm;
     
-    material_info material;
-    
     rayimage shadowbuffer;
     bool has_shadow_map;
     float shadow_map_bias;
+    material_info material;
     
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
     float* texture;
@@ -101,24 +100,24 @@ struct ColorShader : public IShader {
     ~ColorShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-    virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
+    virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
     }
-    vec3 emissive(vec3 uv) {
+    vec4 emissive(vec3 uv) {
       return(has_emissive_texture ? material.emission_intensity * 
-             trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec3(0.0f));
+             trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
     }
     vec3 normal_uv(vec3 uv) {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? material.diffuse_intensity * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
     }
-    vec3 ambient(vec3 uv) {
+    vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
-               material.ambient * vec3(trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a))  : 
-               vec4(material.ambient,1.0f));
+             vec4(material.ambient,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+               vec4(material.ambient,0.0f));
     }
     
     
@@ -160,24 +159,24 @@ struct DiffuseShader : public IShader {
     ~DiffuseShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-    virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
+    virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
     }
-    vec3 emissive(vec3 uv) {
+    vec4 emissive(vec3 uv) {
       return(has_emissive_texture ? material.emission_intensity * 
-             trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec3(0.0f));
+             trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
     }
     vec3 normal_uv(vec3 uv) {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? material.diffuse_intensity * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
     }
-    vec3 ambient(vec3 uv) {
+    vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
-               material.ambient * vec3(trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a))  : 
-               vec4(material.ambient,1.0f));
+             vec4(material.ambient,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+             vec4(material.ambient,0.0f));
     }
     
     
@@ -199,12 +198,11 @@ struct DiffuseShader : public IShader {
     std::vector<std::vector<vec3> > vec_varying_pos;
     std::vector<std::vector<vec3> > vec_varying_world_nrm;
     
-    material_info material;
-    
     
     rayimage shadowbuffer;
     bool has_shadow_map;
     float shadow_map_bias;
+    material_info material;
     
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
     float* texture;
@@ -230,24 +228,24 @@ struct DiffuseNormalShader : public IShader {
                bool double_sided);
   ~DiffuseNormalShader();
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-  virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
+  virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
     return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
   }
-  vec3 emissive(vec3 uv) {
+  vec4 emissive(vec3 uv) {
     return(has_emissive_texture ? material.emission_intensity * 
-           trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec3(0.0f));
+           trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
   }
   vec3 normal_uv(vec3 uv) {
     return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
   }
   vec4 diffuse(vec3 uv) {
-    return(has_texture ? material.diffuse_intensity * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
   }
-  vec3 ambient(vec3 uv) {
+  vec4 ambient(vec3 uv) {
     return(material.has_ambient_texture ? 
-             material.ambient * vec3(trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a))  : 
-             vec4(material.ambient,1.0f));
+             vec4(material.ambient,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+             vec4(material.ambient,0.0f));
   }
   
   Mat Model;
@@ -267,12 +265,11 @@ struct DiffuseNormalShader : public IShader {
   std::vector<std::vector<vec3> > vec_varying_pos;
   std::vector<std::vector<vec3> > vec_varying_world_nrm;
   
-  material_info material;
-  
-  
   rayimage shadowbuffer;
   bool has_shadow_map;
   float shadow_map_bias;
+  material_info material;
+  
   
   int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
   float* texture;
@@ -301,24 +298,24 @@ class DiffuseShaderTangent : public IShader {
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
     }
-    vec3 emissive(vec3 uv) {
+    vec4 emissive(vec3 uv) {
       return(has_emissive_texture ? material.emission_intensity * 
-             trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec3(0.0f));
+             trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
     }
     vec3 normal_uv(vec3 uv) {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? material.diffuse_intensity * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
     }
-    vec3 ambient(vec3 uv) {
+    vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
-               material.ambient * vec3(trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a))  : 
-               vec4(material.ambient,1.0f));
+               vec4(material.ambient,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+               vec4(material.ambient,0.0f));
     }
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-    virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
+    virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     
     Mat Model;
     Mat Projection;
@@ -337,15 +334,14 @@ class DiffuseShaderTangent : public IShader {
     std::vector<std::vector<vec3> > vec_varying_ndc_tri;
     std::vector<std::vector<vec3> > vec_varying_world_nrm;
     std::vector<std::vector<vec3> > vec_varying_nrm;
-    
-    material_info material;
-    
+  
     
     Mat uniform_M;   //  Projection*ModelView
     Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
     rayimage shadowbuffer;
     bool has_shadow_map;
     float shadow_map_bias;
+    material_info material;
     
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
     float* texture;
@@ -373,24 +369,24 @@ class PhongShader : public IShader {
     ~PhongShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-    virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
+    virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
     }
-    vec3 emissive(vec3 uv) {
+    vec4 emissive(vec3 uv) {
       return(has_emissive_texture ? material.emission_intensity * 
-             trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec3(0.0f));
+             trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
     }
     vec3 normal_uv(vec3 uv) {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? material.diffuse_intensity * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
     }
-    vec3 ambient(vec3 uv) {
+    vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
-               material.ambient * vec3(trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a))  : 
-               vec4(material.ambient,1.0f));
+               vec4(material.ambient,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+               vec4(material.ambient,0.0f));
     }
     Mat Model;
     Mat Projection;
@@ -410,13 +406,12 @@ class PhongShader : public IShader {
     std::vector<std::vector<vec3> > vec_varying_nrm;
     std::vector<std::vector<vec3> > vec_varying_pos;
     std::vector<std::vector<vec3> > vec_varying_world_nrm;
-    
-    material_info material;
-    
+  
     
     rayimage shadowbuffer;
     bool has_shadow_map;
     float shadow_map_bias;
+    material_info material;
     
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
     float* texture;
@@ -443,24 +438,24 @@ public:
   ~PhongNormalShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-  virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
+  virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
     return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
   }
-  vec3 emissive(vec3 uv) {
+  vec4 emissive(vec3 uv) {
     return(has_emissive_texture ? material.emission_intensity * 
-           trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec3(0.0f));
+           trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
   }
   vec3 normal_uv(vec3 uv) {
     return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
   }
   vec4 diffuse(vec3 uv) {
-    return(has_texture ? material.diffuse_intensity * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
   }
-  vec3 ambient(vec3 uv) {
+  vec4 ambient(vec3 uv) {
     return(material.has_ambient_texture ? 
-             material.ambient * vec3(trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a))  : 
-             vec4(material.ambient,1.0f));
+             vec4(material.ambient,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+             vec4(material.ambient,0.0f));
   }
   Mat Model;
   Mat Projection;
@@ -478,13 +473,13 @@ public:
   std::vector<std::vector<vec3> > vec_varying_tri;
   std::vector<std::vector<vec3> > vec_varying_pos;
   std::vector<std::vector<vec3> > vec_varying_world_nrm;
-  
-  material_info material;
-  
+
   
   rayimage shadowbuffer;
   bool has_shadow_map;
   float shadow_map_bias;
+  material_info material;
+  
   
   int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
   float* texture;
@@ -512,24 +507,24 @@ public:
   ~PhongShaderTangent();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-  virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
+  virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
     return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
   }
-  vec3 emissive(vec3 uv) {
+  vec4 emissive(vec3 uv) {
     return(has_emissive_texture ? material.emission_intensity * 
-           trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec3(0.0f));
+           trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
   }
   vec3 normal_uv(vec3 uv) {
     return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
   }
   vec4 diffuse(vec3 uv) {
-    return(has_texture ? material.diffuse_intensity * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
   }
-  vec3 ambient(vec3 uv) {
+  vec4 ambient(vec3 uv) {
     return(material.has_ambient_texture ? 
-             material.ambient * vec3(trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a))  : 
-             vec4(material.ambient,1.0f));
+             vec4(material.ambient,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+             vec4(material.ambient,0.0f));
   }
   Mat Model;
   Mat Projection;
@@ -547,15 +542,14 @@ public:
   std::vector<std::vector<vec3> > vec_varying_ndc_tri;
   std::vector<std::vector<vec3> > vec_varying_world_nrm;
   std::vector<std::vector<vec3> > vec_varying_nrm;
-  
-  material_info material;
-  
+
   
   Mat uniform_M;   //  Projection*ModelView
   Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
   rayimage shadowbuffer;
   bool has_shadow_map;
   float shadow_map_bias;
+  material_info material;
   
   int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
   float* texture;
@@ -582,9 +576,9 @@ struct DepthShader : public IShader {
   ~DepthShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-  virtual bool fragment(const vec3& bc, vec3 &color, vec3& pos, vec3& normal, int iface);
+  virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec4 diffuse(vec3 uv) {
-    return(has_texture ? material.diffuse_intensity * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
+    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,1.0f) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,1.0f));
   }
   Mat Model;
   Mat Projection;

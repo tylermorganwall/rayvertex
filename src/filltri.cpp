@@ -12,7 +12,8 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                      rayimage& position_buffer,
                      rayimage& uv_buffer,
                      std::vector<ModelInfo> &models,
-                     bool depth, int culling) {
+                     bool depth, int culling, 
+                     std::vector<std::vector<float> >& alpha_depths) {
   for(int model_num = 0; model_num < models.size(); model_num++ ) {
     ModelInfo &shp = models[model_num];
     for(int entry=0; entry < block_faces[model_num].size(); entry++) {
@@ -45,7 +46,7 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
         float area =  edgeFunction(v3, v2, v1); 
         float inv_area = 1.0f/area;
         
-        vec3 color;
+        vec4 color;
         vec3 position;
         vec3 normal;
         
@@ -93,14 +94,17 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
               bool discard = shaders[mat_num]->fragment(bc_clip, color, position, normal, face);
               
               if(!discard) {
-                zbuffer(i,j) = z;
-                image.set_color(i,j,color);
-                if(!depth) {
-                  normal_buffer.set_color(i,j,normal);
-                  position_buffer.set_color(i,j,position);
-                  uv_buffer.set_color(i,j,bc_clip);
-                }
-              }
+                // RcppThread::Rcout << color. << "\n";
+                // if(color.w >= 1.0f) {
+                  zbuffer(i,j) = z;
+                  image.set_color(i,j,vec3(color));
+                  if(!depth) {
+                    normal_buffer.set_color(i,j,normal);
+                    position_buffer.set_color(i,j,position);
+                    uv_buffer.set_color(i,j,bc_clip);
+                  }
+                // }
+              } 
             } 
           }
         }

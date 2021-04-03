@@ -414,6 +414,10 @@ List rasterize(List mesh, NumericMatrix lightinfo,
                     has_normals_vec(i), has_tex_vec(i), tbn);
     models.push_back(model);
   }
+  
+  //For alpha transparency
+  std::vector<std::vector<float> > alpha_depths(nx*ny);
+  
 
   //Set up blocks
   int blocksize = block_size;
@@ -493,6 +497,7 @@ List rasterize(List mesh, NumericMatrix lightinfo,
                                            mat_info[i],
                                            max_indices));
   }
+  
 
   if(has_shadow_map) {
     for(int model_num = 0; model_num < models.size(); model_num++ ) {
@@ -543,7 +548,7 @@ List rasterize(List mesh, NumericMatrix lightinfo,
     auto task = [&depthshaders, &blocks_depth, &ndc_verts_depth, &ndc_inv_w_depth,  
                  &min_block_bound_depth, &max_block_bound_depth,
                  &zbuffer_depth, &shadowbuffer, &normalbuffer, &positionbuffer, &uvbuffer, 
-                 &models, culling] (unsigned int i) {
+                 &models, culling, &alpha_depths] (unsigned int i) {
       fill_tri_blocks(blocks_depth[i],
                       ndc_verts_depth,
                       ndc_inv_w_depth,
@@ -555,7 +560,8 @@ List rasterize(List mesh, NumericMatrix lightinfo,
                       normalbuffer,
                       positionbuffer,
                       uvbuffer,
-                      models, true, culling);
+                      models, true, culling,
+                      alpha_depths);
     };
     
     RcppThread::ThreadPool pool2(numbercores);
@@ -567,7 +573,7 @@ List rasterize(List mesh, NumericMatrix lightinfo,
 
   //Calculate Image
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<float>::infinity() ) ;
-
+  
   for(int model_num = 0; model_num < models.size(); model_num++ ) {
     ModelInfo &shp = models[model_num];
     for(int i = 0; i < shp.num_indices; i++) {
@@ -619,7 +625,7 @@ List rasterize(List mesh, NumericMatrix lightinfo,
   }
 
   auto task = [&shaders, &models, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
-               &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer, 
+               &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer, &alpha_depths, 
                culling] (unsigned int i) {
     fill_tri_blocks(blocks[i],
                     ndc_verts,
@@ -632,7 +638,8 @@ List rasterize(List mesh, NumericMatrix lightinfo,
                     normalbuffer,
                     positionbuffer,
                     uvbuffer,
-                    models, false, culling);
+                    models, false, culling,
+                    alpha_depths);
   };
 
   RcppThread::ThreadPool pool(numbercores);
