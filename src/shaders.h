@@ -371,7 +371,8 @@ class PhongShader : public IShader {
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
     virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
-      return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
+      return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  
+               material.specular_intensity * material.specular);
     }
     vec4 emissive(vec3 uv) {
       return(has_emissive_texture ? material.emission_intensity * 
@@ -381,7 +382,8 @@ class PhongShader : public IShader {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
+      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
+               vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
     }
     vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
@@ -509,7 +511,8 @@ public:
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
-    return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
+    return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  
+             material.specular_intensity * material.specular);
   }
   vec4 emissive(vec3 uv) {
     return(has_emissive_texture ? material.emission_intensity * 
@@ -519,7 +522,8 @@ public:
     return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
   }
   vec4 diffuse(vec3 uv) {
-    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
+    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
+             vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
   }
   vec4 ambient(vec3 uv) {
     return(material.has_ambient_texture ? 

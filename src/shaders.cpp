@@ -410,7 +410,7 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   color = diffuse_color * dir_shadow_int;
   
   for(int i = 0; i < plights.size(); i++) {
-    color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),1.0f) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
+    color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
   }
 
   //Emissive and ambient terms
@@ -552,7 +552,7 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3&
   color = diffuse_color * dir_shadow_int;
   
   for(int i = 0; i < plights.size(); i++) {
-    color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),1.0f) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
+    color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
   }
   
   //Emissive and ambient terms
@@ -718,7 +718,7 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3
   color = diffuse_color * dir_shadow_int;
   for(int i = 0; i < plights.size(); i++) {
     vec3 p_light_dir = vec4(plights[i].CalcLightDir(pos),0.0f);
-    color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),1.0f) * fmax(0.0f, dot(n, p_light_dir));
+    color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f, dot(n, p_light_dir));
   }
   
   
@@ -864,12 +864,13 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
     normalize(vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z) :
     normalize(glm::cross(vec_varying_tri[iface][1]-vec_varying_tri[iface][0],vec_varying_tri[iface][2]-vec_varying_tri[iface][0]));
   vec3 r = normalize(2.0f*dot(n,l)*n - l);
-  vec4 spec = vec4(specular(uv) * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
-
+  vec4 spec = vec4(specular(uv) * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f); 
+  
   float diff = std::fmax(0.f, dot(n,l));
   vec3 ambient = material.ambient;
   vec4 emit = emissive(uv);
-  color = clamp( diffuse_color*shadow*diff + spec,0.0f,1.0f);
+  vec4 shadow_vec = vec4(shadow*diff,shadow*diff,shadow*diff,1.0f);
+  color = clamp( diffuse_color*shadow_vec + spec,0.0f,1.0f);
   
   for(int i = 0; i < plights.size(); i++) {
     vec3 l_p = vec4(plights[i].CalcLightDir(pos),0.0f);
@@ -878,6 +879,8 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
     color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f, dot(n, l_p)) +
       vec4(plights[i].CalcPointLightAtten(pos),0.0f) * spec, 0.0f,1.0f);
   }
+  color += vec4(ambient,0.0f);
+  color += emit;
   
   return false;
 }
@@ -1018,7 +1021,8 @@ bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& n
   float diff = std::fmax(0.f, dot(n,l));
   vec3 ambient = material.ambient;
   vec4 emit = emissive(uv);
-  color = clamp( diffuse_color*shadow*diff + spec,0.0f,1.0f);
+  vec4 shadow_vec = vec4(shadow*diff,shadow*diff,shadow*diff,1.0f);
+  color = clamp( diffuse_color*shadow_vec + spec,0.0f,1.0f);
   
   for(int i = 0; i < plights.size(); i++) {
     vec3 l_p = vec4(plights[i].CalcLightDir(pos),0.0f);
@@ -1027,6 +1031,8 @@ bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& n
     color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f, dot(n, l_p)) +
       vec4(plights[i].CalcPointLightAtten(pos),0.0f) * spec, 0.0f,1.0f);
   }
+  color += vec4(ambient,0.0f);
+  color += emit;
 
   return false;
 }
@@ -1184,7 +1190,8 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
   vec4 c = diffuse_color;
   vec4 ambient = vec4(material.ambient,0.0f);
   vec4 emit = emissive(uv);
-  color = clamp( diffuse_color*shadow*diff + spec,0.0f,1.0f);
+  vec4 shadow_vec = vec4(shadow*diff,shadow*diff,shadow*diff,1.0f);
+  color = clamp( diffuse_color*shadow_vec + spec,0.0f,1.0f);
 
   for(int i = 0; i < plights.size(); i++) {
     vec3 l_p = vec4(plights[i].CalcLightDir(pos),0.0f);
@@ -1193,6 +1200,7 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
     color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f, dot(n, l_p)) +
                    vec4(plights[i].CalcPointLightAtten(pos),0.0f) * spec, 0.0f,1.0f);
   }
+  color += ambient;
   color += emit;
   
   return false;

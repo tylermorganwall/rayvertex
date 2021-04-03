@@ -50,6 +50,31 @@ inline vec3 clamp(const vec3& c, float clamplow, float clamphigh) {
   return(temp);
 }
 
+inline vec4 clamp(const vec4& c, float clamplow, float clamphigh) {
+  vec4 temp = c;
+  if(c[0] > clamphigh) {
+    temp[0] = clamphigh;
+  } else if(c[0] < clamplow) {
+    temp[0] = clamplow;
+  }
+  if(c[1] > clamphigh) {
+    temp[1] = clamphigh;
+  } else if(c[1] < clamplow) {
+    temp[1] = clamplow;
+  }
+  if(c[2] > clamphigh) {
+    temp[2] = clamphigh;
+  } else if(c[2] < clamplow) {
+    temp[2] = clamplow;
+  }
+  if(c[3] > clamphigh) {
+    temp[3] = clamphigh;
+  } else if(c[3] < clamplow) {
+    temp[3] = clamplow;
+  }
+  return(temp);
+}
+
 template<class T>
 inline T lerp(float t, T v1, T v2) {
   return((1-t) * v1 + t * v2);
