@@ -1,12 +1,12 @@
-Package: raysterizer
+Package: rayvertex
 Type: Package
-Title: What the Package Does in One 'Title Case' Line
-Version: 1.0
-Date: 2021-02-23
-Author: Your Name
-Maintainer: Your Name <your@email.com>
-Description: One paragraph description of what the package does as one or more full sentences.
-License: GPL (>= 2)
+Title: 3D Software Rasterizer
+Version: 0.1
+Date: 2021-04-04
+Author: Tyler Morgan-Wall
+Maintainer: Your Name <tylermw@gmail.com>
+Description: Rasterizes 3D scenes.
+License: GPL (>= 3)
 Imports: Rcpp (>= 1.0.6)
 LinkingTo: Rcpp, spacefillr, RcppThread
 RoxygenNote: 7.1.1

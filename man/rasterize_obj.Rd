@@ -31,7 +31,7 @@ rasterize_obj(
   emission_intensity = 1,
   override_exponent = FALSE,
   diffuse_intensity = 1,
-  tangent_space_normals = FALSE,
+  tangent_space_normals = TRUE,
   shadow_map = FALSE,
   calc_ambient = FALSE,
   ambient_intensity = 10,
@@ -42,6 +42,9 @@ rasterize_obj(
   shadow_map_intensity = 0.5,
   near_plane = 0.1,
   far_plane = 100,
+  culling = "back",
+  shader = "default",
+  double_sided = FALSE,
   block_size = 4,
   shape = NULL,
   shadow_map_dims = NULL

@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // load_obj
 List load_obj(std::string inputfile, std::string basedir);
-RcppExport SEXP _raysterizer_load_obj(SEXP inputfileSEXP, SEXP basedirSEXP) {
+RcppExport SEXP _rayvertex_load_obj(SEXP inputfileSEXP, SEXP basedirSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -19,7 +19,7 @@ END_RCPP
 }
 // rasterize
 List rasterize(List mesh, NumericMatrix lightinfo, int nx, int ny, NumericVector model_color, NumericVector lookfrom, NumericVector lookat, float fov, NumericVector light_direction, NumericVector ambient_color, float exponent, float specular_intensity, float diffuse_intensity, float emission_intensity, IntegerVector typevals, bool has_shadow_map, bool calc_ambient, bool tbn, float ambient_radius, float shadow_map_bias, int numbercores, int max_indices, LogicalVector has_normals_vec, LogicalVector has_tex_vec, LogicalVector has_texture, LogicalVector has_ambient_texture, LogicalVector has_normal_texture, LogicalVector has_specular_texture, LogicalVector has_emissive_texture, int block_size, bool use_default_material, bool override_exponent, float near_clip, float far_clip, float shadow_map_intensity, NumericVector bounds, IntegerVector shadowdims, NumericVector camera_up, float lightintensity, int culling, bool double_sided);
-RcppExport SEXP _raysterizer_rasterize(SEXP meshSEXP, SEXP lightinfoSEXP, SEXP nxSEXP, SEXP nySEXP, SEXP model_colorSEXP, SEXP lookfromSEXP, SEXP lookatSEXP, SEXP fovSEXP, SEXP light_directionSEXP, SEXP ambient_colorSEXP, SEXP exponentSEXP, SEXP specular_intensitySEXP, SEXP diffuse_intensitySEXP, SEXP emission_intensitySEXP, SEXP typevalsSEXP, SEXP has_shadow_mapSEXP, SEXP calc_ambientSEXP, SEXP tbnSEXP, SEXP ambient_radiusSEXP, SEXP shadow_map_biasSEXP, SEXP numbercoresSEXP, SEXP max_indicesSEXP, SEXP has_normals_vecSEXP, SEXP has_tex_vecSEXP, SEXP has_textureSEXP, SEXP has_ambient_textureSEXP, SEXP has_normal_textureSEXP, SEXP has_specular_textureSEXP, SEXP has_emissive_textureSEXP, SEXP block_sizeSEXP, SEXP use_default_materialSEXP, SEXP override_exponentSEXP, SEXP near_clipSEXP, SEXP far_clipSEXP, SEXP shadow_map_intensitySEXP, SEXP boundsSEXP, SEXP shadowdimsSEXP, SEXP camera_upSEXP, SEXP lightintensitySEXP, SEXP cullingSEXP, SEXP double_sidedSEXP) {
+RcppExport SEXP _rayvertex_rasterize(SEXP meshSEXP, SEXP lightinfoSEXP, SEXP nxSEXP, SEXP nySEXP, SEXP model_colorSEXP, SEXP lookfromSEXP, SEXP lookatSEXP, SEXP fovSEXP, SEXP light_directionSEXP, SEXP ambient_colorSEXP, SEXP exponentSEXP, SEXP specular_intensitySEXP, SEXP diffuse_intensitySEXP, SEXP emission_intensitySEXP, SEXP typevalsSEXP, SEXP has_shadow_mapSEXP, SEXP calc_ambientSEXP, SEXP tbnSEXP, SEXP ambient_radiusSEXP, SEXP shadow_map_biasSEXP, SEXP numbercoresSEXP, SEXP max_indicesSEXP, SEXP has_normals_vecSEXP, SEXP has_tex_vecSEXP, SEXP has_textureSEXP, SEXP has_ambient_textureSEXP, SEXP has_normal_textureSEXP, SEXP has_specular_textureSEXP, SEXP has_emissive_textureSEXP, SEXP block_sizeSEXP, SEXP use_default_materialSEXP, SEXP override_exponentSEXP, SEXP near_clipSEXP, SEXP far_clipSEXP, SEXP shadow_map_intensitySEXP, SEXP boundsSEXP, SEXP shadowdimsSEXP, SEXP camera_upSEXP, SEXP lightintensitySEXP, SEXP cullingSEXP, SEXP double_sidedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -70,7 +70,7 @@ END_RCPP
 }
 // tonemap_image
 Rcpp::List tonemap_image(Rcpp::NumericMatrix routput, Rcpp::NumericMatrix goutput, Rcpp::NumericMatrix boutput, int toneval);
-RcppExport SEXP _raysterizer_tonemap_image(SEXP routputSEXP, SEXP goutputSEXP, SEXP boutputSEXP, SEXP tonevalSEXP) {
+RcppExport SEXP _rayvertex_tonemap_image(SEXP routputSEXP, SEXP goutputSEXP, SEXP boutputSEXP, SEXP tonevalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -84,7 +84,7 @@ END_RCPP
 }
 // wireframe
 List wireframe(NumericMatrix verts, IntegerMatrix inds, int nx, int ny);
-RcppExport SEXP _raysterizer_wireframe(SEXP vertsSEXP, SEXP indsSEXP, SEXP nxSEXP, SEXP nySEXP) {
+RcppExport SEXP _rayvertex_wireframe(SEXP vertsSEXP, SEXP indsSEXP, SEXP nxSEXP, SEXP nySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -98,14 +98,14 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_raysterizer_load_obj", (DL_FUNC) &_raysterizer_load_obj, 2},
-    {"_raysterizer_rasterize", (DL_FUNC) &_raysterizer_rasterize, 41},
-    {"_raysterizer_tonemap_image", (DL_FUNC) &_raysterizer_tonemap_image, 4},
-    {"_raysterizer_wireframe", (DL_FUNC) &_raysterizer_wireframe, 4},
+    {"_rayvertex_load_obj", (DL_FUNC) &_rayvertex_load_obj, 2},
+    {"_rayvertex_rasterize", (DL_FUNC) &_rayvertex_rasterize, 41},
+    {"_rayvertex_tonemap_image", (DL_FUNC) &_rayvertex_tonemap_image, 4},
+    {"_rayvertex_wireframe", (DL_FUNC) &_rayvertex_wireframe, 4},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_raysterizer(DllInfo *dll) {
+RcppExport void R_init_rayvertex(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

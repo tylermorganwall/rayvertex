@@ -2,18 +2,18 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 load_obj <- function(inputfile, basedir) {
-    .Call(`_raysterizer_load_obj`, inputfile, basedir)
+    .Call(`_rayvertex_load_obj`, inputfile, basedir)
 }
 
 rasterize <- function(mesh, lightinfo, nx, ny, model_color, lookfrom, lookat, fov, light_direction, ambient_color, exponent, specular_intensity, diffuse_intensity, emission_intensity, typevals, has_shadow_map, calc_ambient, tbn, ambient_radius, shadow_map_bias, numbercores, max_indices, has_normals_vec, has_tex_vec, has_texture, has_ambient_texture, has_normal_texture, has_specular_texture, has_emissive_texture, block_size, use_default_material, override_exponent, near_clip, far_clip, shadow_map_intensity, bounds, shadowdims, camera_up, lightintensity, culling, double_sided) {
-    .Call(`_raysterizer_rasterize`, mesh, lightinfo, nx, ny, model_color, lookfrom, lookat, fov, light_direction, ambient_color, exponent, specular_intensity, diffuse_intensity, emission_intensity, typevals, has_shadow_map, calc_ambient, tbn, ambient_radius, shadow_map_bias, numbercores, max_indices, has_normals_vec, has_tex_vec, has_texture, has_ambient_texture, has_normal_texture, has_specular_texture, has_emissive_texture, block_size, use_default_material, override_exponent, near_clip, far_clip, shadow_map_intensity, bounds, shadowdims, camera_up, lightintensity, culling, double_sided)
+    .Call(`_rayvertex_rasterize`, mesh, lightinfo, nx, ny, model_color, lookfrom, lookat, fov, light_direction, ambient_color, exponent, specular_intensity, diffuse_intensity, emission_intensity, typevals, has_shadow_map, calc_ambient, tbn, ambient_radius, shadow_map_bias, numbercores, max_indices, has_normals_vec, has_tex_vec, has_texture, has_ambient_texture, has_normal_texture, has_specular_texture, has_emissive_texture, block_size, use_default_material, override_exponent, near_clip, far_clip, shadow_map_intensity, bounds, shadowdims, camera_up, lightintensity, culling, double_sided)
 }
 
 tonemap_image <- function(routput, goutput, boutput, toneval) {
-    .Call(`_raysterizer_tonemap_image`, routput, goutput, boutput, toneval)
+    .Call(`_rayvertex_tonemap_image`, routput, goutput, boutput, toneval)
 }
 
 wireframe <- function(verts, inds, nx, ny) {
-    .Call(`_raysterizer_wireframe`, verts, inds, nx, ny)
+    .Call(`_rayvertex_wireframe`, verts, inds, nx, ny)
 }
 
