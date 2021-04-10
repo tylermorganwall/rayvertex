@@ -5,14 +5,7 @@
 #include "Rcpp.h"
 #include "shaders.h"
 #include "RcppThread.h"
-
-struct alpha_info {
-  vec4 color;
-  vec3 normal;
-  vec3 position;
-  vec3 uv;
-};
-
+#include "alphainfo.h"
 
 static void print_vec(vec3 m) {
   RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << "\n";

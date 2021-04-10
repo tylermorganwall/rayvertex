@@ -27,6 +27,7 @@
 
 #include "filltri.h"
 #include "light.h"
+#include "line.h"
 
 using namespace Rcpp;
 
@@ -90,7 +91,9 @@ void print_mat(Mat m) {
 }
 
 // [[Rcpp::export]]
-List rasterize(List mesh, NumericMatrix lightinfo,
+List rasterize(List mesh, 
+               NumericMatrix lightinfo,
+               NumericMatrix line_mat,
                int nx, int ny,
                NumericVector model_color,
                NumericVector lookfrom,
@@ -126,7 +129,8 @@ List rasterize(List mesh, NumericMatrix lightinfo,
                NumericVector bounds,
                IntegerVector shadowdims,
                NumericVector camera_up,
-               float lightintensity, int culling, bool double_sided) {
+               float lightintensity, int culling, bool double_sided,
+               float alpha_line) {
   //Convert R vectors to glm::vec3
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
   vec3 center(lookat(0),lookat(1),lookat(2));    //lookat
@@ -751,12 +755,27 @@ List rasterize(List mesh, NumericMatrix lightinfo,
       }
     }
   }
+  std::vector<vec3> ndc_line_verts;
+  
+  
+  //Lines go here (no light)
+  Mat vpMVP = vp * Projection * View * Model;
+  for(int i = 0; i < line_mat.nrow(); i++) {
+    vec4 temp_line_vertex = vpMVP * vec4(line_mat(i,0),line_mat(i,1),line_mat(i,2),1.0f);
+    temp_line_vertex /= temp_line_vertex.w;
+    ndc_line_verts.push_back(temp_line_vertex);
+  }
+  vec3 line_color = vec3(1.0f,1.0f,1.0f);
+  if(ndc_line_verts.size() > 0) {
+    aa_line(ndc_line_verts, zbuffer, alpha_depths, line_color, alpha_line);
+  }
   
   for(int i = 0; i < nx; i++) {
     for(int j = 0; j < ny; j++) {
       for(std::map<float, alpha_info>::reverse_iterator it = alpha_depths[j + ny*i].rbegin();
           it != alpha_depths[j + ny*i].rend(); ++it) {
-        if(it->first < zbuffer(i,j)) {
+        // Rcpp::Rcout << it->first << " " << zbuffer(i,j) << " " << it->first - zbuffer(i,j) << "\n";
+        if(it->first <= zbuffer(i,j)) {
           zbuffer(i,j) = it->first;
           vec4 temp_col = it->second.color;
           vec3 old_color = image.get_color(i,j);

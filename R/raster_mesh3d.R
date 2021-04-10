@@ -4,7 +4,6 @@
 #'@param filename Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.
 #'@param width Default `400`. Width of the rendered image.
 #'@param height Default `400`. Width of the rendered image.
-#'@param line_info Default `NULL`. Matrix of line segments to add to the scene. Number of rows must be a multiple of 2.
 #'@param parallel Default `TRUE`. Whether to use parallel processing.
 #'@param fov Default `20`. Width of the rendered image.
 #'@param lookfrom Default `c(0,0,10)`. Camera location.
@@ -50,33 +49,29 @@
 #'@export
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
-rasterize_obj  = function(obj_model, filename = NA, width=400, height=400, 
-                          line_info = NULL, alpha_line = 0.5,
-                          parallel = TRUE,
-                          fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0), #Sanitize lookfrom and lookat inputs
-                          scale_obj = 1,
-                          point_light_info = NULL,
-                          type = "diffuse", color="darkred", background = "white",
-                          texture_location = NA,
-                          normal_texture_location = NA,
-                          specular_texture_location = NA,
-                          ambient_texture_location = NA,
-                          emissive_texture_location = NA,
-                          light_direction = c(1,1,1), light_intensity=1.0, ambient_color=c(0,0,0), 
-                          exponent=32, specular_intensity = 0.6, emission_intensity = 1,
-                          override_exponent = FALSE,
-                          diffuse_intensity = 1, tangent_space_normals = TRUE,
-                          shadow_map = FALSE, 
-                          shadow_map_bias = -0.001, shadow_map_intensity = 0.5, shadow_map_dims = NULL,
-                          ssao = FALSE, ssao_intensity = 10, ssao_radius = 0.1, 
-                          tonemap = "none", debug = "none", 
-                          near_plane = 0.1, far_plane = 100, culling = "back",
-                          shader = "default", double_sided = FALSE,
-                          block_size = 4, shape = NULL) {
-  if(!file.exists(obj_model)) {
-    stop(obj_model, " not found in current directory.")
-  }
-  obj = read_obj(obj_model)
+rasterize_mesh3d  = function(mesh, filename = NA, width=400, height=400,
+                             parallel = TRUE,
+                             fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0), #Sanitize lookfrom and lookat inputs
+                             scale_obj = 1,
+                             point_light_info = NULL,
+                             type = "diffuse", color="darkred", background = "white",
+                             texture_location = NA,
+                             normal_texture_location = NA,
+                             specular_texture_location = NA,
+                             ambient_texture_location = NA,
+                             emissive_texture_location = NA,
+                             light_direction = c(1,1,1), light_intensity=1.0, ambient_color=c(0,0,0), 
+                             exponent=32, specular_intensity = 0.6, emission_intensity = 1,
+                             override_exponent = FALSE,
+                             diffuse_intensity = 1, tangent_space_normals = TRUE,
+                             shadow_map = FALSE, 
+                             shadow_map_bias = -0.001, shadow_map_intensity = 0.5, shadow_map_dims = NULL,
+                             ssao = FALSE, ssao_intensity = 10, ssao_radius = 0.1, 
+                             tonemap = "none", debug = "none", 
+                             near_plane = 0.1, far_plane = 100, culling = "back",
+                             shader = "default", double_sided = FALSE,
+                             block_size = 4, shape = NULL) {
+  obj = mesh
   if(!is.null(shape)) {
     if(length(obj$shapes) < shape) {
       stop("shape requested exceeds number of shapes in OBJ file")
@@ -124,7 +119,7 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
     lookat = (bounds[1:3] + bounds[4:6])/2
     message(sprintf("Setting `lookat` to: c(%0.2f, %0.2f, %0.2f)",lookat[1],lookat[2],lookat[3]))
   }
-    
+  
   use_default_material = FALSE
   if(length(obj$materials) > 0) {
     has_texture          = rep(FALSE,length(obj$materials))
@@ -221,7 +216,6 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
   tonemap = switch(tonemap, "gamma" = 1, "uncharted" = 2, "hbd" = 3, "none"=4, 1)
   imagelist = rasterize(obj,
                         lightinfo,
-                        line_mat=line_info,
                         nx=width,
                         ny=height,
                         model_color = color,
@@ -253,8 +247,7 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                         override_exponent = override_exponent,
                         near_plane, far_plane,
                         shadow_map_intensity,
-                        bounds, shadow_map_dims, camera_up,light_intensity, culling, double_sided,
-                        alpha_line)
+                        bounds, shadow_map_dims, camera_up,light_intensity, culling, double_sided)
   if(ssao) {
     imagelist$amb = (imagelist$amb)^ssao_intensity
     imagelist$r = imagelist$r * imagelist$amb
