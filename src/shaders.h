@@ -69,7 +69,7 @@ class GouraudShader : public IShader {
     
     std::vector<vec3> vec_varying_intensity;
     std::vector<std::vector<vec3> > vec_varying_uv;
-    std::vector<std::vector<vec3> > vec_varying_tri;
+    std::vector<std::vector<vec4> > vec_varying_tri;
     std::vector<std::vector<vec3> > vec_varying_pos;
     std::vector<std::vector<vec3> > vec_varying_world_nrm;
     
@@ -261,7 +261,7 @@ struct DiffuseNormalShader : public IShader {
   vec3 l;
   
   std::vector<std::vector<vec3> > vec_varying_uv;
-  std::vector<std::vector<vec3> > vec_varying_tri;
+  std::vector<std::vector<vec4> > vec_varying_tri;
   std::vector<std::vector<vec3> > vec_varying_pos;
   std::vector<std::vector<vec3> > vec_varying_world_nrm;
   
@@ -329,7 +329,7 @@ class DiffuseShaderTangent : public IShader {
     
     std::vector<vec3> vec_varying_intensity;
     std::vector<std::vector<vec3> > vec_varying_uv;
-    std::vector<std::vector<vec3> > vec_varying_tri;
+    std::vector<std::vector<vec4> > vec_varying_tri;
     std::vector<std::vector<vec3> > vec_varying_pos;
     std::vector<std::vector<vec3> > vec_varying_ndc_tri;
     std::vector<std::vector<vec3> > vec_varying_world_nrm;
@@ -404,7 +404,7 @@ class PhongShader : public IShader {
     
     std::vector<vec3> vec_varying_intensity;
     std::vector<std::vector<vec3> > vec_varying_uv;
-    std::vector<std::vector<vec3> > vec_varying_tri;
+    std::vector<std::vector<vec4> > vec_varying_tri;
     std::vector<std::vector<vec3> > vec_varying_nrm;
     std::vector<std::vector<vec3> > vec_varying_pos;
     std::vector<std::vector<vec3> > vec_varying_world_nrm;
@@ -472,7 +472,7 @@ public:
   vec3 l;
   
   std::vector<std::vector<vec3> > vec_varying_uv;
-  std::vector<std::vector<vec3> > vec_varying_tri;
+  std::vector<std::vector<vec4> > vec_varying_tri;
   std::vector<std::vector<vec3> > vec_varying_pos;
   std::vector<std::vector<vec3> > vec_varying_world_nrm;
 
@@ -541,7 +541,7 @@ public:
   vec3 l;
   
   std::vector<std::vector<vec3> > vec_varying_uv;
-  std::vector<std::vector<vec3> > vec_varying_tri;
+  std::vector<std::vector<vec4> > vec_varying_tri;
   std::vector<std::vector<vec3> > vec_varying_pos;
   std::vector<std::vector<vec3> > vec_varying_ndc_tri;
   std::vector<std::vector<vec3> > vec_varying_world_nrm;

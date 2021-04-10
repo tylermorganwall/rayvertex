@@ -151,9 +151,9 @@ List rasterize(List mesh,
   Mat View       = glm::lookAt(eye, center, cam_up);
   Mat Model      = glm::translate(Mat(1.0f), vec3(0.0f, 0.0f, 0.0f));
   Mat Projection = glm::perspective(glm::radians(fov), 
-                                          (float)nx / (float)ny, 
-                                          near_clip, 
-                                          far_clip);
+                                    (float)nx / (float)ny, 
+                                    near_clip, 
+                                    far_clip);
   vec4 viewport(0.0f, 0.0f, (float)nx-1, (float)ny-1);
   vec4 viewport_depth(0.0f, 0.0f, (float)shadowdims(0)-1, (float)shadowdims(1)-1);
   int nx_d = shadowdims(0);
@@ -228,11 +228,11 @@ List rasterize(List mesh,
   
   glm::mat4 lightProjection = glm::ortho(-scene_diag/2, scene_diag/2, -scene_diag/2, scene_diag/2, 
                                          near_plane, far_plane);
-  glm::mat4 lightView = glm::lookAt(scene_center+light_dir*scene_diag,
+  glm::mat4 lightView = glm::lookAt(scene_center + light_dir * scene_diag,
                                     scene_center,
                                     light_up);
 
-  Mat M = vp_shadow*lightProjection*lightView*Model;
+  Mat M = vp_shadow * lightProjection * lightView * Model;
   Mat uniform_Mshadow_ = M * glm::inverse(vp * Projection * View * Model);
   
   std::vector<Light> point_lights;

@@ -81,7 +81,7 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   
   for(int i = 0; i < material.max_indices; i++ ) {
     std::vector<vec3> tempuv(3);
-    std::vector<vec3> temptri(3);
+    std::vector<vec4> temptri(3);
     std::vector<vec3> temppos(3);
     std::vector<vec3> tempnrm(3);
     vec3 temp;
@@ -127,7 +127,7 @@ bool GouraudShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   float shadow = 1.0f;
   if(has_shadow_map) {
     vec3 n = normalize(vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z);
-    vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
+    vec4 sb_p = uniform_Mshadow * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
     sb_p = sb_p/sb_p.w;
     if(sb_p[0] >= 0 && sb_p[0] < shadowbuffer.width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffer.height()) {
       shadow = 0.0f;
@@ -497,7 +497,7 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
   l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
   for(int i = 0; i < material.max_indices; i++ ) {
     std::vector<vec3> tempuv(3);
-    std::vector<vec3> temptri(3);
+    std::vector<vec4> temptri(3);
     std::vector<vec3> temppos(3);
     std::vector<vec3> tempnrm(3);
     vec3 temp;
@@ -529,7 +529,7 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3&
   
   float shadow = 1.0f;
   if(has_shadow_map) {
-    vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
+    vec4 sb_p = uniform_Mshadow * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
     sb_p = sb_p/sb_p.w;
     if(sb_p[0] >= 0 && sb_p[0] < shadowbuffer.width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffer.height()) {
       shadow = 0.0f;
@@ -641,7 +641,7 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
   
   for(int i = 0; i < material.max_indices; i++ ) {
     std::vector<vec3> tempuv(3);
-    std::vector<vec3> temptri(3);
+    std::vector<vec4> temptri(3);
     std::vector<vec3> temppos(3);
     std::vector<vec3> tempnrm(3);
     std::vector<vec3> tempndc(3);
@@ -680,7 +680,7 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3
   
   float shadow = 1.0f;
   if(has_shadow_map) {
-    vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
+    vec4 sb_p = uniform_Mshadow * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
     sb_p = sb_p/sb_p.w;
     if(sb_p[0] >= 0 && sb_p[0] < shadowbuffer.width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffer.height()) {
       shadow = 0.0f;
@@ -807,7 +807,7 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
   for(int i = 0; i < material.max_indices; i++ ) {
     std::vector<vec3> tempuv(3);
-    std::vector<vec3> temptri(3);
+    std::vector<vec4> temptri(3);
     std::vector<vec3> temppos(3);
     std::vector<vec3> tempnrm(3);
     std::vector<vec3> tempndc(3);
@@ -842,7 +842,7 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   
   float shadow = 1.0f;
   if(has_shadow_map) {
-    vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
+    vec4 sb_p = uniform_Mshadow * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
     sb_p = sb_p/sb_p.w;
     if(sb_p[0] >= 0 && sb_p[0] < shadowbuffer.width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffer.height()) {
       shadow = 0.0f;
@@ -862,7 +862,7 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   
   vec3 n = has_normals ?  
     normalize(vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z) :
-    normalize(glm::cross(vec_varying_tri[iface][1]-vec_varying_tri[iface][0],vec_varying_tri[iface][2]-vec_varying_tri[iface][0]));
+    normalize(glm::cross(vec3(vec_varying_tri[iface][1]-vec_varying_tri[iface][0]),vec3(vec_varying_tri[iface][2]-vec_varying_tri[iface][0])));
   vec3 r = normalize(2.0f*dot(n,l)*n - l);
   vec4 spec = vec4(specular(uv) * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f); 
   
@@ -962,7 +962,7 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
   
   for(int i = 0; i < material.max_indices; i++ ) {
     std::vector<vec3> tempuv(3);
-    std::vector<vec3> temptri(3);
+    std::vector<vec4> temptri(3);
     std::vector<vec3> temppos(3);
     std::vector<vec3> tempnrm(3);
     std::vector<vec3> tempndc(3);
@@ -996,7 +996,7 @@ bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& n
   
   float shadow = 1.0f;
   if(has_shadow_map) {
-    vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
+    vec4 sb_p = uniform_Mshadow * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
     sb_p = sb_p/sb_p.w;
     if(sb_p[0] >= 0 && sb_p[0] < shadowbuffer.width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffer.height()) {
       shadow = 0.0f;
@@ -1114,7 +1114,7 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
   
   for(int i = 0; i < material.max_indices; i++ ) {
     std::vector<vec3> tempuv(3);
-    std::vector<vec3> temptri(3);
+    std::vector<vec4> temptri(3);
     std::vector<vec3> temppos(3);
     std::vector<vec3> tempnrm(3);
     std::vector<vec3> tempndc(3);
@@ -1152,7 +1152,7 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
   
   float shadow = 1.0f;
   if(has_shadow_map) {
-    vec4 sb_p = uniform_Mshadow * vec4(vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z, 1.0f);
+    vec4 sb_p = uniform_Mshadow * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
     sb_p = sb_p/sb_p.w;
     if(sb_p[0] >= 0 && sb_p[0] < shadowbuffer.width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffer.height()) {
       shadow = 0.0f;

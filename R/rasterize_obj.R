@@ -16,11 +16,6 @@
 #'@param type Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).
 #'@param color Default `darkred`. Color of model if no material file present (or for faces using the default material).
 #'@param background Default `white`. Background color.
-#'@param texture_location Default `NA`. Location of the diffuse texture.
-#'@param normal_texture_location Default `NA`. Location of the normal texture.
-#'@param specular_texture_location Default `NA`. Location of the specular texture.
-#'@param ambient_texture_location Default `NA`. Location of the ambient texture.
-#'@param emissive_texture_location Default `NA`. Location of the emissive texture.
 #'@param light_direction Default `c(1,1,1)`. Vector specifying the light direction for the primary directional light.
 #'@param light_intensity Default `1.0`. Light intensity.
 #'@param ambient_color Default `c(0,0,0)`. Ambient color of model if no material file present (or for faces using the default material).
@@ -31,7 +26,7 @@
 #'@param diffuse_intensity Default `1`.
 #'@param tangent_space_normals Default `TRUE`.
 #'@param shadow_map Default `FALSE`.
-#'@param shadow_map_bias Default `-0.001`.
+#'@param shadow_map_bias Default `0.005`.
 #'@param shadow_map_intensity Default `0.5`.
 #'@param shadow_map_dims Default `NULL`.
 #'@param ssao Default `FALSE`. Whether to add screen-space ambient occlusion (SSAO) to the render.
@@ -57,17 +52,12 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                           scale_obj = 1,
                           point_light_info = NULL,
                           type = "diffuse", color="darkred", background = "white",
-                          texture_location = NA,
-                          normal_texture_location = NA,
-                          specular_texture_location = NA,
-                          ambient_texture_location = NA,
-                          emissive_texture_location = NA,
                           light_direction = c(1,1,1), light_intensity=1.0, ambient_color=c(0,0,0), 
                           exponent=32, specular_intensity = 0.6, emission_intensity = 1,
                           override_exponent = FALSE,
                           diffuse_intensity = 1, tangent_space_normals = TRUE,
                           shadow_map = FALSE, 
-                          shadow_map_bias = -0.001, shadow_map_intensity = 0.5, shadow_map_dims = NULL,
+                          shadow_map_bias = 0.005, shadow_map_intensity = 0.5, shadow_map_dims = NULL,
                           ssao = FALSE, ssao_intensity = 10, ssao_radius = 0.1, 
                           tonemap = "none", debug = "none", 
                           near_plane = 0.1, far_plane = 100, culling = "back",
