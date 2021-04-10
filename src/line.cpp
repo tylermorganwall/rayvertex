@@ -37,6 +37,7 @@ void aa_line(std::vector<glm::vec3>& line_mat,
     const float dy = y1 - y0;
     const float gradient = (dx == 0) ? 1 : dy/dx;
     
+    float offset = 0.00001;
     //zbuffer
     float dz = z1-z0; 
     float zcurrent = z0;
@@ -51,7 +52,7 @@ void aa_line(std::vector<glm::vec3>& line_mat,
       const int ypx11 = ipart(yend);
       if (steep) {
         if(ypx11 < nx && ypx11 >= 0 && xpx11 < ny && xpx11 >= 0) {
-          z = 1.0f/z0-0.00001;
+          z = 1.0f/z0+offset;
           alpha_info tmp_data;
           tmp_data.color = vec4(color, rfpart(yend) * xgap* alpha_line);
           tmp_data.normal = vec3(0.);
@@ -61,7 +62,7 @@ void aa_line(std::vector<glm::vec3>& line_mat,
 
           if(xpx11 + 1 < nx) {
             alpha_info tmp_data2;
-            tmp_data2.color = vec4(color,fpart(yend) * xgap* alpha_line);
+            tmp_data2.color = vec4(color,fpart(yend) * xgap * alpha_line);
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);
@@ -70,16 +71,16 @@ void aa_line(std::vector<glm::vec3>& line_mat,
         }
       } else {
         if(xpx11 < nx && xpx11 >= 0 && ypx11 < ny && ypx11 >= 0) {
-          z = 1.0f/z0-0.00001;
+          z = 1.0f/z0+offset;
           alpha_info tmp_data;
-          tmp_data.color = vec4(color, rfpart(yend) * xgap* alpha_line);
+          tmp_data.color = vec4(color, rfpart(yend) * xgap * alpha_line);
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
           alpha_depths[ypx11 + ny * xpx11][z] = tmp_data;
           if(ypx11 + 1 < ny) {
             alpha_info tmp_data2;
-            tmp_data2.color = vec4(color,fpart(yend) * xgap* alpha_line);
+            tmp_data2.color = vec4(color,fpart(yend) * xgap * alpha_line);
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);
@@ -99,7 +100,7 @@ void aa_line(std::vector<glm::vec3>& line_mat,
       const int ypx12 = ipart(yend);
       if (steep) {
         if(ypx12 < nx && ypx12 >= 0 && xpx12 < ny && xpx12 >= 0) {
-          z = 1.0f/z1-0.00002;
+          z = 1.0f/z1+offset;
           alpha_info tmp_data;
           tmp_data.color = vec4(color, rfpart(yend) * xgap* alpha_line);
           tmp_data.normal = vec3(0.);
@@ -118,16 +119,16 @@ void aa_line(std::vector<glm::vec3>& line_mat,
         }
       } else {
         if(xpx12 < nx && xpx12 >= 0 && ypx12 < ny && ypx12 >= 0) {
-          z = 1.0f/z1-0.00002;
+          z = 1.0f/z1+offset;
           alpha_info tmp_data;
-          tmp_data.color = vec4(color, rfpart(yend) * xgap* alpha_line);
+          tmp_data.color = vec4(color, rfpart(yend) * xgap * alpha_line);
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
           alpha_depths[ypx12 + ny * xpx12][z] = tmp_data;
           if(ypx12 + 1 < ny) {
             alpha_info tmp_data2;
-            tmp_data2.color = vec4(color,fpart(yend) * xgap* alpha_line);
+            tmp_data2.color = vec4(color,fpart(yend) * xgap * alpha_line);
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);
@@ -147,9 +148,9 @@ void aa_line(std::vector<glm::vec3>& line_mat,
       for (int x = xpx11 + 1; x < xpx12; x++) {
         iy = ipart(intery);
         if(iy < nx && iy >= 0 && x < ny && x >= 0) {
-          z = 1.0f/zcurrent-0.00002;
+          z = 1.0f/zcurrent+offset;
           alpha_info tmp_data;
-          tmp_data.color = vec4(color, rfpart(intery)* alpha_line);
+          tmp_data.color = vec4(color, rfpart(intery) * alpha_line);
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
@@ -157,11 +158,11 @@ void aa_line(std::vector<glm::vec3>& line_mat,
 
           if(iy + 1 < nx) {
             alpha_info tmp_data2;
-            tmp_data2.color = vec4(color,fpart(intery)* alpha_line);
+            tmp_data2.color = vec4(color,fpart(intery) * alpha_line);
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);
-            alpha_depths[x + 1 + ny * iy][z] = tmp_data2;
+            alpha_depths[x + ny * (iy+1)][z] = tmp_data2;
           }
         }
         counter++;
@@ -172,16 +173,16 @@ void aa_line(std::vector<glm::vec3>& line_mat,
       for (int x = xpx11 + 1; x < xpx12; x++) {
         iy = ipart(intery);
         if(x < nx && x >= 0 && iy < ny && iy >= 0) {
-          z = 1.0f/zcurrent-0.00002;
+          z = 1.0f/zcurrent+offset;
           alpha_info tmp_data;
-          tmp_data.color = vec4(color, rfpart(intery)* alpha_line);
+          tmp_data.color = vec4(color, rfpart(intery) * alpha_line);
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
           alpha_depths[iy + ny * x][z] = tmp_data;
           if(iy + 1 < ny) {
             alpha_info tmp_data2;
-            tmp_data2.color = vec4(color,fpart(intery)* alpha_line);
+            tmp_data2.color = vec4(color,fpart(intery) * alpha_line);
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);

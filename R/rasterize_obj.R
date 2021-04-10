@@ -99,6 +99,9 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
   culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   shaderval = switch(shader, "default" = 1, "diffuse" = 2, "phong" = 3, "color" = 4, 1)
   
+  if(is.null(line_info)) {
+    line_info = matrix()
+  }
   
   bounds = c(Inf,Inf,Inf,-Inf,-Inf,-Inf)
   for(i in seq_len(length(obj$shapes))) {
