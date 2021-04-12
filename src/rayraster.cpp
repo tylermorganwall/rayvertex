@@ -129,8 +129,8 @@ List rasterize(List mesh,
                NumericVector bounds,
                IntegerVector shadowdims,
                NumericVector camera_up,
-               float lightintensity, int culling, bool double_sided,
-               float alpha_line) {
+               float lightintensity, int culling, 
+               float alpha_line, float line_offset) {
   //Convert R vectors to glm::vec3
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
   vec3 center(lookat(0),lookat(1),lookat(2));    //lookat
@@ -250,6 +250,7 @@ List rasterize(List mesh,
   //Start by generating a shader for every material
   std::vector<material_info> mat_info;
   std::vector<IShader*> shaders;
+  bool double_sided = true;
   
   List materials = as<List>(mesh["materials"]);
   int number_materials = materials.size();
@@ -278,7 +279,7 @@ List rasterize(List mesh,
     bool has_normal_texture_single   = has_normal_texture(i);
     bool has_specular_texture_single = has_specular_texture(i);
     bool has_emissive_texture_single = has_emissive_texture(i);
-    
+
     material_info temp = {
       vec3(ambient(0),ambient(1),ambient(2)),
       vec3(diffuse(0),diffuse(1),diffuse(2)),
@@ -767,7 +768,7 @@ List rasterize(List mesh,
   }
   vec3 line_color = vec3(1.0f,1.0f,1.0f);
   if(ndc_line_verts.size() > 0) {
-    aa_line(ndc_line_verts, zbuffer, alpha_depths, line_color, alpha_line);
+    aa_line(ndc_line_verts, zbuffer, alpha_depths, line_color, alpha_line, line_offset);
   }
   
   for(int i = 0; i < nx; i++) {

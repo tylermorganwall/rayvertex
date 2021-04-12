@@ -8,9 +8,9 @@ using namespace Rcpp;
 List load_obj(std::string inputfile, std::string basedir) {
   tinyobj::ObjReader reader;
   tinyobj::ObjReaderConfig reader_config;
-  reader_config.mtl_search_path = "./"; // Path to material files
+  reader_config.mtl_search_path = basedir; // Path to material files
   reader_config.triangulate = true;
-  
+
   if (!reader.ParseFromFile(inputfile, reader_config)) {
     if (!reader.Error().empty()) {
       std::cerr << "TinyObjReader: " << reader.Error();

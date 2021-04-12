@@ -12,12 +12,6 @@ convert_color = function(color, as_hex = FALSE) {
   if(inherits(color,"character")) {
     color = as.vector(col2rgb(color))/255
   } 
-  if(!all(color <= 1)) {
-    stop("invalid color")
-  }
-  if(!all(color >= 0)) {
-    stop("invalid color")
-  }
   if(as_hex) {
     paste0("#",paste0(format(as.hexmode(round(color*255,0)),width=2),collapse=""),collapse="")
   } else {

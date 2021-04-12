@@ -1,5 +1,9 @@
 #'@title Rasterize an OBJ file
 #'
+#'If the OBJ file has an MTL file, it must be located in the same directory as the OBJ file itself.
+#'Additionally, the textures referenced in the MTL file must be specified as a 
+#'relative path to the OBJ file's location.
+#'
 #'@param obj_model  Filename of the `obj` file.
 #'@param filename Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.
 #'@param width Default `400`. Width of the rendered image.
@@ -38,7 +42,6 @@
 #'@param far_plane Default `100`.
 #'@param culling Default `"back"`.
 #'@param shader Default `"default"`.
-#'@param double_sided Default `FALSE`.
 #'@param block_size Default `4`. 
 #'@param shape Default `NULL`
 #'@return Rasterized image.
@@ -62,11 +65,14 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                           tonemap = "none", debug = "none", 
                           near_plane = 0.1, far_plane = 100, culling = "back",
                           shader = "default", double_sided = FALSE,
-                          block_size = 4, shape = NULL) {
+                          block_size = 4, shape = NULL, line_offset = -0.00001) {
   if(!file.exists(obj_model)) {
     stop(obj_model, " not found in current directory.")
   }
-  obj = read_obj(obj_model)
+  obj_model = path.expand(obj_model)
+  obj_path = dirname(obj_model)
+  sep = .Platform$file.sep
+  obj = read_obj(obj_model, materialspath = obj_path)
   if(!is.null(shape)) {
     if(length(obj$shapes) < shape) {
       stop("shape requested exceeds number of shapes in OBJ file")
@@ -137,25 +143,25 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
   for(i in seq_len(length(obj$materials))) {
     if(!is.null(obj$materials[[i]]$diffuse_texname) && obj$materials[[i]]$diffuse_texname != "") {
       has_texture[i] = TRUE
-      obj$materials[[i]]$diffuse_texname = path.expand(obj$materials[[i]]$diffuse_texname)
+      obj$materials[[i]]$diffuse_texname = paste0(c(obj_path,path.expand(obj$materials[[i]]$diffuse_texname)),collapse=sep)
     }
     if(!is.null(obj$materials[[i]]$ambient_texname) && obj$materials[[i]]$ambient_texname != "") {
       has_ambient_texture[i] = TRUE
-      obj$materials[[i]]$ambient_texname = path.expand(obj$materials[[i]]$ambient_texname)
+      obj$materials[[i]]$ambient_texname = paste0(c(obj_path,path.expand(obj$materials[[i]]$ambient_texname)),collapse=sep)
     }
     if(!is.null(obj$materials[[i]]$specular_texname) && obj$materials[[i]]$specular_texname != "") {
       has_specular_texture[i] = TRUE
-      obj$materials[[i]]$specular_texname = path.expand(obj$materials[[i]]$specular_texname)
+      obj$materials[[i]]$specular_texname = paste0(c(obj_path,path.expand(obj$materials[[i]]$specular_texname)),collapse=sep)
     }
     if(!is.null(obj$materials[[i]]$normal_texname) && obj$materials[[i]]$normal_texname != "") {
       has_normal_texture[i] = TRUE
       
-      obj$materials[[i]]$normal_texname = path.expand(obj$materials[[i]]$normal_texname)
+      obj$materials[[i]]$normal_texname = paste0(c(obj_path,path.expand(obj$materials[[i]]$normal_texname)),collapse=sep)
     }
     if(!is.null(obj$materials[[i]]$emissive_texname) && obj$materials[[i]]$emissive_texname != "") {
       has_emissive_texture[i] = TRUE
       
-      obj$materials[[i]]$emissive_texname = path.expand(obj$materials[[i]]$emissive_texname)
+      obj$materials[[i]]$emissive_texname = paste0(c(obj_path,path.expand(obj$materials[[i]]$emissive_texname)),collapse=sep)
     } else if (is.null(obj$materials[[i]]$emissive_texname) ) {
       obj$materials[[i]]$emissive_texname = ""
     }
@@ -246,8 +252,8 @@ rasterize_obj  = function(obj_model, filename = NA, width=400, height=400,
                         override_exponent = override_exponent,
                         near_plane, far_plane,
                         shadow_map_intensity,
-                        bounds, shadow_map_dims, camera_up,light_intensity, culling, double_sided,
-                        alpha_line)
+                        bounds, shadow_map_dims, camera_up,light_intensity, culling, 
+                        alpha_line, line_offset)
   if(ssao) {
     imagelist$amb = (imagelist$amb)^ssao_intensity
     imagelist$r = imagelist$r * imagelist$amb

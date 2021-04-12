@@ -5,52 +5,124 @@
 \title{Rasterize an OBJ file}
 \usage{
 rasterize_mesh(
-  vertices,
+  mesh,
   indices = NULL,
   texcoords = NULL,
   normals = NULL,
   filename = NA,
   width = 400,
   height = 400,
+  line_info = NULL,
+  alpha_line = 0.5,
+  parallel = TRUE,
   fov = 20,
   lookfrom = c(0, 0, 10),
-  lookat = c(0, 0, 0),
+  lookat = NULL,
+  camera_up = c(0, 1, 0),
+  scale_obj = 1,
+  point_light_info = NULL,
+  color = "red",
   type = "diffuse",
-  color = "darkred",
   background = "white",
-  texture_location = NA,
-  normal_texture_location = NA,
-  specular_texture_location = NA,
-  emissive_texture_location = NA,
-  parallel = TRUE,
   light_direction = c(1, 1, 1),
+  light_intensity = 1,
+  tangent_space_normals = TRUE,
   ambient_color = c(0, 0, 0),
   exponent = 32,
   specular_intensity = 0.6,
   emission_intensity = 1,
+  override_exponent = FALSE,
   diffuse_intensity = 1,
-  tangent_space_normals = FALSE,
   shadow_map = FALSE,
-  calc_ambient = FALSE,
-  ambient_intensity = 10,
-  ambient_radius = 0.1,
+  shadow_map_bias = 0.005,
+  shadow_map_intensity = 0.5,
+  shadow_map_dims = NULL,
+  ssao = FALSE,
+  ssao_intensity = 10,
+  ssao_radius = 0.1,
   tonemap = "none",
   debug = "none",
-  shadow_map_bias = 0.005
+  near_plane = 0.1,
+  far_plane = 100,
+  culling = "back",
+  shader = "default",
+  double_sided = FALSE,
+  block_size = 4,
+  shape = NULL,
+  line_offset = -1e-05
 )
 }
 \arguments{
+\item{filename}{Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.}
+
 \item{width}{Default `400`. Width of the rendered image.}
 
 \item{height}{Default `400`. Width of the rendered image.}
+
+\item{line_info}{Default `NULL`. Matrix of line segments to add to the scene. Number of rows must be a multiple of 2.}
+
+\item{parallel}{Default `TRUE`. Whether to use parallel processing.}
 
 \item{fov}{Default `20`. Width of the rendered image.}
 
 \item{lookfrom}{Default `c(0,0,10)`. Camera location.}
 
-\item{lookat}{Default `c(0,0,0)`. Camera focal position.}
+\item{lookat}{Default `NULL`. Camera focal position, defaults to the center of the model.}
 
-\item{obj_model}{A two-dimensional matrix, where each entry in the matrix is the elevation at that point. All points are assumed to be evenly spaced.}
+\item{camera_up}{Default `c(0,1,0)`. Camera up vector.}
+
+\item{scale_obj}{Default `1`. Value to scale size of model.}
+
+\item{point_light_info}{Default `NULL`. A data.frame of point light information created using the 
+`point_light()` and `add_light()` functions.}
+
+\item{color}{Default `darkred`. Color of model if no material file present (or for faces using the default material).}
+
+\item{type}{Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).}
+
+\item{background}{Default `white`. Background color.}
+
+\item{light_direction}{Default `c(1,1,1)`. Vector specifying the light direction for the primary directional light.}
+
+\item{light_intensity}{Default `1.0`. Light intensity.}
+
+\item{tangent_space_normals}{Default `TRUE`.}
+
+\item{ambient_color}{Default `c(0,0,0)`. Ambient color of model if no material file present (or for faces using the default material).}
+
+\item{shadow_map}{Default `FALSE`.}
+
+\item{shadow_map_bias}{Default `-0.001`.}
+
+\item{shadow_map_intensity}{Default `0.5`.}
+
+\item{shadow_map_dims}{Default `NULL`.}
+
+\item{ssao}{Default `FALSE`. Whether to add screen-space ambient occlusion (SSAO) to the render.}
+
+\item{ssao_intensity}{Default `10`. Intensity of the shadow map.}
+
+\item{ssao_radius}{Default `0.1`. Radius to use when calculating the SSAO term.}
+
+\item{tonemap}{Default `"none"`.}
+
+\item{debug}{Default `"none"`.}
+
+\item{near_plane}{Default `0.1`.}
+
+\item{far_plane}{Default `100`.}
+
+\item{culling}{Default `"back"`.}
+
+\item{shader}{Default `"default"`.}
+
+\item{double_sided}{Default `FALSE`.}
+
+\item{block_size}{Default `4`.}
+
+\item{shape}{Default `NULL`}
+
+\item{obj_model}{Filename of the `obj` file.}
 }
 \value{
 Rasterized image.

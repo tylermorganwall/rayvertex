@@ -2,7 +2,11 @@
 % Please edit documentation in R/rasterize_obj.R
 \name{rasterize_obj}
 \alias{rasterize_obj}
-\title{Rasterize an OBJ file}
+\title{Rasterize an OBJ file
+
+If the OBJ file has an MTL file, it must be located in the same directory as the OBJ file itself.
+Additionally, the textures referenced in the MTL file must be specified as a 
+relative path to the OBJ file's location.}
 \usage{
 rasterize_obj(
   obj_model,
@@ -21,11 +25,6 @@ rasterize_obj(
   type = "diffuse",
   color = "darkred",
   background = "white",
-  texture_location = NA,
-  normal_texture_location = NA,
-  specular_texture_location = NA,
-  ambient_texture_location = NA,
-  emissive_texture_location = NA,
   light_direction = c(1, 1, 1),
   light_intensity = 1,
   ambient_color = c(0, 0, 0),
@@ -36,7 +35,7 @@ rasterize_obj(
   diffuse_intensity = 1,
   tangent_space_normals = TRUE,
   shadow_map = FALSE,
-  shadow_map_bias = -0.001,
+  shadow_map_bias = 0.005,
   shadow_map_intensity = 0.5,
   shadow_map_dims = NULL,
   ssao = FALSE,
@@ -50,7 +49,8 @@ rasterize_obj(
   shader = "default",
   double_sided = FALSE,
   block_size = 4,
-  shape = NULL
+  shape = NULL,
+  line_offset = -1e-05
 )
 }
 \arguments{
@@ -85,16 +85,6 @@ rasterize_obj(
 
 \item{background}{Default `white`. Background color.}
 
-\item{texture_location}{Default `NA`. Location of the diffuse texture.}
-
-\item{normal_texture_location}{Default `NA`. Location of the normal texture.}
-
-\item{specular_texture_location}{Default `NA`. Location of the specular texture.}
-
-\item{ambient_texture_location}{Default `NA`. Location of the ambient texture.}
-
-\item{emissive_texture_location}{Default `NA`. Location of the emissive texture.}
-
 \item{light_direction}{Default `c(1,1,1)`. Vector specifying the light direction for the primary directional light.}
 
 \item{light_intensity}{Default `1.0`. Light intensity.}
@@ -115,7 +105,7 @@ rasterize_obj(
 
 \item{shadow_map}{Default `FALSE`.}
 
-\item{shadow_map_bias}{Default `-0.001`.}
+\item{shadow_map_bias}{Default `0.005`.}
 
 \item{shadow_map_intensity}{Default `0.5`.}
 
@@ -139,8 +129,6 @@ rasterize_obj(
 
 \item{shader}{Default `"default"`.}
 
-\item{double_sided}{Default `FALSE`.}
-
 \item{block_size}{Default `4`.}
 
 \item{shape}{Default `NULL`}
@@ -150,6 +138,10 @@ Rasterized image.
 }
 \description{
 Rasterize an OBJ file
+
+If the OBJ file has an MTL file, it must be located in the same directory as the OBJ file itself.
+Additionally, the textures referenced in the MTL file must be specified as a 
+relative path to the OBJ file's location.
 }
 \examples{
 #Here we produce a ambient occlusion map of the `montereybay` elevation map.

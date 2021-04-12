@@ -3,7 +3,7 @@
 void aa_line(std::vector<glm::vec3>& line_mat,
              Rcpp::NumericMatrix &zbuffer,
              std::vector<std::map<float, alpha_info> >& alpha_depths,
-             glm::vec3 color, float alpha_line) {
+             glm::vec3 color, float alpha_line, float line_offset) {
   auto ipart = [](float x) -> int {return int(std::floor(x));};
   auto round = [](float x) -> float {return std::round(x);};
   auto fpart = [](float x) -> float {return x - std::floor(x);};
@@ -37,7 +37,7 @@ void aa_line(std::vector<glm::vec3>& line_mat,
     const float dy = y1 - y0;
     const float gradient = (dx == 0) ? 1 : dy/dx;
     
-    float offset = 0.00001;
+    float offset = line_offset;
     //zbuffer
     float dz = z1-z0; 
     float zcurrent = z0;

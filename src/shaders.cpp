@@ -360,19 +360,6 @@ vec4 DiffuseShader::vertex(int iface, int nthvert, ModelInfo& model) {
     uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
     uniform_MIT * normalize(vec4(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
                                             model.vertex(iface,2)-model.vertex(iface,0)),0.0f));
-
-  // if(double_sided) {
-  //   vec3 face_dir =  glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
-  //                               model.vertex(iface,2)-model.vertex(iface,0));
-  //   if(model.has_normals) {
-  //     vec_varying_world_nrm[iface][nthvert] *= dot(model.normal(iface, nthvert), face_dir) > 0 ?
-  //       -1.0f : 1.0f;
-  //   } else {
-  //     face_dir = uniform_MIT * vec4(face_dir,0.0f);
-  //     vec_varying_world_nrm[iface][nthvert] *= dot(vec_varying_world_nrm[iface][nthvert], face_dir) > 0 ?
-  //       1.0f : -1.0f;
-  //   }
-  // }
     
   vec_varying_intensity[iface][nthvert] = std::fmax(0.f, dot(vec_varying_world_nrm[iface][nthvert], l));
   has_normals = model.has_normals;
