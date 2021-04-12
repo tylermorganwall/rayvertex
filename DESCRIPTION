@@ -7,6 +7,7 @@ Author: Tyler Morgan-Wall
 Maintainer: Your Name <tylermw@gmail.com>
 Description: Rasterizes 3D scenes.
 License: GPL (>= 3)
-Imports: Rcpp (>= 1.0.6)
+Imports: magrittr,
+         Rcpp (>= 1.0.6)
 LinkingTo: Rcpp, spacefillr, RcppThread
 RoxygenNote: 7.1.1
