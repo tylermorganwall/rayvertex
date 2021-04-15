@@ -37,9 +37,11 @@ class ModelInfo {
                   normals(norm_inds(iface,nthvert), 2)));
     }
     vec3 tex(int iface, int nthvert) {
-      return(vec3(texcoords(tex_inds(iface,nthvert), 0),
+      return(has_texcoords ?  
+             vec3(texcoords(tex_inds(iface,nthvert), 0),
                   texcoords(tex_inds(iface,nthvert), 1),
-                  0.0f));
+                  0.0f) :
+              vec3(1.0));
     }
     
     Rcpp::NumericMatrix verts;

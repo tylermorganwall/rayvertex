@@ -41,8 +41,57 @@ add_shape = function(mesh, shape) {
 #'@export
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
-translate_shape = function(mesh, position = c(0,0,0)) {
+translate_mesh = function(mesh, position = c(0,0,0)) {
   mesh$vertices  = mesh$vertices + matrix(position,nrow = nrow(mesh$vertices), ncol = 3,byrow=TRUE)
+  return(mesh)
+}
+
+#'@return Rasterized image.
+#'@export
+#'@examples
+#'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+scale_mesh = function(mesh, scale = 1) {
+  if(length(scale) == 1) {
+    scale = rep(scale,3)
+  }
+  mesh$vertices[,1]  = mesh$vertices[,1]*scale[1]
+  mesh$vertices[,2]  = mesh$vertices[,2]*scale[2]
+  mesh$vertices[,3]  = mesh$vertices[,3]*scale[3]
+  return(mesh)
+}
+
+#'@return Matrix
+#'@keywords internal
+#'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+generate_rot_matrix = function(angle, order_rotation) {
+  rots = list()
+  rots[[1]] = matrix(c(1,0,0,0,cos(angle[1]),sin(angle[1]),0,-sin(angle[1]),cos(angle[1])),3,3)
+  rots[[2]] = matrix(c(cos(angle[2]),0,-sin(angle[2]),0,1,0,sin(angle[2]),0,cos(angle[2])),3,3)
+  rots[[3]] = matrix(c(cos(angle[3]),sin(angle[3]),0,-sin(angle[3]),cos(angle[3]),0,0,0,1),3,3)
+  returnmat = matrix(c(1,0,0,0,1,0,0,0,1),3,3)
+  for(i in 1:3) {
+    returnmat = returnmat %*% rots[[order_rotation[i]]]
+  }
+  return(returnmat)
+}
+
+#'@return Rasterized image.
+#'@export
+#'@examples
+#'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3)) {
+  angle = angle*pi/180
+  mesh$vertices[,1]  = mesh$vertices[,1]-pivot_point[1]
+  mesh$vertices[,2]  = mesh$vertices[,2]-pivot_point[2]
+  mesh$vertices[,3]  = mesh$vertices[,3]-pivot_point[3]
+  rot_mat = generate_rot_matrix(angle, order_rotation)
+  
+  for(i in seq_len(nrow(mesh$vertices))) {
+    mesh$vertices[i,] = mesh$vertices[i,] %*% rot_mat
+  }
+  mesh$vertices[,1]  = mesh$vertices[,1]+pivot_point[1]
+  mesh$vertices[,2]  = mesh$vertices[,2]+pivot_point[2]
+  mesh$vertices[,3]  = mesh$vertices[,3]+pivot_point[3]
   return(mesh)
 }
 

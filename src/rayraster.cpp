@@ -3,10 +3,7 @@
 #ifndef RAYRASTERH
 #define RAYRASTERH
 
-// // [[Rcpp::depends(RcppParallel)]]
 #include "Rcpp.h"
-// #include <RcppParallel.h>
-// #include <RcppParallel/TinyThread.h>
 
 #include <functional>
 #include <algorithm>

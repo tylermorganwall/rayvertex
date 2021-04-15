@@ -127,28 +127,29 @@ rasterize_mesh  = function(mesh, indices = NULL, texcoords = NULL, normals = NUL
     has_specular_texture = FALSE
     has_emissive_texture = FALSE
   }
+  
   for(i in seq_len(length(obj$materials))) {
     if(!is.null(obj$materials[[i]]$diffuse_texname) && obj$materials[[i]]$diffuse_texname != "") {
       has_texture[i] = TRUE
-      obj$materials[[i]]$diffuse_texname = paste0(c(obj_path,path.expand(obj$materials[[i]]$diffuse_texname)),collapse=sep)
+      obj$materials[[i]]$diffuse_texname = obj$materials[[i]]$diffuse_texname
     }
     if(!is.null(obj$materials[[i]]$ambient_texname) && obj$materials[[i]]$ambient_texname != "") {
       has_ambient_texture[i] = TRUE
-      obj$materials[[i]]$ambient_texname = paste0(c(obj_path,path.expand(obj$materials[[i]]$ambient_texname)),collapse=sep)
+      obj$materials[[i]]$ambient_texname = obj$materials[[i]]$ambient_texname
     }
     if(!is.null(obj$materials[[i]]$specular_texname) && obj$materials[[i]]$specular_texname != "") {
       has_specular_texture[i] = TRUE
-      obj$materials[[i]]$specular_texname = paste0(c(obj_path,path.expand(obj$materials[[i]]$specular_texname)),collapse=sep)
+      obj$materials[[i]]$specular_texname = obj$materials[[i]]$specular_texname
     }
     if(!is.null(obj$materials[[i]]$normal_texname) && obj$materials[[i]]$normal_texname != "") {
       has_normal_texture[i] = TRUE
 
-      obj$materials[[i]]$normal_texname = paste0(c(obj_path,path.expand(obj$materials[[i]]$normal_texname)),collapse=sep)
+      obj$materials[[i]]$normal_texname = obj$materials[[i]]$normal_texname
     }
     if(!is.null(obj$materials[[i]]$emissive_texname) && obj$materials[[i]]$emissive_texname != "") {
       has_emissive_texture[i] = TRUE
 
-      obj$materials[[i]]$emissive_texname = paste0(c(obj_path,path.expand(obj$materials[[i]]$emissive_texname)),collapse=sep)
+      obj$materials[[i]]$emissive_texname = obj$materials[[i]]$emissive_texname
     } else if (is.null(obj$materials[[i]]$emissive_texname) ) {
       obj$materials[[i]]$emissive_texname = ""
     }
