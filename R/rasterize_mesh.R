@@ -66,12 +66,16 @@ rasterize_mesh  = function(mesh, indices = NULL, texcoords = NULL, normals = NUL
                            tonemap = "none", debug = "none", 
                            near_plane = 0.1, far_plane = 100, culling = "back",
                            shader = "default", double_sided = FALSE,
-                           block_size = 4, shape = NULL, line_offset = -0.00001) {
+                           block_size = 4, shape = NULL, line_offset = -0.00001,
+                           ortho_dims = c(1,1)) {
   obj = mesh
   max_indices = 0
   has_norms = rep(FALSE,length(obj$shapes))
   has_tex = rep(FALSE,length(obj$shapes))
   
+  if(length(ortho_dims) != 2) {
+    stop("ortho_dims must be length-2 numeric vector")
+  }
   #lights
   if(!is.null(point_light_info)) {
     if(ncol(point_light_info) != 9) {
@@ -241,7 +245,8 @@ rasterize_mesh  = function(mesh, indices = NULL, texcoords = NULL, normals = NUL
                         near_plane, far_plane,
                         shadow_map_intensity,
                         bounds, shadow_map_dims, camera_up,light_intensity, culling, 
-                        alpha_line, line_offset)
+                        alpha_line, line_offset,
+                        ortho_dims)
   if(ssao) {
     imagelist$amb = (imagelist$amb)^ssao_intensity
     imagelist$r = imagelist$r * imagelist$amb

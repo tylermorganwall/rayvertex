@@ -127,7 +127,8 @@ List rasterize(List mesh,
                IntegerVector shadowdims,
                NumericVector camera_up,
                float lightintensity, int culling, 
-               float alpha_line, float line_offset) {
+               float alpha_line, float line_offset,
+               NumericVector ortho_dims) {
   //Convert R vectors to glm::vec3
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
   vec3 center(lookat(0),lookat(1),lookat(2));    //lookat
@@ -147,10 +148,11 @@ List rasterize(List mesh,
   //Generate MVP matrices
   Mat View       = glm::lookAt(eye, center, cam_up);
   Mat Model      = glm::translate(Mat(1.0f), vec3(0.0f, 0.0f, 0.0f));
-  Mat Projection = glm::perspective(glm::radians(fov), 
+  Mat Projection = fov != 0.0 ? glm::perspective(glm::radians(fov), 
                                     (float)nx / (float)ny, 
                                     near_clip, 
-                                    far_clip);
+                                    far_clip) :
+    glm::ortho(-(float)ortho_dims(0)/2, (float)ortho_dims(0)/2, -(float)ortho_dims(1)/2, (float)ortho_dims(1)/2);
   vec4 viewport(0.0f, 0.0f, (float)nx-1, (float)ny-1);
   vec4 viewport_depth(0.0f, 0.0f, (float)shadowdims(0)-1, (float)shadowdims(1)-1);
   int nx_d = shadowdims(0);
