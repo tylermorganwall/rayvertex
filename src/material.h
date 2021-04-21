@@ -31,6 +31,7 @@ struct material_info {
   bool has_normal_texture;
   bool has_specular_texture;
   bool has_emissive_texture;
+  int cull_type; //1 = back, 2 = front, 3 = none
 };
 
 #endif

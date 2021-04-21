@@ -269,6 +269,8 @@ List rasterize(List mesh,
     String specular_texname = as<String>(single_material["specular_texname"]);
     String normal_texname = as<String>(single_material["normal_texname"]);
     String emissive_texname = as<String>(single_material["emissive_texname"]);
+    int cull_type = as<int>(single_material["culling"]);
+    
     // bool has_norms = has_normals_vec(i);
     // bool has_tex = has_tex_vec(i);
     
@@ -304,7 +306,8 @@ List rasterize(List mesh,
       has_ambient_texture_single,
       has_normal_texture_single,
       has_specular_texture_single,
-      has_emissive_texture_single
+      has_emissive_texture_single,
+      cull_type
     };
     mat_info.push_back(temp);
     
@@ -314,39 +317,39 @@ List rasterize(List mesh,
       shader = new GouraudShader(Model, Projection, View, viewport,
                                  glm::normalize(light_dir), 
                                  shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                 shadow_map_bias,mat_info[i], point_lights, lightintensity, double_sided);
+                                 shadow_map_bias,mat_info[i], point_lights, lightintensity);
     } else if (type == 2) {
       shader = new DiffuseShader(Model, Projection, View, viewport,
                                  glm::normalize(light_dir), 
                                  shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                 shadow_map_bias,mat_info[i], point_lights, lightintensity, double_sided);
+                                 shadow_map_bias,mat_info[i], point_lights, lightintensity);
     } else if (type == 3) {
       shader = new PhongShader(Model, Projection, View, viewport,
                                glm::normalize(light_dir), 
                                shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                               shadow_map_bias,mat_info[i], point_lights, lightintensity, double_sided);
+                               shadow_map_bias,mat_info[i], point_lights, lightintensity);
     } else if (type == 4) {
       shader = new DiffuseNormalShader(Model, Projection, View, viewport,
                                        glm::normalize(light_dir), 
                                        shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                       shadow_map_bias,mat_info[i], point_lights, lightintensity, double_sided);
+                                       shadow_map_bias,mat_info[i], point_lights, lightintensity);
     } else if (type == 5) {
       shader = new DiffuseShaderTangent(Model, Projection, View, viewport,
                                         glm::normalize(light_dir), 
                                         shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                        shadow_map_bias,mat_info[i], point_lights, lightintensity, double_sided);
+                                        shadow_map_bias,mat_info[i], point_lights, lightintensity);
     } else if (type == 6) {
       shader = new PhongNormalShader(Model, Projection, View, viewport,
                                      glm::normalize(light_dir), 
                                      shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                     shadow_map_bias,mat_info[i], point_lights, lightintensity, double_sided);
+                                     shadow_map_bias,mat_info[i], point_lights, lightintensity);
     } else if (type == 7) {
       shader = new PhongShaderTangent(Model, Projection, View, viewport,
                                       glm::normalize(light_dir),
                                       shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                      shadow_map_bias,mat_info[i], point_lights, lightintensity, double_sided);
+                                      shadow_map_bias,mat_info[i], point_lights, lightintensity);
     } else if (type == 8) {
-      shader = new ColorShader(Model, Projection, View, viewport,mat_info[i], double_sided);
+      shader = new ColorShader(Model, Projection, View, viewport,mat_info[i]);
     } else {
       throw std::runtime_error("shader not recognized");
     }
@@ -376,7 +379,8 @@ List rasterize(List mesh,
     false,
     false,
     false,
-    false
+    false,
+    1
   };
   
   mat_info.push_back(default_mat);
@@ -386,19 +390,19 @@ List rasterize(List mesh,
     shaders.push_back(new GouraudShader(Model, Projection, View, viewport,
                                glm::normalize(light_dir), 
                                shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                               shadow_map_bias,default_mat, point_lights, lightintensity, double_sided));
+                               shadow_map_bias,default_mat, point_lights, lightintensity));
   } else if (typevals(0) == 2 || typevals(0) == 4 || typevals(0) == 5) {
     shaders.push_back(new DiffuseShader(Model, Projection, View, viewport,
                                glm::normalize(light_dir), 
                                shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                               shadow_map_bias,default_mat, point_lights, lightintensity, double_sided));
+                               shadow_map_bias,default_mat, point_lights, lightintensity));
   } else if (typevals(0) == 3 || typevals(0) == 6 || typevals(0) == 7) {
     shaders.push_back(new PhongShader(Model, Projection, View, viewport,
                              glm::normalize(light_dir), 
                              shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                             shadow_map_bias,default_mat, point_lights, lightintensity, double_sided));
+                             shadow_map_bias,default_mat, point_lights, lightintensity));
   } else if (typevals(0) == 8) {
-    shaders.push_back(new ColorShader(Model, Projection, View, viewport,default_mat, double_sided));
+    shaders.push_back(new ColorShader(Model, Projection, View, viewport,default_mat));
   }
   
   
@@ -418,6 +422,8 @@ List rasterize(List mesh,
   NumericMatrix mesh_verts = as<NumericMatrix>(mesh["vertices"]);
   NumericMatrix mesh_texcoords = as<NumericMatrix>(mesh["texcoords"]);
   NumericMatrix mesh_normals = as<NumericMatrix>(mesh["normals"]);
+  
+  
   
   for(int i = 0; i < number_shapes; i++) {
     List single_shape = as<List>(shapes(i));
@@ -575,7 +581,7 @@ List rasterize(List mesh,
     auto task = [&depthshaders, &blocks_depth, &ndc_verts_depth, &ndc_inv_w_depth,  
                  &min_block_bound_depth, &max_block_bound_depth,
                  &zbuffer_depth, &shadowbuffer, &normalbuffer, &positionbuffer, &uvbuffer, 
-                 &models, culling, &alpha_depths] (unsigned int i) {
+                 &models, &alpha_depths] (unsigned int i) {
       fill_tri_blocks(blocks_depth[i],
                       ndc_verts_depth,
                       ndc_inv_w_depth,
@@ -587,7 +593,7 @@ List rasterize(List mesh,
                       normalbuffer,
                       positionbuffer,
                       uvbuffer,
-                      models, true, culling,
+                      models, true,
                       alpha_depths);
     };
     
@@ -653,7 +659,7 @@ List rasterize(List mesh,
 
   auto task = [&shaders, &models, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
                &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer, 
-               &alpha_depths, culling] (unsigned int i) {
+               &alpha_depths] (unsigned int i) {
     fill_tri_blocks(blocks[i],
                     ndc_verts,
                     ndc_inv_w,
@@ -665,7 +671,7 @@ List rasterize(List mesh,
                     normalbuffer,
                     positionbuffer,
                     uvbuffer,
-                    models, false, culling,
+                    models, false, //culling,
                     alpha_depths);
   };
 

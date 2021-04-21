@@ -120,7 +120,10 @@ set_material = function(mesh, exponent=32,
                         specular_texture_location = "",
                         ambient_texture_location  = "",
                         emissive_texture_location = "",
-                        diffuse_intensity = 1, specular_intensity = 0.6, emission_intensity = 1) {
+                        diffuse_intensity = 1, specular_intensity = 0.6, emission_intensity = 1,
+                        culling = "back") {
+  culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
+  
   if(!is.null(mesh$materials) && length(mesh$materials) > 0) {
     for(i in seq_len(length(mesh$materials))) {
       mesh$materials[[i]] = list()
@@ -138,6 +141,7 @@ set_material = function(mesh, exponent=32,
       mesh$materials[[i]]$emissive_texname = emissive_texture_location 
       mesh$materials[[i]]$specular_texname = specular_texture_location 
       mesh$materials[[i]]$normal_texname   = normal_texture_location   
+      mesh$materials[[i]]$culling          = culling   
     }
     for(i in seq_len(length(mesh$shapes))) {
       mesh$shapes[[i]]$material_ids = rep(0,nrow(mesh$shapes[[i]]$indices))
@@ -160,6 +164,8 @@ set_material = function(mesh, exponent=32,
     mesh$materials[[1]]$emissive_texname = emissive_texture_location 
     mesh$materials[[1]]$specular_texname = specular_texture_location 
     mesh$materials[[1]]$normal_texname   = normal_texture_location   
+    mesh$materials[[1]]$culling          = culling   
+    
   }
   return(mesh)
 }

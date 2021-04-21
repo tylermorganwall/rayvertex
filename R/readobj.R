@@ -13,6 +13,9 @@
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
 read_obj = function(filename, materialspath = NULL) {
   filename = path.expand(filename)
+  if(!file.exists(filename)) {
+    stop(sprintf("file `%s` does not exist", filename))
+  }
   if(is.null(materialspath)) {
     dir = dirname(filename)
   } else {

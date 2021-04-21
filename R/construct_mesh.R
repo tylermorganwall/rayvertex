@@ -101,6 +101,7 @@ construct_mesh  = function(vertices, indices,
     mesh$materials[[1]]$emissive_texname = emissive_texture_location 
     mesh$materials[[1]]$specular_texname = specular_texture_location 
     mesh$materials[[1]]$normal_texname   = normal_texture_location   
+    mesh$materials[[1]]$culling          = 1 #1 = back, 2 = front, 3 = none
   } else {
     for(i in seq_len(length(materials))) {
       mesh$materials[[i]] = list()
@@ -118,6 +119,7 @@ construct_mesh  = function(vertices, indices,
       mesh$materials[[i]]$emissive_texname = materials[[i]]$emissive_texture_location 
       mesh$materials[[i]]$specular_texname = materials[[i]]$specular_texture_location 
       mesh$materials[[i]]$normal_texname   = materials[[i]]$normal_texture_location   
+      mesh$materials[[i]]$culling          = 1 #1 = back, 2 = front, 3 = none
     }
   }
   return(mesh)

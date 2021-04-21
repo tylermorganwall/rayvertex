@@ -12,7 +12,7 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                      rayimage& position_buffer,
                      rayimage& uv_buffer,
                      std::vector<ModelInfo> &models,
-                     bool depth, int culling, 
+                     bool depth, 
                      std::vector<std::map<float, alpha_info> >& alpha_depths) {
   int nx = image.width();
   int ny = image.height();
@@ -29,6 +29,12 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
       float v1_ndc_inv_w = ndc_inv_w[model_num][0][face];
       float v2_ndc_inv_w = ndc_inv_w[model_num][1][face];
       float v3_ndc_inv_w = ndc_inv_w[model_num][2][face];
+      
+      
+      int mat_num = shp.materials[face] >= 0 && shp.materials[face] < shaders.size() ? 
+        shp.materials[face] : shaders.size()-1;
+      
+      int culling = shaders[mat_num]->get_culling();
     
       bool not_culled = culling == 1 ? cross(v2-v1, v3-v2).z > 0 :
         culling == 2 ? cross(v2-v1, v3-v2).z < 0 : true;
@@ -92,8 +98,6 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
               float z = v1.z * bc.x + v2.z * bc.y + v3.z * bc.z;
               if(z > zbuffer(i,j)) continue;
               
-              int mat_num = shp.materials[face] >= 0 && shp.materials[face] < shaders.size() ? 
-              shp.materials[face] : shaders.size()-1;
               bool discard = shaders[mat_num]->fragment(bc_clip, color, position, normal, face);
               if(!discard) {
                 if (depth) {

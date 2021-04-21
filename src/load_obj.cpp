@@ -69,6 +69,7 @@ List load_obj(std::string inputfile, std::string basedir) {
   }
   for(unsigned int i=0; i < materials.size(); i++) {
     tinyobj::material_t m = materials[i];
+    int culltype = m.dissolve < 1.0 ? 3 : 1; //no culling if at all transparent
     material_list[m.name] = List::create(Named("ambient", NumericVector::create(m.ambient[0], m.ambient[1], m.ambient[2])),
                                          Named("diffuse", NumericVector::create(m.diffuse[0], m.diffuse[1], m.diffuse[2])),
                                          Named("specular", NumericVector::create(m.specular[0], m.specular[1], m.specular[2])),
@@ -82,7 +83,8 @@ List load_obj(std::string inputfile, std::string basedir) {
                                          Named("diffuse_texname", m.diffuse_texname),
                                          Named("emissive_texname", m.emissive_texname),
                                          Named("specular_texname", m.specular_texname), 
-                                         Named("normal_texname", m.normal_texname));
+                                         Named("normal_texname", m.normal_texname),
+                                         Named("culling", culltype));
   }
   List return_val;
   return_val["shapes"]    = shape_list;
