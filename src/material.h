@@ -3,27 +3,28 @@
 
 #include "glm.hpp"
 #include "Rcpp.h"
+#include "defines.h"
 
 
 struct material_info {
-  glm::vec3 ambient;
-  glm::vec3 diffuse;
-  glm::vec3 specular;
-  glm::vec3 transmittance;  
-  glm::vec3 emission;
-  float shininess;
-  float ior; 
-  float dissolve;    
-  float illum;
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
+  vec3 transmittance;  
+  vec3 emission;
+  Float shininess;
+  Float ior; 
+  Float dissolve;    
+  Float illum;
   Rcpp::String ambient_texname; 
   Rcpp::String diffuse_texname; 
   Rcpp::String specular_texname;  
   Rcpp::String normal_texname;
   Rcpp::String emissive_texname;
   int max_indices;
-  float emission_intensity;
-  float diffuse_intensity;
-  float specular_intensity;
+  Float emission_intensity;
+  Float diffuse_intensity;
+  Float specular_intensity;
   bool has_normals;
   bool has_tex;
   bool has_texture;

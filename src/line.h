@@ -5,15 +5,16 @@
 #include "glm.hpp"
 #include "rayimage.h"
 #include "alphainfo.h"
+#include "defines.h"
 
-void aa_line(std::vector<glm::vec3>& line_mat,
+void aa_line(std::vector<vec3>& line_mat,
              Rcpp::NumericMatrix &zbuffer,
-             std::vector<std::map<float, alpha_info> >& alpha_depths,
-             glm::vec3 color, float alpha_line, float line_offset);
+             std::vector<std::map<Float, alpha_info> >& alpha_depths,
+             vec3 color, Float alpha_line, Float line_offset);
 
-void noaa_line(std::vector<glm::vec3>& line_mat,
+void noaa_line(std::vector<vec3>& line_mat,
                Rcpp::NumericMatrix& zbuffer,
-               std::vector<std::map<float, alpha_info> >& alpha_depths,
-               glm::vec3& color, float alpha_line);
+               std::vector<std::map<Float, alpha_info> >& alpha_depths,
+               vec3& color, Float alpha_line);
 
 #endif

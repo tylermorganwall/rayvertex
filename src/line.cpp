@@ -1,15 +1,15 @@
 #include "line.h" 
 
-void aa_line(std::vector<glm::vec3>& line_mat,
+void aa_line(std::vector<vec3>& line_mat,
              Rcpp::NumericMatrix &zbuffer,
-             std::vector<std::map<float, alpha_info> >& alpha_depths,
-             glm::vec3 color, float alpha_line, float line_offset) {
-  auto ipart = [](float x) -> int {return int(std::floor(x));};
-  auto round = [](float x) -> float {return std::round(x);};
-  auto fpart = [](float x) -> float {return x - std::floor(x);};
-  auto rfpart = [=](float x) -> float {return 1 - fpart(x);};
+             std::vector<std::map<Float, alpha_info> >& alpha_depths,
+             vec3 color, Float alpha_line, Float line_offset) {
+  auto ipart = [](Float x) -> int {return int(std::floor(x));};
+  auto round = [](Float x) -> Float {return std::round(x);};
+  auto fpart = [](Float x) -> Float {return x - std::floor(x);};
+  auto rfpart = [=](Float x) -> Float {return 1 - fpart(x);};
   
-  float x0, y0, z0, x1, y1, z1;
+  Float x0, y0, z0, x1, y1, z1;
   int nx = zbuffer.nrow();
   int ny = zbuffer.ncol();
   
@@ -33,21 +33,21 @@ void aa_line(std::vector<glm::vec3>& line_mat,
       std::swap(z0,z1);
     }
     
-    const float dx = x1 - x0;
-    const float dy = y1 - y0;
-    const float gradient = (dx == 0) ? 1 : dy/dx;
+    const Float dx = x1 - x0;
+    const Float dy = y1 - y0;
+    const Float gradient = (dx == 0) ? 1 : dy/dx;
     
-    float offset = line_offset;
+    Float offset = line_offset;
     //zbuffer
-    float dz = z1-z0; 
-    float zcurrent = z0;
-    float z;
+    Float dz = z1-z0; 
+    Float zcurrent = z0;
+    Float z;
     int xpx11;
-    float intery;
+    Float intery;
     {
-      const float xend = round(x0);
-      const float yend = y0 + gradient * (xend - x0);
-      const float xgap = rfpart(x0 + 0.5);
+      const Float xend = round(x0);
+      const Float yend = y0 + gradient * (xend - x0);
+      const Float xgap = rfpart(x0 + 0.5);
       xpx11 = int(xend);
       const int ypx11 = ipart(yend);
       if (steep) {
@@ -93,9 +93,9 @@ void aa_line(std::vector<glm::vec3>& line_mat,
     
     int xpx12;
     {
-      const float xend = round(x1);
-      const float yend = y1 + gradient * (xend - x1);
-      const float xgap = rfpart(x1 + 0.5);
+      const Float xend = round(x1);
+      const Float yend = y1 + gradient * (xend - x1);
+      const Float xgap = rfpart(x1 + 0.5);
       xpx12 = int(xend);
       const int ypx12 = ipart(yend);
       if (steep) {
@@ -137,12 +137,12 @@ void aa_line(std::vector<glm::vec3>& line_mat,
         }
       }
     }
-    float intery0 = intery;
+    Float intery0 = intery;
 
     int iy;
-    float zsteps = xpx12-(xpx11 + 1);
-    float zstep = dz/zsteps;
-    float counter = 0;
+    Float zsteps = xpx12-(xpx11 + 1);
+    Float zstep = dz/zsteps;
+    Float counter = 0;
 
     if (steep) {
       for (int x = xpx11 + 1; x < xpx12; x++) {
@@ -198,12 +198,12 @@ void aa_line(std::vector<glm::vec3>& line_mat,
 }
 
 //This takes NDC values
-void noaa_line(std::vector<glm::vec3>& line_mat,
+void noaa_line(std::vector<vec3>& line_mat,
                Rcpp::NumericMatrix &zbuffer,
-               std::vector<std::map<float, alpha_info> >& alpha_depths,
-               glm::vec3& color, float alpha_line) { 
+               std::vector<std::map<Float, alpha_info> >& alpha_depths,
+               vec3& color, Float alpha_line) { 
   int x0, y0, x1, y1;
-  float z0, z1;
+  Float z0, z1;
   int nx = zbuffer.nrow();
   int ny = zbuffer.ncol();
   
@@ -230,13 +230,13 @@ void noaa_line(std::vector<glm::vec3>& line_mat,
     } 
     int dx = x1-x0; 
     int dy = y1-y0; 
-    float dz = z1-z0; 
-    float zcurrent = z0;
+    Float dz = z1-z0; 
+    Float zcurrent = z0;
   
     int derror2 = std::abs(dy)*2; 
     int error2 = 0; 
     int y = y0; 
-    float zsteps = 0;
+    Float zsteps = 0;
     for (int x=x0; x<=x1; x++) { 
       error2 += derror2; 
       if (error2 > dx) { 
@@ -245,12 +245,12 @@ void noaa_line(std::vector<glm::vec3>& line_mat,
       } 
       zsteps++;
     } 
-    float zstep = dz/zsteps;
-    float z;
+    Float zstep = dz/zsteps;
+    Float z;
     derror2 = std::abs(dy)*2; 
     error2 = 0; 
     y = y0; 
-    float counter = 0;
+    Float counter = 0;
     for (int x=x0; x<=x1; x++) { 
       if (steep) { 
         if(y < nx && y >= 0 && x < ny && x >= 0) { 

@@ -210,6 +210,13 @@ rasterize_mesh  = function(mesh, indices = NULL, texcoords = NULL, normals = NUL
     }
   }
   tonemap = switch(tonemap, "gamma" = 1, "uncharted" = 2, "hbd" = 3, "none"=4, 1)
+  
+  is_dir_light = rep(TRUE, nrow(lightinfo))
+  for(i in seq_len(nrow(lightinfo))) {
+    if(any(lightinfo[i,7:9] != 0)) {
+      is_dir_light[i] = FALSE
+    }
+  }
   imagelist = rasterize(obj,
                         lightinfo,
                         line_mat=line_info,
@@ -246,7 +253,7 @@ rasterize_mesh  = function(mesh, indices = NULL, texcoords = NULL, normals = NUL
                         shadow_map_intensity,
                         bounds, shadow_map_dims, camera_up,light_intensity, culling, 
                         alpha_line, line_offset,
-                        ortho_dims)
+                        ortho_dims, is_dir_light)
   if(ssao) {
     imagelist$amb = (imagelist$amb)^ssao_intensity
     imagelist$r = imagelist$r * imagelist$amb

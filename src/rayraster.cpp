@@ -5,6 +5,13 @@
 
 #include "Rcpp.h"
 
+#define FLOAT_AS_DOUBLE
+// #ifndef FLOAT_AS_DOUBLE
+// typedef float Float;
+// #else 
+// typedef double Float;
+// #endif
+
 #include <functional>
 #include <algorithm>
 #include <utility>
@@ -12,6 +19,8 @@
 #include <memory>
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
+#include "defines.h"
+#include "filltri.h"
 
 #include "shaders.h"
 #include "rayimage.h"
@@ -22,13 +31,17 @@
 
 #include "material.h"
 
-#include "filltri.h"
 #include "light.h"
 #include "line.h"
 
+// typedef glm::dvec4 vec4;
+// typedef glm::dvec3 vec3;
+// typedef glm::dvec2 vec2;
+// typedef glm::dmat4x4 Mat;
+
 using namespace Rcpp;
 
-inline vec3 clamp(const vec3& c, float clamplow, float clamphigh) {
+inline vec3 clamp(const vec3& c, Float clamplow, Float clamphigh) {
   vec3 temp = c;
   if(c[0] > clamphigh) {
     temp[0] = clamphigh;
@@ -48,7 +61,7 @@ inline vec3 clamp(const vec3& c, float clamplow, float clamphigh) {
   return(temp);
 }
 
-inline vec4 clamp(const vec4& c, float clamplow, float clamphigh) {
+inline vec4 clamp(const vec4& c, Float clamplow, Float clamphigh) {
   vec4 temp = c;
   if(c[0] > clamphigh) {
     temp[0] = clamphigh;
@@ -74,7 +87,7 @@ inline vec4 clamp(const vec4& c, float clamplow, float clamphigh) {
 }
 
 template<class T>
-inline T lerp(float t, T v1, T v2) {
+inline T lerp(Float t, T v1, T v2) {
   return((1-t) * v1 + t * v2);
 }
 
@@ -95,19 +108,19 @@ List rasterize(List mesh,
                NumericVector model_color,
                NumericVector lookfrom,
                NumericVector lookat,
-               float fov,
+               double fov,
                NumericVector light_direction,
                NumericVector ambient_color, 
-               float exponent, 
-               float specular_intensity, 
-               float diffuse_intensity, 
-               float emission_intensity,
+               double exponent, 
+               double specular_intensity, 
+               double diffuse_intensity, 
+               double emission_intensity,
                IntegerVector typevals,
                bool has_shadow_map,
                bool calc_ambient, 
                bool tbn,
-               float ambient_radius,
-               float shadow_map_bias,
+               double ambient_radius,
+               double shadow_map_bias,
                int numbercores,
                int max_indices,
                LogicalVector has_normals_vec,
@@ -120,16 +133,16 @@ List rasterize(List mesh,
                int block_size,
                bool use_default_material,
                bool override_exponent,
-               float near_clip,
-               float  far_clip,
-               float shadow_map_intensity,
+               double near_clip,
+               double  far_clip,
+               double shadow_map_intensity,
                NumericVector bounds,
                IntegerVector shadowdims,
                NumericVector camera_up,
-               float lightintensity, int culling, 
-               float alpha_line, float line_offset,
-               NumericVector ortho_dims) {
-  //Convert R vectors to glm::vec3
+               double lightintensity, int culling, 
+               double alpha_line, double line_offset,
+               NumericVector ortho_dims, LogicalVector is_dir_light) {
+  //Convert R vectors to vec3
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
   vec3 center(lookat(0),lookat(1),lookat(2));    //lookat
   vec3 cam_up = vec3(camera_up(0),camera_up(1),camera_up(2));
@@ -139,24 +152,25 @@ List rasterize(List mesh,
  
   //Account for colinear camera direction/cam_up vectors
   if(glm::length(glm::cross(eye-center,cam_up)) == 0) {
-    cam_up = vec3(0.f,0.f,1.0f);
+    cam_up = vec3(0.,0.,1.f);
   }
   
   //Turn off gamma correction or get seams in textures/normal maps
-  stbi_ldr_to_hdr_gamma(1.0f);
+  stbi_ldr_to_hdr_gamma(1.0);
     
   //Generate MVP matrices
   Mat View       = glm::lookAt(eye, center, cam_up);
-  Mat Model      = glm::translate(Mat(1.0f), vec3(0.0f, 0.0f, 0.0f));
-  Mat Projection = fov != 0.0 ? glm::perspective(glm::radians(fov), 
-                                    (float)nx / (float)ny, 
-                                    near_clip, 
-                                    far_clip) :
-    glm::ortho(-(float)ortho_dims(0)/2, (float)ortho_dims(0)/2, -(float)ortho_dims(1)/2, (float)ortho_dims(1)/2);
-  vec4 viewport(0.0f, 0.0f, (float)nx-1, (float)ny-1);
-  vec4 viewport_depth(0.0f, 0.0f, (float)shadowdims(0)-1, (float)shadowdims(1)-1);
+  Mat Model      = glm::translate(Mat(1.0), vec3(0.0, 0.0, 0.0));
+  Mat Projection = fov != 0.0 ? glm::perspective(glm::radians((Float)fov), 
+                                    (Float)nx / (Float)ny, 
+                                    (Float)near_clip, 
+                                    (Float)far_clip) :
+    glm::ortho(-(Float)ortho_dims(0)/2, (Float)ortho_dims(0)/2, -(Float)ortho_dims(1)/2, (Float)ortho_dims(1)/2);
+  vec4 viewport(0.0f, 0.0f, (Float)nx-1, (Float)ny-1);
+  vec4 viewport_depth(0.0f, 0.0f, (Float)shadowdims(0)-1, (Float)shadowdims(1)-1);
   int nx_d = shadowdims(0);
   int ny_d = shadowdims(1);
+
   
   Mat vp = glm::scale(glm::translate(Mat(1.0f),
                       vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)),
@@ -207,13 +221,13 @@ List rasterize(List mesh,
   rayimage uvbuffer(uvxbuffer,uvybuffer,uvzbuffer,nx,ny);
   
   //Initialize zbuffer
-  std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<float>::infinity() ) ;
-  std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<float>::infinity() ) ;
+  std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<Float>::infinity() ) ;
+  std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<Float>::infinity() ) ;
   
   //Initialize Shadow Map bounds and orientation
   //If changed to 0.1-100.0 doesn't work anymore
-  float near_plane = 1.0f, far_plane = 10.0f;
-  // float near_plane = 0.1f, far_plane = 100.0f;
+  Float near_plane = 0.1f, far_plane = 10.0f;
+  // Float near_plane = 0.1f, far_plane = 100.0f;
   
   vec3 light_up = vec3(0.,1.,0.);
   if(glm::length(glm::cross(light_up,light_dir)) == 0) {
@@ -222,17 +236,18 @@ List rasterize(List mesh,
   
   vec3 sceneboundmin = vec3(bounds(0),bounds(1),bounds(2));
   vec3 sceneboundmax = vec3(bounds(3),bounds(4),bounds(5));
-  float scene_diag = glm::length(sceneboundmax-sceneboundmin)+0.5;
-  vec3 scene_center = (sceneboundmax+sceneboundmin)/2.0f;
+  Float scene_diag = glm::length(sceneboundmax-sceneboundmin)+0.5;
+  vec3 scene_center = (sceneboundmax+sceneboundmin)/(Float)2.0;
   
-  glm::mat4 lightProjection = glm::ortho(-scene_diag/2, scene_diag/2, -scene_diag/2, scene_diag/2, 
+  Mat lightProjection = glm::ortho(-scene_diag/2, scene_diag/2, -scene_diag/2, scene_diag/2, 
                                          near_plane, far_plane);
-  glm::mat4 lightView = glm::lookAt(scene_center + light_dir * scene_diag,
+  Mat lightView = glm::lookAt(scene_center + light_dir * scene_diag,
                                     scene_center,
                                     light_up);
 
   Mat M = vp_shadow * lightProjection * lightView * Model;
-  Mat uniform_Mshadow_ = M * glm::inverse(vp * Projection * View * Model);
+  Mat shadow_inv = glm::inverse(vp * Projection * View * Model);
+  Mat uniform_Mshadow_ = M * shadow_inv;
   
   std::vector<Light> point_lights;
   for(int i = 0; i < lightinfo.nrow(); i++) {
@@ -240,6 +255,22 @@ List rasterize(List mesh,
     point_lights.push_back(Light(light_position,
                                  vec3(lightinfo(i,3),lightinfo(i,4),lightinfo(i,5)),
                                  lightinfo(i,6),lightinfo(i,7),lightinfo(i,8)));
+  }
+  
+  std::vector<DirectionalLight> directional_lights;
+  for(int i = 0; i < is_dir_light.length(); i++) {
+    if(is_dir_light(i)) {
+      vec3 light_up_dir = vec3(0.,1.,0.);
+      if(glm::length(glm::cross(light_up,light_up_dir)) == 0) {
+        light_up_dir = vec3(0.f,0.f,1.0f);
+      }
+      vec3 light_dir_temp = glm::normalize(vec3(View * Model * vec4(lightinfo(i,0),lightinfo(i,1),lightinfo(i,2),0.0)));
+      directional_lights.push_back(DirectionalLight(light_dir_temp,
+                                                    vec3(lightinfo(i,3),lightinfo(i,4),lightinfo(i,5)),
+                                                    scene_center, light_up_dir, scene_diag,
+                                                    near_plane, far_plane, 
+                                                    vp_shadow, Model, shadow_inv));
+    }
   }
   
   ///
@@ -260,10 +291,10 @@ List rasterize(List mesh,
     NumericVector specular = as<NumericVector>(single_material["specular"]);
     NumericVector transmittance = as<NumericVector>(single_material["transmittance"]);
     NumericVector emission = as<NumericVector>(single_material["emission"]);
-    float shininess = !override_exponent ? as<float>(single_material["shininess"]) : exponent;
-    float ior = as<float>(single_material["ior"]);
-    float dissolve = as<float>(single_material["dissolve"]);
-    float illum = as<float>(single_material["illum"]);
+    Float shininess = !override_exponent ? as<Float>(single_material["shininess"]) : exponent;
+    Float ior = as<Float>(single_material["ior"]);
+    Float dissolve = as<Float>(single_material["dissolve"]);
+    Float illum = as<Float>(single_material["illum"]);
     String ambient_texname = as<String>(single_material["ambient_texname"]);
     String diffuse_texname = as<String>(single_material["diffuse_texname"]);
     String specular_texname = as<String>(single_material["specular_texname"]);
@@ -297,9 +328,9 @@ List rasterize(List mesh,
       normal_texname,
       emissive_texname,
       max_indices,
-      emission_intensity,
-      diffuse_intensity,
-      specular_intensity,
+      (Float)emission_intensity,
+      (Float)diffuse_intensity,
+      (Float)specular_intensity,
       true, //THIS SHOULD BE FIXED, but isn't currently used -- has_norms
       true, //THIS SHOULD BE FIXED, but isn't currently used -- has_tex
       has_texture_single,
@@ -317,37 +348,44 @@ List rasterize(List mesh,
       shader = new GouraudShader(Model, Projection, View, viewport,
                                  glm::normalize(light_dir), 
                                  shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                 shadow_map_bias,mat_info[i], point_lights, lightintensity);
+                                 shadow_map_bias,mat_info[i], point_lights, lightintensity,
+                                 directional_lights);
     } else if (type == 2) {
       shader = new DiffuseShader(Model, Projection, View, viewport,
                                  glm::normalize(light_dir), 
                                  shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                 shadow_map_bias,mat_info[i], point_lights, lightintensity);
+                                 shadow_map_bias,mat_info[i], point_lights, lightintensity,
+                                 directional_lights);
     } else if (type == 3) {
       shader = new PhongShader(Model, Projection, View, viewport,
                                glm::normalize(light_dir), 
                                shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                               shadow_map_bias,mat_info[i], point_lights, lightintensity);
+                               shadow_map_bias,mat_info[i], point_lights, lightintensity,
+                               directional_lights);
     } else if (type == 4) {
       shader = new DiffuseNormalShader(Model, Projection, View, viewport,
                                        glm::normalize(light_dir), 
                                        shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                       shadow_map_bias,mat_info[i], point_lights, lightintensity);
+                                       shadow_map_bias,mat_info[i], point_lights, lightintensity,
+                                       directional_lights);
     } else if (type == 5) {
       shader = new DiffuseShaderTangent(Model, Projection, View, viewport,
                                         glm::normalize(light_dir), 
                                         shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                        shadow_map_bias,mat_info[i], point_lights, lightintensity);
+                                        shadow_map_bias,mat_info[i], point_lights, lightintensity,
+                                        directional_lights);
     } else if (type == 6) {
       shader = new PhongNormalShader(Model, Projection, View, viewport,
                                      glm::normalize(light_dir), 
                                      shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                     shadow_map_bias,mat_info[i], point_lights, lightintensity);
+                                     shadow_map_bias,mat_info[i], point_lights, lightintensity,
+                                     directional_lights);
     } else if (type == 7) {
       shader = new PhongShaderTangent(Model, Projection, View, viewport,
                                       glm::normalize(light_dir),
                                       shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                                      shadow_map_bias,mat_info[i], point_lights, lightintensity);
+                                      shadow_map_bias,mat_info[i], point_lights, lightintensity,
+                                      directional_lights);
     } else if (type == 8) {
       shader = new ColorShader(Model, Projection, View, viewport,mat_info[i]);
     } else {
@@ -364,15 +402,15 @@ List rasterize(List mesh,
     vec3(1.0),
     vec3(0.0),
     vec3(0.0),
-    exponent,
+    (Float)exponent,
     1.0,
     0.0,
     0.0,
     fill,fill,fill,fill,fill,
     max_indices,              //Maybe an issue?
-    emission_intensity,
-    diffuse_intensity,
-    specular_intensity,
+    (Float)emission_intensity,
+    (Float)diffuse_intensity,
+    (Float)specular_intensity,
     true, //THIS SHOULD BE FIXED, but isn't currently used -- has_norms
     true, //THIS SHOULD BE FIXED, but isn't currently used -- has_tex
     false,
@@ -390,17 +428,20 @@ List rasterize(List mesh,
     shaders.push_back(new GouraudShader(Model, Projection, View, viewport,
                                glm::normalize(light_dir), 
                                shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                               shadow_map_bias,default_mat, point_lights, lightintensity));
+                               shadow_map_bias,default_mat, point_lights, lightintensity,
+                               directional_lights));
   } else if (typevals(0) == 2 || typevals(0) == 4 || typevals(0) == 5) {
     shaders.push_back(new DiffuseShader(Model, Projection, View, viewport,
                                glm::normalize(light_dir), 
                                shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                               shadow_map_bias,default_mat, point_lights, lightintensity));
+                               shadow_map_bias,default_mat, point_lights, lightintensity,
+                               directional_lights));
   } else if (typevals(0) == 3 || typevals(0) == 6 || typevals(0) == 7) {
     shaders.push_back(new PhongShader(Model, Projection, View, viewport,
                              glm::normalize(light_dir), 
                              shadowbuffer, uniform_Mshadow_, has_shadow_map,
-                             shadow_map_bias,default_mat, point_lights, lightintensity));
+                             shadow_map_bias,default_mat, point_lights, lightintensity,
+                             directional_lights));
   } else if (typevals(0) == 8) {
     shaders.push_back(new ColorShader(Model, Projection, View, viewport,default_mat));
   }
@@ -413,9 +454,9 @@ List rasterize(List mesh,
 
   //Initialize vertex storage vectors
   std::vector<std::vector<std::vector<vec4>  > > ndc_verts;
-  std::vector<std::vector<std::vector<float> > > ndc_inv_w;
+  std::vector<std::vector<std::vector<Float> > > ndc_inv_w;
   std::vector<std::vector<std::vector<vec4>  > > ndc_verts_depth;
-  std::vector<std::vector<std::vector<float> > > ndc_inv_w_depth;
+  std::vector<std::vector<std::vector<Float> > > ndc_inv_w_depth;
   
   //Fill vectors for each shape in the model
   //order: [model_num][triangle vertex][face]
@@ -435,10 +476,10 @@ List rasterize(List mesh,
     int n = shape_inds.nrow();
     
     ndc_verts.push_back(std::vector<std::vector<vec4>  >(3, std::vector<vec4>(n)));
-    ndc_inv_w.push_back(std::vector<std::vector<float> >(3, std::vector<float>(n)));
+    ndc_inv_w.push_back(std::vector<std::vector<Float> >(3, std::vector<Float>(n)));
     if(has_shadow_map) {
       ndc_verts_depth.push_back(std::vector<std::vector<vec4>  >(3, std::vector<vec4>(n)));
-      ndc_inv_w_depth.push_back(std::vector<std::vector<float> >(3, std::vector<float>(n)));
+      ndc_inv_w_depth.push_back(std::vector<std::vector<Float> >(3, std::vector<Float>(n)));
     }
     
     //Create model object
@@ -450,7 +491,7 @@ List rasterize(List mesh,
   }
   
   //For alpha transparency
-  std::vector<std::map<float, alpha_info> > alpha_depths(nx*ny);
+  std::vector<std::map<Float, alpha_info> > alpha_depths(nx*ny);
   
   //Set up blocks
   int blocksize = block_size;
@@ -460,8 +501,8 @@ List rasterize(List mesh,
   
   std::vector<vec2> min_block_bound;
   std::vector<vec2> max_block_bound;
-  int nx_blocks = ceil((float)nx/(float)blocksize);
-  int ny_blocks = ceil((float)ny/(float)blocksize);
+  int nx_blocks = ceil((Float)nx/(Float)blocksize);
+  int ny_blocks = ceil((Float)ny/(Float)blocksize);
   
   std::vector<std::vector<int> > single_model_blocks;
 
@@ -494,8 +535,8 @@ List rasterize(List mesh,
   
   std::vector<vec2> min_block_bound_depth;
   std::vector<vec2> max_block_bound_depth;
-  int nx_blocks_depth = ceil((float)nx_d/(float)blocksize);
-  int ny_blocks_depth = ceil((float)ny_d/(float)blocksize);
+  int nx_blocks_depth = ceil((Float)nx_d/(Float)blocksize);
+  int ny_blocks_depth = ceil((Float)ny_d/(Float)blocksize);
   
   std::vector<std::vector<int> > single_model_blocks_depth;
   
@@ -563,10 +604,10 @@ List rasterize(List mesh,
                                fmax(v1.y,fmax(v2.y,v3.y)),
                                fmax(v1.z,fmax(v2.z,v3.z)));
         
-        int min_x_block = std::fmax(floor(min_bounds.x / (float)blocksize), 0);
-        int min_y_block = std::fmax(floor(min_bounds.y / (float)blocksize), 0);
-        int max_x_block = std::fmin(ceil(max_bounds.x  / (float)blocksize), nx_blocks_depth);
-        int max_y_block = std::fmin(ceil(max_bounds.y  / (float)blocksize), ny_blocks_depth);
+        int min_x_block = std::fmax(floor(min_bounds.x / (Float)blocksize), 0);
+        int min_y_block = std::fmax(floor(min_bounds.y / (Float)blocksize), 0);
+        int max_x_block = std::fmin(ceil(max_bounds.x  / (Float)blocksize), nx_blocks_depth);
+        int max_y_block = std::fmin(ceil(max_bounds.y  / (Float)blocksize), ny_blocks_depth);
         if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks_depth && min_y_block < ny_blocks_depth) {
           for(int j = min_x_block; j < max_x_block; j++) {
             for(int k = min_y_block; k < max_y_block; k++) {
@@ -605,7 +646,7 @@ List rasterize(List mesh,
   }
 
   //Calculate Image
-  std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<float>::infinity() ) ;
+  std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<Float>::infinity() ) ;
   
   for(int model_num = 0; model_num < models.size(); model_num++ ) {
     ModelInfo &shp = models[model_num];
@@ -643,10 +684,10 @@ List rasterize(List mesh,
                              fmax(v1.y,fmax(v2.y,v3.y)),
                              fmax(v1.z,fmax(v2.z,v3.z)));
       
-      int min_x_block = std::fmax(floor(min_bounds.x / (float)blocksize), 0);
-      int min_y_block = std::fmax(floor(min_bounds.y / (float)blocksize), 0);
-      int max_x_block = std::fmin(ceil(max_bounds.x  / (float)blocksize), nx_blocks);
-      int max_y_block = std::fmin(ceil(max_bounds.y  / (float)blocksize), ny_blocks);
+      int min_x_block = std::fmax(floor(min_bounds.x / (Float)blocksize), 0);
+      int min_y_block = std::fmax(floor(min_bounds.y / (Float)blocksize), 0);
+      int max_x_block = std::fmin(ceil(max_bounds.x  / (Float)blocksize), nx_blocks);
+      int max_y_block = std::fmin(ceil(max_bounds.y  / (Float)blocksize), ny_blocks);
       if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks && min_y_block < ny_blocks) {
         for(int j = min_x_block; j < max_x_block; j++) {
           for(int k = min_y_block; k < max_y_block; k++) {
@@ -691,8 +732,8 @@ List rasterize(List mesh,
         spacefillr::sobol_owen_single(i,0,0) * 2.0f - 1.0f,
         spacefillr::sobol_owen_single(i,1,0) * 2.0f - 1.0f,
         spacefillr::sobol_owen_single(i,2,0)));
-      float scale = float(i) / float(kernelSize);
-      scale = lerp(0.1f, 1.0f, scale * scale);
+      Float scale = Float(i) / Float(kernelSize);
+      scale = lerp((Float)0.1, (Float)1.0, scale * scale);
       kernel[i] *= scale;
     }
 
@@ -718,24 +759,24 @@ List rasterize(List mesh,
         vec3 tangent = normalize(rvec - normal * dot(rvec, normal));
         vec3 bitangent = cross(normal, tangent);
         glm::mat3 tbn{tangent, bitangent, normal};
-        float occlusion = 0.0;
+        Float occlusion = 0.0;
         for (int i = 0; i < kernelSize; ++i) {
           // get sample position:
           vec3 sample = tbn * kernel[i];
-          sample = sample * ambient_radius + origin;
+          sample = sample * (Float)ambient_radius + origin;
           // project sample position:
           vec4 offset = vec4(sample, 1.0);
           offset = vp * Projection * offset;
           offset /= offset.w;
 
           if((int)offset.x >= 0 && (int)offset.x < nx && (int)offset.y >= 0 && (int)offset.y < ny) {
-            float sampleDepth = zzbuffer((int)offset.x, (int)offset.y);
+            Float sampleDepth = zzbuffer((int)offset.x, (int)offset.y);
             // range check & accumulate:
-            float rangeCheck= std::fabs(origin.z - sampleDepth) < ambient_radius ? 1.0 : 0.0;
+            Float rangeCheck= std::fabs(origin.z - sampleDepth) < (Float)ambient_radius ? 1.0 : 0.0;
             occlusion += (sampleDepth >= sample.z ? 1.0 : 0.0) * rangeCheck;
           }
         }
-        occlusion = 1.0 - (occlusion / (float)kernelSize);
+        occlusion = 1.0 - (occlusion / (Float)kernelSize);
         abuffer(x,y) = occlusion;
       }
     }
@@ -743,12 +784,12 @@ List rasterize(List mesh,
     for (int x = 0; x < nx; x++) {
       for (int y = 0; y < ny; y++) {
         int uBlurSize = 4;
-        float result = 0.0;
+        Float result = 0.0;
         int counter = 0;
-        vec2 hlim = vec2(float(-uBlurSize) * 0.5);
+        vec2 hlim = vec2(Float(-uBlurSize) * 0.5);
         for (int i = 0; i < uBlurSize; ++i) {
           for (int j = 0; j < uBlurSize; ++j) {
-            vec2 offset = (hlim + vec2((float)i,(float)j) + vec2(float(x), float(y)));
+            vec2 offset = (hlim + vec2((Float)i,(Float)j) + vec2(Float(x), Float(y)));
             if((int)offset.x >= 0 && (int)offset.x < nx && (int)offset.y >= 0 && (int)offset.y < ny) {
               result += abuffer_noblur((int)offset.x,(int)offset.y);
               counter++;
@@ -756,7 +797,7 @@ List rasterize(List mesh,
           }
         }
         if(counter > 0) {
-          abuffer(x,y) = result / float(counter);
+          abuffer(x,y) = result / Float(counter);
         }
       }
     }
@@ -778,7 +819,7 @@ List rasterize(List mesh,
   
   for(int i = 0; i < nx; i++) {
     for(int j = 0; j < ny; j++) {
-      for(std::map<float, alpha_info>::reverse_iterator it = alpha_depths[j + ny*i].rbegin();
+      for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depths[j + ny*i].rbegin();
           it != alpha_depths[j + ny*i].rend(); ++it) {
         // Rcpp::Rcout << it->first << " " << zbuffer(i,j) << " " << it->first - zbuffer(i,j) << "\n";
         if(it->first <= zbuffer(i,j)) {

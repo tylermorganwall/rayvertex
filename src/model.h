@@ -4,11 +4,12 @@
 #include "glm.hpp"
 #include "Rcpp.h"
 #include "rayimage.h"
+#include "defines.h"
 
-typedef glm::vec4 vec4;
-typedef glm::vec3 vec3;
-typedef glm::vec2 vec2;
-typedef glm::mat4x4 Mat;
+// typedef glm::vec4 vec4;
+// typedef vec3 vec3;
+// typedef glm::vec2 vec2;
+// typedef glm::dmat4x4 Mat;
 
 class ModelInfo {
   public:

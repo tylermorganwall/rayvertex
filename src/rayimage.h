@@ -3,20 +3,21 @@
 
 #include "glm.hpp"
 #include "Rcpp.h"
+#include "defines.h"
 
 
-typedef glm::vec4 vec4;
-typedef glm::vec3 vec3;
-typedef glm::vec2 vec2;
-typedef glm::mat4x4 Mat;
+// typedef glm::vec4 vec4;
+// typedef vec3 vec3;
+// typedef glm::vec2 vec2;
+// typedef glm::dmat4x4 Mat;
 
-vec4 trivalue(float uu, float vv,  float* data, 
+vec4 trivalue(Float uu, Float vv,  float* data, 
               int nx, int ny, int channels);
 
 class rayimage {
   public:
     rayimage(Rcpp::NumericMatrix &r_, Rcpp::NumericMatrix &g_, Rcpp::NumericMatrix &b_,
-             int nx, int ny, float shadow_map_intensity = 0.0f) : r(r_), g(g_), b(b_), nx(nx), ny(ny),
+             int nx, int ny, Float shadow_map_intensity = 0.0f) : r(r_), g(g_), b(b_), nx(nx), ny(ny),
              shadow_map_intensity(shadow_map_intensity) {};
     void set_color(int i, int j, vec3 col) {
       r(i,j) = col.r;
@@ -39,7 +40,7 @@ class rayimage {
     int height() {
       return(ny);
     }
-    float get_shadow_intensity() {
+    Float get_shadow_intensity() {
       return(shadow_map_intensity);
     }
   private:
@@ -47,7 +48,7 @@ class rayimage {
     Rcpp::NumericMatrix g; 
     Rcpp::NumericMatrix b;
     int nx, ny;
-    float shadow_map_intensity;
+    Float shadow_map_intensity;
 };
 
 

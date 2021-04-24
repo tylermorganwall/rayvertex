@@ -2,12 +2,13 @@
 #define ALPHAINFOH
 
 #include "glm.hpp"  
+#include "defines.h"
 
 struct alpha_info {
-  glm::vec4 color;
-  glm::vec3 normal;
-  glm::vec3 position;
-  glm::vec3 uv;
+  vec4 color;
+  vec3 normal;
+  vec3 position;
+  vec3 uv;
 };
 
 #endif

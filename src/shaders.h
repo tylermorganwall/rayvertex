@@ -7,14 +7,10 @@
 #include "gtc/matrix_access.hpp"
 #include "gtc/matrix_inverse.hpp"
 #include "light.h"
+#include "defines.h"
 
 #include "material.h"
 
-
-typedef glm::vec4 vec4;
-typedef glm::vec3 vec3;
-typedef glm::vec2 vec2;
-typedef glm::mat4x4 Mat;
 
 class IShader {
   public:
@@ -30,8 +26,9 @@ class GouraudShader : public IShader {
   public:
     GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                   vec3 light_dir,  rayimage& shadowbuffer,
-                  Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-                  material_info mat_info,  std::vector<Light>& point_lights, float lightintensity);
+                  Mat uniform_Mshadow_, bool has_shadow_map, Float shadow_map_bias,
+                  material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+                  std::vector<DirectionalLight>& directional_lights);
     ~GouraudShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -44,7 +41,7 @@ class GouraudShader : public IShader {
              trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
     }
     vec3 normal_uv(vec3 uv) {
-      return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
+      return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
     }
     vec4 diffuse(vec3 uv) {
       return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
@@ -78,7 +75,7 @@ class GouraudShader : public IShader {
     
     rayimage shadowbuffer;
     bool has_shadow_map;
-    float shadow_map_bias;
+    Float shadow_map_bias;
     material_info material;
     
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
@@ -90,7 +87,8 @@ class GouraudShader : public IShader {
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
     std::vector<Light> plights;
-    float dirlightintensity;
+    Float dirlightintensity;
+    std::vector<DirectionalLight> directional_lights;
 };
 
 
@@ -110,7 +108,7 @@ struct ColorShader : public IShader {
              trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
     }
     vec3 normal_uv(vec3 uv) {
-      return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
+      return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
     }
     vec4 diffuse(vec3 uv) {
       return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
@@ -148,6 +146,7 @@ struct ColorShader : public IShader {
     float* specular_texture;
     float* emissive_texture;
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
+    std::vector<DirectionalLight> directional_lights;
     
 };
 
@@ -155,8 +154,9 @@ struct DiffuseShader : public IShader {
   public:
     DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
            vec3 light_dir, rayimage& shadowbuffer,
-           Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-           material_info mat_info,  std::vector<Light>& point_lights, float lightintensity);
+           Mat uniform_Mshadow_, bool has_shadow_map, Float shadow_map_bias,
+           material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+           std::vector<DirectionalLight>& directional_lights);
     ~DiffuseShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -169,7 +169,7 @@ struct DiffuseShader : public IShader {
              trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
     }
     vec3 normal_uv(vec3 uv) {
-      return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
+      return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
     }
     vec4 diffuse(vec3 uv) {
       return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
@@ -204,7 +204,7 @@ struct DiffuseShader : public IShader {
     
     rayimage shadowbuffer;
     bool has_shadow_map;
-    float shadow_map_bias;
+    Float shadow_map_bias;
     material_info material;
     
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
@@ -217,7 +217,8 @@ struct DiffuseShader : public IShader {
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
     std::vector<Light> plights;
-    float dirlightintensity;
+    Float dirlightintensity;
+    std::vector<DirectionalLight> directional_lights;
     
     
 };
@@ -225,8 +226,9 @@ struct DiffuseShader : public IShader {
 struct DiffuseNormalShader : public IShader {
   DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                vec3 light_dir,  rayimage& shadowbuffer,
-               Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-               material_info mat_info,  std::vector<Light>& point_lights, float lightintensity);
+               Mat uniform_Mshadow_, bool has_shadow_map, Float shadow_map_bias,
+               material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+               std::vector<DirectionalLight>& directional_lights);
   ~DiffuseNormalShader();
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
@@ -238,7 +240,7 @@ struct DiffuseNormalShader : public IShader {
            trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
   }
   vec3 normal_uv(vec3 uv) {
-    return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
+    return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
   }
   vec4 diffuse(vec3 uv) {
     return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
@@ -270,7 +272,7 @@ struct DiffuseNormalShader : public IShader {
   
   rayimage shadowbuffer;
   bool has_shadow_map;
-  float shadow_map_bias;
+  Float shadow_map_bias;
   material_info material;
   
   
@@ -285,7 +287,8 @@ struct DiffuseNormalShader : public IShader {
   bool has_normals;
   
   std::vector<Light> plights;
-  float dirlightintensity;
+  Float dirlightintensity;
+  std::vector<DirectionalLight> directional_lights;
   
 };
 
@@ -293,8 +296,9 @@ class DiffuseShaderTangent : public IShader {
   public:
     DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                        vec3 light_dir,  rayimage& shadowbuffer,
-                       Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-                       material_info mat_info,  std::vector<Light>& point_lights, float lightintensity);
+                       Mat uniform_Mshadow_, bool has_shadow_map, Float shadow_map_bias,
+                       material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+                       std::vector<DirectionalLight>& directional_lights);
     ~DiffuseShaderTangent();
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
@@ -304,7 +308,7 @@ class DiffuseShaderTangent : public IShader {
              trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
     }
     vec3 normal_uv(vec3 uv) {
-      return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
+      return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
     }
     vec4 diffuse(vec3 uv) {
       return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
@@ -343,7 +347,7 @@ class DiffuseShaderTangent : public IShader {
     Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
     rayimage shadowbuffer;
     bool has_shadow_map;
-    float shadow_map_bias;
+    Float shadow_map_bias;
     material_info material;
     
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
@@ -357,7 +361,8 @@ class DiffuseShaderTangent : public IShader {
     bool has_normals;
     
     std::vector<Light> plights;
-    float dirlightintensity;
+    Float dirlightintensity;
+    std::vector<DirectionalLight> directional_lights;
     
 };
 
@@ -365,8 +370,9 @@ class PhongShader : public IShader {
   public:
     PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                       vec3 light_dir,  rayimage& shadowbuffer,
-                      Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-                      material_info mat_info,  std::vector<Light>& point_lights, float lightintensity);
+                      Mat uniform_Mshadow_, bool has_shadow_map, Float shadow_map_bias,
+                      material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+                      std::vector<DirectionalLight>& directional_lights);
     ~PhongShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -380,7 +386,7 @@ class PhongShader : public IShader {
              trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
     }
     vec3 normal_uv(vec3 uv) {
-      return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
+      return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
     }
     vec4 diffuse(vec3 uv) {
       return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
@@ -416,7 +422,7 @@ class PhongShader : public IShader {
     
     rayimage shadowbuffer;
     bool has_shadow_map;
-    float shadow_map_bias;
+    Float shadow_map_bias;
     material_info material;
     
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
@@ -429,7 +435,8 @@ class PhongShader : public IShader {
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
     std::vector<Light> plights;
-    float dirlightintensity;
+    Float dirlightintensity;
+    std::vector<DirectionalLight> directional_lights;
     
 };
 
@@ -437,8 +444,9 @@ class PhongNormalShader : public IShader {
 public:
   PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                vec3 light_dir,  rayimage& shadowbuffer,
-               Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-               material_info mat_info,  std::vector<Light>& point_lights, float lightintensity);
+               Mat uniform_Mshadow_, bool has_shadow_map, Float shadow_map_bias,
+               material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+               std::vector<DirectionalLight>& directional_lights);
   ~PhongNormalShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -451,7 +459,7 @@ public:
            trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
   }
   vec3 normal_uv(vec3 uv) {
-    return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
+    return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
   }
   vec4 diffuse(vec3 uv) {
     return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
@@ -484,7 +492,7 @@ public:
   
   rayimage shadowbuffer;
   bool has_shadow_map;
-  float shadow_map_bias;
+  Float shadow_map_bias;
   material_info material;
   
   
@@ -499,7 +507,8 @@ public:
   bool has_normals;
   
   std::vector<Light> plights;
-  float dirlightintensity;
+  Float dirlightintensity;
+  std::vector<DirectionalLight> directional_lights;
   
 };
 
@@ -507,8 +516,9 @@ class PhongShaderTangent : public IShader {
 public:
   PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                      vec3 light_dir,  rayimage& shadowbuffer,
-                     Mat uniform_Mshadow_, bool has_shadow_map, float shadow_map_bias,
-                     material_info mat_info,  std::vector<Light>& point_lights, float lightintensity);
+                     Mat uniform_Mshadow_, bool has_shadow_map, Float shadow_map_bias,
+                     material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+                     std::vector<DirectionalLight>& directional_lights);
   ~PhongShaderTangent();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -522,7 +532,7 @@ public:
            trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
   }
   vec3 normal_uv(vec3 uv) {
-    return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*2.0f - 1.0f);
+    return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
   }
   vec4 diffuse(vec3 uv) {
     return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
@@ -558,7 +568,7 @@ public:
   Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
   rayimage shadowbuffer;
   bool has_shadow_map;
-  float shadow_map_bias;
+  Float shadow_map_bias;
   material_info material;
   
   int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
@@ -571,7 +581,8 @@ public:
   bool has_normals;
   
   std::vector<Light> plights;
-  float dirlightintensity;
+  Float dirlightintensity;
+  std::vector<DirectionalLight> directional_lights;
   
 };
 
@@ -613,7 +624,7 @@ struct DepthShader : public IShader {
   
   material_info material;
   
-  float shadow_map_bias;
+  Float shadow_map_bias;
   bool has_texture;
   
   
