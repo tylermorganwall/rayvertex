@@ -17,8 +17,8 @@
 #'@param lookat Default `NULL`. Camera focal position, defaults to the center of the model.
 #'@param camera_up Default `c(0,1,0)`. Camera up vector.
 #'@param scale_obj Default `1`. Value to scale size of model.
-#'@param point_light_info Default `NULL`. A data.frame of point light information created using the 
-#'`point_light()` and `add_light()` functions.
+#'@param light_info Default `NULL`. A data.frame of point light information created using the 
+#'`directional_light()`, `point_light()` and `add_light()` functions.
 #'@param type Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).
 #'@param color Default `darkred`. Color of model if no material file present (or for faces using the default material).
 #'@param background Default `white`. Background color.
@@ -53,7 +53,7 @@ rasterize_mesh  = function(mesh, indices = NULL, texcoords = NULL, normals = NUL
                            parallel = TRUE,
                            fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0), #Sanitize lookfrom and lookat inputs
                            scale_obj = 1,
-                           point_light_info = NULL, color="red",
+                           light_info = NULL, color="red",
                            type = "diffuse", background = "white",
                            light_direction = c(1,1,1), light_intensity=1.0, tangent_space_normals = TRUE,
                            ambient_color=c(0,0,0), 
@@ -77,11 +77,11 @@ rasterize_mesh  = function(mesh, indices = NULL, texcoords = NULL, normals = NUL
     stop("ortho_dims must be length-2 numeric vector")
   }
   #lights
-  if(!is.null(point_light_info)) {
-    if(ncol(point_light_info) != 9) {
-      stop("point_light_info must have 9 cols")
+  if(!is.null(light_info)) {
+    if(ncol(light_info) != 9) {
+      stop("light_info must have 9 cols")
     }
-    lightinfo = point_light_info
+    lightinfo = light_info
   } else {
     lightinfo = matrix(nrow=0,ncol=9)
   }

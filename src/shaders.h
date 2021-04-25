@@ -25,10 +25,10 @@ class IShader {
 class GouraudShader : public IShader {
   public:
     GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-                  vec3 light_dir,  rayimage& shadowbuffer,
-                  Mat uniform_Mshadow_, bool has_shadow_map, Float shadow_map_bias,
+                  
+                  bool has_shadow_map, Float shadow_map_bias,
                   material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
-                  std::vector<DirectionalLight>& directional_lights);
+                  std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
     ~GouraudShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -73,7 +73,7 @@ class GouraudShader : public IShader {
     std::vector<std::vector<vec3> > vec_varying_pos;
     std::vector<std::vector<vec3> > vec_varying_world_nrm;
     
-    rayimage shadowbuffer;
+    
     bool has_shadow_map;
     Float shadow_map_bias;
     material_info material;
@@ -89,6 +89,7 @@ class GouraudShader : public IShader {
     std::vector<Light> plights;
     Float dirlightintensity;
     std::vector<DirectionalLight> directional_lights;
+    std::vector<rayimage> shadowbuffers;
 };
 
 
@@ -147,16 +148,16 @@ struct ColorShader : public IShader {
     float* emissive_texture;
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     std::vector<DirectionalLight> directional_lights;
+    std::vector<rayimage> shadowbuffers;
     
 };
 
 struct DiffuseShader : public IShader {
   public:
     DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-           vec3 light_dir, rayimage& shadowbuffer,
-           Mat uniform_Mshadow_, bool has_shadow_map, Float shadow_map_bias,
+           bool has_shadow_map, Float shadow_map_bias,
            material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
-           std::vector<DirectionalLight>& directional_lights);
+           std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
     ~DiffuseShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -202,7 +203,7 @@ struct DiffuseShader : public IShader {
     std::vector<std::vector<vec3> > vec_varying_world_nrm;
     
     
-    rayimage shadowbuffer;
+    
     bool has_shadow_map;
     Float shadow_map_bias;
     material_info material;
@@ -219,16 +220,16 @@ struct DiffuseShader : public IShader {
     std::vector<Light> plights;
     Float dirlightintensity;
     std::vector<DirectionalLight> directional_lights;
-    
+    std::vector<rayimage> shadowbuffers;
     
 };
 
 struct DiffuseNormalShader : public IShader {
   DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-               vec3 light_dir,  rayimage& shadowbuffer,
-               Mat uniform_Mshadow_, bool has_shadow_map, Float shadow_map_bias,
+               
+               bool has_shadow_map, Float shadow_map_bias,
                material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
-               std::vector<DirectionalLight>& directional_lights);
+               std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
   ~DiffuseNormalShader();
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
@@ -270,7 +271,7 @@ struct DiffuseNormalShader : public IShader {
   std::vector<std::vector<vec3> > vec_varying_pos;
   std::vector<std::vector<vec3> > vec_varying_world_nrm;
   
-  rayimage shadowbuffer;
+  
   bool has_shadow_map;
   Float shadow_map_bias;
   material_info material;
@@ -289,16 +290,17 @@ struct DiffuseNormalShader : public IShader {
   std::vector<Light> plights;
   Float dirlightintensity;
   std::vector<DirectionalLight> directional_lights;
+  std::vector<rayimage> shadowbuffers;
   
 };
 
 class DiffuseShaderTangent : public IShader {
   public:
     DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-                       vec3 light_dir,  rayimage& shadowbuffer,
-                       Mat uniform_Mshadow_, bool has_shadow_map, Float shadow_map_bias,
+                       
+                       bool has_shadow_map, Float shadow_map_bias,
                        material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
-                       std::vector<DirectionalLight>& directional_lights);
+                       std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
     ~DiffuseShaderTangent();
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
@@ -345,7 +347,7 @@ class DiffuseShaderTangent : public IShader {
     
     Mat uniform_M;   //  Projection*ModelView
     Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
-    rayimage shadowbuffer;
+    
     bool has_shadow_map;
     Float shadow_map_bias;
     material_info material;
@@ -363,16 +365,17 @@ class DiffuseShaderTangent : public IShader {
     std::vector<Light> plights;
     Float dirlightintensity;
     std::vector<DirectionalLight> directional_lights;
+    std::vector<rayimage> shadowbuffers;
     
 };
 
 class PhongShader : public IShader {
   public:
     PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-                      vec3 light_dir,  rayimage& shadowbuffer,
-                      Mat uniform_Mshadow_, bool has_shadow_map, Float shadow_map_bias,
+                      
+                      bool has_shadow_map, Float shadow_map_bias,
                       material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
-                      std::vector<DirectionalLight>& directional_lights);
+                      std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
     ~PhongShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -420,7 +423,7 @@ class PhongShader : public IShader {
     std::vector<std::vector<vec3> > vec_varying_world_nrm;
   
     
-    rayimage shadowbuffer;
+    
     bool has_shadow_map;
     Float shadow_map_bias;
     material_info material;
@@ -437,16 +440,17 @@ class PhongShader : public IShader {
     std::vector<Light> plights;
     Float dirlightintensity;
     std::vector<DirectionalLight> directional_lights;
+    std::vector<rayimage> shadowbuffers;
     
 };
 
 class PhongNormalShader : public IShader {
 public:
   PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-               vec3 light_dir,  rayimage& shadowbuffer,
-               Mat uniform_Mshadow_, bool has_shadow_map, Float shadow_map_bias,
+               
+               bool has_shadow_map, Float shadow_map_bias,
                material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
-               std::vector<DirectionalLight>& directional_lights);
+               std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
   ~PhongNormalShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -490,7 +494,7 @@ public:
   std::vector<std::vector<vec3> > vec_varying_world_nrm;
 
   
-  rayimage shadowbuffer;
+  
   bool has_shadow_map;
   Float shadow_map_bias;
   material_info material;
@@ -509,16 +513,17 @@ public:
   std::vector<Light> plights;
   Float dirlightintensity;
   std::vector<DirectionalLight> directional_lights;
+  std::vector<rayimage> shadowbuffers;
   
 };
 
 class PhongShaderTangent : public IShader {
 public:
   PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-                     vec3 light_dir,  rayimage& shadowbuffer,
-                     Mat uniform_Mshadow_, bool has_shadow_map, Float shadow_map_bias,
+                     
+                     bool has_shadow_map, Float shadow_map_bias,
                      material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
-                     std::vector<DirectionalLight>& directional_lights);
+                     std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
   ~PhongShaderTangent();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -566,7 +571,7 @@ public:
   
   Mat uniform_M;   //  Projection*ModelView
   Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
-  rayimage shadowbuffer;
+  
   bool has_shadow_map;
   Float shadow_map_bias;
   material_info material;
@@ -583,6 +588,7 @@ public:
   std::vector<Light> plights;
   Float dirlightintensity;
   std::vector<DirectionalLight> directional_lights;
+  std::vector<rayimage> shadowbuffers;
   
 };
 
@@ -592,7 +598,7 @@ public:
 
 struct DepthShader : public IShader {
   DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-              vec3 light_dir,  material_info mat_info, int mat_ind);
+              material_info mat_info, int mat_ind);
   ~DepthShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);

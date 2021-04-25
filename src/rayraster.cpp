@@ -39,6 +39,14 @@
 // typedef glm::dvec2 vec2;
 // typedef glm::dmat4x4 Mat;
 
+static void print_vec(vec3 m) {
+  RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << "\n";
+}
+
+static void print_vec(glm::dvec4 m) {
+  RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << " " << m[3] << "\n";
+}
+
 using namespace Rcpp;
 
 inline vec3 clamp(const vec3& c, Float clamplow, Float clamphigh) {
@@ -148,8 +156,7 @@ List rasterize(List mesh,
   vec3 cam_up = vec3(camera_up(0),camera_up(1),camera_up(2));
   vec3 color(model_color(0),model_color(1),model_color(2));
   vec3 ambient(ambient_color(0),ambient_color(1),ambient_color(2)); 
-  vec3 light_dir(light_direction(0),light_direction(1),light_direction(2));
- 
+
   //Account for colinear camera direction/cam_up vectors
   if(glm::length(glm::cross(eye-center,cam_up)) == 0) {
     cam_up = vec3(0.,0.,1.f);
@@ -230,41 +237,41 @@ List rasterize(List mesh,
   // Float near_plane = 0.1f, far_plane = 100.0f;
   
   vec3 light_up = vec3(0.,1.,0.);
-  if(glm::length(glm::cross(light_up,light_dir)) == 0) {
-    light_up = vec3(0.f,0.f,1.0f);
-  }
   
   vec3 sceneboundmin = vec3(bounds(0),bounds(1),bounds(2));
   vec3 sceneboundmax = vec3(bounds(3),bounds(4),bounds(5));
   Float scene_diag = glm::length(sceneboundmax-sceneboundmin)+0.5;
   vec3 scene_center = (sceneboundmax+sceneboundmin)/(Float)2.0;
-  
-  Mat lightProjection = glm::ortho(-scene_diag/2, scene_diag/2, -scene_diag/2, scene_diag/2, 
-                                         near_plane, far_plane);
-  Mat lightView = glm::lookAt(scene_center + light_dir * scene_diag,
-                                    scene_center,
-                                    light_up);
 
-  Mat M = vp_shadow * lightProjection * lightView * Model;
   Mat shadow_inv = glm::inverse(vp * Projection * View * Model);
-  Mat uniform_Mshadow_ = M * shadow_inv;
-  
+
   std::vector<Light> point_lights;
   for(int i = 0; i < lightinfo.nrow(); i++) {
-    vec3 light_position = View * Model * vec4(lightinfo(i,0),lightinfo(i,1),lightinfo(i,2),1.0);
-    point_lights.push_back(Light(light_position,
-                                 vec3(lightinfo(i,3),lightinfo(i,4),lightinfo(i,5)),
-                                 lightinfo(i,6),lightinfo(i,7),lightinfo(i,8)));
+    if(!is_dir_light(i)) {
+      vec3 light_position = View * Model * vec4(lightinfo(i,0),lightinfo(i,1),lightinfo(i,2),1.0);
+      point_lights.push_back(Light(light_position,
+                                   vec3(lightinfo(i,3),lightinfo(i,4),lightinfo(i,5)),
+                                   lightinfo(i,6),lightinfo(i,7),lightinfo(i,8)));
+    }
   }
+  
+  std::vector<rayimage> shadowbuffers;
+  std::vector<Rcpp::NumericMatrix> shadowbuffer_mats;
   
   std::vector<DirectionalLight> directional_lights;
   for(int i = 0; i < is_dir_light.length(); i++) {
     if(is_dir_light(i)) {
+      NumericMatrix sbuffer_temp(shadowdims(0),shadowdims(1));
+      shadowbuffer_mats.push_back(sbuffer_temp);
+      
+      rayimage shadowbuffer_temp(sbuffer_temp,sbuffer_temp,sbuffer_temp,shadowdims(0),shadowdims(1),shadow_map_intensity);
+      
+      shadowbuffers.push_back(shadowbuffer_temp);
       vec3 light_up_dir = vec3(0.,1.,0.);
       if(glm::length(glm::cross(light_up,light_up_dir)) == 0) {
         light_up_dir = vec3(0.f,0.f,1.0f);
       }
-      vec3 light_dir_temp = glm::normalize(vec3(View * Model * vec4(lightinfo(i,0),lightinfo(i,1),lightinfo(i,2),0.0)));
+      vec3 light_dir_temp = glm::normalize(vec3(lightinfo(i,0),lightinfo(i,1),lightinfo(i,2)));
       directional_lights.push_back(DirectionalLight(light_dir_temp,
                                                     vec3(lightinfo(i,3),lightinfo(i,4),lightinfo(i,5)),
                                                     scene_center, light_up_dir, scene_diag,
@@ -346,46 +353,39 @@ List rasterize(List mesh,
     int type = typevals(i);
     if(type == 1) {
       shader = new GouraudShader(Model, Projection, View, viewport,
-                                 glm::normalize(light_dir), 
-                                 shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                                 has_shadow_map,
                                  shadow_map_bias,mat_info[i], point_lights, lightintensity,
-                                 directional_lights);
+                                 directional_lights, shadowbuffers);
     } else if (type == 2) {
       shader = new DiffuseShader(Model, Projection, View, viewport,
-                                 glm::normalize(light_dir), 
-                                 shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                                 has_shadow_map,
                                  shadow_map_bias,mat_info[i], point_lights, lightintensity,
-                                 directional_lights);
+                                 directional_lights, shadowbuffers);
     } else if (type == 3) {
       shader = new PhongShader(Model, Projection, View, viewport,
-                               glm::normalize(light_dir), 
-                               shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                               has_shadow_map,
                                shadow_map_bias,mat_info[i], point_lights, lightintensity,
-                               directional_lights);
+                               directional_lights, shadowbuffers);
     } else if (type == 4) {
       shader = new DiffuseNormalShader(Model, Projection, View, viewport,
-                                       glm::normalize(light_dir), 
-                                       shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                                       has_shadow_map,
                                        shadow_map_bias,mat_info[i], point_lights, lightintensity,
-                                       directional_lights);
+                                       directional_lights, shadowbuffers);
     } else if (type == 5) {
       shader = new DiffuseShaderTangent(Model, Projection, View, viewport,
-                                        glm::normalize(light_dir), 
-                                        shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                                        has_shadow_map,
                                         shadow_map_bias,mat_info[i], point_lights, lightintensity,
-                                        directional_lights);
+                                        directional_lights, shadowbuffers);
     } else if (type == 6) {
       shader = new PhongNormalShader(Model, Projection, View, viewport,
-                                     glm::normalize(light_dir), 
-                                     shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                                     has_shadow_map,
                                      shadow_map_bias,mat_info[i], point_lights, lightintensity,
-                                     directional_lights);
+                                     directional_lights, shadowbuffers);
     } else if (type == 7) {
       shader = new PhongShaderTangent(Model, Projection, View, viewport,
-                                      glm::normalize(light_dir),
-                                      shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                                      has_shadow_map,
                                       shadow_map_bias,mat_info[i], point_lights, lightintensity,
-                                      directional_lights);
+                                      directional_lights, shadowbuffers);
     } else if (type == 8) {
       shader = new ColorShader(Model, Projection, View, viewport,mat_info[i]);
     } else {
@@ -426,22 +426,19 @@ List rasterize(List mesh,
   //Add default shader to vector
   if(typevals(0) == 1) {
     shaders.push_back(new GouraudShader(Model, Projection, View, viewport,
-                               glm::normalize(light_dir), 
-                               shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                               has_shadow_map,
                                shadow_map_bias,default_mat, point_lights, lightintensity,
-                               directional_lights));
+                               directional_lights, shadowbuffers));
   } else if (typevals(0) == 2 || typevals(0) == 4 || typevals(0) == 5) {
     shaders.push_back(new DiffuseShader(Model, Projection, View, viewport,
-                               glm::normalize(light_dir), 
-                               shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                               has_shadow_map,
                                shadow_map_bias,default_mat, point_lights, lightintensity,
-                               directional_lights));
+                               directional_lights, shadowbuffers));
   } else if (typevals(0) == 3 || typevals(0) == 6 || typevals(0) == 7) {
     shaders.push_back(new PhongShader(Model, Projection, View, viewport,
-                             glm::normalize(light_dir), 
-                             shadowbuffer, uniform_Mshadow_, has_shadow_map,
+                             has_shadow_map,
                              shadow_map_bias,default_mat, point_lights, lightintensity,
-                             directional_lights));
+                             directional_lights, shadowbuffers));
   } else if (typevals(0) == 8) {
     shaders.push_back(new ColorShader(Model, Projection, View, viewport,default_mat));
   }
@@ -564,85 +561,97 @@ List rasterize(List mesh,
     }
   }
   
-  std::vector<IShader*> depthshaders;
-  for(int i = 0; i < number_materials+1; i++ ) {
-    depthshaders.push_back(new DepthShader(Model, lightProjection, 
-                                           lightView, viewport_depth, light_dir, 
-                                           mat_info[i],
-                                           max_indices));
+  std::vector<std::vector<IShader*> > depthshaders(directional_lights.size());
+  for(int j = 0; j < shadowbuffers.size(); j++) {
+    for(int i = 0; i < number_materials+1; i++ ) {
+      depthshaders[j].push_back(new DepthShader(Model, directional_lights[j].lightProjection, 
+                                                directional_lights[j].lightView, viewport_depth,
+                                                mat_info[i],
+                                                max_indices));
+    }
   }
   
 
   if(has_shadow_map) {
-    for(int model_num = 0; model_num < models.size(); model_num++ ) {
-      ModelInfo &shp = models[model_num];
-      for(int i = 0; i < shp.num_indices; i++) {
-        int mat_num = shp.materials[i] >= 0 && shp.materials[i] < shaders.size() ? 
-          shp.materials[i] : shaders.size()-1;
-        
-        ndc_verts_depth[model_num][0][i] = depthshaders[mat_num]->vertex(i,0, shp);
-        ndc_verts_depth[model_num][1][i] = depthshaders[mat_num]->vertex(i,1, shp);
-        ndc_verts_depth[model_num][2][i] = depthshaders[mat_num]->vertex(i,2, shp);
-        
-        ndc_verts[model_num][0][i].w = ndc_verts[model_num][0][i].w < near_clip ? near_clip : ndc_verts[model_num][0][i].w;
-        ndc_verts[model_num][1][i].w = ndc_verts[model_num][1][i].w < near_clip ? near_clip : ndc_verts[model_num][1][i].w;
-        ndc_verts[model_num][2][i].w = ndc_verts[model_num][2][i].w < near_clip ? near_clip : ndc_verts[model_num][2][i].w;
-
-        ndc_inv_w_depth[model_num][0][i] = 1.0f/ndc_verts_depth[model_num][0][i].w;
-        ndc_inv_w_depth[model_num][1][i] = 1.0f/ndc_verts_depth[model_num][1][i].w;
-        ndc_inv_w_depth[model_num][2][i] = 1.0f/ndc_verts_depth[model_num][2][i].w;
-        
-        vec3 v1 = ndc_verts_depth[model_num][0][i] * ndc_inv_w_depth[model_num][0][i];
-        vec3 v2 = ndc_verts_depth[model_num][1][i] * ndc_inv_w_depth[model_num][1][i];
-        vec3 v3 = ndc_verts_depth[model_num][2][i] * ndc_inv_w_depth[model_num][2][i];
-        
-        vec3 min_bounds = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
-                               fmin(v1.y,fmin(v2.y,v3.y)),
-                               fmin(v1.z,fmin(v2.z,v3.z)));
-        
-        vec3 max_bounds = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
-                               fmax(v1.y,fmax(v2.y,v3.y)),
-                               fmax(v1.z,fmax(v2.z,v3.z)));
-        
-        int min_x_block = std::fmax(floor(min_bounds.x / (Float)blocksize), 0);
-        int min_y_block = std::fmax(floor(min_bounds.y / (Float)blocksize), 0);
-        int max_x_block = std::fmin(ceil(max_bounds.x  / (Float)blocksize), nx_blocks_depth);
-        int max_y_block = std::fmin(ceil(max_bounds.y  / (Float)blocksize), ny_blocks_depth);
-        if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks_depth && min_y_block < ny_blocks_depth) {
-          for(int j = min_x_block; j < max_x_block; j++) {
-            for(int k = min_y_block; k < max_y_block; k++) {
-              blocks_depth[k + ny_blocks_depth * j][model_num].push_back(i); 
+    for(int sb = 0; sb < shadowbuffers.size(); sb++) {
+      for(int model_num = 0; model_num < models.size(); model_num++ ) {
+        ModelInfo &shp = models[model_num];
+        for(int i = 0; i < shp.num_indices; i++) {
+          int mat_num = shp.materials[i] >= 0 && shp.materials[i] < shaders.size() ? 
+            shp.materials[i] : shaders.size()-1;
+          
+          ndc_verts_depth[model_num][0][i] = depthshaders[sb][mat_num]->vertex(i,0, shp);
+          ndc_verts_depth[model_num][1][i] = depthshaders[sb][mat_num]->vertex(i,1, shp);
+          ndc_verts_depth[model_num][2][i] = depthshaders[sb][mat_num]->vertex(i,2, shp);
+          
+          ndc_verts[model_num][0][i].w = ndc_verts[model_num][0][i].w < near_clip ? near_clip : ndc_verts[model_num][0][i].w;
+          ndc_verts[model_num][1][i].w = ndc_verts[model_num][1][i].w < near_clip ? near_clip : ndc_verts[model_num][1][i].w;
+          ndc_verts[model_num][2][i].w = ndc_verts[model_num][2][i].w < near_clip ? near_clip : ndc_verts[model_num][2][i].w;
+    
+          ndc_inv_w_depth[model_num][0][i] = 1.0f/ndc_verts_depth[model_num][0][i].w;
+          ndc_inv_w_depth[model_num][1][i] = 1.0f/ndc_verts_depth[model_num][1][i].w;
+          ndc_inv_w_depth[model_num][2][i] = 1.0f/ndc_verts_depth[model_num][2][i].w;
+          
+          vec3 v1 = ndc_verts_depth[model_num][0][i] * ndc_inv_w_depth[model_num][0][i];
+          vec3 v2 = ndc_verts_depth[model_num][1][i] * ndc_inv_w_depth[model_num][1][i];
+          vec3 v3 = ndc_verts_depth[model_num][2][i] * ndc_inv_w_depth[model_num][2][i];
+          
+          vec3 min_bounds = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
+                                 fmin(v1.y,fmin(v2.y,v3.y)),
+                                 fmin(v1.z,fmin(v2.z,v3.z)));
+          
+          vec3 max_bounds = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
+                                 fmax(v1.y,fmax(v2.y,v3.y)),
+                                 fmax(v1.z,fmax(v2.z,v3.z)));
+          
+          int min_x_block = std::fmax(floor(min_bounds.x / (Float)blocksize), 0);
+          int min_y_block = std::fmax(floor(min_bounds.y / (Float)blocksize), 0);
+          int max_x_block = std::fmin(ceil(max_bounds.x  / (Float)blocksize), nx_blocks_depth);
+          int max_y_block = std::fmin(ceil(max_bounds.y  / (Float)blocksize), ny_blocks_depth);
+          if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks_depth && min_y_block < ny_blocks_depth) {
+            for(int j = min_x_block; j < max_x_block; j++) {
+              for(int k = min_y_block; k < max_y_block; k++) {
+                blocks_depth[k + ny_blocks_depth * j][model_num].push_back(i); 
+              }
             }
           }
         }
       }
+      
+      rayimage &shadowbuff = shadowbuffers[sb];
+      std::vector<IShader*> &depth_shader_single = depthshaders[sb];
+      //Calculate shadow buffer
+      auto task = [&depth_shader_single, &blocks_depth, &ndc_verts_depth, &ndc_inv_w_depth,  
+                   &min_block_bound_depth, &max_block_bound_depth,
+                   &zbuffer_depth, &shadowbuff, &normalbuffer, &positionbuffer, &uvbuffer, 
+                   &models, &alpha_depths] (unsigned int i) {
+        fill_tri_blocks(blocks_depth[i],
+                        ndc_verts_depth,
+                        ndc_inv_w_depth,
+                        min_block_bound_depth[i],
+                        max_block_bound_depth[i],
+                        depth_shader_single,
+                        zbuffer_depth,
+                        shadowbuff,
+                        normalbuffer,
+                        positionbuffer,
+                        uvbuffer,
+                        models, true,
+                        alpha_depths);
+      };
+      
+      RcppThread::ThreadPool pool2(numbercores);
+      for(int i = 0; i < nx_blocks_depth*ny_blocks_depth; i++) {
+        pool2.push(task, i);
+      }
+      pool2.join();
+      for(int j = 0; j < blocks_depth.size(); j++) {
+        for(int model_num = 0; model_num < models.size(); model_num++ ) {
+          blocks_depth[j][model_num].clear();
+        }
+      }
     }
-    
-    //Calculate shadow buffer
-    auto task = [&depthshaders, &blocks_depth, &ndc_verts_depth, &ndc_inv_w_depth,  
-                 &min_block_bound_depth, &max_block_bound_depth,
-                 &zbuffer_depth, &shadowbuffer, &normalbuffer, &positionbuffer, &uvbuffer, 
-                 &models, &alpha_depths] (unsigned int i) {
-      fill_tri_blocks(blocks_depth[i],
-                      ndc_verts_depth,
-                      ndc_inv_w_depth,
-                      min_block_bound_depth[i],
-                      max_block_bound_depth[i],
-                      depthshaders,
-                      zbuffer_depth,
-                      shadowbuffer,
-                      normalbuffer,
-                      positionbuffer,
-                      uvbuffer,
-                      models, true,
-                      alpha_depths);
-    };
-    
-    RcppThread::ThreadPool pool2(numbercores);
-    for(int i = 0; i < nx_blocks_depth*ny_blocks_depth; i++) {
-      pool2.push(task, i);
-    }
-    pool2.join();
+    std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<Float>::infinity() ) ;
   }
 
   //Calculate Image
@@ -712,7 +721,7 @@ List rasterize(List mesh,
                     normalbuffer,
                     positionbuffer,
                     uvbuffer,
-                    models, false, //culling,
+                    models, false, 
                     alpha_depths);
   };
 
@@ -836,8 +845,10 @@ List rasterize(List mesh,
     }
   }
   
-  for(int i = 0; i < depthshaders.size(); i++) {
-    delete depthshaders[i];
+  for(int j = 0; j < shadowbuffers.size(); j++) {
+    for(int i = 0; i < depthshaders.size(); i++) {
+      delete depthshaders[j][i];
+    }
   }
   for(int i = 0; i < shaders.size(); i++) {
     delete shaders[i];

@@ -36,9 +36,6 @@ public:
     M = vp_shadow * lightProjection * lightView * Model;
     uniform_Mshadow_ = M * shadow_inv;
   }
-  Mat get_uniform_Mshadow() {
-    return(uniform_Mshadow_);
-  }
   
   vec3 direction;
   vec3 color;
