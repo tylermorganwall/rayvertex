@@ -20,12 +20,10 @@ rasterize_mesh(
   lookat = NULL,
   camera_up = c(0, 1, 0),
   scale_obj = 1,
-  point_light_info = NULL,
+  light_info = directional_light(),
   color = "red",
   type = "diffuse",
   background = "white",
-  light_direction = c(1, 1, 1),
-  light_intensity = 1,
   tangent_space_normals = TRUE,
   ambient_color = c(0, 0, 0),
   exponent = 32,
@@ -49,7 +47,8 @@ rasterize_mesh(
   double_sided = FALSE,
   block_size = 4,
   shape = NULL,
-  line_offset = -1e-05
+  line_offset = -1e-05,
+  ortho_dims = c(1, 1)
 )
 }
 \arguments{
@@ -73,18 +72,14 @@ rasterize_mesh(
 
 \item{scale_obj}{Default `1`. Value to scale size of model.}
 
-\item{point_light_info}{Default `NULL`. A data.frame of point light information created using the 
-`point_light()` and `add_light()` functions.}
+\item{light_info}{Default `NULL`. A data.frame of point light information created using the 
+`directional_light()`, `point_light()` and `add_light()` functions.}
 
 \item{color}{Default `darkred`. Color of model if no material file present (or for faces using the default material).}
 
 \item{type}{Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).}
 
 \item{background}{Default `white`. Background color.}
-
-\item{light_direction}{Default `c(1,1,1)`. Vector specifying the light direction for the primary directional light.}
-
-\item{light_intensity}{Default `1.0`. Light intensity.}
 
 \item{tangent_space_normals}{Default `TRUE`.}
 

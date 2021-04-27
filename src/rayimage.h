@@ -19,6 +19,9 @@ class rayimage {
     rayimage(Rcpp::NumericMatrix &r_, Rcpp::NumericMatrix &g_, Rcpp::NumericMatrix &b_,
              int nx, int ny, Float shadow_map_intensity = 0.0f) : r(r_), g(g_), b(b_), nx(nx), ny(ny),
              shadow_map_intensity(shadow_map_intensity) {};
+    rayimage(Rcpp::NumericMatrix &mat, 
+             int nx, int ny, Float shadow_map_intensity = 0.0f) : r(mat), g(mat), b(mat), nx(nx), ny(ny),
+             shadow_map_intensity(shadow_map_intensity) {};
     void set_color(int i, int j, vec3 col) {
       r(i,j) = col.r;
       g(i,j) = col.g;

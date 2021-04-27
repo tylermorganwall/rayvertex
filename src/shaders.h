@@ -27,7 +27,7 @@ class GouraudShader : public IShader {
     GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                   
                   bool has_shadow_map, Float shadow_map_bias,
-                  material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+                  material_info mat_info,  std::vector<Light>& point_lights, 
                   std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
     ~GouraudShader();
     
@@ -87,7 +87,7 @@ class GouraudShader : public IShader {
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
     std::vector<Light> plights;
-    Float dirlightintensity;
+  
     std::vector<DirectionalLight> directional_lights;
     std::vector<rayimage> shadowbuffers;
 };
@@ -156,7 +156,7 @@ struct DiffuseShader : public IShader {
   public:
     DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
            bool has_shadow_map, Float shadow_map_bias,
-           material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+           material_info mat_info,  std::vector<Light>& point_lights, 
            std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
     ~DiffuseShader();
     
@@ -218,7 +218,7 @@ struct DiffuseShader : public IShader {
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
     std::vector<Light> plights;
-    Float dirlightintensity;
+  
     std::vector<DirectionalLight> directional_lights;
     std::vector<rayimage> shadowbuffers;
     
@@ -228,7 +228,7 @@ struct DiffuseNormalShader : public IShader {
   DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                
                bool has_shadow_map, Float shadow_map_bias,
-               material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+               material_info mat_info,  std::vector<Light>& point_lights, 
                std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
   ~DiffuseNormalShader();
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -288,7 +288,7 @@ struct DiffuseNormalShader : public IShader {
   bool has_normals;
   
   std::vector<Light> plights;
-  Float dirlightintensity;
+
   std::vector<DirectionalLight> directional_lights;
   std::vector<rayimage> shadowbuffers;
   
@@ -299,7 +299,7 @@ class DiffuseShaderTangent : public IShader {
     DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                        
                        bool has_shadow_map, Float shadow_map_bias,
-                       material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+                       material_info mat_info,  std::vector<Light>& point_lights, 
                        std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
     ~DiffuseShaderTangent();
     vec3 specular(vec3 uv) {
@@ -363,7 +363,7 @@ class DiffuseShaderTangent : public IShader {
     bool has_normals;
     
     std::vector<Light> plights;
-    Float dirlightintensity;
+  
     std::vector<DirectionalLight> directional_lights;
     std::vector<rayimage> shadowbuffers;
     
@@ -372,9 +372,8 @@ class DiffuseShaderTangent : public IShader {
 class PhongShader : public IShader {
   public:
     PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-                      
                       bool has_shadow_map, Float shadow_map_bias,
-                      material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+                      material_info mat_info,  std::vector<Light>& point_lights, 
                       std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
     ~PhongShader();
     
@@ -438,7 +437,7 @@ class PhongShader : public IShader {
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
     std::vector<Light> plights;
-    Float dirlightintensity;
+  
     std::vector<DirectionalLight> directional_lights;
     std::vector<rayimage> shadowbuffers;
     
@@ -449,7 +448,7 @@ public:
   PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                
                bool has_shadow_map, Float shadow_map_bias,
-               material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+               material_info mat_info,  std::vector<Light>& point_lights, 
                std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
   ~PhongNormalShader();
   
@@ -511,7 +510,7 @@ public:
   bool has_normals;
   
   std::vector<Light> plights;
-  Float dirlightintensity;
+
   std::vector<DirectionalLight> directional_lights;
   std::vector<rayimage> shadowbuffers;
   
@@ -522,7 +521,7 @@ public:
   PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                      
                      bool has_shadow_map, Float shadow_map_bias,
-                     material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+                     material_info mat_info,  std::vector<Light>& point_lights, 
                      std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
   ~PhongShaderTangent();
   
@@ -586,7 +585,7 @@ public:
   bool has_normals;
   
   std::vector<Light> plights;
-  Float dirlightintensity;
+
   std::vector<DirectionalLight> directional_lights;
   std::vector<rayimage> shadowbuffers;
   

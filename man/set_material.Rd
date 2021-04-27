@@ -25,7 +25,8 @@ set_material(
   emissive_texture_location = "",
   diffuse_intensity = 1,
   specular_intensity = 0.6,
-  emission_intensity = 1
+  emission_intensity = 1,
+  culling = "back"
 )
 }
 \arguments{

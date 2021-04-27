@@ -25,11 +25,11 @@ IShader::~IShader() {}
 
 GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                              bool has_shadow_map, Float shadow_map_bias,
-                             material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+                             material_info mat_info,  std::vector<Light>& point_lights,
                              std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
-  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity),
+  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers) {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
@@ -128,7 +128,7 @@ bool GouraudShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   vec3 light_color(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
     Float shadow = 1.0f;
-    Float intensity = dot(normal, directional_lights[ii].direction);
+    Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
     if(has_shadow_map) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
@@ -282,11 +282,11 @@ DiffuseShader::~DiffuseShader() {
 DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
               
               bool has_shadow_map, Float shadow_map_bias,
-              material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity, 
+              material_info mat_info,  std::vector<Light>& point_lights, 
               std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers) :
     Projection(Projection), View(View), viewport(viewport),
     has_shadow_map(has_shadow_map),
-    shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity),
+    shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
     directional_lights(directional_lights), shadowbuffers(shadowbuffers)  {
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -375,7 +375,7 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   vec3 light_color(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
     Float shadow = 1.0f;
-    Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
+    Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0))),0.0);
     if(has_shadow_map && intensity != 0.0) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
@@ -430,11 +430,11 @@ DiffuseNormalShader::~DiffuseNormalShader() {
 DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
              
              bool has_shadow_map, Float shadow_map_bias,
-             material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity, 
+             material_info mat_info,  std::vector<Light>& point_lights, 
              std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
-  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity),
+  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
@@ -520,7 +520,7 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3&
   vec3 light_color(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
     Float shadow = 1.0f;
-    Float intensity = dot(n, directional_lights[ii].direction);
+    Float intensity = std::fmax(dot(n, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
     if(has_shadow_map) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
@@ -574,11 +574,11 @@ DiffuseShaderTangent::~DiffuseShaderTangent() {
 DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                                        
                                        bool has_shadow_map, Float shadow_map_bias,
-                                       material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+                                       material_info mat_info,  std::vector<Light>& point_lights,
                                        std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
-  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity),
+  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
@@ -671,7 +671,7 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3
   vec3 light_color(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
     Float shadow = 1.0f;
-    Float intensity = dot(norm, directional_lights[ii].direction);
+    Float intensity = std::fmax(dot(norm, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
     if(has_shadow_map) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
@@ -746,11 +746,11 @@ PhongShader::~PhongShader() {
 PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                                      
                                      bool has_shadow_map, Float shadow_map_bias,
-                                     material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+                                     material_info mat_info,  std::vector<Light>& point_lights,
                                      std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
-  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity),
+  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
@@ -839,7 +839,7 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   vec3 light_color(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
     Float shadow = 1.0f;
-    Float intensity = dot(normal, directional_lights[ii].direction);
+    Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
     if(has_shadow_map) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
@@ -904,13 +904,12 @@ PhongNormalShader::~PhongNormalShader() {
 }
 
 PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-            
             bool has_shadow_map, Float shadow_map_bias,
-            material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+            material_info mat_info,  std::vector<Light>& point_lights,
             std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
-  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity),
+  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
@@ -998,7 +997,7 @@ bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& n
   vec3 light_color(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
     Float shadow = 1.0f;
-    Float intensity = dot(normal, directional_lights[ii].direction);
+    Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
     if(has_shadow_map) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
@@ -1063,11 +1062,11 @@ PhongShaderTangent::~PhongShaderTangent() {
 PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                          
                          bool has_shadow_map, Float shadow_map_bias,
-                         material_info mat_info,  std::vector<Light>& point_lights, Float lightintensity,
+                         material_info mat_info,  std::vector<Light>& point_lights,
                          std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
-  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), dirlightintensity(lightintensity),
+  shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers)   {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
@@ -1159,7 +1158,7 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
   vec3 light_color(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
     Float shadow = 1.0f;
-    Float intensity = dot(normal, directional_lights[ii].direction);
+    Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
     if(has_shadow_map) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;

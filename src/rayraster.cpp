@@ -117,7 +117,6 @@ List rasterize(List mesh,
                NumericVector lookfrom,
                NumericVector lookat,
                double fov,
-               NumericVector light_direction,
                NumericVector ambient_color, 
                double exponent, 
                double specular_intensity, 
@@ -147,7 +146,7 @@ List rasterize(List mesh,
                NumericVector bounds,
                IntegerVector shadowdims,
                NumericVector camera_up,
-               double lightintensity, int culling, 
+               int culling, 
                double alpha_line, double line_offset,
                NumericVector ortho_dims, LogicalVector is_dir_light) {
   //Convert R vectors to vec3
@@ -221,8 +220,8 @@ List rasterize(List mesh,
   NumericMatrix uvzbuffer(nx,ny);
 
   //Initialize rayimage buffers
-  rayimage shadowbuffer(sbuffer,sbuffer,sbuffer,shadowdims(0),shadowdims(1),shadow_map_intensity);
-  rayimage ambientbuffer(abuffer,abuffer,abuffer,nx,ny);
+  rayimage shadowbuffer(sbuffer, shadowdims(0), shadowdims(1),shadow_map_intensity);
+  rayimage ambientbuffer(abuffer, nx, ny);
   rayimage positionbuffer(xxbuffer,yybuffer,zzbuffer,nx,ny);
   rayimage normalbuffer(nxbuffer,nybuffer,nzbuffer,nx,ny);
   rayimage uvbuffer(uvxbuffer,uvybuffer,uvzbuffer,nx,ny);
@@ -255,27 +254,29 @@ List rasterize(List mesh,
     }
   }
   
-  std::vector<rayimage> shadowbuffers;
+  std::vector<rayimage > shadowbuffers;
   std::vector<Rcpp::NumericMatrix> shadowbuffer_mats;
   
   std::vector<DirectionalLight> directional_lights;
   for(int i = 0; i < is_dir_light.length(); i++) {
     if(is_dir_light(i)) {
       NumericMatrix sbuffer_temp(shadowdims(0),shadowdims(1));
-      shadowbuffer_mats.push_back(sbuffer_temp);
-      
-      rayimage shadowbuffer_temp(sbuffer_temp,sbuffer_temp,sbuffer_temp,shadowdims(0),shadowdims(1),shadow_map_intensity);
-      
+      shadowbuffer_mats.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
+
+      rayimage shadowbuffer_temp(shadowbuffer_mats.back(),shadowdims(0),shadowdims(1),shadow_map_intensity);
+
       shadowbuffers.push_back(shadowbuffer_temp);
+      
       vec3 light_up_dir = vec3(0.,1.,0.);
       if(glm::length(glm::cross(light_up,light_up_dir)) == 0) {
         light_up_dir = vec3(0.f,0.f,1.0f);
       }
       vec3 light_dir_temp = glm::normalize(vec3(lightinfo(i,0),lightinfo(i,1),lightinfo(i,2)));
+      print_vec(light_dir_temp);
       directional_lights.push_back(DirectionalLight(light_dir_temp,
                                                     vec3(lightinfo(i,3),lightinfo(i,4),lightinfo(i,5)),
                                                     scene_center, light_up_dir, scene_diag,
-                                                    near_plane, far_plane, 
+                                                    near_plane, far_plane,
                                                     vp_shadow, Model, shadow_inv));
     }
   }
@@ -354,37 +355,37 @@ List rasterize(List mesh,
     if(type == 1) {
       shader = new GouraudShader(Model, Projection, View, viewport,
                                  has_shadow_map,
-                                 shadow_map_bias,mat_info[i], point_lights, lightintensity,
+                                 shadow_map_bias,mat_info[i], point_lights,
                                  directional_lights, shadowbuffers);
     } else if (type == 2) {
       shader = new DiffuseShader(Model, Projection, View, viewport,
                                  has_shadow_map,
-                                 shadow_map_bias,mat_info[i], point_lights, lightintensity,
+                                 shadow_map_bias,mat_info[i], point_lights,
                                  directional_lights, shadowbuffers);
     } else if (type == 3) {
       shader = new PhongShader(Model, Projection, View, viewport,
                                has_shadow_map,
-                               shadow_map_bias,mat_info[i], point_lights, lightintensity,
+                               shadow_map_bias,mat_info[i], point_lights,
                                directional_lights, shadowbuffers);
     } else if (type == 4) {
       shader = new DiffuseNormalShader(Model, Projection, View, viewport,
                                        has_shadow_map,
-                                       shadow_map_bias,mat_info[i], point_lights, lightintensity,
+                                       shadow_map_bias,mat_info[i], point_lights,
                                        directional_lights, shadowbuffers);
     } else if (type == 5) {
       shader = new DiffuseShaderTangent(Model, Projection, View, viewport,
                                         has_shadow_map,
-                                        shadow_map_bias,mat_info[i], point_lights, lightintensity,
+                                        shadow_map_bias,mat_info[i], point_lights,
                                         directional_lights, shadowbuffers);
     } else if (type == 6) {
       shader = new PhongNormalShader(Model, Projection, View, viewport,
                                      has_shadow_map,
-                                     shadow_map_bias,mat_info[i], point_lights, lightintensity,
+                                     shadow_map_bias,mat_info[i], point_lights,
                                      directional_lights, shadowbuffers);
     } else if (type == 7) {
       shader = new PhongShaderTangent(Model, Projection, View, viewport,
                                       has_shadow_map,
-                                      shadow_map_bias,mat_info[i], point_lights, lightintensity,
+                                      shadow_map_bias,mat_info[i], point_lights,
                                       directional_lights, shadowbuffers);
     } else if (type == 8) {
       shader = new ColorShader(Model, Projection, View, viewport,mat_info[i]);
@@ -427,17 +428,17 @@ List rasterize(List mesh,
   if(typevals(0) == 1) {
     shaders.push_back(new GouraudShader(Model, Projection, View, viewport,
                                has_shadow_map,
-                               shadow_map_bias,default_mat, point_lights, lightintensity,
+                               shadow_map_bias,default_mat, point_lights,
                                directional_lights, shadowbuffers));
   } else if (typevals(0) == 2 || typevals(0) == 4 || typevals(0) == 5) {
     shaders.push_back(new DiffuseShader(Model, Projection, View, viewport,
                                has_shadow_map,
-                               shadow_map_bias,default_mat, point_lights, lightintensity,
+                               shadow_map_bias,default_mat, point_lights,
                                directional_lights, shadowbuffers));
   } else if (typevals(0) == 3 || typevals(0) == 6 || typevals(0) == 7) {
     shaders.push_back(new PhongShader(Model, Projection, View, viewport,
                              has_shadow_map,
-                             shadow_map_bias,default_mat, point_lights, lightintensity,
+                             shadow_map_bias,default_mat, point_lights,
                              directional_lights, shadowbuffers));
   } else if (typevals(0) == 8) {
     shaders.push_back(new ColorShader(Model, Projection, View, viewport,default_mat));
@@ -527,7 +528,7 @@ List rasterize(List mesh,
     }
   }
   
-  //Inner-most index model, then block, then index
+  //Light, Inner-most index model, then block, then index
   std::vector<std::vector<std::vector<int> > > blocks_depth;
   
   std::vector<vec2> min_block_bound_depth;
@@ -618,13 +619,13 @@ List rasterize(List mesh,
         }
       }
       
-      rayimage &shadowbuff = shadowbuffers[sb];
+      rayimage& shadowbuff = shadowbuffers[sb];
       std::vector<IShader*> &depth_shader_single = depthshaders[sb];
       //Calculate shadow buffer
       auto task = [&depth_shader_single, &blocks_depth, &ndc_verts_depth, &ndc_inv_w_depth,  
                    &min_block_bound_depth, &max_block_bound_depth,
                    &zbuffer_depth, &shadowbuff, &normalbuffer, &positionbuffer, &uvbuffer, 
-                   &models, &alpha_depths] (unsigned int i) {
+                   &models, &alpha_depths,sb] (unsigned int i) {
         fill_tri_blocks(blocks_depth[i],
                         ndc_verts_depth,
                         ndc_inv_w_depth,
@@ -639,7 +640,6 @@ List rasterize(List mesh,
                         models, true,
                         alpha_depths);
       };
-      
       RcppThread::ThreadPool pool2(numbercores);
       for(int i = 0; i < nx_blocks_depth*ny_blocks_depth; i++) {
         pool2.push(task, i);
@@ -656,7 +656,7 @@ List rasterize(List mesh,
 
   //Calculate Image
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<Float>::infinity() ) ;
-  
+
   for(int model_num = 0; model_num < models.size(); model_num++ ) {
     ModelInfo &shp = models[model_num];
     for(int i = 0; i < shp.num_indices; i++) {
@@ -666,12 +666,12 @@ List rasterize(List mesh,
       ndc_verts[model_num][0][i] = shaders[mat_num]->vertex(i,0, shp);
       ndc_verts[model_num][1][i] = shaders[mat_num]->vertex(i,1, shp);
       ndc_verts[model_num][2][i] = shaders[mat_num]->vertex(i,2, shp);
-    
+
       //Depth clamping
       ndc_verts[model_num][0][i].w = ndc_verts[model_num][0][i].w < near_clip ? near_clip : ndc_verts[model_num][0][i].w;
       ndc_verts[model_num][1][i].w = ndc_verts[model_num][1][i].w < near_clip ? near_clip : ndc_verts[model_num][1][i].w;
       ndc_verts[model_num][2][i].w = ndc_verts[model_num][2][i].w < near_clip ? near_clip : ndc_verts[model_num][2][i].w;
-      
+
       //Depth clamping
       ndc_verts[model_num][0][i].w = ndc_verts[model_num][0][i].w > far_clip ? far_clip : ndc_verts[model_num][0][i].w;
       ndc_verts[model_num][1][i].w = ndc_verts[model_num][1][i].w > far_clip ? far_clip : ndc_verts[model_num][1][i].w;
@@ -680,19 +680,19 @@ List rasterize(List mesh,
       ndc_inv_w[model_num][0][i] = 1.0f/ndc_verts[model_num][0][i].w;
       ndc_inv_w[model_num][1][i] = 1.0f/ndc_verts[model_num][1][i].w;
       ndc_inv_w[model_num][2][i] = 1.0f/ndc_verts[model_num][2][i].w;
-      
+
       vec3 v1 = ndc_verts[model_num][0][i] * ndc_inv_w[model_num][0][i];
       vec3 v2 = ndc_verts[model_num][1][i] * ndc_inv_w[model_num][1][i];
       vec3 v3 = ndc_verts[model_num][2][i] * ndc_inv_w[model_num][2][i];
-      
+
       vec3 min_bounds = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
                              fmin(v1.y,fmin(v2.y,v3.y)),
                              fmin(v1.z,fmin(v2.z,v3.z)));
-      
+
       vec3 max_bounds = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
                              fmax(v1.y,fmax(v2.y,v3.y)),
                              fmax(v1.z,fmax(v2.z,v3.z)));
-      
+
       int min_x_block = std::fmax(floor(min_bounds.x / (Float)blocksize), 0);
       int min_y_block = std::fmax(floor(min_bounds.y / (Float)blocksize), 0);
       int max_x_block = std::fmin(ceil(max_bounds.x  / (Float)blocksize), nx_blocks);
@@ -708,7 +708,7 @@ List rasterize(List mesh,
   }
 
   auto task = [&shaders, &models, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
-               &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer, 
+               &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer,
                &alpha_depths] (unsigned int i) {
     fill_tri_blocks(blocks[i],
                     ndc_verts,
@@ -721,7 +721,7 @@ List rasterize(List mesh,
                     normalbuffer,
                     positionbuffer,
                     uvbuffer,
-                    models, false, 
+                    models, false,
                     alpha_depths);
   };
 
@@ -812,8 +812,8 @@ List rasterize(List mesh,
     }
   }
   std::vector<vec3> ndc_line_verts;
-  
-  
+
+
   //Lines go here (no light)
   Mat vpMVP = vp * Projection * View * Model;
   for(int i = 0; i < line_mat.nrow(); i++) {
@@ -825,12 +825,11 @@ List rasterize(List mesh,
   if(ndc_line_verts.size() > 0) {
     aa_line(ndc_line_verts, zbuffer, alpha_depths, line_color, alpha_line, line_offset);
   }
-  
+
   for(int i = 0; i < nx; i++) {
     for(int j = 0; j < ny; j++) {
       for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depths[j + ny*i].rbegin();
           it != alpha_depths[j + ny*i].rend(); ++it) {
-        // Rcpp::Rcout << it->first << " " << zbuffer(i,j) << " " << it->first - zbuffer(i,j) << "\n";
         if(it->first <= zbuffer(i,j)) {
           zbuffer(i,j) = it->first;
           vec4 temp_col = it->second.color;
@@ -854,7 +853,9 @@ List rasterize(List mesh,
     delete shaders[i];
   }
 
-  return(List::create(_["r"] = r, _["g"] = g, _["b"] = b, _["amb"] = abuffer, _["depth"] = zbuffer,
+  return(List::create(//_["r"] = r, _["g"] = g, _["b"] = b,
+                      _["r"] = shadowbuffer_mats[1], _["g"] = shadowbuffer_mats[1], _["b"] = shadowbuffer_mats[1],
+                      _["amb"] = abuffer, _["depth"] = zbuffer,
                       _["normalx"] = nxbuffer, _["normaly"] = nybuffer, _["normalz"] = nzbuffer,
                       _["positionx"] = xxbuffer, _["positiony"] = yybuffer, _["positionz"] = zzbuffer,
                       _["uvx"] = uvxbuffer, _["uvy"] = uvybuffer, _["uvz"] = uvzbuffer));

@@ -22,8 +22,6 @@
 #'@param type Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).
 #'@param color Default `darkred`. Color of model if no material file present (or for faces using the default material).
 #'@param background Default `white`. Background color.
-#'@param light_direction Default `c(1,1,1)`. Vector specifying the light direction for the primary directional light.
-#'@param light_intensity Default `1.0`. Light intensity.
 #'@param ambient_color Default `c(0,0,0)`. Ambient color of model if no material file present (or for faces using the default material).
 #'@param tangent_space_normals Default `TRUE`.
 #'@param shadow_map Default `FALSE`.
@@ -53,9 +51,8 @@ rasterize_mesh  = function(mesh, indices = NULL, texcoords = NULL, normals = NUL
                            parallel = TRUE,
                            fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0), #Sanitize lookfrom and lookat inputs
                            scale_obj = 1,
-                           light_info = NULL, color="red",
-                           type = "diffuse", background = "white",
-                           light_direction = c(1,1,1), light_intensity=1.0, tangent_space_normals = TRUE,
+                           light_info = directional_light(), color="red",
+                           type = "diffuse", background = "white",tangent_space_normals = TRUE,
                            ambient_color=c(0,0,0), 
                            exponent=32, specular_intensity = 0.6, emission_intensity = 1,
                            override_exponent = FALSE,
@@ -231,7 +228,6 @@ rasterize_mesh  = function(mesh, indices = NULL, texcoords = NULL, normals = NUL
                         lookfrom=lookfrom,
                         lookat=lookat,
                         fov=fov,
-                        light_direction=light_direction,
                         type = typevals,
                         has_shadow_map=shadow_map, 
                         calc_ambient = ssao, 
@@ -251,7 +247,7 @@ rasterize_mesh  = function(mesh, indices = NULL, texcoords = NULL, normals = NUL
                         override_exponent = override_exponent,
                         near_plane, far_plane,
                         shadow_map_intensity,
-                        bounds, shadow_map_dims, camera_up,light_intensity, culling, 
+                        bounds, shadow_map_dims, camera_up, culling, 
                         alpha_line, line_offset,
                         ortho_dims, is_dir_light)
   if(ssao) {
