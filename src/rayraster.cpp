@@ -272,7 +272,6 @@ List rasterize(List mesh,
         light_up_dir = vec3(0.f,0.f,1.0f);
       }
       vec3 light_dir_temp = glm::normalize(vec3(lightinfo(i,0),lightinfo(i,1),lightinfo(i,2)));
-      print_vec(light_dir_temp);
       directional_lights.push_back(DirectionalLight(light_dir_temp,
                                                     vec3(lightinfo(i,3),lightinfo(i,4),lightinfo(i,5)),
                                                     scene_center, light_up_dir, scene_diag,
@@ -620,12 +619,12 @@ List rasterize(List mesh,
       }
       
       rayimage& shadowbuff = shadowbuffers[sb];
-      std::vector<IShader*> &depth_shader_single = depthshaders[sb];
+      std::vector<IShader*>& depth_shader_single = depthshaders[sb];
       //Calculate shadow buffer
       auto task = [&depth_shader_single, &blocks_depth, &ndc_verts_depth, &ndc_inv_w_depth,  
                    &min_block_bound_depth, &max_block_bound_depth,
                    &zbuffer_depth, &shadowbuff, &normalbuffer, &positionbuffer, &uvbuffer, 
-                   &models, &alpha_depths,sb] (unsigned int i) {
+                   &models, &alpha_depths, sb] (unsigned int i) {
         fill_tri_blocks(blocks_depth[i],
                         ndc_verts_depth,
                         ndc_inv_w_depth,
@@ -650,9 +649,10 @@ List rasterize(List mesh,
           blocks_depth[j][model_num].clear();
         }
       }
+      std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<Float>::infinity() ) ;
     }
-    std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<Float>::infinity() ) ;
   }
+  
 
   //Calculate Image
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<Float>::infinity() ) ;
@@ -853,8 +853,7 @@ List rasterize(List mesh,
     delete shaders[i];
   }
 
-  return(List::create(//_["r"] = r, _["g"] = g, _["b"] = b,
-                      _["r"] = shadowbuffer_mats[1], _["g"] = shadowbuffer_mats[1], _["b"] = shadowbuffer_mats[1],
+  return(List::create(_["r"] = r, _["g"] = g, _["b"] = b,
                       _["amb"] = abuffer, _["depth"] = zbuffer,
                       _["normalx"] = nxbuffer, _["normaly"] = nybuffer, _["normalz"] = nzbuffer,
                       _["positionx"] = xxbuffer, _["positiony"] = yybuffer, _["positionz"] = zzbuffer,
