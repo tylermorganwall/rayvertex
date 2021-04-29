@@ -1,51 +1,14 @@
 #'@title Rasterize an OBJ file
 #'
 #'@param obj_model  A two-dimensional matrix, where each entry in the matrix is the elevation at that point. All points are assumed to be evenly spaced.
-#'@param width Default `400`. Width of the rendered image.
-#'@param height Default `400`. Width of the rendered image.
-#'@param fov Default `20`. Width of the rendered image.
-#'@param lookfrom Default `c(0,0,10)`. Camera location.
-#'@param lookat Default `c(0,0,0)`. Camera focal position.
-#'@param obj_model  Filename of the `obj` file.
-#'@param filename Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.
-#'@param width Default `400`. Width of the rendered image.
-#'@param height Default `400`. Width of the rendered image.
-#'@param line_info Default `NULL`. Matrix of line segments to add to the scene. Number of rows must be a multiple of 2.
-#'@param parallel Default `TRUE`. Whether to use parallel processing.
-#'@param fov Default `20`. Width of the rendered image.
-#'@param lookfrom Default `c(0,0,10)`. Camera location.
-#'@param lookat Default `NULL`. Camera focal position, defaults to the center of the model.
-#'@param camera_up Default `c(0,1,0)`. Camera up vector.
-#'@param scale_obj Default `1`. Value to scale size of model.
-#'@param light_info Default `NULL`. A data.frame of point light information created using the 
-#'`directional_light()`, `point_light()` and `add_light()` functions.
-#'@param type Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).
-#'@param color Default `darkred`. Color of model if no material file present (or for faces using the default material).
-#'@param background Default `white`. Background color.
-#'@param ambient_color Default `c(0,0,0)`. Ambient color of model if no material file present (or for faces using the default material).
-#'@param tangent_space_normals Default `TRUE`.
-#'@param shadow_map Default `FALSE`.
-#'@param shadow_map_bias Default `-0.001`.
-#'@param shadow_map_intensity Default `0.5`.
-#'@param shadow_map_dims Default `NULL`.
-#'@param ssao Default `FALSE`. Whether to add screen-space ambient occlusion (SSAO) to the render.
-#'@param ssao_intensity Default `10`. Intensity of the shadow map.
-#'@param ssao_radius Default `0.1`. Radius to use when calculating the SSAO term.
-#'@param tonemap Default `"none"`.
-#'@param debug Default `"none"`.
-#'@param near_plane Default `0.1`.
-#'@param far_plane Default `100`.
-#'@param culling Default `"back"`.
-#'@param shader Default `"default"`.
-#'@param double_sided Default `FALSE`.
-#'@param block_size Default `4`. 
-#'@param shape Default `NULL`
+#'@param shape Default `NULL`. The shape to render in the OBJ mesh. 
+#'@param ... Other parameters to pass to `rasterize_mesh()`.
 #'
 #'@return Rasterized image.
 #'@export
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
-rasterize_mesh  = function(mesh, indices = NULL, texcoords = NULL, normals = NULL,
+rasterize_mesh  = function(mesh, 
                            filename = NA, width=400, height=400, 
                            line_info = NULL, alpha_line = 0.5,
                            parallel = TRUE,

@@ -6,9 +6,6 @@
 \usage{
 rasterize_mesh(
   mesh,
-  indices = NULL,
-  texcoords = NULL,
-  normals = NULL,
   filename = NA,
   width = 400,
   height = 400,
@@ -52,72 +49,11 @@ rasterize_mesh(
 )
 }
 \arguments{
-\item{filename}{Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.}
+\item{shape}{Default `NULL`. The shape to render in the OBJ mesh.}
 
-\item{width}{Default `400`. Width of the rendered image.}
+\item{obj_model}{A two-dimensional matrix, where each entry in the matrix is the elevation at that point. All points are assumed to be evenly spaced.}
 
-\item{height}{Default `400`. Width of the rendered image.}
-
-\item{line_info}{Default `NULL`. Matrix of line segments to add to the scene. Number of rows must be a multiple of 2.}
-
-\item{parallel}{Default `TRUE`. Whether to use parallel processing.}
-
-\item{fov}{Default `20`. Width of the rendered image.}
-
-\item{lookfrom}{Default `c(0,0,10)`. Camera location.}
-
-\item{lookat}{Default `NULL`. Camera focal position, defaults to the center of the model.}
-
-\item{camera_up}{Default `c(0,1,0)`. Camera up vector.}
-
-\item{scale_obj}{Default `1`. Value to scale size of model.}
-
-\item{light_info}{Default `NULL`. A data.frame of point light information created using the 
-`directional_light()`, `point_light()` and `add_light()` functions.}
-
-\item{color}{Default `darkred`. Color of model if no material file present (or for faces using the default material).}
-
-\item{type}{Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).}
-
-\item{background}{Default `white`. Background color.}
-
-\item{tangent_space_normals}{Default `TRUE`.}
-
-\item{ambient_color}{Default `c(0,0,0)`. Ambient color of model if no material file present (or for faces using the default material).}
-
-\item{shadow_map}{Default `FALSE`.}
-
-\item{shadow_map_bias}{Default `-0.001`.}
-
-\item{shadow_map_intensity}{Default `0.5`.}
-
-\item{shadow_map_dims}{Default `NULL`.}
-
-\item{ssao}{Default `FALSE`. Whether to add screen-space ambient occlusion (SSAO) to the render.}
-
-\item{ssao_intensity}{Default `10`. Intensity of the shadow map.}
-
-\item{ssao_radius}{Default `0.1`. Radius to use when calculating the SSAO term.}
-
-\item{tonemap}{Default `"none"`.}
-
-\item{debug}{Default `"none"`.}
-
-\item{near_plane}{Default `0.1`.}
-
-\item{far_plane}{Default `100`.}
-
-\item{culling}{Default `"back"`.}
-
-\item{shader}{Default `"default"`.}
-
-\item{double_sided}{Default `FALSE`.}
-
-\item{block_size}{Default `4`.}
-
-\item{shape}{Default `NULL`}
-
-\item{obj_model}{Filename of the `obj` file.}
+\item{...}{Other parameters to pass to `rasterize_mesh()`.}
 }
 \value{
 Rasterized image.

@@ -8,53 +8,12 @@ If the OBJ file has an MTL file, it must be located in the same directory as the
 Additionally, the textures referenced in the MTL file must be specified as a 
 relative path to the OBJ file's location.}
 \usage{
-rasterize_obj(
-  obj_model,
-  filename = NA,
-  width = 400,
-  height = 400,
-  line_info = NULL,
-  alpha_line = 0.5,
-  parallel = TRUE,
-  fov = 20,
-  lookfrom = c(0, 0, 10),
-  lookat = NULL,
-  camera_up = c(0, 1, 0),
-  scale_obj = 1,
-  point_light_info = NULL,
-  type = "diffuse",
-  color = "darkred",
-  background = "white",
-  light_direction = c(1, 1, 1),
-  light_intensity = 1,
-  ambient_color = c(0, 0, 0),
-  exponent = 32,
-  specular_intensity = 0.6,
-  emission_intensity = 1,
-  override_exponent = FALSE,
-  diffuse_intensity = 1,
-  tangent_space_normals = TRUE,
-  shadow_map = FALSE,
-  shadow_map_bias = 0.005,
-  shadow_map_intensity = 0.5,
-  shadow_map_dims = NULL,
-  ssao = FALSE,
-  ssao_intensity = 10,
-  ssao_radius = 0.1,
-  tonemap = "none",
-  debug = "none",
-  near_plane = 0.1,
-  far_plane = 100,
-  culling = "back",
-  shader = "default",
-  double_sided = FALSE,
-  block_size = 4,
-  shape = NULL,
-  line_offset = -1e-05
-)
+rasterize_obj(obj_model, shape = NULL, ...)
 }
 \arguments{
 \item{obj_model}{Filename of the `obj` file.}
+
+\item{shape}{Default `NULL`}
 
 \item{filename}{Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.}
 
@@ -130,8 +89,6 @@ rasterize_obj(
 \item{shader}{Default `"default"`.}
 
 \item{block_size}{Default `4`.}
-
-\item{shape}{Default `NULL`}
 }
 \value{
 Rasterized image.
