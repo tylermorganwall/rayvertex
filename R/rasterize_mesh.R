@@ -8,6 +8,7 @@
 #'@export
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+#'obj_file = 
 rasterize_mesh  = function(mesh, 
                            filename = NA, width=400, height=400, 
                            line_info = NULL, alpha_line = 0.5,
@@ -59,7 +60,7 @@ rasterize_mesh  = function(mesh,
     
     max_indices = max(c(max_indices,nrow(obj$shapes[[i]]$indices)))
     has_norms[i] = nrow(obj$shapes[[i]]$indices) == nrow(obj$shapes[[i]]$norm_indices)
-    has_tex[i] = nrow(obj$shapes[[i]]$indices) == nrow(obj$shapes[[i]]$tex_indices)
+    has_tex[i] = nrow(obj$shapes[[i]]$indices) == nrow(obj$shapes[[i]]$tex_indices) && all(obj$shapes[[i]]$tex_indices != -1)
   }
   obj$vertices = obj$vertices * scale_obj
   tempboundsmin = apply(obj$vertices,2,min)
@@ -136,7 +137,7 @@ rasterize_mesh  = function(mesh,
   bg_color = convert_color(background)
   
   typeval = switch(type, "vertex" = 1, "diffuse" = 2, "phong" = 3, "color" = 8, 1)
-  typevals = rep(typeval,length(obj$materials))
+  typevals = rep(typeval,max(c(length(obj$materials),1)))
   if(typeval != 8) {
     if(!use_default_material) {
       for(i in seq_len(length(obj$materials))) {

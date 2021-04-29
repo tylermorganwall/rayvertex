@@ -48,8 +48,7 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
       Float v1_ndc_inv_w = ndc_inv_w[model_num][0][face];
       Float v2_ndc_inv_w = ndc_inv_w[model_num][1][face];
       Float v3_ndc_inv_w = ndc_inv_w[model_num][2][face];
-      
-      
+
       int mat_num = shp.materials[face] >= 0 && shp.materials[face] < shaders.size() ? 
         shp.materials[face] : shaders.size()-1;
       
@@ -66,6 +65,7 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
         vec3 bound_max = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
                               fmax(v1.y,fmax(v2.y,v3.y)),
                               fmax(v1.z,fmax(v2.z,v3.z)));
+        
         
         int xmin =  std::min(std::max((int)floor(bound_min.x),(int)min_block_bound.x ),(int)min_block_bound.x);
         int xmax =  std::max(std::min((int)ceil(bound_max.x), (int)max_block_bound.x), (int)max_block_bound.x);
@@ -107,8 +107,7 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
             bool inside = culling == 1 ? (w1 >= 0 && w2 >= 0 && w3 >= 0) : 
               culling == 2 ? (w1 <= 0 && w2 <= 0 && w3 <= 0) :
               (w1 >= 0 && w2 >= 0 && w3 >= 0) || (w1 <= 0 && w2 <= 0 && w3 <= 0);
-
-            if ((w1 >= 0 && w2 >= 0 && w3 >= 0) || (w1 <= 0 && w2 <= 0 && w3 <= 0)) {
+            if (inside) {
               vec3 bc       = vec3(w1, w2, w3)*inv_area;
               vec3 bc_clip  = vec3(bc.x*v1_ndc_inv_w, bc.y*v2_ndc_inv_w, bc.z*v3_ndc_inv_w);
               bc_clip      /= (bc_clip.x + bc_clip.y + bc_clip.z);

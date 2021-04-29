@@ -404,8 +404,8 @@ List rasterize(List mesh,
     vec3(0.0),
     (Float)exponent,
     1.0,
-    0.0,
-    0.0,
+    1.0,
+    1.0,
     fill,fill,fill,fill,fill,
     max_indices,              //Maybe an issue?
     (Float)emission_intensity,
@@ -427,20 +427,20 @@ List rasterize(List mesh,
   if(typevals(0) == 1) {
     shaders.push_back(new GouraudShader(Model, Projection, View, viewport,
                                has_shadow_map,
-                               shadow_map_bias,default_mat, point_lights,
+                               shadow_map_bias,mat_info.back(), point_lights,
                                directional_lights, shadowbuffers));
   } else if (typevals(0) == 2 || typevals(0) == 4 || typevals(0) == 5) {
     shaders.push_back(new DiffuseShader(Model, Projection, View, viewport,
                                has_shadow_map,
-                               shadow_map_bias,default_mat, point_lights,
+                               shadow_map_bias,mat_info.back(), point_lights,
                                directional_lights, shadowbuffers));
   } else if (typevals(0) == 3 || typevals(0) == 6 || typevals(0) == 7) {
     shaders.push_back(new PhongShader(Model, Projection, View, viewport,
                              has_shadow_map,
-                             shadow_map_bias,default_mat, point_lights,
+                             shadow_map_bias,mat_info.back(), point_lights,
                              directional_lights, shadowbuffers));
   } else if (typevals(0) == 8) {
-    shaders.push_back(new ColorShader(Model, Projection, View, viewport,default_mat));
+    shaders.push_back(new ColorShader(Model, Projection, View, viewport,mat_info.back()));
   }
   
   
@@ -692,6 +692,7 @@ List rasterize(List mesh,
       vec3 max_bounds = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
                              fmax(v1.y,fmax(v2.y,v3.y)),
                              fmax(v1.z,fmax(v2.z,v3.z)));
+      
 
       int min_x_block = std::fmax(floor(min_bounds.x / (Float)blocksize), 0);
       int min_y_block = std::fmax(floor(min_bounds.y / (Float)blocksize), 0);
