@@ -1,14 +1,124 @@
 #'@title Rasterize an OBJ file
 #'
-#'@param obj_model  A two-dimensional matrix, where each entry in the matrix is the elevation at that point. All points are assumed to be evenly spaced.
+#'@param mesh The mesh object.
+#'@param filename Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.
+#'@param width Default `400`. Width of the rendered image.
+#'@param height Default `400`. Width of the rendered image.
+#'@param line_info Default `NULL`. Matrix of line segments to add to the scene. Number of rows must be a multiple of 2.
+#'@param parallel Default `TRUE`. Whether to use parallel processing.
+#'@param fov Default `20`. Width of the rendered image.
+#'@param lookfrom Default `c(0,0,10)`. Camera location.
+#'@param lookat Default `NULL`. Camera focal position, defaults to the center of the model.
+#'@param camera_up Default `c(0,1,0)`. Camera up vector.
+#'@param scale_obj Default `1`. Value to scale size of model.
+#'@param point_light_info Default `NULL`. A data.frame of point light information created using the 
+#'`point_light()` and `add_light()` functions.
+#'@param type Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).
+#'@param color Default `darkred`. Color of model if no material file present (or for faces using the default material).
+#'@param background Default `white`. Background color.
+#'@param light_direction Default `c(1,1,1)`. Vector specifying the light direction for the primary directional light.
+#'@param light_intensity Default `1.0`. Light intensity.
+#'@param ambient_color Default `c(0,0,0)`. Ambient color of model if no material file present (or for faces using the default material).
+#'@param exponent Default `32`.
+#'@param specular_intensity Default `0.6`.
+#'@param emission_intensity Default `1`.
+#'@param override_exponent Default `FALSE`.
+#'@param diffuse_intensity Default `1`.
+#'@param tangent_space_normals Default `TRUE`.
+#'@param shadow_map Default `FALSE`.
+#'@param shadow_map_bias Default `0.005`.
+#'@param shadow_map_intensity Default `0.5`.
+#'@param shadow_map_dims Default `NULL`.
+#'@param ssao Default `FALSE`. Whether to add screen-space ambient occlusion (SSAO) to the render.
+#'@param ssao_intensity Default `10`. Intensity of the shadow map.
+#'@param ssao_radius Default `0.1`. Radius to use when calculating the SSAO term.
+#'@param tonemap Default `"none"`.
+#'@param debug Default `"none"`.
+#'@param near_plane Default `0.1`.
+#'@param far_plane Default `100`.
+#'@param culling Default `"back"`.
+#'@param shader Default `"default"`.
+#'@param block_size Default `4`. 
 #'@param shape Default `NULL`. The shape to render in the OBJ mesh. 
 #'@param ... Other parameters to pass to `rasterize_mesh()`.
 #'
 #'@return Rasterized image.
 #'@export
 #'@examples
-#'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
-#'obj_file = 
+#'#Let's load the cube OBJ file included with the package
+#'
+#'cube_model = read_obj(cube_obj())
+#'
+#'rasterize_mesh(cube_model,lookfrom=c(2,4,10), 
+#'               light_info = directional_light(direction=c(0.5,1,0.7)))
+#'
+#'#Flatten the cube, translate downwards, and set to grey
+#'base = cube_model %>% 
+#'  scale_mesh(scale=c(5,0.2,5)) %>%
+#'  translate_mesh(c(0,-0.1,0)) %>% 
+#'  set_material(diffuse="grey80") 
+#'
+#'rasterize_mesh(base, lookfrom=c(2,4,10), 
+#'               light_info = directional_light(direction=c(0.5,1,0.7)))
+#'
+#'#load the R OBJ file, scale it down, color it blue, and add it to the grey base
+#'r_model = r_obj() %>% 
+#'  read_obj() %>% 
+#'  scale_mesh(scale=0.5) %>% 
+#'  set_material(diffuse="dodgerblue") %>% 
+#'  add_shape(cube_model_flat)
+#'
+#'rasterize_mesh(r_model, lookfrom=c(2,4,10), 
+#'               light_info = directional_light(direction=c(0.5,1,0.7)))
+#'               
+#'#Zoom in and turn on shadow mapping
+#'rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,shadow_map = TRUE,
+#'               light_info = directional_light(direction=c(0.5,1,0.7)))
+#'
+#'#Include the resolution (4x) of the shadow map for less pixellation around the edges
+#'#Also decrease the shadow_map_bias slightly to remove the "peter panning" floating shadow effect
+#'rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,
+#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
+#'               light_info = directional_light(direction=c(0.5,1,0.7)))
+#'               
+#'#Add some more directional lights and change their color
+#' lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 1) %>% 
+#'            add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 1)) %>% 
+#'            add_light(directional_light(c(2,4,10),color = "white",intensity = 0.5))
+#'            
+#'rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,
+#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
+#'               light_info = lights)
+#'               
+#'#Add some point lights
+#'lights_p = lights %>% 
+#'  add_light(point_light(position=c(-1,1,0),color="red", intensity=10)) %>% 
+#'  add_light(point_light(position=c(1,1,0),color="purple", intensity=10)) 
+#'
+#'rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,
+#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
+#'               light_info = lights_p)
+#'               
+#'#change the camera position
+#'rasterize_mesh(r_model, lookfrom=c(-2,2,-10), fov=10,
+#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
+#'               light_info = lights_p)
+#'               
+#'#Add lines
+#'
+#'t = seq(0,8*pi,length.out=361)
+#'
+#'line_mat = matrix(0,nrow=720,ncol=3)
+#'for(i in 1:360) {
+#' line_mat[(2*i-1),] = c(0.5*sin(t[i]), t[i]/(8*pi), 0.5*cos(t[i]))
+#' line_mat[(2*i),]   = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))
+#'}
+#'
+#'line_mat2 = line_mat
+#'line_mat2 = line_mat2 - 0.001
+#'rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10, line_info = line_mat,
+#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
+#'               light_info = lights, bloom =FALSE, alpha_line = 1, width=400, height=400)
 rasterize_mesh  = function(mesh, 
                            filename = NA, width=400, height=400, 
                            line_info = NULL, alpha_line = 0.5,
@@ -16,7 +126,7 @@ rasterize_mesh  = function(mesh,
                            fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0), #Sanitize lookfrom and lookat inputs
                            scale_obj = 1,
                            light_info = directional_light(), color="red",
-                           type = "diffuse", background = "white",tangent_space_normals = TRUE,
+                           type = "diffuse", background = "black",tangent_space_normals = TRUE,
                            ambient_color=c(0,0,0), 
                            exponent=32, specular_intensity = 0.6, emission_intensity = 1,
                            override_exponent = FALSE,
@@ -28,7 +138,7 @@ rasterize_mesh  = function(mesh,
                            near_plane = 0.1, far_plane = 100, culling = "back",
                            shader = "default", double_sided = FALSE,
                            block_size = 4, shape = NULL, line_offset = -0.00001,
-                           ortho_dims = c(1,1)) {
+                           ortho_dims = c(1,1), bloom = FALSE, antialias_lines = TRUE) {
   obj = mesh
   max_indices = 0
   has_norms = rep(FALSE,length(obj$shapes))
@@ -213,7 +323,8 @@ rasterize_mesh  = function(mesh,
                         shadow_map_intensity,
                         bounds, shadow_map_dims, camera_up, culling, 
                         alpha_line, line_offset,
-                        ortho_dims, is_dir_light)
+                        ortho_dims, is_dir_light,
+                        antialias_lines)
   if(ssao) {
     imagelist$amb = (imagelist$amb)^ssao_intensity
     imagelist$r = imagelist$r * imagelist$amb
@@ -276,7 +387,9 @@ rasterize_mesh  = function(mesh,
   retmat[,,1] = rayimage::render_reorient(imagelist$r,transpose = TRUE, flipx = TRUE)
   retmat[,,2] = rayimage::render_reorient(imagelist$g,transpose = TRUE, flipx = TRUE)
   retmat[,,3] = rayimage::render_reorient(imagelist$b,transpose = TRUE, flipx = TRUE)
-  retmat = rayimage::render_convolution(retmat, min_value = 1)
+  if(bloom) {
+    retmat = rayimage::render_convolution(retmat, min_value = 1)
+  }
   
   retmat[retmat > 1] = 1
   if(is.na(filename)) {

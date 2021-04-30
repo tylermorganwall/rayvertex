@@ -43,7 +43,7 @@
 #'@param culling Default `"back"`.
 #'@param shader Default `"default"`.
 #'@param block_size Default `4`. 
-#'@param shape Default `NULL`
+#'@param shape Default `NULL`. The shape to render in the OBJ mesh. 
 #'@return Rasterized image.
 #'@export
 #'@examples

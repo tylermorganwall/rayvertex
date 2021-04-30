@@ -148,7 +148,8 @@ List rasterize(List mesh,
                NumericVector camera_up,
                int culling, 
                double alpha_line, double line_offset,
-               NumericVector ortho_dims, LogicalVector is_dir_light) {
+               NumericVector ortho_dims, LogicalVector is_dir_light,
+               bool aa_lines) {
   //Convert R vectors to vec3
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
   vec3 center(lookat(0),lookat(1),lookat(2));    //lookat
@@ -824,7 +825,11 @@ List rasterize(List mesh,
   }
   vec3 line_color = vec3(1.0f,1.0f,1.0f);
   if(ndc_line_verts.size() > 0) {
-    aa_line(ndc_line_verts, zbuffer, alpha_depths, line_color, alpha_line, line_offset);
+    if(aa_lines) {
+      aa_line(ndc_line_verts, zbuffer, alpha_depths, line_color, alpha_line, line_offset);
+    } else {
+      noaa_line(ndc_line_verts, zbuffer, alpha_depths, line_color, alpha_line, line_offset);
+    }
   }
 
   for(int i = 0; i < nx; i++) {

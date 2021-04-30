@@ -20,7 +20,7 @@ rasterize_mesh(
   light_info = directional_light(),
   color = "red",
   type = "diffuse",
-  background = "white",
+  background = "black",
   tangent_space_normals = TRUE,
   ambient_color = c(0, 0, 0),
   exponent = 32,
@@ -62,5 +62,62 @@ Rasterized image.
 Rasterize an OBJ file
 }
 \examples{
-#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+#Let's load the cube OBJ file included with the package
+
+cube_model = read_obj(cube_obj())
+
+rasterize_mesh(cube_model,lookfrom=c(2,4,10), 
+              light_info = directional_light(direction=c(0.5,1,0.7)))
+
+#Flatten the cube, translate downwards, and set to grey
+base = cube_model \%>\% 
+ scale_mesh(scale=c(5,0.2,5)) \%>\%
+ translate_mesh(c(0,-0.1,0)) \%>\% 
+ set_material(diffuse="grey80") 
+
+rasterize_mesh(base, lookfrom=c(2,4,10), 
+              light_info = directional_light(direction=c(0.5,1,0.7)))
+
+#load the R OBJ file, scale it down, color it blue, and add it to the grey base
+r_model = r_obj() \%>\% 
+ read_obj() \%>\% 
+ scale_mesh(scale=0.5) \%>\% 
+ set_material(diffuse="dodgerblue") \%>\% 
+ add_shape(cube_model_flat)
+
+rasterize_mesh(r_model, lookfrom=c(2,4,10), 
+              light_info = directional_light(direction=c(0.5,1,0.7)))
+              
+#Zoom in and turn on shadow mapping
+rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,shadow_map = TRUE,
+              light_info = directional_light(direction=c(0.5,1,0.7)))
+
+#Include the resolution (4x) of the shadow map for less pixellation around the edges
+#Also decrease the shadow_map_bias slightly to remove the "peter panning" floating shadow effect
+rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,
+              shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
+              light_info = directional_light(direction=c(0.5,1,0.7)))
+              
+#Add some more directional lights and change their color
+lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 1) \%>\% 
+           add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 1)) \%>\% 
+           add_light(directional_light(c(2,4,10),color = "white",intensity = 0.5))
+           
+rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,
+              shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
+              light_info = lights)
+              
+#Add some point lights
+lights_p = lights \%>\% 
+ add_light(point_light(position=c(-1,1,0),color="red", intensity=10)) \%>\% 
+ add_light(point_light(position=c(1,1,0),color="purple", intensity=10)) 
+
+rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,
+              shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
+              light_info = lights_p)
+              
+#change the camera position
+rasterize_mesh(r_model, lookfrom=c(-2,2,-10), fov=10,
+              shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
+              light_info = lights_p)
 }

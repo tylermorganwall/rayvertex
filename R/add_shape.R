@@ -9,6 +9,9 @@
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
 add_shape = function(mesh, shape) {
+  if(length(mesh) == 0) {
+    return(shape)
+  }
   max_vertices = nrow(mesh$vertices)
   max_norms = nrow(mesh$normals)
   max_tex = nrow(mesh$texcoords)

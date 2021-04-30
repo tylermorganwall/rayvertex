@@ -22,7 +22,7 @@ void aa_line(std::vector<vec3>& line_mat,
     z0 = 1.0f/line_mat[ii  ].z; 
     z1 = 1.0f/line_mat[ii+1].z;
     
-    const bool steep = abs(y1 - y0) > abs(x1 - x0);
+    const bool steep = std::fabs(y1 - y0) > std::fabs(x1 - x0);
     if (steep) {
       std::swap(x0,y0);
       std::swap(x1,y1);
@@ -45,46 +45,54 @@ void aa_line(std::vector<vec3>& line_mat,
     int xpx11;
     Float intery;
     {
-      const Float xend = round(x0);
+      const Float xend = floor(x0);
       const Float yend = y0 + gradient * (xend - x0);
       const Float xgap = rfpart(x0 + 0.5);
-      xpx11 = int(xend);
+      xpx11 = xend;
       const int ypx11 = ipart(yend);
       if (steep) {
         if(ypx11 < nx && ypx11 >= 0 && xpx11 < ny && xpx11 >= 0) {
           z = 1.0f/z0+offset;
           alpha_info tmp_data;
-          tmp_data.color = vec4(color, rfpart(yend) * xgap* alpha_line);
+          // tmp_data.color = vec4(color, rfpart(yend) * xgap* alpha_line);
+          // tmp_data.color = vec4(color, 1);
+          
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
-          alpha_depths[xpx11 + nx * ypx11][z] = tmp_data;
+          // alpha_depths[xpx11 + nx * ypx11][z] = tmp_data;
 
           if(xpx11 + 1 < nx) {
             alpha_info tmp_data2;
-            tmp_data2.color = vec4(color,fpart(yend) * xgap * alpha_line);
+            // tmp_data2.color = vec4(color,fpart(yend) * xgap * alpha_line);
+            // tmp_data2.color = vec4(color,1);
+            
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);
-            alpha_depths[xpx11 + 1 + nx * ypx11][z] = tmp_data2;
+            // alpha_depths[xpx11 + 1 + nx * ypx11][z] = tmp_data2;
           }
         }
       } else {
         if(xpx11 < nx && xpx11 >= 0 && ypx11 < ny && ypx11 >= 0) {
           z = 1.0f/z0+offset;
           alpha_info tmp_data;
-          tmp_data.color = vec4(color, rfpart(yend) * xgap * alpha_line);
+          // tmp_data.color = vec4(color, rfpart(yend) * xgap * alpha_line);
+          // tmp_data.color = vec4(color, 1);
+          
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
-          alpha_depths[ypx11 + ny * xpx11][z] = tmp_data;
+          // alpha_depths[ypx11 + ny * xpx11][z] = tmp_data;
           if(ypx11 + 1 < ny) {
             alpha_info tmp_data2;
-            tmp_data2.color = vec4(color,fpart(yend) * xgap * alpha_line);
+            // tmp_data2.color = vec4(color,fpart(yend) * xgap * alpha_line);
+            // tmp_data2.color = vec4(color,1);
+            
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);
-            alpha_depths[(ypx11 + 1) + ny * xpx11][z] = tmp_data2;
+            // alpha_depths[(ypx11 + 1) + ny * xpx11][z] = tmp_data2;
           }
         }
       }
@@ -93,46 +101,54 @@ void aa_line(std::vector<vec3>& line_mat,
     
     int xpx12;
     {
-      const Float xend = round(x1);
+      const Float xend = floor(x1);
       const Float yend = y1 + gradient * (xend - x1);
       const Float xgap = rfpart(x1 + 0.5);
-      xpx12 = int(xend);
+      xpx12 = xend;
       const int ypx12 = ipart(yend);
       if (steep) {
         if(ypx12 < nx && ypx12 >= 0 && xpx12 < ny && xpx12 >= 0) {
           z = 1.0f/z1+offset;
           alpha_info tmp_data;
-          tmp_data.color = vec4(color, rfpart(yend) * xgap* alpha_line);
+          // tmp_data.color = vec4(color, rfpart(yend) * xgap* alpha_line);
+          // tmp_data.color = vec4(color, 1);
+          
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
-          alpha_depths[xpx12 + nx * ypx12][z] = tmp_data;
+          // alpha_depths[xpx12 + nx * ypx12][z] = tmp_data;
 
           if(xpx12 + 1 < nx) {
             alpha_info tmp_data2;
-            tmp_data2.color = vec4(color,fpart(yend) * xgap* alpha_line);
+            // tmp_data2.color = vec4(color,fpart(yend) * xgap* alpha_line);
+            // tmp_data2.color = vec4(color,1);
+            
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);
-            alpha_depths[xpx12 + 1 + nx * ypx12][z] = tmp_data2;
+            // alpha_depths[xpx12 + 1 + nx * ypx12][z] = tmp_data2;
           }
         }
       } else {
         if(xpx12 < nx && xpx12 >= 0 && ypx12 < ny && ypx12 >= 0) {
           z = 1.0f/z1+offset;
           alpha_info tmp_data;
-          tmp_data.color = vec4(color, rfpart(yend) * xgap * alpha_line);
+          // tmp_data.color = vec4(color, rfpart(yend) * xgap * alpha_line);
+          // tmp_data.color = vec4(color, 1);
+          
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
-          alpha_depths[ypx12 + ny * xpx12][z] = tmp_data;
+          // alpha_depths[ypx12 + ny * xpx12][z] = tmp_data;
           if(ypx12 + 1 < ny) {
             alpha_info tmp_data2;
-            tmp_data2.color = vec4(color,fpart(yend) * xgap * alpha_line);
+            // tmp_data2.color = vec4(color,fpart(yend) * xgap * alpha_line);
+            // tmp_data2.color = vec4(color,1);
+            
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);
-            alpha_depths[(ypx12 + 1) + ny * xpx12][z] = tmp_data2;
+            // alpha_depths[(ypx12 + 1) + ny * xpx12][z] = tmp_data2;
           }
         }
       }
@@ -140,13 +156,13 @@ void aa_line(std::vector<vec3>& line_mat,
     Float intery0 = intery;
 
     int iy;
-    Float zsteps = xpx12-(xpx11 + 1);
+    Float zsteps = xpx12-(xpx11);
     Float zstep = dz/zsteps;
     Float counter = 0;
 
     if (steep) {
-      for (int x = xpx11 + 1; x < xpx12; x++) {
-        iy = ipart(intery);
+      for (int x = xpx11   ; x < xpx12 ; x++) {
+        iy = ipart(intery)-1;
         if(iy < nx && iy >= 0 && x < ny && x >= 0) {
           z = 1.0f/zcurrent+offset;
           alpha_info tmp_data;
@@ -170,8 +186,8 @@ void aa_line(std::vector<vec3>& line_mat,
         intery = intery0 + counter * gradient;
       }
     } else {
-      for (int x = xpx11 + 1; x < xpx12; x++) {
-        iy = ipart(intery);
+      for (int x = xpx11 ; x < xpx12 ; x++) {
+        iy = ipart(intery)-1;
         if(x < nx && x >= 0 && iy < ny && iy >= 0) {
           z = 1.0f/zcurrent+offset;
           alpha_info tmp_data;
@@ -201,11 +217,12 @@ void aa_line(std::vector<vec3>& line_mat,
 void noaa_line(std::vector<vec3>& line_mat,
                Rcpp::NumericMatrix &zbuffer,
                std::vector<std::map<Float, alpha_info> >& alpha_depths,
-               vec3& color, Float alpha_line) { 
+               vec3& color, Float alpha_line, Float line_offset) { 
   int x0, y0, x1, y1;
   Float z0, z1;
   int nx = zbuffer.nrow();
   int ny = zbuffer.ncol();
+  Float offset = line_offset;
   
   for(int ii = 0; ii < line_mat.size(); ii += 2) {
     x0 = line_mat[ii  ].x;
@@ -254,7 +271,7 @@ void noaa_line(std::vector<vec3>& line_mat,
     for (int x=x0; x<=x1; x++) { 
       if (steep) { 
         if(y < nx && y >= 0 && x < ny && x >= 0) { 
-          z = 1.0f/zcurrent-0.00001;
+          z = 1.0f/zcurrent + offset;
           alpha_info tmp_data;
           tmp_data.color = vec4(color,1.0f * alpha_line);
           tmp_data.normal = vec3(0.);
@@ -264,7 +281,7 @@ void noaa_line(std::vector<vec3>& line_mat,
         }
       } else { 
         if(y < ny && y >= 0 && x < nx && x >= 0) { 
-          z = 1.0f/zcurrent-0.00001;
+          z = 1.0f/zcurrent + offset;
           alpha_info tmp_data;
           tmp_data.color = vec4(color,1.0f * alpha_line);
           tmp_data.normal = vec3(0.);
