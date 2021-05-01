@@ -53,7 +53,7 @@
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
 #'
 #'#Flatten the cube, translate downwards, and set to grey
-#'base = cube_model %>% 
+#'base_model = cube_model %>% 
 #'  scale_mesh(scale=c(5,0.2,5)) %>%
 #'  translate_mesh(c(0,-0.1,0)) %>% 
 #'  set_material(diffuse="grey80") 
@@ -66,7 +66,7 @@
 #'  read_obj() %>% 
 #'  scale_mesh(scale=0.5) %>% 
 #'  set_material(diffuse="dodgerblue") %>% 
-#'  add_shape(cube_model_flat)
+#'  add_shape(base_model)
 #'
 #'rasterize_mesh(r_model, lookfrom=c(2,4,10), 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
@@ -104,8 +104,8 @@
 #'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
 #'               light_info = lights_p)
 #'               
-#'#Add lines
-#'
+#'#Add a spiral of lines around the model by generating a matrix of line segments
+#'#Each pair of rows represent a single segment. Lines are ignored by shadows.
 #'t = seq(0,8*pi,length.out=361)
 #'
 #'line_mat = matrix(0,nrow=720,ncol=3)
@@ -114,14 +114,12 @@
 #' line_mat[(2*i),]   = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))
 #'}
 #'
-#'line_mat2 = line_mat
-#'line_mat2 = line_mat2 - 0.001
 #'rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10, line_info = line_mat,
 #'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
-#'               light_info = lights, bloom =FALSE, alpha_line = 1, width=400, height=400)
+#'               light_info = lights)
 rasterize_mesh  = function(mesh, 
                            filename = NA, width=400, height=400, 
-                           line_info = NULL, alpha_line = 0.5,
+                           line_info = NULL, alpha_line = 1.0,
                            parallel = TRUE,
                            fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0), #Sanitize lookfrom and lookat inputs
                            scale_obj = 1,
@@ -137,7 +135,7 @@ rasterize_mesh  = function(mesh,
                            tonemap = "none", debug = "none", 
                            near_plane = 0.1, far_plane = 100, culling = "back",
                            shader = "default", double_sided = FALSE,
-                           block_size = 4, shape = NULL, line_offset = -0.00001,
+                           block_size = 4, shape = NULL, line_offset = 0.00001,
                            ortho_dims = c(1,1), bloom = FALSE, antialias_lines = TRUE) {
   obj = mesh
   max_indices = 0

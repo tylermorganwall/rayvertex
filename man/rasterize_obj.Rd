@@ -13,7 +13,7 @@ rasterize_obj(obj_model, shape = NULL, ...)
 \arguments{
 \item{obj_model}{Filename of the `obj` file.}
 
-\item{shape}{Default `NULL`}
+\item{shape}{Default `NULL`. The shape to render in the OBJ mesh.}
 
 \item{filename}{Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.}
 

@@ -4,7 +4,7 @@ Title: 3D Software Rasterizer
 Version: 0.1
 Date: 2021-04-04
 Author: Tyler Morgan-Wall
-Maintainer: Your Name <tylermw@gmail.com>
+Maintainer: Tyler Morgan-Wall <tylermw@gmail.com>
 Description: Rasterizes 3D scenes.
 License: GPL (>= 3)
 Imports: magrittr,

@@ -10,7 +10,7 @@ rasterize_mesh(
   width = 400,
   height = 400,
   line_info = NULL,
-  alpha_line = 0.5,
+  alpha_line = 1,
   parallel = TRUE,
   fov = 20,
   lookfrom = c(0, 0, 10),
@@ -44,14 +44,91 @@ rasterize_mesh(
   double_sided = FALSE,
   block_size = 4,
   shape = NULL,
-  line_offset = -1e-05,
-  ortho_dims = c(1, 1)
+  line_offset = 1e-05,
+  ortho_dims = c(1, 1),
+  bloom = FALSE,
+  antialias_lines = TRUE
 )
 }
 \arguments{
+\item{mesh}{The mesh object.}
+
+\item{filename}{Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.}
+
+\item{width}{Default `400`. Width of the rendered image.}
+
+\item{height}{Default `400`. Width of the rendered image.}
+
+\item{line_info}{Default `NULL`. Matrix of line segments to add to the scene. Number of rows must be a multiple of 2.}
+
+\item{parallel}{Default `TRUE`. Whether to use parallel processing.}
+
+\item{fov}{Default `20`. Width of the rendered image.}
+
+\item{lookfrom}{Default `c(0,0,10)`. Camera location.}
+
+\item{lookat}{Default `NULL`. Camera focal position, defaults to the center of the model.}
+
+\item{camera_up}{Default `c(0,1,0)`. Camera up vector.}
+
+\item{scale_obj}{Default `1`. Value to scale size of model.}
+
+\item{color}{Default `darkred`. Color of model if no material file present (or for faces using the default material).}
+
+\item{type}{Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).}
+
+\item{background}{Default `white`. Background color.}
+
+\item{tangent_space_normals}{Default `TRUE`.}
+
+\item{ambient_color}{Default `c(0,0,0)`. Ambient color of model if no material file present (or for faces using the default material).}
+
+\item{exponent}{Default `32`.}
+
+\item{specular_intensity}{Default `0.6`.}
+
+\item{emission_intensity}{Default `1`.}
+
+\item{override_exponent}{Default `FALSE`.}
+
+\item{diffuse_intensity}{Default `1`.}
+
+\item{shadow_map}{Default `FALSE`.}
+
+\item{shadow_map_bias}{Default `0.005`.}
+
+\item{shadow_map_intensity}{Default `0.5`.}
+
+\item{shadow_map_dims}{Default `NULL`.}
+
+\item{ssao}{Default `FALSE`. Whether to add screen-space ambient occlusion (SSAO) to the render.}
+
+\item{ssao_intensity}{Default `10`. Intensity of the shadow map.}
+
+\item{ssao_radius}{Default `0.1`. Radius to use when calculating the SSAO term.}
+
+\item{tonemap}{Default `"none"`.}
+
+\item{debug}{Default `"none"`.}
+
+\item{near_plane}{Default `0.1`.}
+
+\item{far_plane}{Default `100`.}
+
+\item{culling}{Default `"back"`.}
+
+\item{shader}{Default `"default"`.}
+
+\item{block_size}{Default `4`.}
+
 \item{shape}{Default `NULL`. The shape to render in the OBJ mesh.}
 
-\item{obj_model}{A two-dimensional matrix, where each entry in the matrix is the elevation at that point. All points are assumed to be evenly spaced.}
+\item{point_light_info}{Default `NULL`. A data.frame of point light information created using the 
+`point_light()` and `add_light()` functions.}
+
+\item{light_direction}{Default `c(1,1,1)`. Vector specifying the light direction for the primary directional light.}
+
+\item{light_intensity}{Default `1.0`. Light intensity.}
 
 \item{...}{Other parameters to pass to `rasterize_mesh()`.}
 }
@@ -70,7 +147,7 @@ rasterize_mesh(cube_model,lookfrom=c(2,4,10),
               light_info = directional_light(direction=c(0.5,1,0.7)))
 
 #Flatten the cube, translate downwards, and set to grey
-base = cube_model \%>\% 
+base_model = cube_model \%>\% 
  scale_mesh(scale=c(5,0.2,5)) \%>\%
  translate_mesh(c(0,-0.1,0)) \%>\% 
  set_material(diffuse="grey80") 
@@ -83,7 +160,7 @@ r_model = r_obj() \%>\%
  read_obj() \%>\% 
  scale_mesh(scale=0.5) \%>\% 
  set_material(diffuse="dodgerblue") \%>\% 
- add_shape(cube_model_flat)
+ add_shape(base_model)
 
 rasterize_mesh(r_model, lookfrom=c(2,4,10), 
               light_info = directional_light(direction=c(0.5,1,0.7)))
@@ -120,4 +197,18 @@ rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,
 rasterize_mesh(r_model, lookfrom=c(-2,2,-10), fov=10,
               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
               light_info = lights_p)
+              
+#Add a spiral of lines around the model by generating a matrix of line segments
+#Each pair of rows represent a single segment. Lines are ignored by shadows.
+t = seq(0,8*pi,length.out=361)
+
+line_mat = matrix(0,nrow=720,ncol=3)
+for(i in 1:360) {
+line_mat[(2*i-1),] = c(0.5*sin(t[i]), t[i]/(8*pi), 0.5*cos(t[i]))
+line_mat[(2*i),]   = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))
+}
+
+rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10, line_info = line_mat,
+              shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
+              light_info = lights)
 }
