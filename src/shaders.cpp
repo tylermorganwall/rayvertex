@@ -666,7 +666,22 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
-  vec3 norm = vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;
+  // vec3 norm = vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;
+  
+  
+  vec3 bn = normalize(vec_varying_nrm[iface][0] * bc.x + 
+    vec_varying_nrm[iface][1] * bc.y + 
+    vec_varying_nrm[iface][2] * bc.z);
+  
+  glm::mat3 A{(vec_varying_ndc_tri[iface][1] - vec_varying_ndc_tri[iface][0]),
+              (vec_varying_ndc_tri[iface][2] - vec_varying_ndc_tri[iface][0]),bn};
+  glm::mat3 AI = inverse(transpose(A));
+  vec3 i = AI * vec3(vec_varying_uv[iface][1].x - vec_varying_uv[iface][0].x, 
+                     vec_varying_uv[iface][2].x - vec_varying_uv[iface][0].x, 0.0f);
+  vec3 j = AI * vec3(vec_varying_uv[iface][1].y - vec_varying_uv[iface][0].y, 
+                     vec_varying_uv[iface][2].y - vec_varying_uv[iface][0].y, 0.0f);
+  glm::mat3 B = (glm::mat3{ normalize(i), normalize(j), bn });
+  vec3 norm = normalize(B * normal_uv(uv));
   
   vec3 light_color(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
@@ -692,35 +707,19 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3
   }
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   
-  vec3 bn = normalize(vec_varying_nrm[iface][0] * bc.x + 
-    vec_varying_nrm[iface][1] * bc.y + 
-    vec_varying_nrm[iface][2] * bc.z);
-
-  glm::mat3 A{(vec_varying_ndc_tri[iface][1] - vec_varying_ndc_tri[iface][0]),
-              (vec_varying_ndc_tri[iface][2] - vec_varying_ndc_tri[iface][0]),bn};
-  glm::mat3 AI = inverse(transpose(A));
-  vec3 i = AI * vec3(vec_varying_uv[iface][1].x - vec_varying_uv[iface][0].x, 
-                     vec_varying_uv[iface][2].x - vec_varying_uv[iface][0].x, 0.0f);
-  vec3 j = AI * vec3(vec_varying_uv[iface][1].y - vec_varying_uv[iface][0].y, 
-                     vec_varying_uv[iface][2].y - vec_varying_uv[iface][0].y, 0.0f);
-  glm::mat3 B = (glm::mat3{ normalize(i), normalize(j), bn });
-  vec3 n = normalize(B * normal_uv(uv));
-  
-  Float diff = std::fmax(0.f, dot(n,l));
-  
-  vec4 dir_shadow_int = vec4(diff * light_color, 1.0f);
+  vec4 dir_shadow_int = vec4(light_color, 1.0f);
   //Directional light contribution
   color = diffuse_color * dir_shadow_int;
   for(int i = 0; i < plights.size(); i++) {
     vec3 p_light_dir = vec4(plights[i].CalcLightDir(pos),0.0f);
-    color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f, dot(n, p_light_dir));
+    color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f, dot(norm, p_light_dir));
   }
   
   
   //Emissive and ambient terms
   color += emissive(uv);
   color += ambient(uv);
-  normal =  n;
+  normal =  norm;
   
   return false;
 }
@@ -823,7 +822,7 @@ vec4 PhongShader::vertex(int iface, int nthvert, ModelInfo& model) {
   vec_varying_tri[iface][nthvert] = clip;
   has_normals = model.has_normals;
   vec_varying_world_nrm[iface][nthvert] = has_normals ?
-  uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
+    uniform_MIT * normalize(vec4(model.normal(iface, nthvert),0.0f)) : 
     uniform_MIT * normalize(vec4(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
                                             model.vertex(iface,2)-model.vertex(iface,0)),0.0f));
   
@@ -834,13 +833,19 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
-  normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;;
-  
+  normal =  //has_normals ? 
+    (vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z);
+    //normalize(glm::cross(vec3(vec_varying_tri[iface][1]-vec_varying_tri[iface][0]),vec3(vec_varying_tri[iface][2]-vec_varying_tri[iface][0])));
+  vec3 spec_uv = specular(uv);
   vec3 light_color(0.0);
+  vec4 spec_total(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
     Float shadow = 1.0f;
-    Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
-    if(has_shadow_map) {
+    vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
+    Float intensity = std::fmax(dot(normal, l_dir),0.0);
+    Float max_shadow_int = 0.0;
+    Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
+    if(has_shadow_map && intensity != 0.0) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
@@ -850,33 +855,28 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
         int j = int(sb_p[1]);
         for(int x = -2; x <= 2; ++x) {
           for(int y = -2; y <= 2; ++y) {
-            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0f : shadowbuffers[ii].get_shadow_intensity();    
+            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0 : shadow_int;    
           }    
         }
         shadow /= 25;
       }
     }
     light_color += directional_lights[ii].color * shadow * intensity;
+    vec3 r = normalize(2.0f*dot(normal,l_dir)*normal - l_dir);
+    spec_total += vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f) * (shadow); 
   }
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
-
-  vec3 n = has_normals ?  
-    normalize(vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z) :
-    normalize(glm::cross(vec3(vec_varying_tri[iface][1]-vec_varying_tri[iface][0]),vec3(vec_varying_tri[iface][2]-vec_varying_tri[iface][0])));
-  vec3 r = normalize(2.0f*dot(n,l)*n - l);
-  vec4 spec = vec4(specular(uv) * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f); 
   
-  Float diff = std::fmax(0.f, dot(n,l));
   vec3 ambient = material.ambient;
   vec4 emit = emissive(uv);
-  vec4 shadow_vec = vec4(light_color*diff,1.0f);
-  color = clamp( diffuse_color*shadow_vec + spec,(Float)0.0,(Float)1.0);
+  vec4 shadow_vec = vec4(light_color,1.0f);
+  color = clamp( diffuse_color*shadow_vec + spec_total,(Float)0.0,(Float)1.0);
   
   for(int i = 0; i < plights.size(); i++) {
     vec3 l_p = vec4(plights[i].CalcLightDir(pos),0.0f);
-    r = normalize(2.0f*dot(n,l_p)*n - l_p);
-    spec = vec4(specular(uv) * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
-    color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),(Float)0.0) * fmax(0.0f, dot(n, l_p)) +
+    vec3 r = normalize(2.0f*dot(normal,l_p)*normal - l_p);
+    vec4 spec = vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
+    color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),(Float)0.0) * fmax(0.0f, dot(normal, l_p)) +
       vec4(plights[i].CalcPointLightAtten(pos),0.0f) * spec, (Float)0.0,(Float)1.0);
   }
   color += vec4(ambient,0.0f);
@@ -992,13 +992,18 @@ bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& n
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
-  normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;;
+  normal = normalize(vec3(uniform_MIT * vec4(normal_uv(uv),0.0f)));
   
+  vec3 spec_uv = specular(uv);
   vec3 light_color(0.0);
+  vec4 spec_total(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
     Float shadow = 1.0f;
-    Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
-    if(has_shadow_map) {
+    vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
+    Float intensity = std::fmax(dot(normal, l_dir),0.0);
+    Float max_shadow_int = 0.0;
+    Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
+    if(has_shadow_map && intensity != 0.0) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
@@ -1008,32 +1013,30 @@ bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& n
         int j = int(sb_p[1]);
         for(int x = -2; x <= 2; ++x) {
           for(int y = -2; y <= 2; ++y) {
-            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0f : shadowbuffers[ii].get_shadow_intensity();    
+            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0 : shadow_int;    
           }    
         }
         shadow /= 25;
       }
     }
     light_color += directional_lights[ii].color * shadow * intensity;
+    vec3 r = normalize(2.0f*dot(normal,l_dir)*normal - l_dir);
+    spec_total += vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f) * (shadow); 
   }
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
-
-  vec3 n = normalize(vec3(uniform_MIT * vec4(normal_uv(uv),0.0f)));
-  vec3 r = normalize(2.0f*dot(n,l)*n - l);
-  vec4 spec = vec4(specular(uv) * std::pow(std::fmax(r.z, 0.0f),
-                        material.shininess),0.0f);
-  Float diff = std::fmax(0.f, dot(n,l));
+  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
+  
   vec3 ambient = material.ambient;
   vec4 emit = emissive(uv);
-  vec4 shadow_vec = vec4(light_color*diff,(Float)1.0);
-  color = clamp( diffuse_color*shadow_vec + spec,(Float)0.0,(Float)1.0);
+  vec4 shadow_vec = vec4(light_color,1.0f);
+  color = clamp( diffuse_color*shadow_vec + spec_total,(Float)0.0,(Float)1.0);
+
   
   for(int i = 0; i < plights.size(); i++) {
     vec3 l_p = vec4(plights[i].CalcLightDir(pos),0.0f);
-    r = normalize(2.0f*dot(n,l_p)*n - l_p);
-    spec = vec4(specular(uv) * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
-    color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f, dot(n, l_p)) +
-      vec4(plights[i].CalcPointLightAtten(pos),0.0f) * spec, (Float)0.0f,(Float)1.0f);
+    vec3 r = normalize(2.0f*dot(normal,l_p)*normal - l_p);
+    vec4 spec = vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
+    color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),(Float)0.0) * fmax(0.0f, dot(normal, l_p)) +
+      vec4(plights[i].CalcPointLightAtten(pos),0.0f) * spec, (Float)0.0,(Float)1.0);
   }
   color += vec4(ambient,0.0f);
   color += emit;
@@ -1153,13 +1156,31 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
-  normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;;
   
+  vec3 bn = (vec_varying_nrm[iface][0] * bc.x + 
+    vec_varying_nrm[iface][1] * bc.y + 
+    vec_varying_nrm[iface][2] * bc.z);
+  
+  glm::mat3 A{(vec_varying_ndc_tri[iface][1] - vec_varying_ndc_tri[iface][0]),
+              (vec_varying_ndc_tri[iface][2] - vec_varying_ndc_tri[iface][0]),bn};
+  glm::mat3 AI = inverse(transpose(A));
+  vec3 i = AI * vec3(vec_varying_uv[iface][1].x - vec_varying_uv[iface][0].x, 
+                     vec_varying_uv[iface][2].x - vec_varying_uv[iface][0].x, 0.0f);
+  vec3 j = AI * vec3(vec_varying_uv[iface][1].y - vec_varying_uv[iface][0].y, 
+                     vec_varying_uv[iface][2].y - vec_varying_uv[iface][0].y, 0.0f);
+  glm::mat3 B = (glm::mat3{ normalize(i), normalize(j), bn });
+  normal = normalize(B * normal_uv(uv));
+  
+  vec3 spec_uv = specular(uv);
   vec3 light_color(0.0);
+  vec4 spec_total(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
     Float shadow = 1.0f;
-    Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
-    if(has_shadow_map) {
+    vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
+    Float intensity = std::fmax(dot(normal, l_dir),0.0);
+    Float max_shadow_int = 0.0;
+    Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
+    if(has_shadow_map && intensity != 0.0) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
@@ -1169,47 +1190,33 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
         int j = int(sb_p[1]);
         for(int x = -2; x <= 2; ++x) {
           for(int y = -2; y <= 2; ++y) {
-            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0f : shadowbuffers[ii].get_shadow_intensity();    
+            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0 : shadow_int;    
           }    
         }
         shadow /= 25;
       }
     }
     light_color += directional_lights[ii].color * shadow * intensity;
+    vec3 r = normalize(2.0f*dot(normal,l_dir)*normal - l_dir);
+    spec_total += vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f) * (shadow); 
   }
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
-
-  vec3 bn = (vec_varying_nrm[iface][0] * bc.x + 
-    vec_varying_nrm[iface][1] * bc.y + 
-    vec_varying_nrm[iface][2] * bc.z);
-
-  glm::mat3 A{(vec_varying_ndc_tri[iface][1] - vec_varying_ndc_tri[iface][0]),
-              (vec_varying_ndc_tri[iface][2] - vec_varying_ndc_tri[iface][0]),bn};
-  glm::mat3 AI = inverse(transpose(A));
-  vec3 i = AI * vec3(vec_varying_uv[iface][1].x - vec_varying_uv[iface][0].x, 
-                     vec_varying_uv[iface][2].x - vec_varying_uv[iface][0].x, 0.0f);
-  vec3 j = AI * vec3(vec_varying_uv[iface][1].y - vec_varying_uv[iface][0].y, 
-                     vec_varying_uv[iface][2].y - vec_varying_uv[iface][0].y, 0.0f);
-  glm::mat3 B = (glm::mat3{ normalize(i), normalize(j), bn });
-  vec3 n = normalize(B * normal_uv(uv));
   
-  vec3 r = normalize(2.0f*dot(n,l)*n - l);
-  vec4 spec = vec4(specular(uv) * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
-  Float diff = std::fmax(0.f, dot(n,l));
-  vec4 c = diffuse_color;
-  vec4 ambient = vec4(material.ambient,0.0f);
+  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
+  
+  vec3 ambient = material.ambient;
   vec4 emit = emissive(uv);
-  vec4 shadow_vec = vec4(light_color*diff,1.0f);
-  color = clamp( diffuse_color*shadow_vec + spec,(Float)0.0f,(Float)1.0f);
+  vec4 shadow_vec = vec4(light_color,1.0f);
+  color = clamp( diffuse_color*shadow_vec + spec_total,(Float)0.0,(Float)1.0);
+  
 
   for(int i = 0; i < plights.size(); i++) {
     vec3 l_p = vec4(plights[i].CalcLightDir(pos),0.0f);
-    r = normalize(2.0f*dot(n,l_p)*n - l_p);
-    spec = vec4(specular(uv) * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
-    color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f, dot(n, l_p)) +
-                   vec4(plights[i].CalcPointLightAtten(pos),0.0f) * spec, (Float)0.0f,(Float)1.0f);
+    vec3 r = normalize(2.0f*dot(normal,l_p)*normal - l_p);
+    vec4 spec = vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
+    color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),(Float)0.0) * fmax(0.0f, dot(normal, l_p)) +
+      vec4(plights[i].CalcPointLightAtten(pos),0.0f) * spec, (Float)0.0,(Float)1.0);
   }
-  color += ambient;
+  color += vec4(ambient,0.0f);
   color += emit;
   
   return false;

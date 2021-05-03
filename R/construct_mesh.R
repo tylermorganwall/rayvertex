@@ -16,7 +16,6 @@
 #'@param ambient_texture_location Default `NA`. Location of the ambient texture.
 #'@param emissive_texture_location Default `NA`. Location of the emissive texture.
 #'@param tangent_space_normals Default `TRUE`.
-#'@param exponent Default `32`.
 #'@param diffuse_intensity Default `1`.
 #'@param specular_intensity Default `0.6`.
 #'@param emission_intensity Default `1`.
@@ -32,7 +31,6 @@ construct_mesh  = function(vertices, indices,
                            material_ids = 0, 
                            materials = NULL,
                            scale_obj = 1,
-                           exponent=32, 
                            ambient          = c(0,0,0),
                            diffuse          = c(0.5,0.5,0.5),
                            specular         = c(1,1,1),
