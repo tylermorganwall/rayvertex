@@ -269,6 +269,9 @@ rasterize_mesh  = function(mesh,
       }
     }
   }
+  for(i in seq_len(length(obj$materials))) {
+    obj$materials[[i]]$culling = culling
+  }
   if(is.null(shadow_map_dims)) {
     shadow_map_dims = c(width,height)
   } else {
