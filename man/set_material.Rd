@@ -8,9 +8,8 @@ Add shape to a mesh}
 \usage{
 set_material(
   mesh,
-  exponent = 32,
-  ambient = c(0, 0, 0),
   diffuse = c(0.5, 0.5, 0.5),
+  ambient = c(0, 0, 0),
   specular = c(1, 1, 1),
   transmittance = c(1, 1, 1),
   emission = c(0, 0, 0),
@@ -24,7 +23,7 @@ set_material(
   ambient_texture_location = "",
   emissive_texture_location = "",
   diffuse_intensity = 1,
-  specular_intensity = 0.6,
+  specular_intensity = 1,
   emission_intensity = 1,
   culling = "back"
 )

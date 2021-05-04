@@ -7,18 +7,27 @@
 Add shape to a mesh}
 \usage{
 add_shape(mesh, shape)
+
+add_shape(mesh, shape)
 }
 \arguments{
 \item{obj_model}{}
 }
 \value{
 Rasterized image.
+
+Rasterized image.
 }
 \description{
 Add Shape
 
 Add shape to a mesh
+
+Add Shape
+
+Add shape to a mesh
 }
 \examples{
+#Here we produce a ambient occlusion map of the `montereybay` elevation map.
 #Here we produce a ambient occlusion map of the `montereybay` elevation map.
 }

@@ -118,10 +118,6 @@ List rasterize(List mesh,
                NumericVector lookat,
                double fov,
                NumericVector ambient_color, 
-               double exponent, 
-               double specular_intensity, 
-               double diffuse_intensity, 
-               double emission_intensity,
                IntegerVector typevals,
                bool has_shadow_map,
                bool calc_ambient, 
@@ -139,7 +135,6 @@ List rasterize(List mesh,
                LogicalVector has_emissive_texture,
                int block_size,
                bool use_default_material,
-               bool override_exponent,
                double near_clip,
                double  far_clip,
                double shadow_map_intensity,
@@ -261,7 +256,6 @@ List rasterize(List mesh,
   std::vector<DirectionalLight> directional_lights;
   for(int i = 0; i < is_dir_light.length(); i++) {
     if(is_dir_light(i)) {
-      NumericMatrix sbuffer_temp(shadowdims(0),shadowdims(1));
       shadowbuffer_mats.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
 
       rayimage shadowbuffer_temp(shadowbuffer_mats.back(),shadowdims(0),shadowdims(1),shadow_map_intensity);
@@ -299,7 +293,7 @@ List rasterize(List mesh,
     NumericVector specular = as<NumericVector>(single_material["specular"]);
     NumericVector transmittance = as<NumericVector>(single_material["transmittance"]);
     NumericVector emission = as<NumericVector>(single_material["emission"]);
-    Float shininess = !override_exponent ? as<Float>(single_material["shininess"]) : exponent;
+    Float shininess = as<Float>(single_material["shininess"]);
     Float ior = as<Float>(single_material["ior"]);
     Float dissolve = as<Float>(single_material["dissolve"]);
     Float illum = as<Float>(single_material["illum"]);
@@ -308,6 +302,9 @@ List rasterize(List mesh,
     String specular_texname = as<String>(single_material["specular_texname"]);
     String normal_texname = as<String>(single_material["normal_texname"]);
     String emissive_texname = as<String>(single_material["emissive_texname"]);
+    Float diffuse_intensity = as<Float>(single_material["diffuse_intensity"]);
+    Float specular_intensity = as<Float>(single_material["specular_intensity"]);
+    Float emissive_intensity = as<Float>(single_material["emissive_intensity"]);
     int cull_type = as<int>(single_material["culling"]);
     
     // bool has_norms = has_normals_vec(i);
@@ -336,7 +333,7 @@ List rasterize(List mesh,
       normal_texname,
       emissive_texname,
       max_indices,
-      (Float)emission_intensity,
+      (Float)emissive_intensity,
       (Float)diffuse_intensity,
       (Float)specular_intensity,
       true, //THIS SHOULD BE FIXED, but isn't currently used -- has_norms
@@ -403,15 +400,15 @@ List rasterize(List mesh,
     vec3(1.0),
     vec3(0.0),
     vec3(0.0),
-    (Float)exponent,
+    (Float)10.0,
     1.0,
     1.0,
     1.0,
     fill,fill,fill,fill,fill,
     max_indices,              //Maybe an issue?
-    (Float)emission_intensity,
-    (Float)diffuse_intensity,
-    (Float)specular_intensity,
+    (Float)1.0,
+    (Float)1.0,
+    (Float)1.0,
     true, //THIS SHOULD BE FIXED, but isn't currently used -- has_norms
     true, //THIS SHOULD BE FIXED, but isn't currently used -- has_tex
     false,
@@ -563,7 +560,7 @@ List rasterize(List mesh,
   }
   
   std::vector<std::vector<IShader*> > depthshaders(directional_lights.size());
-  for(int j = 0; j < shadowbuffers.size(); j++) {
+  for(int j = 0; j < directional_lights.size(); j++) {
     for(int i = 0; i < number_materials+1; i++ ) {
       depthshaders[j].push_back(new DepthShader(Model, directional_lights[j].lightProjection, 
                                                 directional_lights[j].lightView, viewport_depth,
@@ -850,8 +847,8 @@ List rasterize(List mesh,
     }
   }
   
-  for(int j = 0; j < shadowbuffers.size(); j++) {
-    for(int i = 0; i < depthshaders.size(); i++) {
+  for(int j = 0; j < directional_lights.size(); j++) {
+    for(int i = 0; i < depthshaders[j].size(); i++) {
       delete depthshaders[j][i];
     }
   }

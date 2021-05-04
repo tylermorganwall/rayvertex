@@ -24,10 +24,7 @@ rasterize_mesh(
   tangent_space_normals = TRUE,
   ambient_color = c(0, 0, 0),
   exponent = 32,
-  specular_intensity = 0.6,
-  emission_intensity = 1,
   override_exponent = FALSE,
-  diffuse_intensity = 1,
   shadow_map = FALSE,
   shadow_map_bias = 0.005,
   shadow_map_intensity = 0.5,
@@ -85,13 +82,7 @@ rasterize_mesh(
 
 \item{exponent}{Default `32`.}
 
-\item{specular_intensity}{Default `0.6`.}
-
-\item{emission_intensity}{Default `1`.}
-
 \item{override_exponent}{Default `FALSE`.}
-
-\item{diffuse_intensity}{Default `1`.}
 
 \item{shadow_map}{Default `FALSE`.}
 

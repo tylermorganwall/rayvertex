@@ -12,8 +12,10 @@ rasterize_mesh3d(
   mesh,
   diffuse = c(0.5, 0.5, 0.5),
   ambient = c(0, 0, 0),
-  dissolve = 0,
+  dissolve = 1,
+  exponent = 10,
   shape = NULL,
+  scene_elements = NULL,
   ...
 )
 }

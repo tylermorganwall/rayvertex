@@ -19,7 +19,6 @@ construct_mesh(
   material_ids = 0,
   materials = NULL,
   scale_obj = 1,
-  exponent = 32,
   ambient = c(0, 0, 0),
   diffuse = c(0.5, 0.5, 0.5),
   specular = c(1, 1, 1),
@@ -53,8 +52,6 @@ construct_mesh(
 \item{material_ids}{Default `1`.}
 
 \item{materials}{Default `NULL`, default material.}
-
-\item{exponent}{Default `32`.}
 
 \item{texture_location}{Default `NA`. Location of the diffuse texture.}
 

@@ -16,14 +16,7 @@
 #'@param type Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).
 #'@param color Default `darkred`. Color of model if no material file present (or for faces using the default material).
 #'@param background Default `white`. Background color.
-#'@param light_direction Default `c(1,1,1)`. Vector specifying the light direction for the primary directional light.
-#'@param light_intensity Default `1.0`. Light intensity.
 #'@param ambient_color Default `c(0,0,0)`. Ambient color of model if no material file present (or for faces using the default material).
-#'@param exponent Default `32`.
-#'@param specular_intensity Default `0.6`.
-#'@param emission_intensity Default `1`.
-#'@param override_exponent Default `FALSE`.
-#'@param diffuse_intensity Default `1`.
 #'@param tangent_space_normals Default `TRUE`.
 #'@param shadow_map Default `FALSE`.
 #'@param shadow_map_bias Default `0.005`.
@@ -124,11 +117,9 @@ rasterize_mesh  = function(mesh,
                            fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0), #Sanitize lookfrom and lookat inputs
                            scale_obj = 1,
                            light_info = directional_light(), color="red",
-                           type = "diffuse", background = "black",tangent_space_normals = TRUE,
+                           type = "diffuse", background = "black", 
+                           tangent_space_normals = TRUE,
                            ambient_color=c(0,0,0), 
-                           exponent=32, specular_intensity = 0.6, emission_intensity = 1,
-                           override_exponent = FALSE,
-                           diffuse_intensity = 1, 
                            shadow_map = FALSE, 
                            shadow_map_bias = 0.005, shadow_map_intensity = 0.5, shadow_map_dims = NULL,
                            ssao = FALSE, ssao_intensity = 10, ssao_radius = 0.1, 
@@ -296,10 +287,6 @@ rasterize_mesh  = function(mesh,
                         ny=height,
                         model_color = color,
                         ambient_color = ambient_color,
-                        exponent = exponent,
-                        specular_intensity = specular_intensity,
-                        diffuse_intensity = diffuse_intensity,
-                        emission_intensity = emission_intensity,
                         lookfrom=lookfrom,
                         lookat=lookat,
                         fov=fov,
@@ -319,7 +306,6 @@ rasterize_mesh  = function(mesh,
                         has_specular_texture, 
                         has_emissive_texture,
                         block_size = block_size, use_default_material = use_default_material,
-                        override_exponent = override_exponent,
                         near_plane, far_plane,
                         shadow_map_intensity,
                         bounds, shadow_map_dims, camera_up, culling, 
