@@ -117,7 +117,6 @@ List rasterize(List mesh,
                NumericVector lookfrom,
                NumericVector lookat,
                double fov,
-               NumericVector ambient_color, 
                IntegerVector typevals,
                bool has_shadow_map,
                bool calc_ambient, 
@@ -150,7 +149,6 @@ List rasterize(List mesh,
   vec3 center(lookat(0),lookat(1),lookat(2));    //lookat
   vec3 cam_up = vec3(camera_up(0),camera_up(1),camera_up(2));
   vec3 color(model_color(0),model_color(1),model_color(2));
-  vec3 ambient(ambient_color(0),ambient_color(1),ambient_color(2)); 
 
   //Account for colinear camera direction/cam_up vectors
   if(glm::length(glm::cross(eye-center,cam_up)) == 0) {
@@ -395,7 +393,7 @@ List rasterize(List mesh,
   //Initialize default material
   Rcpp::String fill("");
   material_info default_mat = {
-    vec3(ambient_color(0),ambient_color(1),ambient_color(2)),
+    vec3(0.0,0.0,0.0),
     color,
     vec3(1.0),
     vec3(0.0),
@@ -810,22 +808,29 @@ List rasterize(List mesh,
       }
     }
   }
-  std::vector<vec3> ndc_line_verts;
-
-
+  
+  std::vector<vec3> ndc_line_verts_start;
+  std::vector<vec3> ndc_line_verts_end;
+  std::vector<vec3> line_verts_cols;
+  
   //Lines go here (no light)
   Mat vpMVP = vp * Projection * View * Model;
   for(int i = 0; i < line_mat.nrow(); i++) {
-    vec4 temp_line_vertex = vpMVP * vec4(line_mat(i,0),line_mat(i,1),line_mat(i,2),1.0f);
-    temp_line_vertex /= temp_line_vertex.w;
-    ndc_line_verts.push_back(temp_line_vertex);
+    vec4 temp_line_vertex_start = vpMVP * vec4(line_mat(i,0),line_mat(i,1),line_mat(i,2),1.0f);
+    temp_line_vertex_start /= temp_line_vertex_start.w;
+    vec4 temp_line_vertex_end = vpMVP * vec4(line_mat(i,3),line_mat(i,4),line_mat(i,5),1.0f);
+    temp_line_vertex_end /= temp_line_vertex_end.w;
+    ndc_line_verts_start.push_back(temp_line_vertex_start);
+    ndc_line_verts_start.push_back(temp_line_vertex_end);
+    line_verts_cols.push_back(vec3(line_mat(i,6),line_mat(i,7),line_mat(i,8)));
   }
+  
   vec3 line_color = vec3(1.0f,1.0f,1.0f);
-  if(ndc_line_verts.size() > 0) {
+  if(ndc_line_verts_start.size() > 0) {
     if(aa_lines) {
-      aa_line(ndc_line_verts, zbuffer, alpha_depths, line_color, alpha_line, line_offset);
+      aa_line(ndc_line_verts_start, ndc_line_verts_end, line_verts_cols, zbuffer, alpha_depths, alpha_line, line_offset);
     } else {
-      noaa_line(ndc_line_verts, zbuffer, alpha_depths, line_color, alpha_line, line_offset);
+      noaa_line(ndc_line_verts_start, ndc_line_verts_end, line_verts_cols, zbuffer, alpha_depths, alpha_line, line_offset);
     }
   }
 

@@ -11,12 +11,9 @@
 #'@param lookat Default `NULL`. Camera focal position, defaults to the center of the model.
 #'@param camera_up Default `c(0,1,0)`. Camera up vector.
 #'@param scale_obj Default `1`. Value to scale size of model.
-#'@param point_light_info Default `NULL`. A data.frame of point light information created using the 
-#'`point_light()` and `add_light()` functions.
 #'@param type Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).
 #'@param color Default `darkred`. Color of model if no material file present (or for faces using the default material).
 #'@param background Default `white`. Background color.
-#'@param ambient_color Default `c(0,0,0)`. Ambient color of model if no material file present (or for faces using the default material).
 #'@param tangent_space_normals Default `TRUE`.
 #'@param shadow_map Default `FALSE`.
 #'@param shadow_map_bias Default `0.005`.
@@ -119,13 +116,12 @@ rasterize_mesh  = function(mesh,
                            light_info = directional_light(), color="red",
                            type = "diffuse", background = "black", 
                            tangent_space_normals = TRUE,
-                           ambient_color=c(0,0,0), 
                            shadow_map = FALSE, 
                            shadow_map_bias = 0.005, shadow_map_intensity = 0.5, shadow_map_dims = NULL,
                            ssao = FALSE, ssao_intensity = 10, ssao_radius = 0.1, 
                            tonemap = "none", debug = "none", 
                            near_plane = 0.1, far_plane = 100, culling = "back",
-                           shader = "default", double_sided = FALSE,
+                           shader = "default", 
                            block_size = 4, shape = NULL, line_offset = 0.00001,
                            ortho_dims = c(1,1), bloom = FALSE, antialias_lines = TRUE) {
   obj = mesh
@@ -286,7 +282,6 @@ rasterize_mesh  = function(mesh,
                         nx=width,
                         ny=height,
                         model_color = color,
-                        ambient_color = ambient_color,
                         lookfrom=lookfrom,
                         lookat=lookat,
                         fov=fov,

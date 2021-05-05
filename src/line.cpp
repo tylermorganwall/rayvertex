@@ -1,9 +1,11 @@
 #include "line.h" 
 
-void aa_line(std::vector<vec3>& line_mat,
+void aa_line(std::vector<vec3>& line_mat_start,
+             std::vector<vec3>& line_mat_end,
+             std::vector<vec3>& line_color,
              Rcpp::NumericMatrix &zbuffer,
              std::vector<std::map<Float, alpha_info> >& alpha_depths,
-             vec3 color, Float alpha_line, Float line_offset) {
+             Float alpha_line, Float line_offset) {
   auto ipart = [](Float x) -> int {return int(std::floor(x));};
   auto round = [](Float x) -> Float {return std::round(x);};
   auto fpart = [](Float x) -> Float {return x - std::floor(x);};
@@ -13,14 +15,14 @@ void aa_line(std::vector<vec3>& line_mat,
   int nx = zbuffer.nrow();
   int ny = zbuffer.ncol();
   
-  for(int ii = 0; ii < line_mat.size(); ii += 2) {
-    x0 = line_mat[ii  ].x;
-    x1 = line_mat[ii+1].x;
-    y0 = line_mat[ii  ].y;
-    y1 = line_mat[ii+1].y;
+  for(int ii = 0; ii < line_mat_start.size(); ii += 1) {
+    x0 = line_mat_start[ii].x;
+    x1 =   line_mat_end[ii].x;
+    y0 = line_mat_start[ii].y;
+    y1 =   line_mat_end[ii].y;
     //Perspective correct interpolation
-    z0 = 1.0f/line_mat[ii  ].z; 
-    z1 = 1.0f/line_mat[ii+1].z;
+    z0 = 1.0f/line_mat_start[ii].z; 
+    z1 =   1.0f/line_mat_end[ii].z;
     
     const bool steep = std::fabs(y1 - y0) > std::fabs(x1 - x0);
     if (steep) {
@@ -54,8 +56,8 @@ void aa_line(std::vector<vec3>& line_mat,
         if(ypx11 < nx && ypx11 >= 0 && xpx11 < ny && xpx11 >= 0) {
           z = 1.0f/z0+offset;
           alpha_info tmp_data;
-          // tmp_data.color = vec4(color, rfpart(yend) * xgap* alpha_line);
-          // tmp_data.color = vec4(color, 1);
+          // tmp_data.color = vec4(line_color[ii], rfpart(yend) * xgap* alpha_line);
+          // tmp_data.color = vec4(line_color[ii], 1);
           
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
@@ -64,8 +66,8 @@ void aa_line(std::vector<vec3>& line_mat,
 
           if(xpx11 + 1 < nx) {
             alpha_info tmp_data2;
-            // tmp_data2.color = vec4(color,fpart(yend) * xgap * alpha_line);
-            // tmp_data2.color = vec4(color,1);
+            // tmp_data2.color = vec4(line_color[ii],fpart(yend) * xgap * alpha_line);
+            // tmp_data2.color = vec4(line_color[ii],1);
             
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
@@ -77,8 +79,8 @@ void aa_line(std::vector<vec3>& line_mat,
         if(xpx11 < nx && xpx11 >= 0 && ypx11 < ny && ypx11 >= 0) {
           z = 1.0f/z0+offset;
           alpha_info tmp_data;
-          // tmp_data.color = vec4(color, rfpart(yend) * xgap * alpha_line);
-          // tmp_data.color = vec4(color, 1);
+          // tmp_data.color = vec4(line_color[ii], rfpart(yend) * xgap * alpha_line);
+          // tmp_data.color = vec4(line_color[ii], 1);
           
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
@@ -86,8 +88,8 @@ void aa_line(std::vector<vec3>& line_mat,
           // alpha_depths[ypx11 + ny * xpx11][z] = tmp_data;
           if(ypx11 + 1 < ny) {
             alpha_info tmp_data2;
-            // tmp_data2.color = vec4(color,fpart(yend) * xgap * alpha_line);
-            // tmp_data2.color = vec4(color,1);
+            // tmp_data2.color = vec4(line_color[ii],fpart(yend) * xgap * alpha_line);
+            // tmp_data2.color = vec4(line_color[ii],1);
             
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
@@ -110,8 +112,8 @@ void aa_line(std::vector<vec3>& line_mat,
         if(ypx12 < nx && ypx12 >= 0 && xpx12 < ny && xpx12 >= 0) {
           z = 1.0f/z1+offset;
           alpha_info tmp_data;
-          // tmp_data.color = vec4(color, rfpart(yend) * xgap* alpha_line);
-          // tmp_data.color = vec4(color, 1);
+          // tmp_data.color = vec4(line_color[ii], rfpart(yend) * xgap* alpha_line);
+          // tmp_data.color = vec4(line_color[ii], 1);
           
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
@@ -120,8 +122,8 @@ void aa_line(std::vector<vec3>& line_mat,
 
           if(xpx12 + 1 < nx) {
             alpha_info tmp_data2;
-            // tmp_data2.color = vec4(color,fpart(yend) * xgap* alpha_line);
-            // tmp_data2.color = vec4(color,1);
+            // tmp_data2.color = vec4(line_color[ii],fpart(yend) * xgap* alpha_line);
+            // tmp_data2.color = vec4(line_color[ii],1);
             
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
@@ -133,8 +135,8 @@ void aa_line(std::vector<vec3>& line_mat,
         if(xpx12 < nx && xpx12 >= 0 && ypx12 < ny && ypx12 >= 0) {
           z = 1.0f/z1+offset;
           alpha_info tmp_data;
-          // tmp_data.color = vec4(color, rfpart(yend) * xgap * alpha_line);
-          // tmp_data.color = vec4(color, 1);
+          // tmp_data.color = vec4(line_color[ii], rfpart(yend) * xgap * alpha_line);
+          // tmp_data.color = vec4(line_color[ii], 1);
           
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
@@ -142,8 +144,8 @@ void aa_line(std::vector<vec3>& line_mat,
           // alpha_depths[ypx12 + ny * xpx12][z] = tmp_data;
           if(ypx12 + 1 < ny) {
             alpha_info tmp_data2;
-            // tmp_data2.color = vec4(color,fpart(yend) * xgap * alpha_line);
-            // tmp_data2.color = vec4(color,1);
+            // tmp_data2.color = vec4(line_color[ii],fpart(yend) * xgap * alpha_line);
+            // tmp_data2.color = vec4(line_color[ii],1);
             
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
@@ -166,7 +168,7 @@ void aa_line(std::vector<vec3>& line_mat,
         if(iy < nx && iy >= 0 && x < ny && x >= 0) {
           z = 1.0f/zcurrent+offset;
           alpha_info tmp_data;
-          tmp_data.color = vec4(color, rfpart(intery) * alpha_line);
+          tmp_data.color = vec4(line_color[ii], rfpart(intery) * alpha_line);
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
@@ -174,7 +176,7 @@ void aa_line(std::vector<vec3>& line_mat,
 
           if(iy + 1 < nx) {
             alpha_info tmp_data2;
-            tmp_data2.color = vec4(color,fpart(intery) * alpha_line);
+            tmp_data2.color = vec4(line_color[ii],fpart(intery) * alpha_line);
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);
@@ -191,14 +193,14 @@ void aa_line(std::vector<vec3>& line_mat,
         if(x < nx && x >= 0 && iy < ny && iy >= 0) {
           z = 1.0f/zcurrent+offset;
           alpha_info tmp_data;
-          tmp_data.color = vec4(color, rfpart(intery) * alpha_line);
+          tmp_data.color = vec4(line_color[ii], rfpart(intery) * alpha_line);
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
           alpha_depths[iy + ny * x][z] = tmp_data;
           if(iy + 1 < ny) {
             alpha_info tmp_data2;
-            tmp_data2.color = vec4(color,fpart(intery) * alpha_line);
+            tmp_data2.color = vec4(line_color[ii],fpart(intery) * alpha_line);
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);
@@ -214,24 +216,26 @@ void aa_line(std::vector<vec3>& line_mat,
 }
 
 //This takes NDC values
-void noaa_line(std::vector<vec3>& line_mat,
+void noaa_line(std::vector<vec3>& line_mat_start,
+               std::vector<vec3>& line_mat_end,
+               std::vector<vec3>& line_color,
                Rcpp::NumericMatrix &zbuffer,
                std::vector<std::map<Float, alpha_info> >& alpha_depths,
-               vec3& color, Float alpha_line, Float line_offset) { 
+               Float alpha_line, Float line_offset) { 
   int x0, y0, x1, y1;
   Float z0, z1;
   int nx = zbuffer.nrow();
   int ny = zbuffer.ncol();
   Float offset = line_offset;
   
-  for(int ii = 0; ii < line_mat.size(); ii += 2) {
-    x0 = line_mat[ii  ].x;
-    x1 = line_mat[ii+1].x;
-    y0 = line_mat[ii  ].y;
-    y1 = line_mat[ii+1].y;
+  for(int ii = 0; ii < line_mat_start.size(); ii += 1) {
+    x0 = line_mat_start[ii].x;
+    x1 =   line_mat_end[ii].x;
+    y0 = line_mat_start[ii].y;
+    y1 =   line_mat_end[ii].y;
     //Perspective correct interpolation
-    z0 = 1.0f/line_mat[ii  ].z; 
-    z1 = 1.0f/line_mat[ii+1].z;
+    z0 = 1.0f/line_mat_start[ii].z; 
+    z1 =   1.0f/line_mat_end[ii].z;
 
     bool steep = false; 
     if (std::abs(x0-x1)<std::abs(y0-y1)) { 
@@ -273,7 +277,7 @@ void noaa_line(std::vector<vec3>& line_mat,
         if(y < nx && y >= 0 && x < ny && x >= 0) { 
           z = 1.0f/zcurrent + offset;
           alpha_info tmp_data;
-          tmp_data.color = vec4(color,1.0f * alpha_line);
+          tmp_data.color = vec4(line_color[ii],1.0f * alpha_line);
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
@@ -283,7 +287,7 @@ void noaa_line(std::vector<vec3>& line_mat,
         if(y < ny && y >= 0 && x < nx && x >= 0) { 
           z = 1.0f/zcurrent + offset;
           alpha_info tmp_data;
-          tmp_data.color = vec4(color,1.0f * alpha_line);
+          tmp_data.color = vec4(line_color[ii],1.0f * alpha_line);
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
