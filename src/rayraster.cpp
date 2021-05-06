@@ -302,7 +302,7 @@ List rasterize(List mesh,
     String emissive_texname = as<String>(single_material["emissive_texname"]);
     Float diffuse_intensity = as<Float>(single_material["diffuse_intensity"]);
     Float specular_intensity = as<Float>(single_material["specular_intensity"]);
-    Float emissive_intensity = as<Float>(single_material["emissive_intensity"]);
+    Float emission_intensity = as<Float>(single_material["emission_intensity"]);
     int cull_type = as<int>(single_material["culling"]);
     
     // bool has_norms = has_normals_vec(i);
@@ -331,7 +331,7 @@ List rasterize(List mesh,
       normal_texname,
       emissive_texname,
       max_indices,
-      (Float)emissive_intensity,
+      (Float)emission_intensity,
       (Float)diffuse_intensity,
       (Float)specular_intensity,
       true, //THIS SHOULD BE FIXED, but isn't currently used -- has_norms
@@ -826,7 +826,7 @@ List rasterize(List mesh,
   }
   
   vec3 line_color = vec3(1.0f,1.0f,1.0f);
-  if(ndc_line_verts_start.size() > 0) {
+  if(line_mat.nrow() > 0) {
     if(aa_lines) {
       aa_line(ndc_line_verts_start, ndc_line_verts_end, line_verts_cols, zbuffer, alpha_depths, alpha_line, line_offset);
     } else {

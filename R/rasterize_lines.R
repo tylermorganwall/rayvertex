@@ -110,7 +110,7 @@ rasterize_lines  = function(line_info = NULL,
   if(is.null(line_info)) {
     stop("no lines info passed to argument")
   }
-  lineranges= rbind(line_scene[,1:3],line_scene[,4:6])
+  lineranges= rbind(line_info[,1:3],line_info[,4:6])
   bounds = as.vector(t(apply(lineranges,2,range)))
   
   if(is.null(lookat)) {

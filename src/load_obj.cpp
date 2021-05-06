@@ -85,7 +85,7 @@ List load_obj(std::string inputfile, std::string basedir) {
                                          Named("specular_texname", m.specular_texname), 
                                          Named("normal_texname", m.normal_texname),
                                          Named("diffuse_intensity", 1.0),
-                                         Named("emissive_intensity", 1.0),
+                                         Named("emission_intensity", 1.0),
                                          Named("specular_intensity", 1.0), 
                                          Named("culling", culltype));
   }

@@ -145,7 +145,7 @@ rasterize_mesh  = function(mesh,
   shaderval = switch(shader, "default" = 1, "diffuse" = 2, "phong" = 3, "color" = 4, 1)
   
   if(is.null(line_info)) {
-    line_info = matrix()
+    line_info = matrix(nrow=0,ncol=0)
   }
   bounds = c(Inf,Inf,Inf,-Inf,-Inf,-Inf)
   for(i in seq_len(length(obj$shapes))) {
