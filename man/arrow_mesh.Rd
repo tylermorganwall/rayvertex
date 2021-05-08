@@ -4,7 +4,16 @@
 \alias{arrow_mesh}
 \title{Cube 3D Model}
 \usage{
-arrow_mesh(position = c(0, 0, 0))
+arrow_mesh(
+  start = c(0, 0, 0),
+  end = c(0, 1, 0),
+  scale = c(1, 1, 1),
+  radius_head = 0.5,
+  radius_tail = 0.25,
+  tail_proportion = 0.5,
+  direction = NA,
+  from_center = TRUE
+)
 }
 \value{
 File location of the R.obj file (saved with a .txt extension)

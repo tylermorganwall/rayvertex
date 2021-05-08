@@ -124,7 +124,7 @@ rasterize_mesh  = function(mesh,
                            shader = "default", 
                            block_size = 4, shape = NULL, line_offset = 0.00001,
                            ortho_dims = c(1,1), bloom = FALSE, antialias_lines = TRUE) {
-  obj = mesh
+  obj = merge_shapes(mesh)
   max_indices = 0
   has_norms = rep(FALSE,length(obj$shapes))
   has_tex = rep(FALSE,length(obj$shapes))

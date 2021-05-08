@@ -28,7 +28,14 @@ class GouraudShader : public IShader {
                   
                   bool has_shadow_map, Float shadow_map_bias,
                   material_info mat_info,  std::vector<Light>& point_lights, 
-                  std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
+                  std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                  std::vector<vec3>& vec_varying_intensity,
+                  std::vector<std::vector<vec3> >& vec_varying_uv,
+                  std::vector<std::vector<vec4> >& vec_varying_tri,
+                  std::vector<std::vector<vec3> >& vec_varying_pos,
+                  std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+                  std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+                  std::vector<std::vector<vec3> >& vec_varying_nrm);
     ~GouraudShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -67,11 +74,11 @@ class GouraudShader : public IShader {
     vec3 light_dir;
     vec3 l;
     
-    std::vector<vec3> vec_varying_intensity;
-    std::vector<std::vector<vec3> > vec_varying_uv;
-    std::vector<std::vector<vec4> > vec_varying_tri;
-    std::vector<std::vector<vec3> > vec_varying_pos;
-    std::vector<std::vector<vec3> > vec_varying_world_nrm;
+    std::vector<vec3>& vec_varying_intensity;
+    std::vector<std::vector<vec3> >& vec_varying_uv;
+    std::vector<std::vector<vec4> >& vec_varying_tri;
+    std::vector<std::vector<vec3> >& vec_varying_pos;
+    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
     
     
     bool has_shadow_map;
@@ -86,17 +93,24 @@ class GouraudShader : public IShader {
     float* emissive_texture;
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
-    std::vector<Light> plights;
+    std::vector<Light>& plights;
   
     std::vector<DirectionalLight> directional_lights;
-    std::vector<rayimage> shadowbuffers;
+    std::vector<rayimage>& shadowbuffers;
 };
 
 
-struct ColorShader : public IShader {
+class ColorShader : public IShader {
   public:
     ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-                material_info mat_info);
+                material_info mat_info,
+                std::vector<vec3>& vec_varying_intensity,
+                std::vector<std::vector<vec3> >& vec_varying_uv,
+                std::vector<std::vector<vec4> >& vec_varying_tri,
+                std::vector<std::vector<vec3> >& vec_varying_pos,
+                std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+                std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+                std::vector<std::vector<vec3> >& vec_varying_nrm);
     ~ColorShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -132,11 +146,10 @@ struct ColorShader : public IShader {
     Mat uniform_MIT;
     vec4 viewport;
     
-    std::vector<vec3> vec_varying_intensity;
-    std::vector<std::vector<vec3> > vec_varying_uv;
-    std::vector<std::vector<vec4> > vec_varying_tri;
-    std::vector<std::vector<vec3> > vec_varying_pos;
-    std::vector<std::vector<vec3> > vec_varying_world_nrm;
+    std::vector<std::vector<vec3> >& vec_varying_uv;
+    std::vector<std::vector<vec4> >& vec_varying_tri;
+    std::vector<std::vector<vec3> >& vec_varying_pos;
+    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
     
     material_info material;
 
@@ -147,17 +160,22 @@ struct ColorShader : public IShader {
     float* specular_texture;
     float* emissive_texture;
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
-    std::vector<DirectionalLight> directional_lights;
-    std::vector<rayimage> shadowbuffers;
-    
+
 };
 
-struct DiffuseShader : public IShader {
+class DiffuseShader : public IShader {
   public:
     DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
            bool has_shadow_map, Float shadow_map_bias,
            material_info mat_info,  std::vector<Light>& point_lights, 
-           std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
+           std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+           std::vector<vec3>& vec_varying_intensity,
+           std::vector<std::vector<vec3> >& vec_varying_uv,
+           std::vector<std::vector<vec4> >& vec_varying_tri,
+           std::vector<std::vector<vec3> >& vec_varying_pos,
+           std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+           std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+           std::vector<std::vector<vec3> >& vec_varying_nrm);
     ~DiffuseShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -196,11 +214,11 @@ struct DiffuseShader : public IShader {
     vec3 light_dir;
     vec3 l;
 
-    std::vector<vec3> vec_varying_intensity;
-    std::vector<std::vector<vec3> > vec_varying_uv;
-    std::vector<std::vector<vec4> > vec_varying_tri;
-    std::vector<std::vector<vec3> > vec_varying_pos;
-    std::vector<std::vector<vec3> > vec_varying_world_nrm;
+    std::vector<vec3>& vec_varying_intensity;
+    std::vector<std::vector<vec3> >& vec_varying_uv;
+    std::vector<std::vector<vec4> >& vec_varying_tri;
+    std::vector<std::vector<vec3> >& vec_varying_pos;
+    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
     
     
     
@@ -217,19 +235,27 @@ struct DiffuseShader : public IShader {
     float* emissive_texture;
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
-    std::vector<Light> plights;
+    std::vector<Light>& plights;
   
     std::vector<DirectionalLight> directional_lights;
-    std::vector<rayimage> shadowbuffers;
+    std::vector<rayimage>& shadowbuffers;
     
 };
 
-struct DiffuseNormalShader : public IShader {
+class DiffuseNormalShader : public IShader {
+public:
   DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                
                bool has_shadow_map, Float shadow_map_bias,
                material_info mat_info,  std::vector<Light>& point_lights, 
-               std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
+               std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+               std::vector<vec3>& vec_varying_intensity,
+               std::vector<std::vector<vec3> >& vec_varying_uv,
+               std::vector<std::vector<vec4> >& vec_varying_tri,
+               std::vector<std::vector<vec3> >& vec_varying_pos,
+               std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+               std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+               std::vector<std::vector<vec3> >& vec_varying_nrm);
   ~DiffuseNormalShader();
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
@@ -266,10 +292,10 @@ struct DiffuseNormalShader : public IShader {
   vec3 light_dir;
   vec3 l;
   
-  std::vector<std::vector<vec3> > vec_varying_uv;
-  std::vector<std::vector<vec4> > vec_varying_tri;
-  std::vector<std::vector<vec3> > vec_varying_pos;
-  std::vector<std::vector<vec3> > vec_varying_world_nrm;
+  std::vector<std::vector<vec3> >& vec_varying_uv;
+  std::vector<std::vector<vec4> >& vec_varying_tri;
+  std::vector<std::vector<vec3> >& vec_varying_pos;
+  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
   
   
   bool has_shadow_map;
@@ -287,10 +313,10 @@ struct DiffuseNormalShader : public IShader {
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
   
-  std::vector<Light> plights;
+  std::vector<Light>& plights;
 
   std::vector<DirectionalLight> directional_lights;
-  std::vector<rayimage> shadowbuffers;
+  std::vector<rayimage>& shadowbuffers;
   
 };
 
@@ -300,7 +326,14 @@ class DiffuseShaderTangent : public IShader {
                        
                        bool has_shadow_map, Float shadow_map_bias,
                        material_info mat_info,  std::vector<Light>& point_lights, 
-                       std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
+                       std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                       std::vector<vec3>& vec_varying_intensity,
+                       std::vector<std::vector<vec3> >& vec_varying_uv,
+                       std::vector<std::vector<vec4> >& vec_varying_tri,
+                       std::vector<std::vector<vec3> >& vec_varying_pos,
+                       std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+                       std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+                       std::vector<std::vector<vec3> >& vec_varying_nrm);
     ~DiffuseShaderTangent();
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
@@ -336,13 +369,13 @@ class DiffuseShaderTangent : public IShader {
     vec3 light_dir;
     vec3 l;
     
-    std::vector<vec3> vec_varying_intensity;
-    std::vector<std::vector<vec3> > vec_varying_uv;
-    std::vector<std::vector<vec4> > vec_varying_tri;
-    std::vector<std::vector<vec3> > vec_varying_pos;
-    std::vector<std::vector<vec3> > vec_varying_ndc_tri;
-    std::vector<std::vector<vec3> > vec_varying_world_nrm;
-    std::vector<std::vector<vec3> > vec_varying_nrm;
+    std::vector<vec3>& vec_varying_intensity;
+    std::vector<std::vector<vec3> >& vec_varying_uv;
+    std::vector<std::vector<vec4> >& vec_varying_tri;
+    std::vector<std::vector<vec3> >& vec_varying_pos;
+    std::vector<std::vector<vec3> >& vec_varying_ndc_tri;
+    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+    std::vector<std::vector<vec3> >& vec_varying_nrm;
   
     
     Mat uniform_M;   //  Projection*ModelView
@@ -362,10 +395,10 @@ class DiffuseShaderTangent : public IShader {
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
     
-    std::vector<Light> plights;
+    std::vector<Light>& plights;
   
     std::vector<DirectionalLight> directional_lights;
-    std::vector<rayimage> shadowbuffers;
+    std::vector<rayimage>& shadowbuffers;
     
 };
 
@@ -374,7 +407,14 @@ class PhongShader : public IShader {
     PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                       bool has_shadow_map, Float shadow_map_bias,
                       material_info mat_info,  std::vector<Light>& point_lights, 
-                      std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
+                      std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                      std::vector<vec3>& vec_varying_intensity,
+                      std::vector<std::vector<vec3> >& vec_varying_uv,
+                      std::vector<std::vector<vec4> >& vec_varying_tri,
+                      std::vector<std::vector<vec3> >& vec_varying_pos,
+                      std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+                      std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+                      std::vector<std::vector<vec3> >& vec_varying_nrm);
     ~PhongShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -414,12 +454,12 @@ class PhongShader : public IShader {
     Mat uniform_M;   //  Projection*ModelView
     Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
     
-    std::vector<vec3> vec_varying_intensity;
-    std::vector<std::vector<vec3> > vec_varying_uv;
-    std::vector<std::vector<vec4> > vec_varying_tri;
-    std::vector<std::vector<vec3> > vec_varying_nrm;
-    std::vector<std::vector<vec3> > vec_varying_pos;
-    std::vector<std::vector<vec3> > vec_varying_world_nrm;
+    std::vector<vec3>& vec_varying_intensity;
+    std::vector<std::vector<vec3> >& vec_varying_uv;
+    std::vector<std::vector<vec4> >& vec_varying_tri;
+    std::vector<std::vector<vec3> >& vec_varying_nrm;
+    std::vector<std::vector<vec3> >& vec_varying_pos;
+    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
   
     
     
@@ -436,10 +476,10 @@ class PhongShader : public IShader {
     float* emissive_texture;
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
-    std::vector<Light> plights;
+    std::vector<Light>& plights;
   
     std::vector<DirectionalLight> directional_lights;
-    std::vector<rayimage> shadowbuffers;
+    std::vector<rayimage>& shadowbuffers;
     
 };
 
@@ -449,7 +489,14 @@ public:
                
                bool has_shadow_map, Float shadow_map_bias,
                material_info mat_info,  std::vector<Light>& point_lights, 
-               std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
+               std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+               std::vector<vec3>& vec_varying_intensity,
+               std::vector<std::vector<vec3> >& vec_varying_uv,
+               std::vector<std::vector<vec4> >& vec_varying_tri,
+               std::vector<std::vector<vec3> >& vec_varying_pos,
+               std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+               std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+               std::vector<std::vector<vec3> >& vec_varying_nrm);
   ~PhongNormalShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -487,10 +534,10 @@ public:
   vec3 light_dir;
   vec3 l;
   
-  std::vector<std::vector<vec3> > vec_varying_uv;
-  std::vector<std::vector<vec4> > vec_varying_tri;
-  std::vector<std::vector<vec3> > vec_varying_pos;
-  std::vector<std::vector<vec3> > vec_varying_world_nrm;
+  std::vector<std::vector<vec3> >& vec_varying_uv;
+  std::vector<std::vector<vec4> >& vec_varying_tri;
+  std::vector<std::vector<vec3> >& vec_varying_pos;
+  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
 
   
   
@@ -509,10 +556,10 @@ public:
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
   
-  std::vector<Light> plights;
+  std::vector<Light>& plights;
 
   std::vector<DirectionalLight> directional_lights;
-  std::vector<rayimage> shadowbuffers;
+  std::vector<rayimage>& shadowbuffers;
   
 };
 
@@ -522,7 +569,14 @@ public:
                      
                      bool has_shadow_map, Float shadow_map_bias,
                      material_info mat_info,  std::vector<Light>& point_lights, 
-                     std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers);
+                     std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                     std::vector<vec3>& vec_varying_intensity,
+                     std::vector<std::vector<vec3> >& vec_varying_uv,
+                     std::vector<std::vector<vec4> >& vec_varying_tri,
+                     std::vector<std::vector<vec3> >& vec_varying_pos,
+                     std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+                     std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+                     std::vector<std::vector<vec3> >& vec_varying_nrm);
   ~PhongShaderTangent();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -560,12 +614,12 @@ public:
   vec3 light_dir;
   vec3 l;
   
-  std::vector<std::vector<vec3> > vec_varying_uv;
-  std::vector<std::vector<vec4> > vec_varying_tri;
-  std::vector<std::vector<vec3> > vec_varying_pos;
-  std::vector<std::vector<vec3> > vec_varying_ndc_tri;
-  std::vector<std::vector<vec3> > vec_varying_world_nrm;
-  std::vector<std::vector<vec3> > vec_varying_nrm;
+  std::vector<std::vector<vec3> >& vec_varying_uv;
+  std::vector<std::vector<vec4> >& vec_varying_tri;
+  std::vector<std::vector<vec3> >& vec_varying_pos;
+  std::vector<std::vector<vec3> >& vec_varying_ndc_tri;
+  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+  std::vector<std::vector<vec3> >& vec_varying_nrm;
 
   
   Mat uniform_M;   //  Projection*ModelView
@@ -584,10 +638,10 @@ public:
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
   
-  std::vector<Light> plights;
+  std::vector<Light>& plights;
 
   std::vector<DirectionalLight> directional_lights;
-  std::vector<rayimage> shadowbuffers;
+  std::vector<rayimage>& shadowbuffers;
   
 };
 
@@ -595,9 +649,13 @@ public:
 //Simple shader just for shadow maps
 //
 
-struct DepthShader : public IShader {
+class DepthShader : public IShader {
+public:
   DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-              material_info mat_info, int mat_ind);
+              material_info mat_info, int mat_ind,
+              std::vector<std::vector<vec3> >& vec_varying_uv,
+              std::vector<std::vector<vec4> >& vec_varying_tri
+              );
   ~DepthShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -621,11 +679,8 @@ struct DepthShader : public IShader {
   int nx_t, ny_t, nn_t;
   float* texture;
   
-  std::vector<vec3> vec_varying_intensity;
-  std::vector<std::vector<vec3> > vec_varying_uv;
-  std::vector<std::vector<vec4> > vec_varying_tri;
-  std::vector<std::vector<vec3> > vec_varying_pos;
-  std::vector<std::vector<vec3> > vec_varying_world_nrm;
+  std::vector<std::vector<vec3> >& vec_varying_uv;
+  std::vector<std::vector<vec4> >& vec_varying_tri;
   
   material_info material;
   

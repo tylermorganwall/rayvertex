@@ -44,6 +44,40 @@ add_shape = function(mesh, shape) {
 #'@export
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+merge_shapes = function(mesh) {
+  indices = list()
+  tex_indices = list()
+  norm_indices = list()
+  material_ids = list()
+  
+  for(i in seq_len(length(mesh$shapes))) {
+    indices[[i]]      = mesh$shapes[[i]]$indices     
+    tex_indices[[i]]  = mesh$shapes[[i]]$tex_indices 
+    norm_indices[[i]] = mesh$shapes[[i]]$norm_indices
+    material_ids[[i]] = mesh$shapes[[i]]$material_ids
+  }
+  
+  mesh$shapes = list()
+  mesh$shapes[[1]] = list()
+  
+  mesh$shapes[[1]]$indices = do.call(rbind,indices)
+  mesh$shapes[[1]]$tex_indices = do.call(rbind,tex_indices)
+  mesh$shapes[[1]]$norm_indices = do.call(rbind,norm_indices)
+  mesh$shapes[[1]]$material_ids = unlist(material_ids)
+  
+  return(mesh)
+}
+
+#'@title Add Shape
+#'
+#'Add shape to a mesh
+#'
+#'@param obj_model  
+
+#'@return Rasterized image.
+#'@export
+#'@examples
+#'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
 translate_mesh = function(mesh, position = c(0,0,0)) {
   mesh$vertices[,1]  = mesh$vertices[,1] + position[1]
   mesh$vertices[,2]  = mesh$vertices[,2] + position[2]

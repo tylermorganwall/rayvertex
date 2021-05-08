@@ -119,7 +119,11 @@ arrow_mesh = function(start = c(0,0,0), end = c(0,1,0), scale = c(1,1,1),  radiu
   
   length_xy = sqrt((end[1]-start[1])^2 + (end[3]-start[3])^2)
   if(end[1] == start[1] && end[3] == start[3]) {
-    theta = 0
+    if(start[2] - end[2] > 0) {
+      theta = 0
+    } else {
+      theta = 180
+    }
   } else {
     theta = atan2(-length_xy, (end[2]-start[2]))/pi*180
   }

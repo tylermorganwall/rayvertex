@@ -226,7 +226,7 @@ List rasterize(List mesh,
   
   //Initialize Shadow Map bounds and orientation
   //If changed to 0.1-100.0 doesn't work anymore
-  Float near_plane = 0.1f, far_plane = 10.0f;
+  Float near_plane = 0.1, far_plane = 100.0;
   // Float near_plane = 0.1f, far_plane = 100.0f;
   
   vec3 light_up = vec3(0.,1.,0.);
@@ -260,11 +260,11 @@ List rasterize(List mesh,
 
       shadowbuffers.push_back(shadowbuffer_temp);
       
+      vec3 light_dir_temp = glm::normalize(vec3(lightinfo(i,0),lightinfo(i,1),lightinfo(i,2)));
       vec3 light_up_dir = vec3(0.,1.,0.);
-      if(glm::length(glm::cross(light_up,light_up_dir)) == 0) {
+      if(glm::length(glm::cross(light_dir_temp,light_up_dir)) == 0) {
         light_up_dir = vec3(0.f,0.f,1.0f);
       }
-      vec3 light_dir_temp = glm::normalize(vec3(lightinfo(i,0),lightinfo(i,1),lightinfo(i,2)));
       directional_lights.push_back(DirectionalLight(light_dir_temp,
                                                     vec3(lightinfo(i,3),lightinfo(i,4),lightinfo(i,5)),
                                                     scene_center, light_up_dir, scene_diag,
@@ -284,6 +284,32 @@ List rasterize(List mesh,
   
   List materials = as<List>(mesh["materials"]);
   int number_materials = materials.size();
+  
+  
+  std::vector<vec3> vec_varying_intensity;
+  std::vector<std::vector<vec3> > vec_varying_uv;
+  std::vector<std::vector<vec4> > vec_varying_tri;
+  std::vector<std::vector<vec3> > vec_varying_pos;
+  std::vector<std::vector<vec3> > vec_varying_world_nrm;
+  std::vector<std::vector<vec3> > vec_varying_ndc_tri;
+  std::vector<std::vector<vec3> > vec_varying_nrm;
+  
+  for(int i = 0; i < max_indices; i++ ) {
+    std::vector<vec3> tempuv(3);
+    std::vector<vec4> temptri(3);
+    std::vector<vec3> temppos(3);
+    std::vector<vec3> tempnrm(3);
+    std::vector<vec3> tempndc(3);
+    std::vector<vec3> tempnrm2(3);
+
+    vec_varying_uv.push_back(tempuv);
+    vec_varying_tri.push_back(temptri);
+    vec_varying_pos.push_back(temppos);
+    vec_varying_world_nrm.push_back(tempnrm);
+    vec_varying_ndc_tri.push_back(tempndc);
+    vec_varying_nrm.push_back(tempnrm2);
+  }
+  
   for(int i = 0; i < number_materials; i++) {
     List single_material = as<List>(materials(i));
     NumericVector ambient = as<NumericVector>(single_material["ambient"]);
@@ -351,39 +377,79 @@ List rasterize(List mesh,
       shader = new GouraudShader(Model, Projection, View, viewport,
                                  has_shadow_map,
                                  shadow_map_bias,mat_info[i], point_lights,
-                                 directional_lights, shadowbuffers);
+                                 directional_lights, shadowbuffers,
+                                 vec_varying_intensity,
+                                 vec_varying_uv,
+                                 vec_varying_tri,
+                                 vec_varying_pos,
+                                 vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
     } else if (type == 2) {
       shader = new DiffuseShader(Model, Projection, View, viewport,
                                  has_shadow_map,
                                  shadow_map_bias,mat_info[i], point_lights,
-                                 directional_lights, shadowbuffers);
+                                 directional_lights, shadowbuffers,
+                                 vec_varying_intensity,
+                                 vec_varying_uv,
+                                 vec_varying_tri,
+                                 vec_varying_pos,
+                                 vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
     } else if (type == 3) {
       shader = new PhongShader(Model, Projection, View, viewport,
                                has_shadow_map,
                                shadow_map_bias,mat_info[i], point_lights,
-                               directional_lights, shadowbuffers);
+                               directional_lights, shadowbuffers,
+                               vec_varying_intensity,
+                               vec_varying_uv,
+                               vec_varying_tri,
+                               vec_varying_pos,
+                               vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
     } else if (type == 4) {
       shader = new DiffuseNormalShader(Model, Projection, View, viewport,
                                        has_shadow_map,
                                        shadow_map_bias,mat_info[i], point_lights,
-                                       directional_lights, shadowbuffers);
+                                       directional_lights, shadowbuffers,
+                                       vec_varying_intensity,
+                                       vec_varying_uv,
+                                       vec_varying_tri,
+                                       vec_varying_pos,
+                                       vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
     } else if (type == 5) {
       shader = new DiffuseShaderTangent(Model, Projection, View, viewport,
                                         has_shadow_map,
                                         shadow_map_bias,mat_info[i], point_lights,
-                                        directional_lights, shadowbuffers);
+                                        directional_lights, shadowbuffers,
+                                        vec_varying_intensity,
+                                        vec_varying_uv,
+                                        vec_varying_tri,
+                                        vec_varying_pos,
+                                        vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
     } else if (type == 6) {
       shader = new PhongNormalShader(Model, Projection, View, viewport,
                                      has_shadow_map,
                                      shadow_map_bias,mat_info[i], point_lights,
-                                     directional_lights, shadowbuffers);
+                                     directional_lights, shadowbuffers,
+                                     vec_varying_intensity,
+                                     vec_varying_uv,
+                                     vec_varying_tri,
+                                     vec_varying_pos,
+                                     vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
     } else if (type == 7) {
       shader = new PhongShaderTangent(Model, Projection, View, viewport,
                                       has_shadow_map,
                                       shadow_map_bias,mat_info[i], point_lights,
-                                      directional_lights, shadowbuffers);
+                                      directional_lights, shadowbuffers,
+                                      vec_varying_intensity,
+                                      vec_varying_uv,
+                                      vec_varying_tri,
+                                      vec_varying_pos,
+                                      vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
     } else if (type == 8) {
-      shader = new ColorShader(Model, Projection, View, viewport,mat_info[i]);
+      shader = new ColorShader(Model, Projection, View, viewport,mat_info[i],
+                               vec_varying_intensity,
+                               vec_varying_uv,
+                               vec_varying_tri,
+                               vec_varying_pos,
+                               vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
     } else {
       throw std::runtime_error("shader not recognized");
     }
@@ -424,19 +490,39 @@ List rasterize(List mesh,
     shaders.push_back(new GouraudShader(Model, Projection, View, viewport,
                                has_shadow_map,
                                shadow_map_bias,mat_info.back(), point_lights,
-                               directional_lights, shadowbuffers));
+                               directional_lights, shadowbuffers,
+                               vec_varying_intensity,
+                               vec_varying_uv,
+                               vec_varying_tri,
+                               vec_varying_pos,
+                               vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm));
   } else if (typevals(0) == 2 || typevals(0) == 4 || typevals(0) == 5) {
     shaders.push_back(new DiffuseShader(Model, Projection, View, viewport,
                                has_shadow_map,
                                shadow_map_bias,mat_info.back(), point_lights,
-                               directional_lights, shadowbuffers));
+                               directional_lights, shadowbuffers,
+                               vec_varying_intensity,
+                               vec_varying_uv,
+                               vec_varying_tri,
+                               vec_varying_pos,
+                               vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm));
   } else if (typevals(0) == 3 || typevals(0) == 6 || typevals(0) == 7) {
     shaders.push_back(new PhongShader(Model, Projection, View, viewport,
                              has_shadow_map,
                              shadow_map_bias,mat_info.back(), point_lights,
-                             directional_lights, shadowbuffers));
+                             directional_lights, shadowbuffers,
+                             vec_varying_intensity,
+                             vec_varying_uv,
+                             vec_varying_tri,
+                             vec_varying_pos,
+                             vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm));
   } else if (typevals(0) == 8) {
-    shaders.push_back(new ColorShader(Model, Projection, View, viewport,mat_info.back()));
+    shaders.push_back(new ColorShader(Model, Projection, View, viewport,mat_info.back(),
+                                      vec_varying_intensity,
+                                      vec_varying_uv,
+                                      vec_varying_tri,
+                                      vec_varying_pos,
+                                      vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm));
   }
   
   
@@ -563,13 +649,15 @@ List rasterize(List mesh,
       depthshaders[j].push_back(new DepthShader(Model, directional_lights[j].lightProjection, 
                                                 directional_lights[j].lightView, viewport_depth,
                                                 mat_info[i],
-                                                max_indices));
+                                                max_indices,
+                                                vec_varying_uv,
+                                                vec_varying_tri));
     }
   }
-  
 
   if(has_shadow_map) {
     for(int sb = 0; sb < shadowbuffers.size(); sb++) {
+      
       for(int model_num = 0; model_num < models.size(); model_num++ ) {
         ModelInfo &shp = models[model_num];
         for(int i = 0; i < shp.num_indices; i++) {
@@ -649,7 +737,6 @@ List rasterize(List mesh,
     }
   }
   
-
   //Calculate Image
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<Float>::infinity() ) ;
 
@@ -721,7 +808,7 @@ List rasterize(List mesh,
                     models, false,
                     alpha_depths);
   };
-
+  
 
   RcppThread::ThreadPool pool(numbercores);
   for(int i = 0; i < nx_blocks*ny_blocks; i++) {

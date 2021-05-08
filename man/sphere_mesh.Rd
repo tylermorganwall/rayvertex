@@ -2,10 +2,11 @@
 % Please edit documentation in R/objects.R
 \name{sphere_mesh}
 \alias{sphere_mesh}
-\title{Cube 3D Model}
+\title{Sphere 3D Model}
 \usage{
 sphere_mesh(
   position = c(0, 0, 0),
+  radius = 1,
   scale = c(1, 1, 1),
   angle = c(0, 0, 0),
   pivot_point = c(0, 0, 0),
@@ -17,5 +18,5 @@ sphere_mesh(
 File location of the R.obj file (saved with a .txt extension)
 }
 \description{
-3D obj model of the letter R
+Sphere 3D Model
 }

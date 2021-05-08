@@ -26,11 +26,20 @@ IShader::~IShader() {}
 GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                              bool has_shadow_map, Float shadow_map_bias,
                              material_info mat_info,  std::vector<Light>& point_lights,
-                             std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers) :
+                             std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                             std::vector<vec3>& vec_varying_intensity,
+                             std::vector<std::vector<vec3> >& vec_varying_uv,
+                             std::vector<std::vector<vec4> >& vec_varying_tri,
+                             std::vector<std::vector<vec3> >& vec_varying_pos,
+                             std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+                             std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+                             std::vector<std::vector<vec3> >& vec_varying_nrm) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
-  directional_lights(directional_lights), shadowbuffers(shadowbuffers) {
+  directional_lights(directional_lights), shadowbuffers(shadowbuffers),
+  vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm) {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -78,19 +87,19 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
     }
   }
   
-  for(int i = 0; i < material.max_indices; i++ ) {
-    std::vector<vec3> tempuv(3);
-    std::vector<vec4> temptri(3);
-    std::vector<vec3> temppos(3);
-    std::vector<vec3> tempnrm(3);
-    vec3 temp;
-    
-    vec_varying_intensity.push_back(temp);
-    vec_varying_uv.push_back(tempuv);
-    vec_varying_tri.push_back(temptri);
-    vec_varying_pos.push_back(temppos);
-    vec_varying_world_nrm.push_back(tempnrm);
-  }
+  // for(int i = 0; i < material.max_indices; i++ ) {
+  //   std::vector<vec3> tempuv(3);
+  //   std::vector<vec4> temptri(3);
+  //   std::vector<vec3> temppos(3);
+  //   std::vector<vec3> tempnrm(3);
+  //   vec3 temp;
+  //   
+  //   vec_varying_intensity.push_back(temp);
+  //   vec_varying_uv.push_back(tempuv);
+  //   vec_varying_tri.push_back(temptri);
+  //   vec_varying_pos.push_back(temppos);
+  //   vec_varying_world_nrm.push_back(tempnrm);
+  // }
 };
 
 GouraudShader::~GouraudShader() {
@@ -173,8 +182,17 @@ ColorShader::~ColorShader() {
 }
 
 ColorShader::ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-                             material_info mat_info) :
-  Projection(Projection), View(View), viewport(viewport), material(mat_info) {
+                             material_info mat_info,
+                             std::vector<vec3>& vec_varying_intensity,
+                             std::vector<std::vector<vec3> >& vec_varying_uv,
+                             std::vector<std::vector<vec4> >& vec_varying_tri,
+                             std::vector<std::vector<vec3> >& vec_varying_pos,
+                             std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+                             std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+                             std::vector<std::vector<vec3> >& vec_varying_nrm) :
+  Projection(Projection), View(View), viewport(viewport), material(mat_info),
+  vec_varying_uv(vec_varying_uv),
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm) {
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
@@ -220,17 +238,17 @@ ColorShader::ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
     }
   }
   
-  for(int i = 0; i < material.max_indices; i++ ) {
-    std::vector<vec3> tempuv(3);
-    std::vector<vec4> temptri(3);
-    std::vector<vec3> temppos(3);
-    std::vector<vec3> tempnrm(3);
-    
-    vec_varying_uv.push_back(tempuv);
-    vec_varying_tri.push_back(temptri);
-    vec_varying_pos.push_back(temppos);
-    vec_varying_world_nrm.push_back(tempnrm);
-  }
+  // for(int i = 0; i < material.max_indices; i++ ) {
+  //   std::vector<vec3> tempuv(3);
+  //   std::vector<vec4> temptri(3);
+  //   std::vector<vec3> temppos(3);
+  //   std::vector<vec3> tempnrm(3);
+  //   
+  //   vec_varying_uv.push_back(tempuv);
+  //   vec_varying_tri.push_back(temptri);
+  //   vec_varying_pos.push_back(temppos);
+  //   vec_varying_world_nrm.push_back(tempnrm);
+  // }
 };
 
 
@@ -283,11 +301,20 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
               
               bool has_shadow_map, Float shadow_map_bias,
               material_info mat_info,  std::vector<Light>& point_lights, 
-              std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers) :
+              std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+              std::vector<vec3>& vec_varying_intensity,
+              std::vector<std::vector<vec3> >& vec_varying_uv,
+              std::vector<std::vector<vec4> >& vec_varying_tri,
+              std::vector<std::vector<vec3> >& vec_varying_pos,
+              std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+              std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+              std::vector<std::vector<vec3> >& vec_varying_nrm) :
     Projection(Projection), View(View), viewport(viewport),
     has_shadow_map(has_shadow_map),
     shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
-    directional_lights(directional_lights), shadowbuffers(shadowbuffers)  {
+    directional_lights(directional_lights), shadowbuffers(shadowbuffers),
+    vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
+    vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm)  {
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
@@ -335,19 +362,19 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   }
   
   
-  for(int i = 0; i < material.max_indices; i++ ) {
-    std::vector<vec3> tempuv(3);
-    std::vector<vec4> temptri(3);
-    std::vector<vec3> temppos(3);
-    std::vector<vec3> tempnrm(3);
-    vec3 temp;
-    
-    vec_varying_intensity.push_back(temp);
-    vec_varying_uv.push_back(tempuv);
-    vec_varying_tri.push_back(temptri);
-    vec_varying_pos.push_back(temppos);
-    vec_varying_world_nrm.push_back(tempnrm);
-  }
+  // for(int i = 0; i < material.max_indices; i++ ) {
+  //   std::vector<vec3> tempuv(3);
+  //   std::vector<vec4> temptri(3);
+  //   std::vector<vec3> temppos(3);
+  //   std::vector<vec3> tempnrm(3);
+  //   vec3 temp;
+  //   
+  //   vec_varying_intensity.push_back(temp);
+  //   vec_varying_uv.push_back(tempuv);
+  //   vec_varying_tri.push_back(temptri);
+  //   vec_varying_pos.push_back(temppos);
+  //   vec_varying_world_nrm.push_back(tempnrm);
+  // }
 };
 
 
@@ -431,11 +458,20 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
              
              bool has_shadow_map, Float shadow_map_bias,
              material_info mat_info,  std::vector<Light>& point_lights, 
-             std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers) :
+             std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+             std::vector<vec3>& vec_varying_intensity,
+             std::vector<std::vector<vec3> >& vec_varying_uv,
+             std::vector<std::vector<vec4> >& vec_varying_tri,
+             std::vector<std::vector<vec3> >& vec_varying_pos,
+             std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+             std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+             std::vector<std::vector<vec3> >& vec_varying_nrm) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
-  directional_lights(directional_lights), shadowbuffers(shadowbuffers)  {
+  directional_lights(directional_lights), shadowbuffers(shadowbuffers),
+  vec_varying_uv(vec_varying_uv),
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -484,18 +520,17 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
   uniform_MIT = glm::inverseTranspose(uniform_M);
   
   l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
-  for(int i = 0; i < material.max_indices; i++ ) {
-    std::vector<vec3> tempuv(3);
-    std::vector<vec4> temptri(3);
-    std::vector<vec3> temppos(3);
-    std::vector<vec3> tempnrm(3);
-    vec3 temp;
-    
-    vec_varying_uv.push_back(tempuv);
-    vec_varying_tri.push_back(temptri);
-    vec_varying_pos.push_back(temppos);
-    vec_varying_world_nrm.push_back(tempnrm);
-  }
+  // for(int i = 0; i < material.max_indices; i++ ) {
+  //   std::vector<vec3> tempuv(3);
+  //   std::vector<vec4> temptri(3);
+  //   std::vector<vec3> temppos(3);
+  //   std::vector<vec3> tempnrm(3);
+  // 
+  //   vec_varying_uv.push_back(tempuv);
+  //   vec_varying_tri.push_back(temptri);
+  //   vec_varying_pos.push_back(temppos);
+  //   vec_varying_world_nrm.push_back(tempnrm);
+  // }
 };
 
 
@@ -575,11 +610,22 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
                                        
                                        bool has_shadow_map, Float shadow_map_bias,
                                        material_info mat_info,  std::vector<Light>& point_lights,
-                                       std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers) :
+                                       std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                                       std::vector<vec3>& vec_varying_intensity,
+                                       std::vector<std::vector<vec3> >& vec_varying_uv,
+                                       std::vector<std::vector<vec4> >& vec_varying_tri,
+                                       std::vector<std::vector<vec3> >& vec_varying_pos,
+                                       std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+                                       std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+                                       std::vector<std::vector<vec3> >& vec_varying_nrm) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
-  directional_lights(directional_lights), shadowbuffers(shadowbuffers)  {
+  directional_lights(directional_lights), shadowbuffers(shadowbuffers),
+  vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
+  vec_varying_ndc_tri(vec_varying_ndc_tri), 
+  vec_varying_nrm(vec_varying_nrm)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -628,21 +674,21 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
   }
   
   
-  for(int i = 0; i < material.max_indices; i++ ) {
-    std::vector<vec3> tempuv(3);
-    std::vector<vec4> temptri(3);
-    std::vector<vec3> temppos(3);
-    std::vector<vec3> tempnrm(3);
-    std::vector<vec3> tempndc(3);
-    std::vector<vec3> tempnrm2(3);
-    
-    vec_varying_uv.push_back(tempuv);
-    vec_varying_tri.push_back(temptri);
-    vec_varying_pos.push_back(temppos);
-    vec_varying_world_nrm.push_back(tempnrm);
-    vec_varying_ndc_tri.push_back(tempndc);
-    vec_varying_nrm.push_back(tempnrm2);
-  }
+  // for(int i = 0; i < material.max_indices; i++ ) {
+  //   std::vector<vec3> tempuv(3);
+  //   std::vector<vec4> temptri(3);
+  //   std::vector<vec3> temppos(3);
+  //   std::vector<vec3> tempnrm(3);
+  //   std::vector<vec3> tempndc(3);
+  //   std::vector<vec3> tempnrm2(3);
+  //   
+  //   vec_varying_uv.push_back(tempuv);
+  //   vec_varying_tri.push_back(temptri);
+  //   vec_varying_pos.push_back(temppos);
+  //   vec_varying_world_nrm.push_back(tempnrm);
+  //   vec_varying_ndc_tri.push_back(tempndc);
+  //   vec_varying_nrm.push_back(tempnrm2);
+  // }
 }
 
 vec4 DiffuseShaderTangent::vertex(int iface, int nthvert, ModelInfo& model) {
@@ -746,11 +792,21 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                                      
                                      bool has_shadow_map, Float shadow_map_bias,
                                      material_info mat_info,  std::vector<Light>& point_lights,
-                                     std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers) :
+                                     std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                                     std::vector<vec3>& vec_varying_intensity,
+                                     std::vector<std::vector<vec3> >& vec_varying_uv,
+                                     std::vector<std::vector<vec4> >& vec_varying_tri,
+                                     std::vector<std::vector<vec3> >& vec_varying_pos,
+                                     std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+                                     std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+                                     std::vector<std::vector<vec3> >& vec_varying_nrm) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
-  directional_lights(directional_lights), shadowbuffers(shadowbuffers)  {
+  directional_lights(directional_lights), shadowbuffers(shadowbuffers),
+  vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
+  vec_varying_nrm(vec_varying_nrm)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -799,20 +855,20 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   uniform_M = View * Model;
   uniform_MIT = glm::inverse(glm::transpose(uniform_M));
   l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
-  for(int i = 0; i < material.max_indices; i++ ) {
-    std::vector<vec3> tempuv(3);
-    std::vector<vec4> temptri(3);
-    std::vector<vec3> temppos(3);
-    std::vector<vec3> tempnrm(3);
-    std::vector<vec3> tempndc(3);
-    std::vector<vec3> tempnrm2(3);
-    
-    vec_varying_uv.push_back(tempuv);
-    vec_varying_tri.push_back(temptri);
-    vec_varying_pos.push_back(temppos);
-    vec_varying_world_nrm.push_back(tempnrm);
-    vec_varying_nrm.push_back(tempnrm2);
-  }
+  // for(int i = 0; i < material.max_indices; i++ ) {
+  //   std::vector<vec3> tempuv(3);
+  //   std::vector<vec4> temptri(3);
+  //   std::vector<vec3> temppos(3);
+  //   std::vector<vec3> tempnrm(3);
+  //   std::vector<vec3> tempndc(3);
+  //   std::vector<vec3> tempnrm2(3);
+  //   
+  //   vec_varying_uv.push_back(tempuv);
+  //   vec_varying_tri.push_back(temptri);
+  //   vec_varying_pos.push_back(temppos);
+  //   vec_varying_world_nrm.push_back(tempnrm);
+  //   vec_varying_nrm.push_back(tempnrm2);
+  // }
 }
 
 vec4 PhongShader::vertex(int iface, int nthvert, ModelInfo& model) {
@@ -906,11 +962,20 @@ PhongNormalShader::~PhongNormalShader() {
 PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
             bool has_shadow_map, Float shadow_map_bias,
             material_info mat_info,  std::vector<Light>& point_lights,
-            std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers) :
+            std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+            std::vector<vec3>& vec_varying_intensity,
+            std::vector<std::vector<vec3> >& vec_varying_uv,
+            std::vector<std::vector<vec4> >& vec_varying_tri,
+            std::vector<std::vector<vec3> >& vec_varying_pos,
+            std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+            std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+            std::vector<std::vector<vec3> >& vec_varying_nrm) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
-  directional_lights(directional_lights), shadowbuffers(shadowbuffers)  {
+  directional_lights(directional_lights), shadowbuffers(shadowbuffers),
+  vec_varying_uv(vec_varying_uv),
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -959,19 +1024,19 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
   }
   
   
-  for(int i = 0; i < material.max_indices; i++ ) {
-    std::vector<vec3> tempuv(3);
-    std::vector<vec4> temptri(3);
-    std::vector<vec3> temppos(3);
-    std::vector<vec3> tempnrm(3);
-    std::vector<vec3> tempndc(3);
-    std::vector<vec3> tempnrm2(3);
-    
-    vec_varying_uv.push_back(tempuv);
-    vec_varying_tri.push_back(temptri);
-    vec_varying_pos.push_back(temppos);
-    vec_varying_world_nrm.push_back(tempnrm);
-  }
+  // for(int i = 0; i < material.max_indices; i++ ) {
+  //   std::vector<vec3> tempuv(3);
+  //   std::vector<vec4> temptri(3);
+  //   std::vector<vec3> temppos(3);
+  //   std::vector<vec3> tempnrm(3);
+  //   std::vector<vec3> tempndc(3);
+  //   std::vector<vec3> tempnrm2(3);
+  //   
+  //   vec_varying_uv.push_back(tempuv);
+  //   vec_varying_tri.push_back(temptri);
+  //   vec_varying_pos.push_back(temppos);
+  //   vec_varying_world_nrm.push_back(tempnrm);
+  // }
   
 }
 
@@ -1066,11 +1131,22 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
                          
                          bool has_shadow_map, Float shadow_map_bias,
                          material_info mat_info,  std::vector<Light>& point_lights,
-                         std::vector<DirectionalLight>& directional_lights, std::vector<rayimage>& shadowbuffers) :
+                         std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                         std::vector<vec3>& vec_varying_intensity,
+                         std::vector<std::vector<vec3> >& vec_varying_uv,
+                         std::vector<std::vector<vec4> >& vec_varying_tri,
+                         std::vector<std::vector<vec3> >& vec_varying_pos,
+                         std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+                         std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+                         std::vector<std::vector<vec3> >& vec_varying_nrm) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
-  directional_lights(directional_lights), shadowbuffers(shadowbuffers)   {
+  directional_lights(directional_lights), shadowbuffers(shadowbuffers),
+  vec_varying_uv(vec_varying_uv),
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
+  vec_varying_ndc_tri(vec_varying_ndc_tri), 
+  vec_varying_nrm(vec_varying_nrm)   {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -1119,21 +1195,21 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
   }
   
   
-  for(int i = 0; i < material.max_indices; i++ ) {
-    std::vector<vec3> tempuv(3);
-    std::vector<vec4> temptri(3);
-    std::vector<vec3> temppos(3);
-    std::vector<vec3> tempnrm(3);
-    std::vector<vec3> tempndc(3);
-    std::vector<vec3> tempnrm2(3);
-    
-    vec_varying_uv.push_back(tempuv);
-    vec_varying_tri.push_back(temptri);
-    vec_varying_pos.push_back(temppos);
-    vec_varying_world_nrm.push_back(tempnrm);
-    vec_varying_ndc_tri.push_back(tempndc);
-    vec_varying_nrm.push_back(tempnrm2);
-  }
+  // for(int i = 0; i < material.max_indices; i++ ) {
+  //   std::vector<vec3> tempuv(3);
+  //   std::vector<vec4> temptri(3);
+  //   std::vector<vec3> temppos(3);
+  //   std::vector<vec3> tempnrm(3);
+  //   std::vector<vec3> tempndc(3);
+  //   std::vector<vec3> tempnrm2(3);
+  //   
+  //   vec_varying_uv.push_back(tempuv);
+  //   vec_varying_tri.push_back(temptri);
+  //   vec_varying_pos.push_back(temppos);
+  //   vec_varying_world_nrm.push_back(tempnrm);
+  //   vec_varying_ndc_tri.push_back(tempndc);
+  //   vec_varying_nrm.push_back(tempnrm2);
+  // }
 }
 
 vec4 PhongShaderTangent::vertex(int iface, int nthvert, ModelInfo& model) {
@@ -1229,9 +1305,13 @@ DepthShader::~DepthShader() {
 }
 
 DepthShader::DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-                          material_info mat_info, int mat_ind) :
+                          material_info mat_info, int mat_ind,
+                          std::vector<std::vector<vec3> >& vec_varying_uv,
+                          std::vector<std::vector<vec4> >& vec_varying_tri
+                          ) :
   Projection(Projection), View(View), viewport(viewport),
-  material(mat_info) {
+  material(mat_info), vec_varying_uv(vec_varying_uv), vec_varying_tri(vec_varying_tri)
+  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                   vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -1244,13 +1324,13 @@ DepthShader::DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
       throw std::runtime_error("Texture loading failed");
     }
   }
-  for(int i = 0; i < mat_ind; i++ ) {
-    std::vector<vec4> temptri(3);
-    std::vector<vec3> tempuv(3);
-    
-    vec_varying_tri.push_back(temptri);
-    vec_varying_uv.push_back(tempuv);
-  }
+  // for(int i = 0; i < mat_ind; i++ ) {
+  //   std::vector<vec4> temptri(3);
+  //   std::vector<vec3> tempuv(3);
+  //   
+  //   vec_varying_tri.push_back(temptri);
+  //   vec_varying_uv.push_back(tempuv);
+  // }
 }
 
 vec4 DepthShader::vertex(int iface, int nthvert, ModelInfo& model) {

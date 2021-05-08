@@ -2,16 +2,14 @@
 % Please edit documentation in R/objects.R
 \name{cone_mesh}
 \alias{cone_mesh}
-\title{Cube 3D Model}
+\title{Cone 3D Model}
 \usage{
 cone_mesh(
-  position = c(0, 0, 0),
-  scale = c(1, 1, 1),
-  angle = c(0, 0, 0),
-  radius_head = 0.5,
-  radius_tail = 0.25,
-  pivot_point = c(0, 0, 0),
-  order_rotation = c(1, 2, 3)
+  start = c(0, 0, 0),
+  end = c(0, 1, 0),
+  radius = 0.5,
+  direction = NA,
+  from_center = FALSE
 )
 }
 \value{
