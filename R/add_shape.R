@@ -5,7 +5,6 @@
 #'@param obj_model  
 
 #'@return Rasterized image.
-#'@export
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
 add_shape = function(mesh, shape) {

@@ -29,7 +29,7 @@ public:
                    Float near_plane, Float far_plane, Mat vp_shadow, Mat Model, Mat shadow_inv) : 
     direction(direction), color(color) {
     lightProjection = glm::ortho(-scene_diag/2, scene_diag/2, -scene_diag/2, scene_diag/2, 
-                                 near_plane, far_plane);
+                                 0.1, scene_diag);
     lightView = glm::lookAt(scene_center + direction * scene_diag,
                             scene_center,
                             light_up);

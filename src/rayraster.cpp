@@ -155,6 +155,15 @@ List rasterize(List mesh,
     cam_up = vec3(0.,0.,1.f);
   }
   
+  Float dist_to_focus = glm::length(eye-center)+0.5;
+  vec3 sceneboundmin = vec3(bounds(0),bounds(1),bounds(2));
+  vec3 sceneboundmax = vec3(bounds(3),bounds(4),bounds(5));
+  Float scene_diag = glm::length(sceneboundmax-sceneboundmin)+0.5;
+  vec3 scene_center = (sceneboundmax+sceneboundmin)/(Float)2.0;
+  
+  far_clip = scene_diag + dist_to_focus;
+  
+  
   //Turn off gamma correction or get seams in textures/normal maps
   stbi_ldr_to_hdr_gamma(1.0);
     
@@ -164,7 +173,7 @@ List rasterize(List mesh,
   Mat Projection = fov != 0.0 ? glm::perspective(glm::radians((Float)fov), 
                                     (Float)nx / (Float)ny, 
                                     (Float)near_clip, 
-                                    (Float)far_clip) :
+                                    (Float) scene_diag + dist_to_focus) :
     glm::ortho(-(Float)ortho_dims(0)/2, (Float)ortho_dims(0)/2, -(Float)ortho_dims(1)/2, (Float)ortho_dims(1)/2);
   vec4 viewport(0.0f, 0.0f, (Float)nx-1, (Float)ny-1);
   vec4 viewport_depth(0.0f, 0.0f, (Float)shadowdims(0)-1, (Float)shadowdims(1)-1);
@@ -226,15 +235,10 @@ List rasterize(List mesh,
   
   //Initialize Shadow Map bounds and orientation
   //If changed to 0.1-100.0 doesn't work anymore
-  Float near_plane = 0.1, far_plane = 100.0;
+  Float near_plane = 0.1, far_plane = 10.0;
   // Float near_plane = 0.1f, far_plane = 100.0f;
   
   vec3 light_up = vec3(0.,1.,0.);
-  
-  vec3 sceneboundmin = vec3(bounds(0),bounds(1),bounds(2));
-  vec3 sceneboundmax = vec3(bounds(3),bounds(4),bounds(5));
-  Float scene_diag = glm::length(sceneboundmax-sceneboundmin)+0.5;
-  vec3 scene_center = (sceneboundmax+sceneboundmin)/(Float)2.0;
 
   Mat shadow_inv = glm::inverse(vp * Projection * View * Model);
 
