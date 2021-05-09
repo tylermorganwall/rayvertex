@@ -25,7 +25,8 @@ change_material(
   diffuse_intensity = NULL,
   specular_intensity = NULL,
   emission_intensity = NULL,
-  culling = NULL
+  culling = NULL,
+  type = NULL
 )
 }
 \arguments{

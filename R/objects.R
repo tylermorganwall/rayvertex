@@ -170,7 +170,7 @@ cylinder_mesh = function(position = c(0,0,0), radius = 0.5, length=1,
 #' @export
 #'
 segment_mesh = function(start = c(0,-1,0), end = c(0,1,0), radius = 0.5,
-                        direction = NA,  from_center = TRUE) {
+                        direction = NA,  from_center = TRUE, square = FALSE) {
   if(all(!is.na(direction)) && length(direction) == 3) {
     if(from_center) {
       new_start = start - direction/2
@@ -201,7 +201,11 @@ segment_mesh = function(start = c(0,-1,0), end = c(0,1,0), radius = 0.5,
   fulllength = sqrt(sum((end-start)^2))
   angle = c(0, phi, theta)
   
-  obj = cylinder_mesh(angle = angle, order_rotation = order_rotation, radius = radius, length = fulllength)
+  if(!square) {
+    obj = cylinder_mesh(angle = angle, order_rotation = order_rotation, radius = radius, length = fulllength)
+  } else {
+    obj = cube_mesh(angle = angle, order_rotation = order_rotation, scale=c(radius*2,fulllength,radius*2))
+  }
   obj = translate_mesh(obj,c(x,y,z))
   obj
 }

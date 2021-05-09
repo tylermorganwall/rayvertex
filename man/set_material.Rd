@@ -25,7 +25,8 @@ set_material(
   diffuse_intensity = 1,
   specular_intensity = 1,
   emission_intensity = 1,
-  culling = "back"
+  culling = "back",
+  type = "diffuse"
 )
 }
 \arguments{

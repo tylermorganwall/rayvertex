@@ -231,11 +231,11 @@ rasterize_mesh  = function(mesh,
   color = convert_color(color)
   bg_color = convert_color(background)
   
-  typeval = switch(type, "vertex" = 1, "diffuse" = 2, "phong" = 3, "color" = 8, 1)
-  typevals = rep(typeval,max(c(length(obj$materials),1)))
-  if(typeval != 8) {
-    if(!use_default_material) {
-      for(i in seq_len(length(obj$materials))) {
+  typevals = rep(2,max(c(length(obj$materials),1)))
+  if(!use_default_material) {
+    for(i in seq_len(length(obj$materials))) {
+      typeval = switch(obj$materials[[i]]$type, "vertex" = 1, "diffuse" = 2, "phong" = 3, "color" = 8, 1)
+      if(typeval != 8) {
         if(has_normal_texture[i]) {
           if(typeval == 2) {
             if(!tangent_space_normals) {
@@ -253,6 +253,8 @@ rasterize_mesh  = function(mesh,
         } else {
           typevals[i] = typeval
         }
+      } else {
+        typevals[i] = typeval
       }
     }
   }

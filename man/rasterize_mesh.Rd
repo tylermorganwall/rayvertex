@@ -23,7 +23,7 @@ rasterize_mesh(
   background = "black",
   tangent_space_normals = TRUE,
   shadow_map = FALSE,
-  shadow_map_bias = 0.005,
+  shadow_map_bias = 0.001,
   shadow_map_intensity = 0.5,
   shadow_map_dims = NULL,
   ssao = FALSE,

@@ -87,7 +87,8 @@ List load_obj(std::string inputfile, std::string basedir) {
                                          Named("diffuse_intensity", 1.0),
                                          Named("emission_intensity", 1.0),
                                          Named("specular_intensity", 1.0), 
-                                         Named("culling", culltype));
+                                         Named("culling", culltype), 
+                                         Named("type", "diffuse"));
   }
   List return_val;
   return_val["shapes"]    = shape_list;

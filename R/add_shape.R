@@ -177,7 +177,8 @@ set_material = function(mesh,
                         diffuse_intensity         = 1, 
                         specular_intensity        = 1,  
                         emission_intensity        = 1,
-                        culling                   = "back") {
+                        culling                   = "back",
+                        type                      = "diffuse") {
   culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   
   if(!is.null(mesh$materials) && length(mesh$materials) > 0) {
@@ -201,6 +202,7 @@ set_material = function(mesh,
       mesh$materials[[i]]$specular_intensity = specular_intensity   
       mesh$materials[[i]]$emission_intensity = emission_intensity  
       mesh$materials[[i]]$culling            = culling   
+      mesh$materials[[i]]$type               = type   
       
     }
     for(i in seq_len(length(mesh$shapes))) {
@@ -228,6 +230,7 @@ set_material = function(mesh,
     mesh$materials[[1]]$specular_intensity = specular_intensity   
     mesh$materials[[1]]$emission_intensity = emission_intensity  
     mesh$materials[[1]]$culling            = culling    
+    mesh$materials[[1]]$type               = type    
     
   }
   return(mesh)
@@ -312,7 +315,8 @@ change_material = function(mesh,
                            diffuse_intensity         = NULL,
                            specular_intensity        = NULL,
                            emission_intensity        = NULL,
-                           culling                   = NULL) {
+                           culling                   = NULL,
+                           type                      = NULL) {
   if(!is.null(culling)) {
     culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   }
@@ -337,6 +341,8 @@ change_material = function(mesh,
       if(!is.null(specular_intensity))        mesh$materials[[i]]$specular_intensity = specular_intensity   
       if(!is.null(emission_intensity))        mesh$materials[[i]]$emission_intensity = emission_intensity  
       if(!is.null(culling))                   mesh$materials[[i]]$culling            = culling   
+      if(!is.null(type))                      mesh$materials[[i]]$type               = type   
+      
     }
     for(i in seq_len(length(mesh$shapes))) {
       mesh$shapes[[i]]$material_ids = rep(0,nrow(mesh$shapes[[i]]$indices))
