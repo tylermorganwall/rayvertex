@@ -13,9 +13,22 @@ cylinder_mesh(
   order_rotation = c(1, 2, 3)
 )
 }
+\arguments{
+\item{position}{Default `c(0,0,0)`. Position of the mesh.}
+
+\item{radius}{Default `0.5`. Radius of the cylinder.}
+
+\item{length}{Default `1`. Length of the cylinder.}
+
+\item{angle}{Default `c(0,0,0)`. Angle to rotate the mesh.}
+
+\item{pivot_point}{Default `c(0,0,0)`. Point around which to rotate the mesh.}
+
+\item{order_rotation}{Default `c(1,2,3)`. Order to rotate the axes.}
+}
 \value{
 File location of the R.obj file (saved with a .txt extension)
 }
 \description{
-3D obj model of the letter R
+Cube 3D Model
 }

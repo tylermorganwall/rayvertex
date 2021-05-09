@@ -30,6 +30,16 @@ add_shape = function(mesh, shape) {
   mesh$normals   = rbind(mesh$normals,   shape$normals)
   mesh$texcoords = rbind(mesh$texcoords, shape$texcoords)
   mesh$materials = c(mesh$materials,shape$materials)
+  if(!is.null(attr(shape,"cornell")) || !is.null(attr(mesh,"cornell"))) {
+    attr(mesh,"cornell") = TRUE
+    if(!is.null(attr(shape,"cornell"))) {
+      attr(shape,"cornell_light") = attr(shape,"cornell_light")
+      attr(scene,"cornell_diffuse_light") = attr(shape,"cornell_diffuse_light")
+    } else {
+      attr(mesh,"cornell_light") = attr(mesh,"cornell_light")
+      attr(mesh,"cornell_diffuse_light") = attr(mesh,"cornell_diffuse_light")
+    }
+  }
   return(mesh)
 }
 

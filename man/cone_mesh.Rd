@@ -12,9 +12,23 @@ cone_mesh(
   from_center = FALSE
 )
 }
+\arguments{
+\item{start}{Default `c(0, 0, 0)`. Base of the cone, specifying `x`, `y`, `z`.}
+
+\item{end}{Default `c(0, 1, 0)`. Tip of the cone, specifying `x`, `y`, `z`.}
+
+\item{radius}{Default `1`. Radius of the bottom of the cone.}
+
+\item{direction}{Default `NA`. Alternative to `start` and `end`, specify the direction (via 
+a length-3 vector) of the cone. Cone will be centered at `start`, and the length will be
+determined by the magnitude of the direction vector.}
+
+\item{from_center}{Default `TRUE`. If orientation specified via `direction`, setting this argument
+to `FALSE` will make `start` specify the bottom of the cone, instead of the middle.}
+}
 \value{
 File location of the R.obj file (saved with a .txt extension)
 }
 \description{
-3D obj model of the letter R
+Cone 3D Model
 }

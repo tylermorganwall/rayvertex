@@ -8,7 +8,6 @@
 #'@param lookat Default `c(0,0,0)`. Camera focal position.
 
 #'@return Rasterized image.
-#'@export
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
 read_obj = function(filename, materialspath = NULL) {

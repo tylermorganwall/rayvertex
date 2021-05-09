@@ -124,6 +124,41 @@ rasterize_mesh  = function(mesh,
                            shader = "default", 
                            block_size = 4, shape = NULL, line_offset = 0.00001,
                            ortho_dims = c(1,1), bloom = FALSE, antialias_lines = TRUE) {
+  if(!is.null(attr(mesh,"cornell"))) {
+    corn_message = "Setting default values for Cornell box: "
+    missing_corn = FALSE
+    if(missing(lookfrom)) {
+      lookfrom = c(278, 278, -800)
+      corn_message = paste0(corn_message, "lookfrom `c(278,278,-800)` ")
+      missing_corn = TRUE
+    }
+    if(missing(lookat)) {
+      lookat = c(278, 278, 0)
+      corn_message = paste0(corn_message, "lookat `c(278,278,0)` ")
+      missing_corn = TRUE
+    }
+    if(missing(fov)) {
+      fov=40
+      corn_message = paste0(corn_message, "fov `40` ")
+      missing_corn = TRUE
+    }
+    if(fov == 0 && missing(ortho_dimensions)) {
+      ortho_dimensions = c(580,580)
+      corn_message = paste0(corn_message, "ortho_dimensions `c(580, 580)` ")
+      missing_corn = TRUE
+    }
+    corn_message = paste0(corn_message,".")
+    if(missing_corn) {
+      message(corn_message)
+    }
+    if(attr(mesh,"cornell_light")) {
+      light_info = add_light(light_info,point_light(c(555/2,450,555/2),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
+    }
+    if(attr(mesh,"cornell_diffuse_light")) {
+      light_info = add_light(light_info, point_light(position=c(455,350,555/2),color="#1f7326",falloff_quad = 0.000, constant = 0.0002, falloff = 0.0008, intensity=1/6))
+      light_info = add_light(light_info, point_light(position=c(100,350,555/2),color="#a60d0d",falloff_quad = 0.000, constant = 0.0002, falloff = 0.0008, intensity=1/6))
+    }
+  }
   obj = merge_shapes(mesh)
   max_indices = 0
   has_norms = rep(FALSE,length(obj$shapes))

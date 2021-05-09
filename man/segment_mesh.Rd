@@ -13,9 +13,25 @@ segment_mesh(
   square = FALSE
 )
 }
+\arguments{
+\item{start}{Default `c(0, 0, 0)`. Base of the segment, specifying `x`, `y`, `z`.}
+
+\item{end}{Default `c(0, 1, 0)`. End of the segment, specifying `x`, `y`, `z`.}
+
+\item{radius}{Default `0.5`. Radius of the cylinder.}
+
+\item{direction}{Default `NA`. Alternative to `start` and `end`, specify the direction (via 
+a length-3 vector) of the arrow. Arrow will be centered at `start`, and the length will be
+determined by the magnitude of the direction vector.}
+
+\item{from_center}{Default `TRUE`. If orientation specified via `direction`, setting this argument
+to `FALSE` will make `start` specify the bottom of the cone, instead of the middle.}
+
+\item{square}{Default `FALSE`. If `TRUE`, will use a square instead of a circle for the cylinder.}
+}
 \value{
 File location of the R.obj file (saved with a .txt extension)
 }
 \description{
-3D obj model of the letter R
+Cube 3D Model
 }
