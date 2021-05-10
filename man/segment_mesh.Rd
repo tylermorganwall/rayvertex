@@ -10,7 +10,8 @@ segment_mesh(
   radius = 0.5,
   direction = NA,
   from_center = TRUE,
-  square = FALSE
+  square = FALSE,
+  material = material()
 )
 }
 \arguments{

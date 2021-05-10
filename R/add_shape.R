@@ -98,13 +98,13 @@ translate_mesh = function(mesh, position = c(0,0,0)) {
 #'@export
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
-scale_mesh = function(mesh, scale = 1) {
+scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
   if(length(scale) == 1) {
     scale = rep(scale,3)
   }
-  mesh$vertices[,1]  = mesh$vertices[,1]*scale[1]
-  mesh$vertices[,2]  = mesh$vertices[,2]*scale[2]
-  mesh$vertices[,3]  = mesh$vertices[,3]*scale[3]
+  mesh$vertices[,1]  = (mesh$vertices[,1]-center[1])*scale[1] + center[1]
+  mesh$vertices[,2]  = (mesh$vertices[,2]-center[2])*scale[2] + center[2]
+  mesh$vertices[,3]  = (mesh$vertices[,3]-center[3])*scale[3] + center[3]
   
   if(!is.null(mesh$normals) && nrow(mesh$normals) > 0) {
     mesh$normals[,1]  = mesh$normals[,1]*1/scale[1]
@@ -169,7 +169,7 @@ rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rot
 #'@export
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
-set_material = function(mesh, 
+set_material = function(mesh, material = NULL,
                         diffuse                   = c(0.5,0.5,0.5),
                         ambient                   = c(0,0,0),
                         specular                  = c(1,1,1),
@@ -190,6 +190,28 @@ set_material = function(mesh,
                         culling                   = "back",
                         type                      = "diffuse") {
   culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
+  
+  if(!is.null(material)) {
+    diffuse                   = material$diffuse                   
+    ambient                   = material$ambient                   
+    specular                  = material$specular                  
+    transmittance             = material$transmittance             
+    emission                  = material$emission                  
+    shininess                 = material$shininess                 
+    ior                       = material$ior                       
+    dissolve                  = material$dissolve                  
+    illum                     = material$illum                     
+    texture_location          = material$texture_location          
+    normal_texture_location   = material$normal_texture_location   
+    specular_texture_location = material$specular_texture_location 
+    ambient_texture_location  = material$ambient_texture_location  
+    emissive_texture_location = material$emissive_texture_location 
+    diffuse_intensity         = material$diffuse_intensity         
+    specular_intensity        = material$specular_intensity        
+    emission_intensity        = material$emission_intensity        
+    culling                   = material$culling                   
+    type                      = material$type                      
+  }
   
   if(!is.null(mesh$materials) && length(mesh$materials) > 0) {
     for(i in seq_len(length(mesh$materials))) {
@@ -361,4 +383,56 @@ change_material = function(mesh,
    stop("No materials detected")
   }
   return(mesh)
+}
+
+#'@title Set Material
+#'
+#'Add shape to a mesh
+#'
+#'@param obj_model  
+
+#'@return Rasterized image.
+#'@export
+#'@examples
+#'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+material_list = function(diffuse                   = c(0.8,0.8,0.8),
+                         ambient                   = c(0,0,0),
+                         specular                  = c(1,1,1),
+                         transmittance             = c(1,1,1),
+                         emission                  = c(0,0,0),
+                         shininess                 = 10.0,
+                         ior                       = 1.0,
+                         dissolve                  = 1.0,
+                         illum                     = 1.0,
+                         texture_location          = "",
+                         normal_texture_location   = "",
+                         specular_texture_location = "",
+                         ambient_texture_location  = "",
+                         emissive_texture_location = "",
+                         diffuse_intensity         = 1, 
+                         specular_intensity        = 1,  
+                         emission_intensity        = 1,
+                         culling                   = "back",
+                         type                      = "diffuse") {
+  material_props = 
+  list(diffuse                   = diffuse                   ,
+       ambient                   = ambient                   ,
+       specular                  = specular                  ,
+       transmittance             = transmittance             ,
+       emission                  = emission                  ,
+       shininess                 = shininess                 ,
+       ior                       = ior                       ,
+       dissolve                  = dissolve                  ,
+       illum                     = illum                     ,
+       texture_location          = texture_location          ,
+       normal_texture_location   = normal_texture_location   ,
+       specular_texture_location = specular_texture_location ,
+       ambient_texture_location  = ambient_texture_location  ,
+       emissive_texture_location = emissive_texture_location ,
+       diffuse_intensity         = diffuse_intensity         ,
+       specular_intensity        = specular_intensity        ,
+       emission_intensity        = emission_intensity        ,
+       culling                   = culling                   ,
+       type                      = type                      )
+  return(material_props)
 }

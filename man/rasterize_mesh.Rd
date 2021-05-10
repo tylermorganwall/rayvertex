@@ -7,8 +7,8 @@
 rasterize_mesh(
   mesh,
   filename = NA,
-  width = 400,
-  height = 400,
+  width = 800,
+  height = 800,
   line_info = NULL,
   alpha_line = 1,
   parallel = TRUE,

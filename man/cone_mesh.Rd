@@ -9,7 +9,8 @@ cone_mesh(
   end = c(0, 1, 0),
   radius = 0.5,
   direction = NA,
-  from_center = FALSE
+  from_center = FALSE,
+  material = material()
 )
 }
 \arguments{

@@ -11,7 +11,8 @@ sphere_mesh(
   pivot_point = c(0, 0, 0),
   order_rotation = c(1, 2, 3),
   radius = 1,
-  low_poly = FALSE
+  low_poly = FALSE,
+  material = material()
 )
 }
 \arguments{
@@ -34,4 +35,21 @@ File location of the R.obj file (saved with a .txt extension)
 }
 \description{
 Sphere 3D Model
+}
+\examples{
+#Generate a sphere in the cornell box.
+\donttest{
+generate_cornell_mesh() \%>\%
+  add_shape(sphere_mesh(position = c(555/2, 555/2, 555/2), radius = 100)) \%>\%
+  rasterize_mesh(width=800,height=800)
+}
+
+#Generate a shiny sphere in the cornell box
+\donttest{
+generate_cornell() \%>\%
+  add_object(sphere(x = 555/2, y = 100, z = 555/2, radius = 100, 
+                    material = microfacet(color = "gold"))) \%>\%
+  render_scene(lookfrom = c(278, 278, -800) ,lookat = c(278, 278, 0), fov = 40, 
+               ambient_light = FALSE, samples = 400, clamp_value = 5)
+}
 }

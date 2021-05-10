@@ -24,5 +24,5 @@ rasterize_obj  = function(obj_model, shape = NULL, ...) {
     }
     obj$shapes = obj$shapes[shape]
   }
-  rasterize_mesh(mesh = obj, ... )
+  rasterize_scene(mesh = obj, ... )
 }

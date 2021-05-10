@@ -6,7 +6,7 @@
 #'
 #'@param mesh  Filename of the `obj` file.
 #'@param shape Default `NULL`. The shape to render in the OBJ mesh. 
-#'@param ... Arguments to pass to `rasterize_mesh()`
+#'@param ... Arguments to pass to `rasterize_scene()`
 #'@return Rasterized image.
 #'@export
 #'@examples
@@ -49,5 +49,5 @@ rasterize_mesh3d = function(mesh, diffuse=c(0.5,0.5,0.5), ambient = c(0,0,0), di
   if(!is.null(scene_elements)) {
     mesh = add_shape(mesh,scene_elements)
   }
-  rasterize_mesh(mesh = mesh, ... )
+  rasterize_scene(mesh = mesh, ... )
 }

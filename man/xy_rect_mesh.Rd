@@ -9,7 +9,8 @@ xy_rect_mesh(
   scale = c(1, 1, 1),
   angle = c(0, 0, 0),
   pivot_point = c(0, 0, 0),
-  order_rotation = c(1, 2, 3)
+  order_rotation = c(1, 2, 3),
+  material = material()
 )
 }
 \arguments{

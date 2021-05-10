@@ -11,7 +11,8 @@ arrow_mesh(
   radius_tail = 0.25,
   tail_proportion = 0.5,
   direction = NA,
-  from_center = TRUE
+  from_center = TRUE,
+  material = material()
 )
 }
 \arguments{

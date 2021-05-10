@@ -1,6 +1,6 @@
 #'@title Rasterize an OBJ file
 #'
-#'@param mesh The mesh object.
+#'@param scene The scene object.
 #'@param filename Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.
 #'@param width Default `400`. Width of the rendered image.
 #'@param height Default `400`. Width of the rendered image.
@@ -30,7 +30,7 @@
 #'@param shader Default `"default"`.
 #'@param block_size Default `4`. 
 #'@param shape Default `NULL`. The shape to render in the OBJ mesh. 
-#'@param ... Other parameters to pass to `rasterize_mesh()`.
+#'@param ... Other parameters to pass to `rasterize_scene()`.
 #'
 #'@return Rasterized image.
 #'@export
@@ -39,7 +39,7 @@
 #'
 #'cube_model = read_obj(cube_obj())
 #'
-#'rasterize_mesh(cube_model,lookfrom=c(2,4,10), 
+#'rasterize_scene(cube_model,lookfrom=c(2,4,10), 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
 #'
 #'#Flatten the cube, translate downwards, and set to grey
@@ -48,7 +48,7 @@
 #'  translate_mesh(c(0,-0.1,0)) %>% 
 #'  set_material(diffuse="grey80") 
 #'
-#'rasterize_mesh(base, lookfrom=c(2,4,10), 
+#'rasterize_scene(base, lookfrom=c(2,4,10), 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
 #'
 #'#load the R OBJ file, scale it down, color it blue, and add it to the grey base
@@ -58,16 +58,16 @@
 #'  set_material(diffuse="dodgerblue") %>% 
 #'  add_shape(base_model)
 #'
-#'rasterize_mesh(r_model, lookfrom=c(2,4,10), 
+#'rasterize_scene(r_model, lookfrom=c(2,4,10), 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
 #'               
 #'#Zoom in and turn on shadow mapping
-#'rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,shadow_map = TRUE,
+#'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,shadow_map = TRUE,
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
 #'
 #'#Include the resolution (4x) of the shadow map for less pixellation around the edges
 #'#Also decrease the shadow_map_bias slightly to remove the "peter panning" floating shadow effect
-#'rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,
+#'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 #'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
 #'               
@@ -76,7 +76,7 @@
 #'            add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 1)) %>% 
 #'            add_light(directional_light(c(2,4,10),color = "white",intensity = 0.5))
 #'            
-#'rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,
+#'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 #'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
 #'               light_info = lights)
 #'               
@@ -85,12 +85,12 @@
 #'  add_light(point_light(position=c(-1,1,0),color="red", intensity=10)) %>% 
 #'  add_light(point_light(position=c(1,1,0),color="purple", intensity=10)) 
 #'
-#'rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,
+#'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 #'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
 #'               light_info = lights_p)
 #'               
 #'#change the camera position
-#'rasterize_mesh(r_model, lookfrom=c(-2,2,-10), fov=10,
+#'rasterize_scene(r_model, lookfrom=c(-2,2,-10), fov=10,
 #'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
 #'               light_info = lights_p)
 #'               
@@ -104,11 +104,11 @@
 #' line_mat[(2*i),]   = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))
 #'}
 #'
-#'rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10, line_info = line_mat,
+#'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10, line_info = line_mat,
 #'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
 #'               light_info = lights)
-rasterize_mesh  = function(mesh, 
-                           filename = NA, width=400, height=400, 
+rasterize_scene  = function(scene, 
+                           filename = NA, width=800, height=800, 
                            line_info = NULL, alpha_line = 1.0,
                            parallel = TRUE,
                            fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0), #Sanitize lookfrom and lookat inputs
@@ -116,15 +116,15 @@ rasterize_mesh  = function(mesh,
                            light_info = directional_light(), color="red",
                            type = "diffuse", background = "black", 
                            tangent_space_normals = TRUE,
-                           shadow_map = FALSE, 
-                           shadow_map_bias = 0.001, shadow_map_intensity = 0.5, shadow_map_dims = NULL,
+                           shadow_map = TRUE, 
+                           shadow_map_bias = 0.003, shadow_map_intensity = 0, shadow_map_dims = NULL,
                            ssao = FALSE, ssao_intensity = 10, ssao_radius = 0.1, 
                            tonemap = "none", debug = "none", 
                            near_plane = 0.1, far_plane = 100, culling = "back",
                            shader = "default", 
                            block_size = 4, shape = NULL, line_offset = 0.00001,
                            ortho_dims = c(1,1), bloom = FALSE, antialias_lines = TRUE) {
-  if(!is.null(attr(mesh,"cornell"))) {
+  if(!is.null(attr(scene,"cornell"))) {
     corn_message = "Setting default values for Cornell box: "
     missing_corn = FALSE
     if(missing(lookfrom)) {
@@ -151,15 +151,15 @@ rasterize_mesh  = function(mesh,
     if(missing_corn) {
       message(corn_message)
     }
-    if(attr(mesh,"cornell_light")) {
+    if(attr(scene,"cornell_light")) {
       light_info = add_light(light_info,point_light(c(555/2,450,555/2),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
     }
-    if(attr(mesh,"cornell_diffuse_light")) {
+    if(attr(scene,"cornell_diffuse_light")) {
       light_info = add_light(light_info, point_light(position=c(455,350,555/2),color="#1f7326",falloff_quad = 0.000, constant = 0.0002, falloff = 0.0008, intensity=1/6))
       light_info = add_light(light_info, point_light(position=c(100,350,555/2),color="#a60d0d",falloff_quad = 0.000, constant = 0.0002, falloff = 0.0008, intensity=1/6))
     }
   }
-  obj = merge_shapes(mesh)
+  obj = merge_shapes(scene)
   max_indices = 0
   has_norms = rep(FALSE,length(obj$shapes))
   has_tex = rep(FALSE,length(obj$shapes))
