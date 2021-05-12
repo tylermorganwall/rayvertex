@@ -2,7 +2,15 @@
 ^\.Rproj\.user$
 ^\.github$
 ^CODE_OF_CONDUCT\.md$
+^CONTRIBUTING\.md$
 ^.+\.png$
 ^.+\.mp4$
 ^.+\.tga$
 ^.+\.obj$
+^README\.Rmd$
+^.*yml$
+^docs$
+^pkgdown$
+^\.github$
+^.+\.png$
+^.+\.mp4$

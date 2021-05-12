@@ -2,7 +2,7 @@
 % Please edit documentation in R/objects.R
 \name{cylinder_mesh}
 \alias{cylinder_mesh}
-\title{Cube 3D Model}
+\title{Cylinder 3D Model}
 \usage{
 cylinder_mesh(
   position = c(0, 0, 0),
@@ -11,7 +11,7 @@ cylinder_mesh(
   angle = c(0, 0, 0),
   pivot_point = c(0, 0, 0),
   order_rotation = c(1, 2, 3),
-  material = material()
+  material = material_list()
 )
 }
 \arguments{
@@ -26,10 +26,37 @@ cylinder_mesh(
 \item{pivot_point}{Default `c(0,0,0)`. Point around which to rotate the mesh.}
 
 \item{order_rotation}{Default `c(1,2,3)`. Order to rotate the axes.}
+
+\item{material}{Default `material_list()` (default values). Specify the material of the object.}
 }
 \value{
 File location of the R.obj file (saved with a .txt extension)
 }
 \description{
-Cube 3D Model
+Cylinder 3D Model
+}
+\examples{
+#Generate a cylinder
+\donttest{
+generate_cornell_mesh() \%>\%
+  add_shape(cylinder_mesh(position=c(555/2,150,555/2),
+                          radius = 50, length=300, material = material_list(diffuse="purple"))) \%>\%
+  rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
+}
+
+#Generate a wide, thin disk
+\donttest{
+generate_cornell_mesh() \%>\%
+  add_shape(cylinder_mesh(position=c(555/2,20,555/2),
+                          radius = 200, length=5, material = material_list(diffuse="purple"))) \%>\%
+  rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
+}
+
+#Generate a narrow cylinder
+\donttest{
+generate_cornell_mesh() \%>\%
+  add_shape(cylinder_mesh(position=c(555/2,555/2,555/2),angle=c(45,-45,0),
+                          radius = 10, length=500, material = material_list(diffuse="purple"))) \%>\%
+  rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
+}
 }

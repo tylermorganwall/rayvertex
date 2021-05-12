@@ -15,7 +15,7 @@ void aa_line(std::vector<vec3>& line_mat_start,
   int nx = zbuffer.nrow();
   int ny = zbuffer.ncol();
   
-  for(int ii = 0; ii < line_mat_start.size(); ii += 1) {
+  for(int ii = 0; ii < line_mat_start.size(); ii++) {
     x0 = line_mat_start[ii].x;
     x1 =   line_mat_end[ii].x;
     y0 = line_mat_start[ii].y;

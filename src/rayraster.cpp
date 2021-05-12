@@ -143,7 +143,7 @@ List rasterize(List mesh,
                int culling, 
                double alpha_line, double line_offset,
                NumericVector ortho_dims, LogicalVector is_dir_light,
-               bool aa_lines) {
+               bool aa_lines, LogicalVector &has_vertex_tex, LogicalVector &has_vertex_normals) {
   //Convert R vectors to vec3
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
   vec3 center(lookat(0),lookat(1),lookat(2));    //lookat
@@ -333,6 +333,8 @@ List rasterize(List mesh,
     Float diffuse_intensity = as<Float>(single_material["diffuse_intensity"]);
     Float specular_intensity = as<Float>(single_material["specular_intensity"]);
     Float emission_intensity = as<Float>(single_material["emission_intensity"]);
+    Float ambient_intensity = as<Float>(single_material["ambient_intensity"]);
+    
     int cull_type = as<int>(single_material["culling"]);
     
     // bool has_norms = has_normals_vec(i);
@@ -364,6 +366,7 @@ List rasterize(List mesh,
       (Float)emission_intensity,
       (Float)diffuse_intensity,
       (Float)specular_intensity,
+      (Float)ambient_intensity,
       true, //THIS SHOULD BE FIXED, but isn't currently used -- has_norms
       true, //THIS SHOULD BE FIXED, but isn't currently used -- has_tex
       has_texture_single,
@@ -477,6 +480,7 @@ List rasterize(List mesh,
     (Float)1.0,
     (Float)1.0,
     (Float)1.0,
+    (Float)1.0,
     true, //THIS SHOULD BE FIXED, but isn't currently used -- has_norms
     true, //THIS SHOULD BE FIXED, but isn't currently used -- has_tex
     false,
@@ -568,6 +572,7 @@ List rasterize(List mesh,
     //Create model object
     ModelInfo model(mesh_verts, mesh_texcoords, mesh_normals,
                     shape_inds, tex_inds, norm_inds, 
+                    has_vertex_tex, has_vertex_normals,
                     shape_materials,
                     has_normals_vec(i), has_tex_vec(i), tbn);
     models.push_back(model);
@@ -912,7 +917,7 @@ List rasterize(List mesh,
     vec4 temp_line_vertex_end = vpMVP * vec4(line_mat(i,3),line_mat(i,4),line_mat(i,5),1.0f);
     temp_line_vertex_end /= temp_line_vertex_end.w;
     ndc_line_verts_start.push_back(temp_line_vertex_start);
-    ndc_line_verts_start.push_back(temp_line_vertex_end);
+    ndc_line_verts_end.push_back(temp_line_vertex_end);
     line_verts_cols.push_back(vec3(line_mat(i,6),line_mat(i,7),line_mat(i,8)));
   }
   

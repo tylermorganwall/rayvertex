@@ -86,20 +86,6 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
       throw std::runtime_error("Emissive texture loading failed");
     }
   }
-  
-  // for(int i = 0; i < material.max_indices; i++ ) {
-  //   std::vector<vec3> tempuv(3);
-  //   std::vector<vec4> temptri(3);
-  //   std::vector<vec3> temppos(3);
-  //   std::vector<vec3> tempnrm(3);
-  //   vec3 temp;
-  //   
-  //   vec_varying_intensity.push_back(temp);
-  //   vec_varying_uv.push_back(tempuv);
-  //   vec_varying_tri.push_back(temptri);
-  //   vec_varying_pos.push_back(temppos);
-  //   vec_varying_world_nrm.push_back(tempnrm);
-  // }
 };
 
 GouraudShader::~GouraudShader() {
@@ -237,18 +223,6 @@ ColorShader::ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
       throw std::runtime_error("Emissive texture loading failed");
     }
   }
-  
-  // for(int i = 0; i < material.max_indices; i++ ) {
-  //   std::vector<vec3> tempuv(3);
-  //   std::vector<vec4> temptri(3);
-  //   std::vector<vec3> temppos(3);
-  //   std::vector<vec3> tempnrm(3);
-  //   
-  //   vec_varying_uv.push_back(tempuv);
-  //   vec_varying_tri.push_back(temptri);
-  //   vec_varying_pos.push_back(temppos);
-  //   vec_varying_world_nrm.push_back(tempnrm);
-  // }
 };
 
 
@@ -321,8 +295,7 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   MVP = Projection * View * Model;
   uniform_M = View * Model;
   uniform_MIT = glm::inverseTranspose(uniform_M);
-  l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
-  
+
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
@@ -360,21 +333,6 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
       throw std::runtime_error("Emissive texture loading failed");
     }
   }
-  
-  
-  // for(int i = 0; i < material.max_indices; i++ ) {
-  //   std::vector<vec3> tempuv(3);
-  //   std::vector<vec4> temptri(3);
-  //   std::vector<vec3> temppos(3);
-  //   std::vector<vec3> tempnrm(3);
-  //   vec3 temp;
-  //   
-  //   vec_varying_intensity.push_back(temp);
-  //   vec_varying_uv.push_back(tempuv);
-  //   vec_varying_tri.push_back(temptri);
-  //   vec_varying_pos.push_back(temppos);
-  //   vec_varying_world_nrm.push_back(tempnrm);
-  // }
 };
 
 
@@ -518,19 +476,6 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
   
   uniform_M = View * Model;
   uniform_MIT = glm::inverseTranspose(uniform_M);
-  
-  l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
-  // for(int i = 0; i < material.max_indices; i++ ) {
-  //   std::vector<vec3> tempuv(3);
-  //   std::vector<vec4> temptri(3);
-  //   std::vector<vec3> temppos(3);
-  //   std::vector<vec3> tempnrm(3);
-  // 
-  //   vec_varying_uv.push_back(tempuv);
-  //   vec_varying_tri.push_back(temptri);
-  //   vec_varying_pos.push_back(temppos);
-  //   vec_varying_world_nrm.push_back(tempnrm);
-  // }
 };
 
 
@@ -623,8 +568,8 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers),
   vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
-  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
-  vec_varying_ndc_tri(vec_varying_ndc_tri), 
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), 
+  vec_varying_ndc_tri(vec_varying_ndc_tri), vec_varying_world_nrm(vec_varying_world_nrm),
   vec_varying_nrm(vec_varying_nrm)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
@@ -632,8 +577,6 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
   uniform_M = View * Model;
   uniform_MIT = glm::inverseTranspose(uniform_M);
-  
-  l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
   
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
@@ -672,23 +615,6 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
       throw std::runtime_error("Emissive texture loading failed");
     }
   }
-  
-  
-  // for(int i = 0; i < material.max_indices; i++ ) {
-  //   std::vector<vec3> tempuv(3);
-  //   std::vector<vec4> temptri(3);
-  //   std::vector<vec3> temppos(3);
-  //   std::vector<vec3> tempnrm(3);
-  //   std::vector<vec3> tempndc(3);
-  //   std::vector<vec3> tempnrm2(3);
-  //   
-  //   vec_varying_uv.push_back(tempuv);
-  //   vec_varying_tri.push_back(temptri);
-  //   vec_varying_pos.push_back(temppos);
-  //   vec_varying_world_nrm.push_back(tempnrm);
-  //   vec_varying_ndc_tri.push_back(tempndc);
-  //   vec_varying_nrm.push_back(tempnrm2);
-  // }
 }
 
 vec4 DiffuseShaderTangent::vertex(int iface, int nthvert, ModelInfo& model) {
@@ -712,8 +638,6 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
-  // vec3 norm = vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;
-  
   
   vec3 bn = normalize(vec_varying_nrm[iface][0] * bc.x + 
     vec_varying_nrm[iface][1] * bc.y + 
@@ -805,8 +729,9 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers),
   vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
-  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
-  vec_varying_nrm(vec_varying_nrm)  {
+  vec_varying_tri(vec_varying_tri), 
+  vec_varying_nrm(vec_varying_nrm), vec_varying_pos(vec_varying_pos), 
+  vec_varying_world_nrm(vec_varying_world_nrm)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -849,26 +774,8 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
       throw std::runtime_error("Emissive texture loading failed");
     }
   }
-  
-  
-  
   uniform_M = View * Model;
   uniform_MIT = glm::inverse(glm::transpose(uniform_M));
-  l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
-  // for(int i = 0; i < material.max_indices; i++ ) {
-  //   std::vector<vec3> tempuv(3);
-  //   std::vector<vec4> temptri(3);
-  //   std::vector<vec3> temppos(3);
-  //   std::vector<vec3> tempnrm(3);
-  //   std::vector<vec3> tempndc(3);
-  //   std::vector<vec3> tempnrm2(3);
-  //   
-  //   vec_varying_uv.push_back(tempuv);
-  //   vec_varying_tri.push_back(temptri);
-  //   vec_varying_pos.push_back(temppos);
-  //   vec_varying_world_nrm.push_back(tempnrm);
-  //   vec_varying_nrm.push_back(tempnrm2);
-  // }
 }
 
 vec4 PhongShader::vertex(int iface, int nthvert, ModelInfo& model) {
@@ -877,7 +784,7 @@ vec4 PhongShader::vertex(int iface, int nthvert, ModelInfo& model) {
   vec4 clip = vp * MVP * vec4(model.vertex(iface,nthvert),1.0f);
   vec_varying_tri[iface][nthvert] = clip;
   has_normals = model.has_normals;
-  vec_varying_world_nrm[iface][nthvert] = has_normals ?
+  vec_varying_world_nrm[iface][nthvert] = model.model_vertex_normals(iface) ?
     uniform_MIT * normalize(vec4(model.normal(iface, nthvert),0.0f)) : 
     uniform_MIT * normalize(vec4(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
                                             model.vertex(iface,2)-model.vertex(iface,0)),0.0f));
@@ -923,7 +830,7 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   }
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
   
-  vec3 ambient = material.ambient;
+  vec4 amb = ambient(uv);
   vec4 emit = emissive(uv);
   vec4 shadow_vec = vec4(light_color,1.0f);
   color = clamp( diffuse_color*shadow_vec + spec_total,(Float)0.0,(Float)1.0);
@@ -935,7 +842,7 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
     color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),(Float)0.0) * fmax(0.0f, dot(normal, l_p)) +
       vec4(plights[i].CalcPointLightAtten(pos),0.0f) * spec, (Float)0.0,(Float)1.0);
   }
-  color += vec4(ambient,0.0f);
+  color += amb;
   color += emit;
   
   return false;
@@ -983,8 +890,6 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
   uniform_M = View * Model;
   uniform_MIT = glm::transpose(glm::inverse(uniform_M)); 
   
-  l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
-  
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
@@ -1022,22 +927,6 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
       throw std::runtime_error("Emissive texture loading failed");
     }
   }
-  
-  
-  // for(int i = 0; i < material.max_indices; i++ ) {
-  //   std::vector<vec3> tempuv(3);
-  //   std::vector<vec4> temptri(3);
-  //   std::vector<vec3> temppos(3);
-  //   std::vector<vec3> tempnrm(3);
-  //   std::vector<vec3> tempndc(3);
-  //   std::vector<vec3> tempnrm2(3);
-  //   
-  //   vec_varying_uv.push_back(tempuv);
-  //   vec_varying_tri.push_back(temptri);
-  //   vec_varying_pos.push_back(temppos);
-  //   vec_varying_world_nrm.push_back(tempnrm);
-  // }
-  
 }
 
 vec4 PhongNormalShader::vertex(int iface, int nthvert, ModelInfo& model) {
@@ -1144,8 +1033,8 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers),
   vec_varying_uv(vec_varying_uv),
-  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
-  vec_varying_ndc_tri(vec_varying_ndc_tri), 
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), 
+  vec_varying_ndc_tri(vec_varying_ndc_tri), vec_varying_world_nrm(vec_varying_world_nrm),
   vec_varying_nrm(vec_varying_nrm)   {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
@@ -1153,8 +1042,6 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
   uniform_M = View * Model;
   uniform_MIT = glm::inverseTranspose(uniform_M);
-  
-  l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
   
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
@@ -1193,23 +1080,6 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
       throw std::runtime_error("Emissive texture loading failed");
     }
   }
-  
-  
-  // for(int i = 0; i < material.max_indices; i++ ) {
-  //   std::vector<vec3> tempuv(3);
-  //   std::vector<vec4> temptri(3);
-  //   std::vector<vec3> temppos(3);
-  //   std::vector<vec3> tempnrm(3);
-  //   std::vector<vec3> tempndc(3);
-  //   std::vector<vec3> tempnrm2(3);
-  //   
-  //   vec_varying_uv.push_back(tempuv);
-  //   vec_varying_tri.push_back(temptri);
-  //   vec_varying_pos.push_back(temppos);
-  //   vec_varying_world_nrm.push_back(tempnrm);
-  //   vec_varying_ndc_tri.push_back(tempndc);
-  //   vec_varying_nrm.push_back(tempnrm2);
-  // }
 }
 
 vec4 PhongShaderTangent::vertex(int iface, int nthvert, ModelInfo& model) {
@@ -1279,7 +1149,7 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
   
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
   
-  vec3 ambient = material.ambient;
+  vec4 amb = ambient(uv);
   vec4 emit = emissive(uv);
   vec4 shadow_vec = vec4(light_color,1.0f);
   color = clamp( diffuse_color*shadow_vec + spec_total,(Float)0.0,(Float)1.0);
@@ -1292,7 +1162,7 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
     color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),(Float)0.0) * fmax(0.0f, dot(normal, l_p)) +
       vec4(plights[i].CalcPointLightAtten(pos),0.0f) * spec, (Float)0.0,(Float)1.0);
   }
-  color += vec4(ambient,0.0f);
+  color += amb;
   color += emit;
   
   return false;
@@ -1324,13 +1194,6 @@ DepthShader::DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
       throw std::runtime_error("Texture loading failed");
     }
   }
-  // for(int i = 0; i < mat_ind; i++ ) {
-  //   std::vector<vec4> temptri(3);
-  //   std::vector<vec3> tempuv(3);
-  //   
-  //   vec_varying_tri.push_back(temptri);
-  //   vec_varying_uv.push_back(tempuv);
-  // }
 }
 
 vec4 DepthShader::vertex(int iface, int nthvert, ModelInfo& model) {

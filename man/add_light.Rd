@@ -4,17 +4,34 @@
 \alias{add_light}
 \title{Add light}
 \usage{
-add_light(light_scene, light)
+add_light(lights, light)
 }
 \arguments{
-\item{obj_model}{}
+\item{lights}{Current light scene.}
+
+\item{light}{New light to add.}
 }
 \value{
-Rasterized image.
+Light matrix.
 }
 \description{
 Add light
 }
 \examples{
-#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+#Add a light to scene (manually specify the light automatically added to the Cornell Box
+lights = point_light(position=c(555/2,450,555/2),
+                    falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)
+\donttest{
+generate_cornell_mesh(light=FALSE) \%>\% 
+ rasterize_scene(light_info = lights)
+}
+#Add directional lights and a point light
+lights_d = add_light(lights, directional_light(direction=c(1,1.5,-1), intensity=0.2)) \%>\% 
+ add_light(directional_light(direction=c(-1,1.5,-1),color="red", intensity=0.2)) \%>\% 
+ add_light(point_light(position=c(555/2,50,555/2), color="blue", intensity=0.3,
+                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
+\donttest{
+generate_cornell_mesh(light=FALSE) \%>\% 
+ rasterize_scene(light_info = lights_d)
+}
 }

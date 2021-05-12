@@ -7,24 +7,39 @@
 directional_light(direction = c(0, 1, 0), color = "white", intensity = 1)
 }
 \arguments{
-\item{obj_model}{A two-dimensional matrix, where each entry in the matrix is the elevation at that point. All points are assumed to be evenly spaced.}
+\item{direction}{Default `c(0,1,0)`. Direction of the light.}
 
-\item{width}{Default `400`. Width of the rendered image.}
+\item{color}{Default `white`. COlor of the light.}
 
-\item{height}{Default `400`. Width of the rendered image.}
-
-\item{fov}{Default `20`. Width of the rendered image.}
-
-\item{lookfrom}{Default `c(0,0,10)`. Camera location.}
-
-\item{lookat}{Default `c(0,0,0)`. Camera focal position.}
+\item{intensity}{Default `1`. Intensity of the light.}
 }
 \value{
-Rasterized image.
+Light matrix.
 }
 \description{
 Generate Directional Lights
 }
 \examples{
-#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+#Add a light to scene (manually specify the light automatically added to the Cornell Box
+lights = point_light(position=c(555/2,450,555/2),
+                    falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)
+\donttest{
+generate_cornell_mesh(light=FALSE) \%>\% 
+ rasterize_scene(light_info = lights)
+}
+#Add a directional light
+lights_d = add_light(lights, directional_light(direction=c(1,1.5,-1)))
+
+\donttest{
+generate_cornell_mesh(light=FALSE) \%>\% 
+ rasterize_scene(light_info = lights_d)
+}
+#Change the intensity and color
+lights_d = add_light(lights, 
+                    directional_light(direction=c(1,1.5,-1),color="orange", intensity=0.5))
+
+\donttest{
+generate_cornell_mesh(light=FALSE) \%>\% 
+ rasterize_scene(light_info = lights_d)
+}
 }

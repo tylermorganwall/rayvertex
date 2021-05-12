@@ -2,15 +2,14 @@
 % Please edit documentation in R/objects.R
 \name{generate_cornell_mesh}
 \alias{generate_cornell_mesh}
-\title{Rasterize an OBJ file}
+\title{Cornell Box 3D Model}
 \usage{
 generate_cornell_mesh(
   leftcolor = "#1f7326",
   rightcolor = "#a60d0d",
   roomcolor = "#bababa",
   ceiling = TRUE,
-  light = TRUE,
-  simulate_diffuse_light = TRUE
+  light = TRUE
 )
 }
 \arguments{
@@ -23,16 +22,41 @@ generate_cornell_mesh(
 \item{ceiling}{Default `TRUE`. Whether to render the ceiling.}
 
 \item{light}{Default `TRUE`. Whether to render a point light near the ceiling.}
-
-\item{simulate_diffuse_light}{Default `TRUE`. Whether place point lights in the scene to 
-simulate the first diffuse bounce of light.}
 }
 \value{
 Rasterized image.
 }
 \description{
-Rasterize an OBJ file
+Cornell Box 3D Model
 }
 \examples{
-#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+#Generate and render the default Cornell box and add an object.
+\donttest{
+generate_cornell_mesh() \%>\% 
+  rasterize_scene()
+}
+#Add an object to the scene
+\donttest{
+generate_cornell_mesh() \%>\% 
+  add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) \%>\% 
+  rasterize_scene()
+}
+#Turn off the ceiling so the default directional light reaches inside the box
+\donttest{
+generate_cornell_mesh(ceiling=FALSE) \%>\% 
+  add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) \%>\% 
+  rasterize_scene()
+}
+#Adjust the light to the front
+\donttest{
+generate_cornell_mesh(ceiling=FALSE) \%>\% 
+  add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) \%>\% 
+  rasterize_scene(light_info = directional_light(direction=c(0,1,-1)))
+}
+#Change the color palette
+\donttest{
+generate_cornell_mesh(ceiling=FALSE,leftcolor="purple", rightcolor="yellow") \%>\% 
+  add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) \%>\% 
+  rasterize_scene(light_info = directional_light(direction=c(0,1,-1)))
+}
 }

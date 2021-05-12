@@ -2,7 +2,7 @@
 % Please edit documentation in R/objects.R
 \name{arrow_mesh}
 \alias{arrow_mesh}
-\title{Cube 3D Model}
+\title{Arrow 3D Model}
 \usage{
 arrow_mesh(
   start = c(0, 0, 0),
@@ -12,7 +12,7 @@ arrow_mesh(
   tail_proportion = 0.5,
   direction = NA,
   from_center = TRUE,
-  material = material()
+  material = material_list()
 )
 }
 \arguments{
@@ -32,10 +32,55 @@ determined by the magnitude of the direction vector.}
 
 \item{from_center}{Default `TRUE`. If orientation specified via `direction`, setting this argument
 to `FALSE` will make `start` specify the bottom of the cone, instead of the middle.}
+
+\item{material}{Default `material_list()` (default values). Specify the material of the object.}
 }
 \value{
 File location of the R.obj file (saved with a .txt extension)
 }
 \description{
-Cube 3D Model
+Arrow 3D Model
+}
+\examples{
+#Generate an arrow
+\donttest{
+generate_cornell_mesh() \%>\%
+  add_shape(arrow_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2), radius_tail=50,
+                       radius_top = 100,
+                      material = material_list(diffuse="dodgerblue"))) \%>\%
+  rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
+}
+
+#Generate a blue arrow with a wide tail
+\donttest{
+generate_cornell_mesh() \%>\%
+  add_shape(arrow_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2), radius_tail=100,
+                       radius_top = 150,
+                      material = material_list(diffuse="dodgerblue"))) \%>\%
+  rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
+}
+
+#Generate a long, thin arrow and change the proportions
+\donttest{
+generate_cornell_mesh() \%>\%
+  add_shape(arrow_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 400, 555/2), radius_top=30,
+                       radius_tail = 10, tail_proportion = 0.8,
+                      material = material_list(diffuse="dodgerblue"))) \%>\%
+  rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
+}
+
+#Change the start and end points
+\donttest{
+generate_cornell_mesh() \%>\%
+  add_shape(arrow_mesh(start = c(500, 20, 555/2), end = c(50, 500, 555/2), radius_top=30,
+                       radius_tail = 10, tail_proportion = 0.8,
+                      material = material_list(diffuse="dodgerblue"))) \%>\%
+  add_shape(arrow_mesh(start = c(500, 500, 500), end = c(50, 50, 50), radius_top=30,
+                       radius_tail = 10, tail_proportion = 0.8,
+                      material = material_list(diffuse="red"))) \%>\%
+  add_shape(arrow_mesh(start = c(555/2, 50, 500), end = c(555/2, 50, 50), radius_top=30,
+                       radius_tail = 10, tail_proportion = 0.8,
+                      material = material_list(diffuse="green"))) \%>\%
+  rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
+}
 }

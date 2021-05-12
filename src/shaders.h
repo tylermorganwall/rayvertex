@@ -55,8 +55,8 @@ class GouraudShader : public IShader {
     }
     vec3 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
-               material.ambient * vec3(trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a))  : 
-               vec4(material.ambient,0.0f));
+             material.ambient * material.ambient_intensity * vec3(trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a))  : 
+             vec4(material.ambient * material.ambient_intensity,0.0f));
     }
     int get_culling() {
       return(material.cull_type);
@@ -74,13 +74,6 @@ class GouraudShader : public IShader {
     vec3 light_dir;
     vec3 l;
     
-    std::vector<vec3>& vec_varying_intensity;
-    std::vector<std::vector<vec3> >& vec_varying_uv;
-    std::vector<std::vector<vec4> >& vec_varying_tri;
-    std::vector<std::vector<vec3> >& vec_varying_pos;
-    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
-    
-    
     bool has_shadow_map;
     Float shadow_map_bias;
     material_info material;
@@ -97,6 +90,12 @@ class GouraudShader : public IShader {
   
     std::vector<DirectionalLight> directional_lights;
     std::vector<rayimage>& shadowbuffers;
+    
+    std::vector<vec3>& vec_varying_intensity;
+    std::vector<std::vector<vec3> >& vec_varying_uv;
+    std::vector<std::vector<vec4> >& vec_varying_tri;
+    std::vector<std::vector<vec3> >& vec_varying_pos;
+    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
 };
 
 
@@ -130,8 +129,8 @@ class ColorShader : public IShader {
     }
     vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
-             vec4(material.ambient,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
-               vec4(material.ambient,0.0f));
+             vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+             vec4(material.ambient * material.ambient_intensity,0.0f));
     }
     int get_culling() {
       return(material.cull_type);
@@ -146,11 +145,6 @@ class ColorShader : public IShader {
     Mat uniform_MIT;
     vec4 viewport;
     
-    std::vector<std::vector<vec3> >& vec_varying_uv;
-    std::vector<std::vector<vec4> >& vec_varying_tri;
-    std::vector<std::vector<vec3> >& vec_varying_pos;
-    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
-    
     material_info material;
 
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
@@ -160,6 +154,11 @@ class ColorShader : public IShader {
     float* specular_texture;
     float* emissive_texture;
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
+    
+    std::vector<std::vector<vec3> >& vec_varying_uv;
+    std::vector<std::vector<vec4> >& vec_varying_tri;
+    std::vector<std::vector<vec3> >& vec_varying_pos;
+    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
 
 };
 
@@ -195,8 +194,8 @@ class DiffuseShader : public IShader {
     }
     vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
-             vec4(material.ambient,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
-             vec4(material.ambient,0.0f));
+             vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+             vec4(material.ambient * material.ambient_intensity,0.0f));
     }
     int get_culling() {
       return(material.cull_type);
@@ -211,16 +210,6 @@ class DiffuseShader : public IShader {
     Mat uniform_M;
     Mat uniform_MIT;
     vec4 viewport;
-    vec3 light_dir;
-    vec3 l;
-
-    std::vector<vec3>& vec_varying_intensity;
-    std::vector<std::vector<vec3> >& vec_varying_uv;
-    std::vector<std::vector<vec4> >& vec_varying_tri;
-    std::vector<std::vector<vec3> >& vec_varying_pos;
-    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
-    
-    
     
     bool has_shadow_map;
     Float shadow_map_bias;
@@ -229,17 +218,22 @@ class DiffuseShader : public IShader {
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
     float* texture;
     float* ambient_texture;
-    
     float* normal_texture;
     float* specular_texture;
     float* emissive_texture;
+    
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
+    
     std::vector<Light>& plights;
-  
     std::vector<DirectionalLight> directional_lights;
     std::vector<rayimage>& shadowbuffers;
     
+    std::vector<vec3>& vec_varying_intensity;
+    std::vector<std::vector<vec3> >& vec_varying_uv;
+    std::vector<std::vector<vec4> >& vec_varying_tri;
+    std::vector<std::vector<vec3> >& vec_varying_pos;
+    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
 };
 
 class DiffuseNormalShader : public IShader {
@@ -274,8 +268,8 @@ public:
   }
   vec4 ambient(vec3 uv) {
     return(material.has_ambient_texture ? 
-             vec4(material.ambient,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
-             vec4(material.ambient,0.0f));
+             vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+             vec4(material.ambient * material.ambient_intensity,0.0f));
   }
   int get_culling() {
     return(material.cull_type);
@@ -289,14 +283,6 @@ public:
   Mat uniform_M;   //  Projection*ModelView
   Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
   vec4 viewport;
-  vec3 light_dir;
-  vec3 l;
-  
-  std::vector<std::vector<vec3> >& vec_varying_uv;
-  std::vector<std::vector<vec4> >& vec_varying_tri;
-  std::vector<std::vector<vec3> >& vec_varying_pos;
-  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
-  
   
   bool has_shadow_map;
   Float shadow_map_bias;
@@ -314,10 +300,13 @@ public:
   bool has_normals;
   
   std::vector<Light>& plights;
-
   std::vector<DirectionalLight> directional_lights;
   std::vector<rayimage>& shadowbuffers;
   
+  std::vector<std::vector<vec3> >& vec_varying_uv;
+  std::vector<std::vector<vec4> >& vec_varying_tri;
+  std::vector<std::vector<vec3> >& vec_varying_pos;
+  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
 };
 
 class DiffuseShaderTangent : public IShader {
@@ -350,8 +339,8 @@ class DiffuseShaderTangent : public IShader {
     }
     vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
-               vec4(material.ambient,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
-               vec4(material.ambient,0.0f));
+               vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+               vec4(material.ambient * material.ambient_intensity,0.0f));
     }
     int get_culling() {
       return(material.cull_type);
@@ -366,16 +355,6 @@ class DiffuseShaderTangent : public IShader {
     Mat vp;
     Mat uniform_Mshadow;
     vec4 viewport;
-    vec3 light_dir;
-    vec3 l;
-    
-    std::vector<vec3>& vec_varying_intensity;
-    std::vector<std::vector<vec3> >& vec_varying_uv;
-    std::vector<std::vector<vec4> >& vec_varying_tri;
-    std::vector<std::vector<vec3> >& vec_varying_pos;
-    std::vector<std::vector<vec3> >& vec_varying_ndc_tri;
-    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
-    std::vector<std::vector<vec3> >& vec_varying_nrm;
   
     
     Mat uniform_M;   //  Projection*ModelView
@@ -388,18 +367,24 @@ class DiffuseShaderTangent : public IShader {
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
     float* texture;
     float* ambient_texture;
-    
     float* normal_texture;
     float* specular_texture;
     float* emissive_texture;
+    
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
     
     std::vector<Light>& plights;
-  
     std::vector<DirectionalLight> directional_lights;
     std::vector<rayimage>& shadowbuffers;
     
+    std::vector<vec3>& vec_varying_intensity;
+    std::vector<std::vector<vec3> >& vec_varying_uv;
+    std::vector<std::vector<vec4> >& vec_varying_tri;
+    std::vector<std::vector<vec3> >& vec_varying_pos;
+    std::vector<std::vector<vec3> >& vec_varying_ndc_tri;
+    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+    std::vector<std::vector<vec3> >& vec_varying_nrm;
 };
 
 class PhongShader : public IShader {
@@ -436,8 +421,8 @@ class PhongShader : public IShader {
     }
     vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
-               vec4(material.ambient,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
-               vec4(material.ambient,0.0f));
+               vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+               vec4(material.ambient * material.ambient_intensity,0.0f));
     }
     int get_culling() {
       return(material.cull_type);
@@ -449,19 +434,9 @@ class PhongShader : public IShader {
     Mat vp;
     Mat uniform_Mshadow;
     vec4 viewport;
-    vec3 light_dir;
-    vec3 l;
+    
     Mat uniform_M;   //  Projection*ModelView
     Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
-    
-    std::vector<vec3>& vec_varying_intensity;
-    std::vector<std::vector<vec3> >& vec_varying_uv;
-    std::vector<std::vector<vec4> >& vec_varying_tri;
-    std::vector<std::vector<vec3> >& vec_varying_nrm;
-    std::vector<std::vector<vec3> >& vec_varying_pos;
-    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
-  
-    
     
     bool has_shadow_map;
     Float shadow_map_bias;
@@ -470,16 +445,23 @@ class PhongShader : public IShader {
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
     float* texture;
     float* ambient_texture;
-    
     float* normal_texture;
     float* specular_texture;
     float* emissive_texture;
+    
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
+    
     std::vector<Light>& plights;
-  
     std::vector<DirectionalLight> directional_lights;
     std::vector<rayimage>& shadowbuffers;
+    
+    std::vector<vec3>& vec_varying_intensity;
+    std::vector<std::vector<vec3> >& vec_varying_uv;
+    std::vector<std::vector<vec4> >& vec_varying_tri;
+    std::vector<std::vector<vec3> >& vec_varying_nrm;
+    std::vector<std::vector<vec3> >& vec_varying_pos;
+    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
     
 };
 
@@ -516,8 +498,8 @@ public:
   }
   vec4 ambient(vec3 uv) {
     return(material.has_ambient_texture ? 
-             vec4(material.ambient,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
-             vec4(material.ambient,0.0f));
+             vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+             vec4(material.ambient * material.ambient_intensity,0.0f));
   }
   int get_culling() {
     return(material.cull_type);
@@ -531,35 +513,30 @@ public:
   Mat uniform_M;   //  Projection*ModelView
   Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
   vec4 viewport;
-  vec3 light_dir;
-  vec3 l;
-  
-  std::vector<std::vector<vec3> >& vec_varying_uv;
-  std::vector<std::vector<vec4> >& vec_varying_tri;
-  std::vector<std::vector<vec3> >& vec_varying_pos;
-  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
-
-  
   
   bool has_shadow_map;
   Float shadow_map_bias;
   material_info material;
   
-  
   int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
   float* texture;
   float* ambient_texture;
-  
   float* normal_texture;
   float* specular_texture;
   float* emissive_texture;
+  
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
   
   std::vector<Light>& plights;
-
   std::vector<DirectionalLight> directional_lights;
   std::vector<rayimage>& shadowbuffers;
+  
+  std::vector<std::vector<vec3> >& vec_varying_uv;
+  std::vector<std::vector<vec4> >& vec_varying_tri;
+  std::vector<std::vector<vec3> >& vec_varying_pos;
+  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+  
   
 };
 
@@ -598,8 +575,8 @@ public:
   }
   vec4 ambient(vec3 uv) {
     return(material.has_ambient_texture ? 
-             vec4(material.ambient,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
-             vec4(material.ambient,0.0f));
+             vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+             vec4(material.ambient * material.ambient_intensity,0.0f));
   }
   int get_culling() {
     return(material.cull_type);
@@ -611,16 +588,6 @@ public:
   Mat vp;
   Mat uniform_Mshadow;
   vec4 viewport;
-  vec3 light_dir;
-  vec3 l;
-  
-  std::vector<std::vector<vec3> >& vec_varying_uv;
-  std::vector<std::vector<vec4> >& vec_varying_tri;
-  std::vector<std::vector<vec3> >& vec_varying_pos;
-  std::vector<std::vector<vec3> >& vec_varying_ndc_tri;
-  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
-  std::vector<std::vector<vec3> >& vec_varying_nrm;
-
   
   Mat uniform_M;   //  Projection*ModelView
   Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
@@ -639,10 +606,15 @@ public:
   bool has_normals;
   
   std::vector<Light>& plights;
-
   std::vector<DirectionalLight> directional_lights;
   std::vector<rayimage>& shadowbuffers;
   
+  std::vector<std::vector<vec3> >& vec_varying_uv;
+  std::vector<std::vector<vec4> >& vec_varying_tri;
+  std::vector<std::vector<vec3> >& vec_varying_pos;
+  std::vector<std::vector<vec3> >& vec_varying_ndc_tri;
+  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+  std::vector<std::vector<vec3> >& vec_varying_nrm;
 };
 
 //
@@ -673,19 +645,17 @@ public:
   Mat MVP;
   Mat vp;
   vec4 viewport;
-  vec3 light_dir;
-  vec3 l;
   
   int nx_t, ny_t, nn_t;
   float* texture;
-  
-  std::vector<std::vector<vec3> >& vec_varying_uv;
-  std::vector<std::vector<vec4> >& vec_varying_tri;
   
   material_info material;
   
   Float shadow_map_bias;
   bool has_texture;
+  
+  std::vector<std::vector<vec3> >& vec_varying_uv;
+  std::vector<std::vector<vec4> >& vec_varying_tri;
   
   
 };

@@ -7,24 +7,43 @@
 generate_line(start = c(0, 0, 0), end = c(0, 1, 0), color = "white")
 }
 \arguments{
-\item{obj_model}{A two-dimensional matrix, where each entry in the matrix is the elevation at that point. All points are assumed to be evenly spaced.}
+\item{start}{Default `c(0,0,0)`. Start of the line segment.}
 
-\item{width}{Default `400`. Width of the rendered image.}
+\item{end}{Default `c(0,1,0)`. End of the line segment..}
 
-\item{height}{Default `400`. Width of the rendered image.}
-
-\item{fov}{Default `20`. Width of the rendered image.}
-
-\item{lookfrom}{Default `c(0,0,10)`. Camera location.}
-
-\item{lookat}{Default `c(0,0,0)`. Camera focal position.}
+\item{color}{Default `white`. Color of the line segment.}
 }
 \value{
-Rasterized image.
+Line matrix
 }
 \description{
 Generate Lines
 }
 \examples{
-#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+# Make a spiral of lines
+t = seq(0,8*pi,length.out=361)
+line_mat = matrix(nrow=0,ncol=9)
+
+for(i in 1:360) {
+  line_mat = add_lines(line_mat,
+                      generate_line(start = c(0.5*sin(t[i]), t[i]/(8*pi), 0.5*cos(t[i])),
+                                    end  = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))))
+}
+rasterize_lines(line_mat)
+
+#Change the line color
+line_mat = matrix(nrow=0,ncol=9)
+cols = hsv(seq(0,1,length.out=360))
+for(i in 1:360) {
+  line_mat = add_lines(line_mat,
+                      generate_line(start = c(sin(t[i]), 2*t[i]/(8*pi), cos(t[i])),
+                                   end  = c(sin(t[i+1]), 2*t[i+1]/(8*pi), cos(t[i+1])),
+                                   color = cols[i]))
+}
+rasterize_lines(line_mat,lookfrom=c(0,10,10),fov=15)
+
+#Use in a scene with a mesh
+obj_mesh(r_obj(),material=material_list(diffuse="dodgerblue")) \%>\%
+ rasterize_scene(line_info = line_mat, light_info = directional_light(c(0,1,1)),
+                 lookfrom=c(0,5,10),lookat=c(0,0.8,0),fov=15)
 }

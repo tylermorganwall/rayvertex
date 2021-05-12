@@ -4,30 +4,34 @@
 \alias{add_shape}
 \title{Add Shape
 
-Add shape to a mesh}
+Add shape to the scene}
 \usage{
-add_shape(mesh, shape)
-
-add_shape(mesh, shape)
+add_shape(scene, shape)
 }
 \arguments{
-\item{obj_model}{}
+\item{scene}{The scene to add the shape.}
+
+\item{shape}{The mesh to add to the scene.}
 }
 \value{
-Rasterized image.
-
-Rasterized image.
+Scene with shape added.
 }
 \description{
 Add Shape
 
-Add shape to a mesh
-
-Add Shape
-
-Add shape to a mesh
+Add shape to the scene
 }
 \examples{
-#Here we produce a ambient occlusion map of the `montereybay` elevation map.
-#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+#Generate several spheres in the cornell box
+scene = generate_cornell_mesh()
+set.seed(1)
+
+for(i in 1:30) {
+ col = hsv(runif(1))
+ scene = add_shape(scene, sphere_mesh(position=runif(3)*400+155/2,
+                                      material=material_list(diffuse=col, type="phong",
+                                                             ambient=col,ambient_intensity=0.2), 
+                                      radius=30))
+}
+rasterize_scene(scene, light_info=directional_light(direction=c(0.1,0.6,-1)))
 }

@@ -1,16 +1,20 @@
-#'@title Rasterize an OBJ file
+#'@title Rasterize Scene
+#'
+#'@description Render a 3D scene with meshes, lights, and lines using a software rasterizer.
 #'
 #'@param scene The scene object.
 #'@param filename Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.
 #'@param width Default `400`. Width of the rendered image.
 #'@param height Default `400`. Width of the rendered image.
 #'@param line_info Default `NULL`. Matrix of line segments to add to the scene. Number of rows must be a multiple of 2.
+#'@param alpha_line Default `1`. Line transparency.
 #'@param parallel Default `TRUE`. Whether to use parallel processing.
 #'@param fov Default `20`. Width of the rendered image.
 #'@param lookfrom Default `c(0,0,10)`. Camera location.
 #'@param lookat Default `NULL`. Camera focal position, defaults to the center of the model.
 #'@param camera_up Default `c(0,1,0)`. Camera up vector.
-#'@param scale_obj Default `1`. Value to scale size of model.
+#'@param light_info Default `directional_light()`. Description of scene lights, generated with the `point_light()` and
+#'`directional_light()` functions.
 #'@param type Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).
 #'@param color Default `darkred`. Color of model if no material file present (or for faces using the default material).
 #'@param background Default `white`. Background color.
@@ -30,89 +34,99 @@
 #'@param shader Default `"default"`.
 #'@param block_size Default `4`. 
 #'@param shape Default `NULL`. The shape to render in the OBJ mesh. 
-#'@param ... Other parameters to pass to `rasterize_scene()`.
+#'@param line_offset Default `0.0001`. Amount to offset lines towards camera to prevent z-fighting.
+#'@param ortho_dimensions Default `c(1,1)`. Width and height of the orthographic camera. Will only be used if `fov = 0`. 
+#'@param bloom Default `FALSE`. Whether to apply bloom to the image. If `TRUE`,
+#' this performs a convolution of the HDR image of the scene with a sharp, long-tailed
+#' exponential kernel, which does not visibly affect dimly pixels, but does result in emitters light
+#' slightly bleeding into adjacent pixels. 
+#'@param antialias_lines Default `TRUE`. Whether to anti-alias lines in the scene.
 #'
 #'@return Rasterized image.
 #'@export
 #'@examples
 #'#Let's load the cube OBJ file included with the package
 #'
-#'cube_model = read_obj(cube_obj())
-#'
-#'rasterize_scene(cube_model,lookfrom=c(2,4,10), 
+#'\donttest{
+#'rasterize_scene(cube_mesh(),lookfrom=c(2,4,10), 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#'
+#'}
 #'#Flatten the cube, translate downwards, and set to grey
-#'base_model = cube_model %>% 
+#'base_model = cube_mesh() %>% 
 #'  scale_mesh(scale=c(5,0.2,5)) %>%
 #'  translate_mesh(c(0,-0.1,0)) %>% 
 #'  set_material(diffuse="grey80") 
 #'
-#'rasterize_scene(base, lookfrom=c(2,4,10), 
+#'\donttest{
+#'rasterize_scene(base_model, lookfrom=c(2,4,10), 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
+#'}
 #'
 #'#load the R OBJ file, scale it down, color it blue, and add it to the grey base
-#'r_model = r_obj() %>% 
-#'  read_obj() %>% 
+#'r_model = obj_mesh(r_obj()) %>% 
 #'  scale_mesh(scale=0.5) %>% 
 #'  set_material(diffuse="dodgerblue") %>% 
 #'  add_shape(base_model)
-#'
+#'  
+#'\donttest{
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#'               
-#'#Zoom in and turn on shadow mapping
-#'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,shadow_map = TRUE,
+#' }
+#'#Zoom in and reduce the shadow mapping intensity
+#'\donttest{
+#'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,shadow_map = TRUE, shadow_map_intensity=0.3,
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
+#'}
 #'
 #'#Include the resolution (4x) of the shadow map for less pixellation around the edges
 #'#Also decrease the shadow_map_bias slightly to remove the "peter panning" floating shadow effect
+#'\donttest{
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
-#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
+#'               shadow_map_dims=4, 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#'               
+#'}
+#'
 #'#Add some more directional lights and change their color
 #' lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 1) %>% 
 #'            add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 1)) %>% 
 #'            add_light(directional_light(c(2,4,10),color = "white",intensity = 0.5))
-#'            
+#'\donttest{
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
-#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
 #'               light_info = lights)
-#'               
+#'}
 #'#Add some point lights
 #'lights_p = lights %>% 
-#'  add_light(point_light(position=c(-1,1,0),color="red", intensity=10)) %>% 
-#'  add_light(point_light(position=c(1,1,0),color="purple", intensity=10)) 
-#'
+#'  add_light(point_light(position=c(-1,1,0),color="red", intensity=2)) %>% 
+#'  add_light(point_light(position=c(1,1,0),color="purple", intensity=2)) 
+#'\donttest{
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
-#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
 #'               light_info = lights_p)
-#'               
-#'#change the camera position
-#'rasterize_scene(r_model, lookfrom=c(-2,2,-10), fov=10,
-#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
-#'               light_info = lights_p)
-#'               
-#'#Add a spiral of lines around the model by generating a matrix of line segments
-#'#Each pair of rows represent a single segment. Lines are ignored by shadows.
-#'t = seq(0,8*pi,length.out=361)
-#'
-#'line_mat = matrix(0,nrow=720,ncol=3)
-#'for(i in 1:360) {
-#' line_mat[(2*i-1),] = c(0.5*sin(t[i]), t[i]/(8*pi), 0.5*cos(t[i]))
-#' line_mat[(2*i),]   = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))
 #'}
-#'
+#'#change the camera position
+#'\donttest{
+#'rasterize_scene(r_model, lookfrom=c(-2,2,-10), fov=10,
+#'               light_info = lights_p)
+#'}
+#'               
+#'\donttest{        
+#'#Add a spiral of lines around the model by generating a matrix of line segments
+#' t = seq(0,8*pi,length.out=361)
+#' line_mat = matrix(nrow=0,ncol=9)
+#' 
+#' for(i in 1:360) {
+#'   line_mat = add_lines(line_mat,
+#'                       generate_line(start = c(0.5*sin(t[i]), t[i]/(8*pi), 0.5*cos(t[i])),
+#'                                     end  = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))))
+#' }
+#' 
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10, line_info = line_mat,
-#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
 #'               light_info = lights)
+#'}
 rasterize_scene  = function(scene, 
                            filename = NA, width=800, height=800, 
                            line_info = NULL, alpha_line = 1.0,
                            parallel = TRUE,
                            fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0), #Sanitize lookfrom and lookat inputs
-                           scale_obj = 1,
                            light_info = directional_light(), color="red",
                            type = "diffuse", background = "black", 
                            tangent_space_normals = TRUE,
@@ -123,7 +137,7 @@ rasterize_scene  = function(scene,
                            near_plane = 0.1, far_plane = 100, culling = "back",
                            shader = "default", 
                            block_size = 4, shape = NULL, line_offset = 0.00001,
-                           ortho_dims = c(1,1), bloom = FALSE, antialias_lines = TRUE) {
+                           ortho_dimensions = c(1,1), bloom = FALSE, antialias_lines = TRUE) {
   if(!is.null(attr(scene,"cornell"))) {
     corn_message = "Setting default values for Cornell box: "
     missing_corn = FALSE
@@ -154,18 +168,16 @@ rasterize_scene  = function(scene,
     if(attr(scene,"cornell_light")) {
       light_info = add_light(light_info,point_light(c(555/2,450,555/2),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
     }
-    if(attr(scene,"cornell_diffuse_light")) {
-      light_info = add_light(light_info, point_light(position=c(455,350,555/2),color="#1f7326",falloff_quad = 0.000, constant = 0.0002, falloff = 0.0008, intensity=1/6))
-      light_info = add_light(light_info, point_light(position=c(100,350,555/2),color="#a60d0d",falloff_quad = 0.000, constant = 0.0002, falloff = 0.0008, intensity=1/6))
-    }
   }
   obj = merge_shapes(scene)
   max_indices = 0
   has_norms = rep(FALSE,length(obj$shapes))
   has_tex = rep(FALSE,length(obj$shapes))
+  has_vertex_tex = list()
+  has_vertex_normals = list()
   
-  if(length(ortho_dims) != 2) {
-    stop("ortho_dims must be length-2 numeric vector")
+  if(length(ortho_dimensions) != 2) {
+    stop("ortho_dimensions must be length-2 numeric vector")
   }
   #lights
   if(!is.null(light_info)) {
@@ -178,7 +190,7 @@ rasterize_scene  = function(scene,
   }
   culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   shaderval = switch(shader, "default" = 1, "diffuse" = 2, "phong" = 3, "color" = 4, 1)
-  
+
   if(is.null(line_info)) {
     line_info = matrix(nrow=0,ncol=0)
   }
@@ -187,12 +199,17 @@ rasterize_scene  = function(scene,
     obj$shapes[[i]]$indices = (obj$shapes[[i]]$indices)
     obj$shapes[[i]]$tex_indices = (obj$shapes[[i]]$tex_indices)
     obj$shapes[[i]]$norm_indices = (obj$shapes[[i]]$norm_indices)
+    has_vertex_tex[[i]] = (obj$shapes[[i]]$has_vertex_tex)
+    has_vertex_normals[[i]] = (obj$shapes[[i]]$has_vertex_normals)
     
     max_indices = max(c(max_indices,nrow(obj$shapes[[i]]$indices)))
     has_norms[i] = nrow(obj$shapes[[i]]$indices) == nrow(obj$shapes[[i]]$norm_indices)
     has_tex[i] = nrow(obj$shapes[[i]]$indices) == nrow(obj$shapes[[i]]$tex_indices) && all(obj$shapes[[i]]$tex_indices != -1)
   }
-  obj$vertices = obj$vertices * scale_obj
+  has_vertex_tex = unlist(has_vertex_tex)
+  has_vertex_normals = unlist(has_vertex_normals)
+  
+  obj$vertices = obj$vertices
   tempboundsmin = apply(obj$vertices,2,min)
   tempboundsmax = apply(obj$vertices,2,max)
   bounds[1:3] = c(min(c(bounds[1],tempboundsmin[1])),
@@ -201,12 +218,12 @@ rasterize_scene  = function(scene,
   bounds[4:6] = c(max(c(bounds[4],tempboundsmax[1])),
                   max(c(bounds[5],tempboundsmax[2])),
                   max(c(bounds[6],tempboundsmax[3])))
-  
+
   if(is.null(lookat)) {
     lookat = (bounds[1:3] + bounds[4:6])/2
     message(sprintf("Setting `lookat` to: c(%0.2f, %0.2f, %0.2f)",lookat[1],lookat[2],lookat[3]))
   }
-  
+
   use_default_material = FALSE
   if(length(obj$materials) > 0) {
     has_texture          = rep(FALSE,length(obj$materials))
@@ -222,7 +239,7 @@ rasterize_scene  = function(scene,
     has_specular_texture = FALSE
     has_emissive_texture = FALSE
   }
-  
+
   for(i in seq_len(length(obj$materials))) {
     if(!is.null(obj$materials[[i]]$diffuse_texname) && obj$materials[[i]]$diffuse_texname != "") {
       has_texture[i] = TRUE
@@ -249,7 +266,7 @@ rasterize_scene  = function(scene,
       obj$materials[[i]]$emissive_texname = ""
     }
   }
-  
+
   if(!is.null(options("cores")[[1]])) {
     numbercores = options("cores")[[1]]
   } else {
@@ -258,14 +275,10 @@ rasterize_scene  = function(scene,
   if(!parallel) {
     numbercores = 1
   }
-  
-  if(type == "gouraud" && nrow(normals) != nrow(vertices)) {
-    type = "diffuse"
-    warning("setting type to `diffuse`--Gouraud shading requires vertex normals for every vertex")
-  }
+
   color = convert_color(color)
   bg_color = convert_color(background)
-  
+
   typevals = rep(2,max(c(length(obj$materials),1)))
   if(!use_default_material) {
     for(i in seq_len(length(obj$materials))) {
@@ -306,7 +319,7 @@ rasterize_scene  = function(scene,
     }
   }
   tonemap = switch(tonemap, "gamma" = 1, "uncharted" = 2, "hbd" = 3, "none"=4, 1)
-  
+
   is_dir_light = rep(TRUE, nrow(lightinfo))
   for(i in seq_len(nrow(lightinfo))) {
     if(any(lightinfo[i,7:9] != 0)) {
@@ -322,28 +335,29 @@ rasterize_scene  = function(scene,
                         lookfrom=lookfrom,
                         lookat=lookat,
                         fov=fov,
-                        type = typevals,
-                        has_shadow_map=shadow_map, 
-                        calc_ambient = ssao, 
-                        tbn = tangent_space_normals, 
+                        typevals = typevals,
+                        has_shadow_map=shadow_map,
+                        calc_ambient = ssao,
+                        tbn = tangent_space_normals,
                         ambient_radius = ssao_radius,
                         shadow_map_bias=shadow_map_bias,
-                        numbercores=numbercores, 
+                        numbercores=numbercores,
                         max_indices = max_indices,
-                        has_normals_vec=has_norms, 
+                        has_normals_vec=has_norms,
                         has_tex_vec=has_tex,
-                        has_texture,       
+                        has_texture,
                         has_ambient_texture,
-                        has_normal_texture,   
-                        has_specular_texture, 
+                        has_normal_texture,
+                        has_specular_texture,
                         has_emissive_texture,
                         block_size = block_size, use_default_material = use_default_material,
                         near_plane, far_plane,
                         shadow_map_intensity,
-                        bounds, shadow_map_dims, camera_up, culling, 
+                        bounds, shadow_map_dims, camera_up, culling,
                         alpha_line, line_offset,
-                        ortho_dims, is_dir_light,
-                        antialias_lines)
+                        ortho_dimensions, is_dir_light,
+                        antialias_lines,
+                        has_vertex_tex,has_vertex_normals)
   if(ssao) {
     imagelist$amb = (imagelist$amb)^ssao_intensity
     imagelist$r = imagelist$r * imagelist$amb
@@ -373,10 +387,10 @@ rasterize_scene  = function(scene,
   }
   if(debug == "position") {
     pos_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
-    imagelist$positionx = scales::rescale(imagelist$positionx,to=c(0,1))
-    imagelist$positiony = scales::rescale(imagelist$positiony,to=c(0,1))
-    imagelist$positionz = scales::rescale(imagelist$positionz,to=c(0,1))
-    
+    imagelist$positionx = rescale(imagelist$positionx,to=c(0,1))
+    imagelist$positiony = rescale(imagelist$positiony,to=c(0,1))
+    imagelist$positionz = rescale(imagelist$positionz,to=c(0,1))
+
     pos_array[,,1] = (imagelist$positionx)
     pos_array[,,2] = (imagelist$positiony)
     pos_array[,,3] = (imagelist$positionz)
@@ -394,11 +408,11 @@ rasterize_scene  = function(scene,
     rayimage::plot_image(uv_array)
     return(invisible(uv_array))
   }
-  
+
   imagelist$r[is.infinite(imagelist$depth)] = bg_color[1]
   imagelist$g[is.infinite(imagelist$depth)] = bg_color[2]
   imagelist$b[is.infinite(imagelist$depth)] = bg_color[3]
-  
+
   retmat = array(0,dim=c(dim(imagelist$r)[2:1],3))
   if(tonemap != 4) {
     imagelist = tonemap_image(imagelist$r,imagelist$g,imagelist$b,tonemap)
@@ -409,12 +423,12 @@ rasterize_scene  = function(scene,
   if(bloom) {
     retmat = rayimage::render_convolution(retmat, min_value = 1)
   }
-  
+
   retmat[retmat > 1] = 1
   if(is.na(filename)) {
     rayimage::plot_image(retmat)
   } else {
-    rayimage:::save_png(retmat, filename = filename)
+    save_png(retmat, filename = filename)
   }
   return(invisible(retmat))
 }

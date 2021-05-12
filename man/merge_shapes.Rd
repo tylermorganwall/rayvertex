@@ -2,23 +2,21 @@
 % Please edit documentation in R/add_shape.R
 \name{merge_shapes}
 \alias{merge_shapes}
-\title{Add Shape
+\title{Merge shapes
 
 Add shape to a mesh}
 \usage{
-merge_shapes(mesh)
+merge_shapes(scene)
 }
 \arguments{
-\item{obj_model}{}
+\item{scene}{}
 }
 \value{
-Rasterized image.
+Merged scene
 }
 \description{
-Add Shape
+Merge shapes
 
 Add shape to a mesh
 }
-\examples{
-#Here we produce a ambient occlusion map of the `montereybay` elevation map.
-}
+\keyword{internal}

@@ -13,13 +13,13 @@ List load_obj(std::string inputfile, std::string basedir) {
 
   if (!reader.ParseFromFile(inputfile, reader_config)) {
     if (!reader.Error().empty()) {
-      std::cerr << "TinyObjReader: " << reader.Error();
+      Rcpp::Rcout << "TinyObjReader: " << reader.Error();
     }
-    exit(1);
+    stop("Stopping...");
   }
 
   if (!reader.Warning().empty()) {
-    std::cout << "TinyObjReader: " << reader.Warning();
+    Rcpp::Rcout << "TinyObjReader: " << reader.Warning();
   }
 
   auto& attrib = reader.GetAttrib();
@@ -60,10 +60,13 @@ List load_obj(std::string inputfile, std::string basedir) {
       norm_inds.push_back(m.indices[j].normal_index);
     }
     
-    single_shape["indices"]      = Rcpp::transpose(IntegerMatrix(nv_face, inds.size()/nv_face,      inds.begin()      ));
-    single_shape["tex_indices"]  = Rcpp::transpose(IntegerMatrix(nv_face, tex_inds.size()/nv_face,  tex_inds.begin()  ));
-    single_shape["norm_indices"] = Rcpp::transpose(IntegerMatrix(nv_face, norm_inds.size()/nv_face, norm_inds.begin() ));
-    single_shape["material_ids"] = Rcpp::transpose(NumericMatrix(1L, mats.size(), mats.begin()));
+    single_shape["indices"]            = Rcpp::transpose(IntegerMatrix(nv_face, inds.size()/nv_face,      inds.begin()      ));
+    single_shape["tex_indices"]        = Rcpp::transpose(IntegerMatrix(nv_face, tex_inds.size()/nv_face,  tex_inds.begin()  ));
+    single_shape["norm_indices"]       = Rcpp::transpose(IntegerMatrix(nv_face, norm_inds.size()/nv_face, norm_inds.begin() ));
+    single_shape["material_ids"]       = Rcpp::transpose(NumericMatrix(1L, mats.size(), mats.begin()));
+    single_shape["has_vertex_tex"]     = LogicalVector(inds.size()/nv_face,inds.size() == tex_inds.size());
+    single_shape["has_vertex_normals"] = LogicalVector(inds.size()/nv_face,inds.size() == norm_inds.size());
+    
     single_shape["name"]         = shapes[s].name;
     shape_list[s]                = single_shape;
   }
@@ -87,6 +90,7 @@ List load_obj(std::string inputfile, std::string basedir) {
                                          Named("diffuse_intensity", 1.0),
                                          Named("emission_intensity", 1.0),
                                          Named("specular_intensity", 1.0), 
+                                         Named("ambient_intensity", 1.0),
                                          Named("culling", culltype), 
                                          Named("type", "diffuse"));
   }

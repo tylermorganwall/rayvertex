@@ -1,0 +1,74 @@
+pandoc: 2.3.1
+pkgdown: 1.3.0.9000
+pkgdown_sha: 2f40b4769ea9ad2312aa4cc93f27ab116461543b
+articles: []
+
+template:
+  opengraph:
+    image:
+      src: man/figures/website_rayrender.jpg
+      alt: "Picture of a golden 3D ggplot with a description of rayrender"
+    twitter:
+      creator: "@tylermorganwall"
+      card: summary_large_image
+
+reference:
+  - title: "Meshes"
+    desc: "Functions to generate and manipulate nmeshes to add to scenes"
+    contents: 
+      - starts_with("sphere")
+      - starts_with("cube")
+      - starts_with("segment")
+      - starts_with("cylinder")
+      - starts_with("obj")
+      - starts_with("mesh3d")
+      - starts_with("cone")
+      - starts_with("arrow")
+      - starts_with("extruded")
+      - ends_with("mesh")
+  - title: "Lines"
+    desc: "Functions to generate and manipulate lines for the scene"
+    contents:
+      - ends_with("line")
+      - ends_with("lines")
+  - title: "Light"
+    desc: "Functions to generate and manipulate lights for the scene"
+    contents:
+      - ends_with("light")
+      - ends_with("lights")
+  - title: "Materials"
+    desc: "Functions to specify the visual properties of objects"
+    contents:
+      - starts_with("material")
+      - ends_with("material")
+  - title: "Composing Scenes"
+    desc: "Function for adding meshes, lines, and lights together to form a scene."
+    contents:
+      - starts_with("add")
+  - title: "Render Rasterized Scene"
+    desc: "Functions to render the current scene."
+    contents:
+      - starts_with("rasterize")
+
+     
+navbar: 
+  title: "rayrender"
+  type: inverse
+  left:
+    - icon: fa-home
+      href: index.html
+    - text: "Tutorials/Demos"
+      menu: 
+      -  text: How to Download and Animate Polar Ice Data in R with Rayrender
+         href: https://www.tylermw.com/polar-ice-data-in-r-with-rayrender/
+  right:
+    - icon: fa-file-code-o 
+      text: "functions"
+      href: reference/index.html
+    - icon: fa-github fa-lg
+      text: "GitHub"
+      href: https://github.com/tylermorganwall/rayvertex
+      
+authors:
+  Tyler Morgan-Wall: 
+    href: https://www.tylermw.com

@@ -6,7 +6,8 @@
 #'@param fov Default `20`. Width of the rendered image.
 #'@param lookfrom Default `c(0,0,10)`. Camera location.
 #'@param lookat Default `c(0,0,0)`. Camera focal position.
-
+#'@keywords internal
+#'
 #'@return Rasterized image.
 #'@examples
 #'#Here we produce a ambient occlusion map of the `montereybay` elevation map.

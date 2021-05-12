@@ -1,97 +1,55 @@
-#'@title Rasterize an OBJ file
+#'@title Rasterize Lines
+#'
+#'@description Render a 3D scene made out of lines using a software rasterizer.
 #'
 #'@param line_info The mesh object.
 #'@param filename Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.
 #'@param width Default `400`. Width of the rendered image.
 #'@param height Default `400`. Width of the rendered image.
+#'@param alpha_line Default `1`. Line transparency.
 #'@param parallel Default `TRUE`. Whether to use parallel processing.
 #'@param fov Default `20`. Width of the rendered image.
 #'@param lookfrom Default `c(0,0,10)`. Camera location.
 #'@param lookat Default `NULL`. Camera focal position, defaults to the center of the model.
 #'@param camera_up Default `c(0,1,0)`. Camera up vector.
-#'@param type Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).
 #'@param color Default `darkred`. Color of model if no material file present (or for faces using the default material).
 #'@param background Default `white`. Background color.
 #'@param debug Default `"none"`.
 #'@param near_plane Default `0.1`.
 #'@param far_plane Default `100`.
 #'@param block_size Default `4`. 
+#'@param ortho_dimensions Default `c(1,1)`. Width and height of the orthographic camera. Will only be used if `fov = 0`. 
+#'@param bloom Default `FALSE`. Whether to apply bloom to the image. If `TRUE`,
+#' this performs a convolution of the HDR image of the scene with a sharp, long-tailed
+#' exponential kernel, which does not visibly affect dimly pixels, but does result in emitters light
+#' slightly bleeding into adjacent pixels. 
+#'@param antialias_lines Default `TRUE`. Whether to anti-alias lines in the scene.
 #'
 #'@return Rasterized image.
 #'@export
 #'@examples
-#'#Let's load the cube OBJ file included with the package
-#'
-#'cube_model = read_obj(cube_obj())
-#'
-#'rasterize_scene(cube_model,lookfrom=c(2,4,10), 
-#'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#'
-#'#Flatten the cube, translate downwards, and set to grey
-#'base_model = cube_model %>% 
-#'  scale_mesh(scale=c(5,0.2,5)) %>%
-#'  translate_mesh(c(0,-0.1,0)) %>% 
-#'  set_material(diffuse="grey80") 
-#'
-#'rasterize_scene(base, lookfrom=c(2,4,10), 
-#'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#'
-#'#load the R OBJ file, scale it down, color it blue, and add it to the grey base
-#'r_model = r_obj() %>% 
-#'  read_obj() %>% 
-#'  scale_mesh(scale=0.5) %>% 
-#'  set_material(diffuse="dodgerblue") %>% 
-#'  add_shape(base_model)
-#'
-#'rasterize_scene(r_model, lookfrom=c(2,4,10), 
-#'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#'               
-#'#Zoom in and turn on shadow mapping
-#'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,shadow_map = TRUE,
-#'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#'
-#'#Include the resolution (4x) of the shadow map for less pixellation around the edges
-#'#Also decrease the shadow_map_bias slightly to remove the "peter panning" floating shadow effect
-#'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
-#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
-#'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#'               
-#'#Add some more directional lights and change their color
-#' lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 1) %>% 
-#'            add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 1)) %>% 
-#'            add_light(directional_light(c(2,4,10),color = "white",intensity = 0.5))
-#'            
-#'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
-#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
-#'               light_info = lights)
-#'               
-#'#Add some point lights
-#'lights_p = lights %>% 
-#'  add_light(point_light(position=c(-1,1,0),color="red", intensity=10)) %>% 
-#'  add_light(point_light(position=c(1,1,0),color="purple", intensity=10)) 
-#'
-#'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
-#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
-#'               light_info = lights_p)
-#'               
-#'#change the camera position
-#'rasterize_scene(r_model, lookfrom=c(-2,2,-10), fov=10,
-#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
-#'               light_info = lights_p)
-#'               
-#'#Add a spiral of lines around the model by generating a matrix of line segments
-#'#Each pair of rows represent a single segment. Lines are ignored by shadows.
-#'t = seq(0,8*pi,length.out=361)
-#'
-#'line_mat = matrix(0,nrow=720,ncol=3)
-#'for(i in 1:360) {
-#' line_mat[(2*i-1),] = c(0.5*sin(t[i]), t[i]/(8*pi), 0.5*cos(t[i]))
-#' line_mat[(2*i),]   = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))
-#'}
-#'
-#'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10, line_info = line_mat,
-#'               shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
-#'               light_info = lights)
+#' #Generate a cube out of lines
+#' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) %>%
+#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) %>%
+#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) %>%
+#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(-1, 1, 1))) %>%
+#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(1, -1, 1))) %>%
+#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(-1, 1, -1))) %>%
+#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(1, 1, 1))) %>%
+#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, -1, -1))) %>%
+#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, 1, 1))) %>%
+#'   add_lines(generate_line(start = c(1, -1, -1), end = c(1, -1, 1))) %>%
+#'   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) %>%
+#'   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1)))
+#' rasterize_lines(cube_outline,fov=90,lookfrom=c(0,0,3))
+#' 
+#' #Scale the cube uniformly
+#' scaled_cube = color_lines(scale_lines(cube_outline,scale=0.5),color="red")
+#' rasterize_lines(add_lines(cube_outline,scaled_cube),fov=90,lookfrom=c(0,0,3))
+#' 
+#' #Scale the cube non-uniformly
+#' scaled_cube = color_lines(scale_lines(cube_outline,scale=c(0.8,2,0.4)),color="red")
+#' rasterize_lines(add_lines(cube_outline,scaled_cube),fov=60,lookfrom=c(3,3,3))
 rasterize_lines  = function(line_info = NULL, 
                            filename = NA, width=400, height=400, 
                            alpha_line = 1.0,
@@ -100,11 +58,8 @@ rasterize_lines  = function(line_info = NULL,
                            color="red", background = "black", 
                            debug = "none", 
                            near_plane = 0.1, far_plane = 100, 
-                           shader = "default", 
                            block_size = 4, 
-                           shape = NULL, 
-                           line_offset = 0.00001,
-                           ortho_dims = c(1,1), 
+                           ortho_dimensions = c(1,1), 
                            bloom = FALSE, 
                            antialias_lines = TRUE) {
   if(is.null(line_info)) {
@@ -112,12 +67,12 @@ rasterize_lines  = function(line_info = NULL,
   }
   lineranges= rbind(line_info[,1:3],line_info[,4:6])
   bounds = as.vector(t(apply(lineranges,2,range)))
-  
+
   if(is.null(lookat)) {
     lookat = (bounds[1:3] + bounds[4:6])/2
     message(sprintf("Setting `lookat` to: c(%0.2f, %0.2f, %0.2f)",lookat[1],lookat[2],lookat[3]))
   }
-  
+
   if(!is.null(options("cores")[[1]])) {
     numbercores = options("cores")[[1]]
   } else {
@@ -126,10 +81,11 @@ rasterize_lines  = function(line_info = NULL,
   if(!parallel) {
     numbercores = 1
   }
-  
+
   color = convert_color(color)
   bg_color = convert_color(background)
-  
+
+  line_offset = 0
   imagelist = rasterize_lines_rcpp(line_mat=line_info,
                         nx=width,
                         ny=height,
@@ -138,9 +94,9 @@ rasterize_lines  = function(line_info = NULL,
                         lookat=lookat,
                         fov=fov,
                         near_clip=near_plane, far_clip=far_plane,
-                        bounds=bounds, camera_up=camera_up, 
+                        bounds=bounds, camera_up=camera_up,
                         alpha_line=alpha_line, line_offset=line_offset,
-                        ortho_dims=ortho_dims,
+                        ortho_dims=ortho_dimensions,
                         aa_lines=antialias_lines)
   if(debug == "normals") {
     norm_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
@@ -165,10 +121,10 @@ rasterize_lines  = function(line_info = NULL,
   }
   if(debug == "position") {
     pos_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
-    imagelist$positionx = scales::rescale(imagelist$positionx,to=c(0,1))
-    imagelist$positiony = scales::rescale(imagelist$positiony,to=c(0,1))
-    imagelist$positionz = scales::rescale(imagelist$positionz,to=c(0,1))
-    
+    imagelist$positionx = rescale(imagelist$positionx,to=c(0,1))
+    imagelist$positiony = rescale(imagelist$positiony,to=c(0,1))
+    imagelist$positionz = rescale(imagelist$positionz,to=c(0,1))
+
     pos_array[,,1] = (imagelist$positionx)
     pos_array[,,2] = (imagelist$positiony)
     pos_array[,,3] = (imagelist$positionz)
@@ -186,11 +142,11 @@ rasterize_lines  = function(line_info = NULL,
     rayimage::plot_image(uv_array)
     return(invisible(uv_array))
   }
-  
+
   imagelist$r[is.infinite(imagelist$depth)] = bg_color[1]
   imagelist$g[is.infinite(imagelist$depth)] = bg_color[2]
   imagelist$b[is.infinite(imagelist$depth)] = bg_color[3]
-  
+
   retmat = array(0,dim=c(dim(imagelist$r)[2:1],3))
   retmat[,,1] = rayimage::render_reorient(imagelist$r,transpose = TRUE, flipx = TRUE)
   retmat[,,2] = rayimage::render_reorient(imagelist$g,transpose = TRUE, flipx = TRUE)
@@ -198,12 +154,12 @@ rasterize_lines  = function(line_info = NULL,
   if(bloom) {
     retmat = rayimage::render_convolution(retmat, min_value = 1)
   }
-  
+
   retmat[retmat > 1] = 1
   if(is.na(filename)) {
     rayimage::plot_image(retmat)
   } else {
-    rayimage:::save_png(retmat, filename = filename)
+    save_png(retmat, filename = filename)
   }
   return(invisible(retmat))
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/objects.R
 \name{yz_rect_mesh}
 \alias{yz_rect_mesh}
-\title{Cube 3D Model}
+\title{YZ Rectangle 3D Model}
 \usage{
 yz_rect_mesh(
   position = c(0, 0, 0),
@@ -10,7 +10,7 @@ yz_rect_mesh(
   angle = c(0, 0, 0),
   pivot_point = c(0, 0, 0),
   order_rotation = c(1, 2, 3),
-  material = material()
+  material = material_list()
 )
 }
 \arguments{
@@ -23,10 +23,28 @@ yz_rect_mesh(
 \item{pivot_point}{Default `c(0,0,0)`. Point around which to rotate the mesh.}
 
 \item{order_rotation}{Default `c(1,2,3)`. Order to rotate the axes.}
+
+\item{material}{Default `material_list()` (default values). Specify the material of the object.}
 }
 \value{
 File location of the R.obj file (saved with a .txt extension)
 }
 \description{
-Cube 3D Model
+YZ Rectangle 3D Model
+}
+\examples{
+\donttest{
+generate_cornell_mesh() \%>\%
+  add_shape(yz_rect_mesh(position = c(500, 100, 555/2), scale=200,
+             material = material_list(diffuse = "purple"))) \%>\%
+  rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
+}
+
+#Need to flip it around to see the other side
+\donttest{
+generate_cornell_mesh() \%>\%
+  add_shape(yz_rect_mesh(position = c(100, 100, 555/2), scale=c(1,200,200), angle=c(0,180,0),
+             material = material_list(diffuse = "purple"))) \%>\%
+  rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
+}
 }

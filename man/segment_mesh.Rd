@@ -2,7 +2,7 @@
 % Please edit documentation in R/objects.R
 \name{segment_mesh}
 \alias{segment_mesh}
-\title{Cube 3D Model}
+\title{Segment 3D Model}
 \usage{
 segment_mesh(
   start = c(0, -1, 0),
@@ -11,7 +11,7 @@ segment_mesh(
   direction = NA,
   from_center = TRUE,
   square = FALSE,
-  material = material()
+  material = material_list()
 )
 }
 \arguments{
@@ -29,10 +29,69 @@ determined by the magnitude of the direction vector.}
 to `FALSE` will make `start` specify the bottom of the cone, instead of the middle.}
 
 \item{square}{Default `FALSE`. If `TRUE`, will use a square instead of a circle for the cylinder.}
+
+\item{material}{Default `material_list()` (default values). Specify the material of the object.}
 }
 \value{
 File location of the R.obj file (saved with a .txt extension)
 }
 \description{
-Cube 3D Model
+Segment 3D Model
+}
+\examples{
+#Generate a segment in the cornell box. 
+\donttest{
+generate_cornell_mesh() \%>\%
+  add_shape(segment_mesh(start = c(100, 100, 100), end = c(455, 455, 455), radius = 50)) \%>\%
+  rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
+}
+
+# Draw a line graph representing a normal distribution, but with metal:
+xvals = seq(-3, 3, length.out = 30)
+yvals = dnorm(xvals)
+
+scene_list = list()
+for(i in 1:(length(xvals) - 1)) {
+  scene_list = add_shape(scene_list, 
+                         segment_mesh(start = c(555/2 + xvals[i] * 80, yvals[i] * 800, 555/2),
+                            end = c(555/2 + xvals[i + 1] * 80, yvals[i + 1] * 800, 555/2),
+                            radius = 10,
+                            material = material_list(diffuse="purple", type="phong")))
+}
+\donttest{
+generate_cornell_mesh() \%>\% 
+  add_shape(scene_list) \%>\%
+  rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
+}
+
+#Draw the outline of a cube:
+
+cube_outline = segment_mesh(start = c(100, 100, 100), end = c(100, 100, 455), radius = 10) \%>\%
+  add_shape(segment_mesh(start = c(100, 100, 100), end = c(100, 455, 100), radius = 10)) \%>\%
+  add_shape(segment_mesh(start = c(100, 100, 100), end = c(455, 100, 100), radius = 10)) \%>\%
+  add_shape(segment_mesh(start = c(100, 100, 455), end = c(100, 455, 455), radius = 10)) \%>\%
+  add_shape(segment_mesh(start = c(100, 100, 455), end = c(455, 100, 455), radius = 10)) \%>\%
+  add_shape(segment_mesh(start = c(100, 455, 455), end = c(100, 455, 100), radius = 10)) \%>\%
+  add_shape(segment_mesh(start = c(100, 455, 455), end = c(455, 455, 455), radius = 10)) \%>\%
+  add_shape(segment_mesh(start = c(455, 455, 100), end = c(455, 100, 100), radius = 10)) \%>\%
+  add_shape(segment_mesh(start = c(455, 455, 100), end = c(455, 455, 455), radius = 10)) \%>\%
+  add_shape(segment_mesh(start = c(455, 100, 100), end = c(455, 100, 455), radius = 10)) \%>\%
+  add_shape(segment_mesh(start = c(455, 100, 455), end = c(455, 455, 455), radius = 10)) \%>\%
+  add_shape(segment_mesh(start = c(100, 455, 100), end = c(455, 455, 100), radius = 10))
+
+\donttest{
+generate_cornell_mesh() \%>\%
+  add_shape(set_material(cube_outline,diffuse="dodgerblue",type="phong")) \%>\%
+  rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
+}
+
+#Shrink and rotate the cube
+\donttest{
+generate_cornell_mesh() \%>\%
+  add_shape(
+    scale_mesh(rotate_mesh(set_material(cube_outline,diffuse="dodgerblue",type="phong"),
+                angle=c(45,45,45), pivot_point=c(555/2,555/2,555/2)),0.5,
+                center=c(555/2,555/2,555/2))) \%>\%
+  rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
+}
 }

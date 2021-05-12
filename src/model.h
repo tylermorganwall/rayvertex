@@ -15,14 +15,15 @@ class ModelInfo {
   public:
     ModelInfo(Rcpp::NumericMatrix &verts, Rcpp::NumericMatrix &texcoords, Rcpp::NumericMatrix &normals,
               Rcpp::IntegerMatrix inds, Rcpp::IntegerMatrix tex_inds, Rcpp::IntegerMatrix norm_inds, 
+              Rcpp::LogicalVector has_vertex_tex, Rcpp::LogicalVector has_vertex_normals, 
               Rcpp::IntegerVector &materials,
               bool has_normals_, bool has_texcoords_,
               bool tbn) :
       verts(verts),  texcoords(texcoords), normals(normals), 
       inds(inds), tex_inds(tex_inds), norm_inds(norm_inds), 
-      materials(materials),
+      materials(materials), has_vertex_tex(has_vertex_tex), has_vertex_normals(has_vertex_normals),
       tbn(tbn) {
-      has_normals = has_normals_;
+      has_normals = true;
       has_texcoords = has_texcoords_;
       num_indices = inds.nrow();
     }
@@ -44,6 +45,12 @@ class ModelInfo {
                   0.0f) :
               vec3(1.0));
     }
+    bool model_vertex_normals(int iface) {
+      return(has_vertex_normals(iface));
+    }
+    bool model_vertex_texcoords(int iface) {
+      return(has_vertex_tex(iface));
+    }
     
     Rcpp::NumericMatrix verts;
     Rcpp::NumericMatrix texcoords;
@@ -53,6 +60,9 @@ class ModelInfo {
     Rcpp::IntegerMatrix tex_inds;
     Rcpp::IntegerMatrix norm_inds;
     Rcpp::IntegerVector materials;
+    
+    Rcpp::LogicalVector has_vertex_tex;
+    Rcpp::LogicalVector has_vertex_normals;
     
     bool has_normals, has_texcoords;
     bool tbn;

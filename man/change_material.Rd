@@ -4,7 +4,7 @@
 \alias{change_material}
 \title{Change Material
 
-Add shape to a mesh}
+Change individual material properties, leaving others alone.}
 \usage{
 change_material(
   mesh,
@@ -25,21 +25,71 @@ change_material(
   diffuse_intensity = NULL,
   specular_intensity = NULL,
   emission_intensity = NULL,
+  ambient_intensity = NULL,
   culling = NULL,
   type = NULL
 )
 }
 \arguments{
-\item{obj_model}{}
+\item{mesh}{Mesh to change.}
+
+\item{diffuse}{Default `NULL`. The diffuse color.}
+
+\item{ambient}{Default `NULL`. The ambient color.}
+
+\item{specular}{Default `NULL`. The specular color.}
+
+\item{transmittance}{Default `NULL`. The transmittance}
+
+\item{emission}{Default `NULL`. The emissive color.}
+
+\item{shininess}{Default `NULL`. The shininess exponent.}
+
+\item{ior}{Default `NULL`. The index of refraction.}
+
+\item{dissolve}{Default `NULL`. The transparency.}
+
+\item{illum}{Default `NULL`. The illumination.}
+
+\item{texture_location}{Default `NULL`. The diffuse texture location.}
+
+\item{normal_texture_location}{Default `NULL`. The normal texture location.}
+
+\item{specular_texture_location}{Default `NULL`. The specular texture location.}
+
+\item{ambient_texture_location}{Default `NULL`. The ambient texture location.}
+
+\item{emissive_texture_location}{Default `NULL`. The emissive texture location.}
+
+\item{diffuse_intensity}{Default `NULL`. The diffuse intensity.}
+
+\item{specular_intensity}{Default `NULL`. The specular intensity.}
+
+\item{emission_intensity}{Default `NULL`. The emission intensity.}
+
+\item{ambient_intensity}{Default `NULL`. The ambient intensity.}
+
+\item{culling}{Default `NULL`. The culling type. Options are `back`, `front`, and `none`.}
+
+\item{type}{Default `NULL`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.}
 }
 \value{
-Rasterized image.
+Shape with new material settings
 }
 \description{
 Change Material
 
-Add shape to a mesh
+Change individual material properties, leaving others alone.
 }
 \examples{
-#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+p_sphere = sphere_mesh(position=c(555/2,555/2,555/2), 
+                      radius=40,material=material_list(diffuse="purple"))
+                      
+generate_cornell_mesh() \%>\% 
+ add_shape(p_sphere) \%>\% 
+ add_shape(change_material(translate_mesh(p_sphere,c(200,0,0)),diffuse="red")) \%>\% 
+ add_shape(change_material(translate_mesh(p_sphere,c(100,0,0)),dissolve=0.5)) \%>\% 
+ add_shape(change_material(translate_mesh(p_sphere,c(-100,0,0)),type="phong")) \%>\% 
+ add_shape(change_material(translate_mesh(p_sphere,c(-200,0,0)),type="phong",shininess=30)) \%>\% 
+ rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
 }

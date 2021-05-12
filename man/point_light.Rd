@@ -2,36 +2,92 @@
 % Please edit documentation in R/lights.R
 \name{point_light}
 \alias{point_light}
-\title{Generate Lights}
+\title{Point light}
 \usage{
 point_light(
   position = c(0, 0, 0),
   color = "white",
+  intensity = 1,
   constant = 1,
   falloff = 1,
-  falloff_quad = 1,
-  intensity = 1
+  falloff_quad = 1
 )
 }
 \arguments{
-\item{obj_model}{A two-dimensional matrix, where each entry in the matrix is the elevation at that point. All points are assumed to be evenly spaced.}
+\item{position}{A two-dimensional matrix, where each entry in the matrix is the elevation at that point. All points are assumed to be evenly spaced.}
 
-\item{width}{Default `400`. Width of the rendered image.}
+\item{color}{Default `400`. Width of the rendered image.}
 
-\item{height}{Default `400`. Width of the rendered image.}
+\item{intensity}{Default `1`. Intensity of the point light.}
 
-\item{fov}{Default `20`. Width of the rendered image.}
+\item{constant}{Default `1`. Constant term. See description for details.}
 
-\item{lookfrom}{Default `c(0,0,10)`. Camera location.}
+\item{falloff}{Default `1`. Linear falloff term. See description for details.}
 
-\item{lookat}{Default `c(0,0,0)`. Camera focal position.}
+\item{falloff_quad}{Default `1`. Quadratic falloff term. See description for details.}
 }
 \value{
 Rasterized image.
 }
 \description{
-Generate Lights
+The falloff of the point light intensity is given by the following equation (referenc:
+
+Intensity = intensity / (constant + falloff * distance + falloff_quad * (distance * distance));
 }
 \examples{
-#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+#Add point lights and vary the intensity
+lights_int = point_light(position=c(100,100,400), color="white", intensity=0.125,
+                      falloff_quad = 0.0, constant = 0.0002, falloff = 0.005) \%>\% 
+ add_light(point_light(position=c(100,455,400), color="white", intensity=0.25,
+                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)) \%>\% 
+ add_light(point_light(position=c(455,100,400), color="white", intensity=0.5,
+                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)) \%>\% 
+ add_light(point_light(position=c(455,455,400), color="white", intensity=1,
+                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
+                       
+\donttest{
+generate_cornell_mesh(light=FALSE) \%>\% 
+ rasterize_scene(light_info = lights_int)
+}
+#Add point lights and vary the color
+lights_c = point_light(position=c(100,100,500), color="red", 
+                      falloff_quad = 0.0, constant = 0.0002, falloff = 0.005) \%>\% 
+ add_light(point_light(position=c(100,455,500), color="blue",
+                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)) \%>\% 
+ add_light(point_light(position=c(455,100,500), color="purple", 
+                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)) \%>\% 
+ add_light(point_light(position=c(455,455,500), color="yellow", 
+                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
+                       
+\donttest{
+generate_cornell_mesh(light=FALSE) \%>\% 
+ rasterize_scene(light_info = lights_c)
+}
+#Add point lights and vary the falloff term
+lights_fo = point_light(position=c(100,100,500), color="white", 
+                      falloff_quad = 0.0, constant = 0.0002, falloff = 0.005) \%>\% 
+ add_light(point_light(position=c(100,455,500), color="white",
+                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.01)) \%>\% 
+ add_light(point_light(position=c(455,100,500), color="white", 
+                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.02)) \%>\% 
+ add_light(point_light(position=c(455,455,500), color="white", 
+                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.04))
+\donttest{
+generate_cornell_mesh(light=FALSE) \%>\% 
+ rasterize_scene(light_info = lights_fo)
+}
+
+#Add point lights and vary the quadradic falloff term
+lights_quad = point_light(position=c(100,100,500), color="white", 
+                      falloff_quad = 0.0001, constant = 0.0002, falloff = 0.005) \%>\% 
+ add_light(point_light(position=c(100,455,500), color="white",
+                       falloff_quad = 0.0002, constant = 0.0002, falloff = 0.005)) \%>\% 
+ add_light(point_light(position=c(455,100,500), color="white", 
+                       falloff_quad = 0.0004, constant = 0.0002, falloff = 0.005)) \%>\% 
+ add_light(point_light(position=c(455,455,500), color="white", 
+                       falloff_quad = 0.0008, constant = 0.0002, falloff = 0.005))
+\donttest{
+generate_cornell_mesh(light=FALSE) \%>\% 
+ rasterize_scene(light_info = lights_quad)
+}
 }

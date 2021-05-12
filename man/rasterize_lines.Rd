@@ -2,7 +2,7 @@
 % Please edit documentation in R/rasterize_lines.R
 \name{rasterize_lines}
 \alias{rasterize_lines}
-\title{Rasterize an OBJ file}
+\title{Rasterize Lines}
 \usage{
 rasterize_lines(
   line_info = NULL,
@@ -20,11 +20,8 @@ rasterize_lines(
   debug = "none",
   near_plane = 0.1,
   far_plane = 100,
-  shader = "default",
   block_size = 4,
-  shape = NULL,
-  line_offset = 1e-05,
-  ortho_dims = c(1, 1),
+  ortho_dimensions = c(1, 1),
   bloom = FALSE,
   antialias_lines = TRUE
 )
@@ -37,6 +34,8 @@ rasterize_lines(
 \item{width}{Default `400`. Width of the rendered image.}
 
 \item{height}{Default `400`. Width of the rendered image.}
+
+\item{alpha_line}{Default `1`. Line transparency.}
 
 \item{parallel}{Default `TRUE`. Whether to use parallel processing.}
 
@@ -60,85 +59,42 @@ rasterize_lines(
 
 \item{block_size}{Default `4`.}
 
-\item{type}{Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).}
+\item{ortho_dimensions}{Default `c(1,1)`. Width and height of the orthographic camera. Will only be used if `fov = 0`.}
+
+\item{bloom}{Default `FALSE`. Whether to apply bloom to the image. If `TRUE`,
+this performs a convolution of the HDR image of the scene with a sharp, long-tailed
+exponential kernel, which does not visibly affect dimly pixels, but does result in emitters light
+slightly bleeding into adjacent pixels.}
+
+\item{antialias_lines}{Default `TRUE`. Whether to anti-alias lines in the scene.}
 }
 \value{
 Rasterized image.
 }
 \description{
-Rasterize an OBJ file
+Render a 3D scene made out of lines using a software rasterizer.
 }
 \examples{
-#Let's load the cube OBJ file included with the package
+#Generate a cube out of lines
+cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) \%>\%
+  add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) \%>\%
+  add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) \%>\%
+  add_lines(generate_line(start = c(-1, -1, 1), end = c(-1, 1, 1))) \%>\%
+  add_lines(generate_line(start = c(-1, -1, 1), end = c(1, -1, 1))) \%>\%
+  add_lines(generate_line(start = c(-1, 1, 1), end = c(-1, 1, -1))) \%>\%
+  add_lines(generate_line(start = c(-1, 1, 1), end = c(1, 1, 1))) \%>\%
+  add_lines(generate_line(start = c(1, 1, -1), end = c(1, -1, -1))) \%>\%
+  add_lines(generate_line(start = c(1, 1, -1), end = c(1, 1, 1))) \%>\%
+  add_lines(generate_line(start = c(1, -1, -1), end = c(1, -1, 1))) \%>\%
+  add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) \%>\%
+  add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1)))
+rasterize_lines(cube_outline,fov=90,lookfrom=c(0,0,3))
 
-cube_model = read_obj(cube_obj())
+#Scale the cube uniformly
+scaled_cube = color_lines(scale_lines(cube_outline,scale=0.5),color="red")
+rasterize_lines(add_lines(cube_outline,scaled_cube),fov=90,lookfrom=c(0,0,3))
 
-rasterize_mesh(cube_model,lookfrom=c(2,4,10), 
-              light_info = directional_light(direction=c(0.5,1,0.7)))
-
-#Flatten the cube, translate downwards, and set to grey
-base_model = cube_model \%>\% 
- scale_mesh(scale=c(5,0.2,5)) \%>\%
- translate_mesh(c(0,-0.1,0)) \%>\% 
- set_material(diffuse="grey80") 
-
-rasterize_mesh(base, lookfrom=c(2,4,10), 
-              light_info = directional_light(direction=c(0.5,1,0.7)))
-
-#load the R OBJ file, scale it down, color it blue, and add it to the grey base
-r_model = r_obj() \%>\% 
- read_obj() \%>\% 
- scale_mesh(scale=0.5) \%>\% 
- set_material(diffuse="dodgerblue") \%>\% 
- add_shape(base_model)
-
-rasterize_mesh(r_model, lookfrom=c(2,4,10), 
-              light_info = directional_light(direction=c(0.5,1,0.7)))
-              
-#Zoom in and turn on shadow mapping
-rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,shadow_map = TRUE,
-              light_info = directional_light(direction=c(0.5,1,0.7)))
-
-#Include the resolution (4x) of the shadow map for less pixellation around the edges
-#Also decrease the shadow_map_bias slightly to remove the "peter panning" floating shadow effect
-rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,
-              shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
-              light_info = directional_light(direction=c(0.5,1,0.7)))
-              
-#Add some more directional lights and change their color
-lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 1) \%>\% 
-           add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 1)) \%>\% 
-           add_light(directional_light(c(2,4,10),color = "white",intensity = 0.5))
-           
-rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,
-              shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
-              light_info = lights)
-              
-#Add some point lights
-lights_p = lights \%>\% 
- add_light(point_light(position=c(-1,1,0),color="red", intensity=10)) \%>\% 
- add_light(point_light(position=c(1,1,0),color="purple", intensity=10)) 
-
-rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10,
-              shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
-              light_info = lights_p)
-              
-#change the camera position
-rasterize_mesh(r_model, lookfrom=c(-2,2,-10), fov=10,
-              shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
-              light_info = lights_p)
-              
-#Add a spiral of lines around the model by generating a matrix of line segments
-#Each pair of rows represent a single segment. Lines are ignored by shadows.
-t = seq(0,8*pi,length.out=361)
-
-line_mat = matrix(0,nrow=720,ncol=3)
-for(i in 1:360) {
-line_mat[(2*i-1),] = c(0.5*sin(t[i]), t[i]/(8*pi), 0.5*cos(t[i]))
-line_mat[(2*i),]   = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))
-}
-
-rasterize_mesh(r_model, lookfrom=c(2,4,10), fov=10, line_info = line_mat,
-              shadow_map = TRUE, shadow_map_dims=4, shadow_map_bias=0.001,
-              light_info = lights)
+#Scale the cube non-uniformly
+scaled_cube = color_lines(scale_lines(cube_outline,scale=c(0.8,2,0.4)),color="red")
+rasterize_lines(add_lines(cube_outline,scaled_cube),fov=60,lookfrom=c(3,3,3))
 }

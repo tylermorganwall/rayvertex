@@ -8,6 +8,11 @@ Maintainer: Tyler Morgan-Wall <tylermw@gmail.com>
 Description: Rasterizes 3D scenes.
 License: GPL (>= 3)
 Imports: magrittr,
-         Rcpp (>= 1.0.6)
-LinkingTo: Rcpp, spacefillr, RcppThread
+         Rcpp (>= 1.0.6),
+         grDevices,
+         rayimage,
+         png,
+         jpeg,
+         raster
+LinkingTo: Rcpp, spacefillr, RcppThread, Rvcg
 RoxygenNote: 7.1.1

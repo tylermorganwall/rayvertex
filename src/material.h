@@ -25,6 +25,7 @@ struct material_info {
   Float emission_intensity;
   Float diffuse_intensity;
   Float specular_intensity;
+  Float ambient_intensity;
   bool has_normals;
   bool has_tex;
   bool has_texture;

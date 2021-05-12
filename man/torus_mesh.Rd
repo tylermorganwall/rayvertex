@@ -2,7 +2,7 @@
 % Please edit documentation in R/objects.R
 \name{torus_mesh}
 \alias{torus_mesh}
-\title{Rasterize an OBJ file}
+\title{Torus 3D Model}
 \usage{
 torus_mesh(
   position = c(0, 0, 0),
@@ -14,7 +14,7 @@ torus_mesh(
   ring_radius = 0.2,
   sides = 36,
   rings = 36,
-  material = material()
+  material = material_list()
 )
 }
 \arguments{
@@ -28,13 +28,33 @@ torus_mesh(
 
 \item{order_rotation}{Default `c(1,2,3)`. Order to rotate the axes.}
 
-\item{filename}{OBJ filename.}
+\item{radius}{Default `0.5`. The radius of the torus.}
 
-\item{materialspath}{Default `NULL`. Path to the MTL file, if different from the OBJ file.}
+\item{ring_radius}{Default `0.2`. The radius of the ring.}
+
+\item{sides}{Default `36`. The number of faces around the ring when triangulating the torus.}
+
+\item{rings}{Default `36`. The number of faces around the torus.}
+
+\item{material}{Default `material_list()` (default values). Specify the material of the object.}
 }
 \value{
-Rasterized image.
+Torus mesh
 }
 \description{
-Rasterize an OBJ file
+Torus 3D Model
+}
+\examples{
+#Plot a group of tori in the cornell box
+generate_cornell_mesh(ceiling = FALSE) \%>\% 
+ add_shape(torus_mesh(position=c(555/2,555/3,555/2), angle=c(20,0,45),
+                      radius=120, ring_radius = 40,
+                      material = material_list(diffuse="dodgerblue4",type="phong",
+                                               ambient="dodgerblue4",ambient_intensity=0.2))) \%>\%
+ add_shape(torus_mesh(position=c(400,400,555/2), angle=c(20,200,45),radius=80, ring_radius = 30,
+                      material=material_list(diffuse="orange",type="phong",
+                                             ambient="orange",ambient_intensity=0.2))) \%>\%
+ add_shape(torus_mesh(position=c(150,450,555/2), angle=c(60,180,0),radius=40, ring_radius = 20,
+                      material=material_list(diffuse="red",type="phong"))) \%>\%
+ rasterize_scene(light_info = directional_light(c(0,1,-2)))
 }

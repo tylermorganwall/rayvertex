@@ -12,7 +12,7 @@ sphere_mesh(
   order_rotation = c(1, 2, 3),
   radius = 1,
   low_poly = FALSE,
-  material = material()
+  material = material_list()
 )
 }
 \arguments{
@@ -29,6 +29,8 @@ sphere_mesh(
 \item{radius}{Default `1`. Radius of the sphere.}
 
 \item{low_poly}{Default `FALSE`. If `TRUE`, will use a low-poly sphere.}
+
+\item{material}{Default `material_list()` (default values). Specify the material of the object.}
 }
 \value{
 File location of the R.obj file (saved with a .txt extension)
@@ -41,15 +43,23 @@ Sphere 3D Model
 \donttest{
 generate_cornell_mesh() \%>\%
   add_shape(sphere_mesh(position = c(555/2, 555/2, 555/2), radius = 100)) \%>\%
-  rasterize_mesh(width=800,height=800)
+  rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }
 
 #Generate a shiny sphere in the cornell box
 \donttest{
-generate_cornell() \%>\%
-  add_object(sphere(x = 555/2, y = 100, z = 555/2, radius = 100, 
-                    material = microfacet(color = "gold"))) \%>\%
-  render_scene(lookfrom = c(278, 278, -800) ,lookat = c(278, 278, 0), fov = 40, 
-               ambient_light = FALSE, samples = 400, clamp_value = 5)
+generate_cornell_mesh() \%>\%
+  add_shape(sphere_mesh(position = c(555/2, 100, 555/2), radius = 100, 
+                    material = material_list(diffuse = "gold",type="phong"))) \%>\%
+  rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
+}
+
+#Generate an ellipsoid in the cornell box
+\donttest{
+generate_cornell_mesh() \%>\%
+  add_shape(sphere_mesh(position = c(555/2, 210, 555/2), radius = 100, 
+                        angle=c(0,30,0), scale = c(0.5,2,0.5),
+                        material = material_list(diffuse = "dodgerblue",type="phong"))) \%>\%
+  rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
 }

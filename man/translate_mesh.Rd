@@ -2,23 +2,27 @@
 % Please edit documentation in R/add_shape.R
 \name{translate_mesh}
 \alias{translate_mesh}
-\title{Add Shape
-
-Add shape to a mesh}
+\title{Translate Mesh}
 \usage{
 translate_mesh(mesh, position = c(0, 0, 0))
 }
 \arguments{
-\item{obj_model}{}
+\item{mesh}{The mesh.}
+
+\item{position}{Default `c(0,0,0)`. The translation vector.}
 }
 \value{
-Rasterized image.
+Translated mesh
 }
 \description{
-Add Shape
-
-Add shape to a mesh
+Translate Mesh
 }
 \examples{
-#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+#Translate a mesh in the Cornell box
+robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
+generate_cornell_mesh() \%>\% 
+ add_shape(translate_mesh(robj,c(400,0,155))) \%>\% 
+ add_shape(translate_mesh(robj,c(555/2,100,555/2))) \%>\% 
+ add_shape(translate_mesh(robj,c(155,200,400))) \%>\% 
+ rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
 }

@@ -2,11 +2,7 @@
 % Please edit documentation in R/construct_mesh.R
 \name{construct_mesh}
 \alias{construct_mesh}
-\title{Rasterize an OBJ file
-
-If the OBJ file has an MTL file, it must be located in the same directory as the OBJ file itself.
-Additionally, the textures referenced in the MTL file must be specified as a 
-relative path to the OBJ file's location.}
+\title{Manually construct a mesh}
 \usage{
 construct_mesh(
   vertices,
@@ -15,71 +11,34 @@ construct_mesh(
   norm_indices = NULL,
   texcoords = NULL,
   tex_indices = NULL,
-  position = c(0, 0, 0),
-  material_ids = 0,
-  materials = NULL,
-  scale_obj = 1,
-  ambient = c(0, 0, 0),
-  diffuse = c(0.5, 0.5, 0.5),
-  specular = c(1, 1, 1),
-  transmittance = c(1, 1, 1),
-  emission = c(0, 0, 0),
-  shininess = 10,
-  ior = 1,
-  dissolve = 1,
-  illum = 1,
-  texture_location = "",
-  normal_texture_location = "",
-  specular_texture_location = "",
-  ambient_texture_location = "",
-  emissive_texture_location = "",
-  diffuse_intensity = 1,
-  specular_intensity = 0.6,
-  emission_intensity = 1,
-  tangent_space_normals = TRUE,
-  shape_name = ""
+  material = material_list()
 )
 }
 \arguments{
-\item{vertices}{Filename of the `obj` file.}
+\item{vertices}{Nx3 matrix of vertex coordinates..}
 
-\item{indices}{}
+\item{indices}{Nx3 integer matrix, where each row defines a triangle using the 
+vertices defined in `vertices`.}
 
-\item{normals}{Default `NULL`.}
+\item{normals}{Default `NULL`.  Nx3 matrix of normals.}
 
-\item{texcoords}{Default `NULL`.}
+\item{norm_indices}{Nx3 integer matrix, where each row defines the normal for a vertex using the 
+normals defined in `normals` for the corresponding triangle in `indices`.
+Required to be the same number of rows as `indices`.}
 
-\item{material_ids}{Default `1`.}
+\item{texcoords}{Default `NULL`. Nx2 matrix of texture coordinates.}
 
-\item{materials}{Default `NULL`, default material.}
+\item{tex_indices}{Nx3 integer matrix, where each row defines the texture coordinates for a triangle
+using the tex coords defined in `texcoors` for the corresponding triangle in `indices`.
+Required to be the same number of rows as `indices`.}
 
-\item{texture_location}{Default `NA`. Location of the diffuse texture.}
-
-\item{normal_texture_location}{Default `NA`. Location of the normal texture.}
-
-\item{specular_texture_location}{Default `NA`. Location of the specular texture.}
-
-\item{ambient_texture_location}{Default `NA`. Location of the ambient texture.}
-
-\item{emissive_texture_location}{Default `NA`. Location of the emissive texture.}
-
-\item{diffuse_intensity}{Default `1`.}
-
-\item{specular_intensity}{Default `0.6`.}
-
-\item{emission_intensity}{Default `1`.}
-
-\item{tangent_space_normals}{Default `TRUE`.}
+\item{material}{Default `material_list()` (default values). Specify the material of the object.}
 }
 \value{
 Rasterized image.
 }
 \description{
-Rasterize an OBJ file
-
-If the OBJ file has an MTL file, it must be located in the same directory as the OBJ file itself.
-Additionally, the textures referenced in the MTL file must be specified as a 
-relative path to the OBJ file's location.
+Manually construct a mesh
 }
 \examples{
 #Here we produce a ambient occlusion map of the `montereybay` elevation map.
