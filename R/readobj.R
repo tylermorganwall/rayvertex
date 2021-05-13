@@ -27,5 +27,13 @@ read_obj = function(filename, materialspath = NULL) {
     dir=paste0(dir,fsep)
   }
   obj_loaded = load_obj(filename, dir)
+  for(i in seq_len(length(obj_loaded$shapes))) {
+    if(nrow(obj_loaded$shapes[[i]]$indices) == length(obj_loaded$shapes[[i]]$has_vertex_tex)) {
+      obj_loaded$shapes[[i]]$has_vertex_tex[apply(obj_loaded$shapes[[i]]$tex_indices,1,(function(x) any(x == -1)))] = FALSE
+    }
+    if(nrow(obj_loaded$shapes[[i]]$indices) == length(obj_loaded$shapes[[i]]$has_vertex_normals)) {
+      obj_loaded$shapes[[i]]$has_vertex_normals[apply(obj_loaded$shapes[[i]]$norm_indices,1,(function(x) any(x == -1)))] = FALSE
+    }
+  }
   obj_loaded
 }

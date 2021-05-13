@@ -23,8 +23,6 @@ class ModelInfo {
       inds(inds), tex_inds(tex_inds), norm_inds(norm_inds), 
       materials(materials), has_vertex_tex(has_vertex_tex), has_vertex_normals(has_vertex_normals),
       tbn(tbn) {
-      has_normals = true;
-      has_texcoords = has_texcoords_;
       num_indices = inds.nrow();
     }
     
@@ -39,7 +37,7 @@ class ModelInfo {
                   normals(norm_inds(iface,nthvert), 2)));
     }
     vec3 tex(int iface, int nthvert) {
-      return(has_texcoords ?  
+      return(has_vertex_tex(iface) ?  
              vec3(texcoords(tex_inds(iface,nthvert), 0),
                   texcoords(tex_inds(iface,nthvert), 1),
                   0.0f) :
@@ -64,7 +62,6 @@ class ModelInfo {
     Rcpp::LogicalVector has_vertex_tex;
     Rcpp::LogicalVector has_vertex_normals;
     
-    bool has_normals, has_texcoords;
     bool tbn;
     int num_indices;
 };

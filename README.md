@@ -41,8 +41,8 @@ Rayvertex features the following:
 -   Bloom
 -   Tone mapping
 
-Meshes and scenes are specified via simple list structure that contains
-the following:
+Meshes and scenes are specified via list structure that contains the
+following:
 
 -   A list of shapes that each include:
     -   An integer matrix of indices
@@ -50,6 +50,9 @@ the following:
     -   (optional) An integer matrix of indices for texture coordinates
     -   A vector of material IDs, indexing into the following material
         property list
+    -   A logical vector, indicating whether each vertex has normals
+    -   A logical vector, indicating whether each vertex has texture
+        coordinates
 -   A list of material properties that each specify:
     -   Diffuse color
     -   Ambient color
@@ -146,8 +149,6 @@ Now let’s change the angle of the directional light so it’s angled from
 the front :
 
 ``` r
-mat2 = material_list(diffuse="grey80", ambient="grey80", ambient_intensity = 0.2)
-
 generate_cornell_mesh(ceiling=FALSE) %>% 
   add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) %>% 
   add_shape(segment_mesh(start=c(555/2,0,555/2),end=c(555/2,196,555/2), 
@@ -168,58 +169,46 @@ library(Rvcg)
 #> Warning: package 'Rvcg' was built under R version 3.6.2
 data(humface)
 
-mat3 = material_list(diffuse="dodgerblue", ambient="dodgerblue", type="phong", 
-                     ambient_intensity = 0.2)
+cols = hsv(seq(0,1,length.out=6))
 
-generate_cornell_mesh(ceiling=FALSE) %>% 
-  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) %>% 
-  add_shape(segment_mesh(start=c(555/2,0,555/2),end=c(555/2,196,555/2), 
-                         radius=30, material=mat2)) %>% 
-  add_shape(cube_mesh(position=c(555/2,555/2-90,555/2), 
-                      scale=c(160,20,160),material=mat2)) %>% 
+mats = list()
+for(i in 1:5) {
+  mats[[i]] = material_list(diffuse=cols[i], ambient=cols[i], type="phong",
+                            ambient_intensity = 0.2)
+}
+
+generate_cornell_mesh(ceiling=FALSE) %>%
+  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) %>%
+  add_shape(segment_mesh(start=c(555/2,0,555/2),end=c(555/2,196,555/2),
+                         radius=30, material=mat2)) %>%
+  add_shape(cube_mesh(position=c(555/2,555/2-90,555/2),
+                      scale=c(160,20,160),material=mat2)) %>%
   add_shape(torus_mesh(position=c(100,100,100), radius = 50, ring_radius = 20,
-                       angle=c(45,0,45),material=mat3)) %>% 
-  add_shape(cone_mesh(start=c(555-100,0,100), end=c(555-100,150,100), radius = 50, 
-                      material=mat3)) %>% 
-  add_shape(arrow_mesh(start=c(555-100,455,555-100), end=c(100,455,555-100), 
-                       radius_top = 50, radius_tail=10, tail_proportion = 0.8,  material=mat3)) %>% 
-  add_shape(obj_mesh(r_obj(), position=c(100,200,555/2), angle=c(0,180,0),
-                     scale=80,material=mat3)) %>% 
-  add_shape(mesh3d_mesh(humface,position = c(555-80,220,555/2),scale = 1,
-                        material=mat3,angle=c(0,180,-30))) %>%
+                       angle=c(45,0,45),material=mats[[1]])) %>%
+  add_shape(cone_mesh(start=c(555-100,0,100), end=c(555-100,150,100), radius = 50,
+                      material=mats[[2]])) %>%
+  add_shape(arrow_mesh(start=c(555-100,455,555-100), end=c(100,455,555-100),
+                       radius_top = 50, radius_tail=10, tail_proportion = 0.8,
+                       material=mats[[3]])) %>%
+  add_shape(obj_mesh(r_obj(), position=c(100,200,555/2), angle=c(-10,200,0),
+                     scale=80,material=mats[[4]])) %>%
+  add_shape(mesh3d_mesh(humface, position = c(555-80,220,555/2),scale = 1,
+                        material=mats[[5]],angle=c(0,180,-30))) %>% 
   rasterize_scene(light_info = directional_light(c(0.4,0.2,-1)))
 #> Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
 ```
 
 <img src="man/figures/README-cornell6-1.png" width="100%" />
 
-``` r
-library(rayvertex)
-#Let's load the cube OBJ file included with the package
-
-rasterize_scene(cube_mesh(),lookfrom=c(2,4,10),
-               light_info = directional_light(direction=c(0.5,1,0.7)))
-#> Setting `lookat` to: c(0.00, 0.00, 0.00)
-```
-
-<img src="man/figures/README-cornell22-1.png" width="100%" />
+Now let’s draw another example scene: we’ll add the R OBJ to a flat
+surface.
 
 ``` r
-#Flatten the cube, translate downwards, and set to grey
 base_model = cube_mesh() %>%
   scale_mesh(scale=c(5,0.2,5)) %>%
   translate_mesh(c(0,-0.1,0)) %>%
   set_material(diffuse="grey80")
 
-rasterize_scene(base_model, lookfrom=c(2,4,10),
-               light_info = directional_light(direction=c(0.5,1,0.7)))
-#> Setting `lookat` to: c(0.00, -0.10, 0.00)
-```
-
-<img src="man/figures/README-cornell22-2.png" width="100%" />
-
-``` r
-#load the R OBJ file, scale it down, color it blue, and add it to the grey base
 r_model = obj_mesh(r_obj()) %>%
   scale_mesh(scale=0.5) %>%
   set_material(diffuse="dodgerblue") %>%
@@ -230,7 +219,10 @@ rasterize_scene(r_model, lookfrom=c(2,4,10),
 #> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
 
-<img src="man/figures/README-cornell22-3.png" width="100%" />
+<img src="man/figures/README-line1-1.png" width="100%" />
+
+We can reduce the shadow intensity so the shadows aren’t black.
+Alternatively, you can add an `ambient` term to the material.
 
 ``` r
 #Zoom in and reduce the shadow mapping intensity
@@ -239,22 +231,24 @@ rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,shadow_map = TRUE, shadow_ma
 #> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
 
-<img src="man/figures/README-cornell22-4.png" width="100%" />
+<img src="man/figures/README-line2-1.png" width="100%" />
+
+We can increase the resolution of the shadow map to increase the
+fidelity of the shadows. This can reduce the amount of “pixelation”
+around the edges.
 
 ``` r
-
-#Include the resolution (4x) of the shadow map for less pixellation around the edges
-#Also decrease the shadow_map_bias slightly to remove the "peter panning" floating shadow effect
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
-               shadow_map_dims=4,
-               light_info = directional_light(direction=c(0.5,1,0.7)))
+               shadow_map_dims=2, light_info = directional_light(direction=c(0.5,1,0.7)))
 #> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
 
-<img src="man/figures/README-cornell22-5.png" width="100%" />
+<img src="man/figures/README-line3-1.png" width="100%" />
+
+We can add multiple directional lights and change their color and
+intensity:
 
 ``` r
-#Add some more directional lights and change their color
  lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 1) %>%
             add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 1)) %>%
             add_light(directional_light(c(2,4,10),color = "white",intensity = 0.5))
@@ -263,7 +257,9 @@ rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 #> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
 
-<img src="man/figures/README-cornell22-6.png" width="100%" />
+<img src="man/figures/README-line4-1.png" width="100%" />
+
+Now let’s add some point lights:
 
 ``` r
 #Add some point lights
@@ -275,7 +271,9 @@ rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 #> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
 
-<img src="man/figures/README-cornell22-7.png" width="100%" />
+<img src="man/figures/README-line5-1.png" width="100%" />
+
+We can change the camera position by adjusting the `lookfrom` argument:
 
 ``` r
 #change the camera position
@@ -284,23 +282,24 @@ rasterize_scene(r_model, lookfrom=c(-2,2,-10), fov=10,
 #> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
 
-<img src="man/figures/README-cornell22-8.png" width="100%" />
+<img src="man/figures/README-line6-1.png" width="100%" />
+
+Finally, we can also add 3D lines to the scene. We’ll add a spiral of
+lines around the R.
 
 ``` r
+t = seq(0,8*pi,length.out=361)
+line_mat = matrix(nrow=0,ncol=9)
 
-#Add a spiral of lines around the model by generating a matrix of line segments
- t = seq(0,8*pi,length.out=361)
- line_mat = matrix(nrow=0,ncol=9)
-
- for(i in 1:360) {
-   line_mat = add_lines(line_mat,
-                       generate_line(start = c(0.5*sin(t[i]), t[i]/(8*pi), 0.5*cos(t[i])),
-                                     end  = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))))
- }
+for(i in 1:360) {
+  line_mat = add_lines(line_mat,
+                      generate_line(start = c(0.5*sin(t[i]), t[i]/(8*pi), 0.5*cos(t[i])),
+                                    end  = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))))
+}
 
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10, line_info = line_mat,
                light_info = lights)
 #> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
 
-<img src="man/figures/README-cornell22-9.png" width="100%" />
+<img src="man/figures/README-line7-1.png" width="100%" />

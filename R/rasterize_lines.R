@@ -51,7 +51,7 @@
 #' scaled_cube = color_lines(scale_lines(cube_outline,scale=c(0.8,2,0.4)),color="red")
 #' rasterize_lines(add_lines(cube_outline,scaled_cube),fov=60,lookfrom=c(3,3,3))
 rasterize_lines  = function(line_info = NULL, 
-                           filename = NA, width=400, height=400, 
+                           filename = NA, width=800, height=800, 
                            alpha_line = 1.0,
                            parallel = TRUE,
                            fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0), #Sanitize lookfrom and lookat inputs

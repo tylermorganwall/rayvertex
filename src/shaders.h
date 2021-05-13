@@ -125,7 +125,9 @@ class ColorShader : public IShader {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
+      return(has_texture ? 
+               vec4(material.diffuse * material.diffuse_intensity, material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
+               vec4(material.diffuse * material.diffuse_intensity, material.dissolve));
     }
     vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
@@ -190,7 +192,9 @@ class DiffuseShader : public IShader {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
+      return(has_texture ? 
+               vec4(material.diffuse * material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
+               vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
     }
     vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 

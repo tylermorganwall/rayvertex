@@ -36,8 +36,6 @@ add_shape = function(scene, shape) {
     shape$shapes[[i]]$material_ids = ifelse(shape$shapes[[i]]$material_ids != -1, 
                                             shape$shapes[[i]]$material_ids + max_material,
                                             -1)
-    shape$shapes[[i]]$has_vertex_tex = rep(nrow(shape$shapes[[i]]$indices) == nrow(shape$shapes[[i]]$tex_indices), nrow(shape$shapes[[i]]$indices))
-    shape$shapes[[i]]$has_vertex_normals = rep(nrow(shape$shapes[[i]]$indices) == nrow(shape$shapes[[i]]$norm_indices), nrow(shape$shapes[[i]]$indices))
   }
   scene$shapes = c(scene$shapes,shape$shapes)
 
@@ -380,6 +378,8 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'Change individual material properties, leaving others alone.
 #'
 #'@param mesh Mesh to change.
+#'@param id Default `NULL`. Either a number specifying the material to change, or a character vector 
+#'matching the material name.
 #'@param diffuse                   Default `NULL`. The diffuse color.
 #'@param ambient                   Default `NULL`. The ambient color.
 #'@param specular                  Default `NULL`. The specular color.
@@ -414,7 +414,7 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'  add_shape(change_material(translate_mesh(p_sphere,c(-100,0,0)),type="phong")) %>% 
 #'  add_shape(change_material(translate_mesh(p_sphere,c(-200,0,0)),type="phong",shininess=30)) %>% 
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
-change_material = function(mesh,
+change_material = function(mesh, id = NULL, 
                            diffuse                   = NULL,
                            ambient                   = NULL,
                            specular                  = NULL,
@@ -440,31 +440,78 @@ change_material = function(mesh,
   }
   
   if(!is.null(mesh$materials) && length(mesh$materials) > 0) {
-    for(i in seq_len(length(mesh$materials))) {
-      if(!is.null(ambient))                   mesh$materials[[i]]$ambient            = convert_color(ambient)
-      if(!is.null(diffuse))                   mesh$materials[[i]]$diffuse            = convert_color(diffuse)
-      if(!is.null(specular))                  mesh$materials[[i]]$specular           = convert_color(specular)
-      if(!is.null(transmittance))             mesh$materials[[i]]$transmittance      = convert_color(transmittance)
-      if(!is.null(emission))                  mesh$materials[[i]]$emission           = convert_color(emission)
-      if(!is.null(shininess))                 mesh$materials[[i]]$shininess          = shininess
-      if(!is.null(ior))                       mesh$materials[[i]]$ior                = ior              
-      if(!is.null(dissolve))                  mesh$materials[[i]]$dissolve           = dissolve         
-      if(!is.null(illum))                     mesh$materials[[i]]$illum              = illum            
-      if(!is.null(ambient_texture_location))  mesh$materials[[i]]$ambient_texname    = ambient_texture_location  
-      if(!is.null(texture_location))          mesh$materials[[i]]$diffuse_texname    = texture_location  
-      if(!is.null(emissive_texture_location)) mesh$materials[[i]]$emissive_texname   = emissive_texture_location 
-      if(!is.null(specular_texture_location)) mesh$materials[[i]]$specular_texname   = specular_texture_location 
-      if(!is.null(normal_texture_location))   mesh$materials[[i]]$normal_texname     = normal_texture_location   
-      if(!is.null(diffuse_intensity))         mesh$materials[[i]]$diffuse_intensity  = diffuse_intensity 
-      if(!is.null(specular_intensity))        mesh$materials[[i]]$specular_intensity = specular_intensity   
-      if(!is.null(emission_intensity))        mesh$materials[[i]]$emission_intensity = emission_intensity  
-      if(!is.null(ambient_intensity))         mesh$materials[[i]]$ambient_intensity  = ambient_intensity  
-      if(!is.null(culling))                   mesh$materials[[i]]$culling            = culling   
-      if(!is.null(type))                      mesh$materials[[i]]$type               = type   
-      
-    }
-    for(i in seq_len(length(mesh$shapes))) {
-      mesh$shapes[[i]]$material_ids = rep(0,nrow(mesh$shapes[[i]]$indices))
+    if(is.null(id)) {
+      for(i in seq_len(length(mesh$materials))) {
+        if(!is.null(ambient))                   mesh$materials[[i]]$ambient            = convert_color(ambient)
+        if(!is.null(diffuse))                   mesh$materials[[i]]$diffuse            = convert_color(diffuse)
+        if(!is.null(specular))                  mesh$materials[[i]]$specular           = convert_color(specular)
+        if(!is.null(transmittance))             mesh$materials[[i]]$transmittance      = convert_color(transmittance)
+        if(!is.null(emission))                  mesh$materials[[i]]$emission           = convert_color(emission)
+        if(!is.null(shininess))                 mesh$materials[[i]]$shininess          = shininess
+        if(!is.null(ior))                       mesh$materials[[i]]$ior                = ior              
+        if(!is.null(dissolve))                  mesh$materials[[i]]$dissolve           = dissolve         
+        if(!is.null(illum))                     mesh$materials[[i]]$illum              = illum            
+        if(!is.null(ambient_texture_location))  mesh$materials[[i]]$ambient_texname    = ambient_texture_location  
+        if(!is.null(texture_location))          mesh$materials[[i]]$diffuse_texname    = texture_location  
+        if(!is.null(emissive_texture_location)) mesh$materials[[i]]$emissive_texname   = emissive_texture_location 
+        if(!is.null(specular_texture_location)) mesh$materials[[i]]$specular_texname   = specular_texture_location 
+        if(!is.null(normal_texture_location))   mesh$materials[[i]]$normal_texname     = normal_texture_location   
+        if(!is.null(diffuse_intensity))         mesh$materials[[i]]$diffuse_intensity  = diffuse_intensity 
+        if(!is.null(specular_intensity))        mesh$materials[[i]]$specular_intensity = specular_intensity   
+        if(!is.null(emission_intensity))        mesh$materials[[i]]$emission_intensity = emission_intensity  
+        if(!is.null(ambient_intensity))         mesh$materials[[i]]$ambient_intensity  = ambient_intensity  
+        if(!is.null(culling))                   mesh$materials[[i]]$culling            = culling   
+        if(!is.null(type))                      mesh$materials[[i]]$type               = type   
+      }
+    } else {
+      if(is.numeric(id)) {
+        if(!is.null(ambient))                   mesh$materials[[id]]$ambient            = convert_color(ambient)
+        if(!is.null(diffuse))                   mesh$materials[[id]]$diffuse            = convert_color(diffuse)
+        if(!is.null(specular))                  mesh$materials[[id]]$specular           = convert_color(specular)
+        if(!is.null(transmittance))             mesh$materials[[id]]$transmittance      = convert_color(transmittance)
+        if(!is.null(emission))                  mesh$materials[[id]]$emission           = convert_color(emission)
+        if(!is.null(shininess))                 mesh$materials[[id]]$shininess          = shininess
+        if(!is.null(ior))                       mesh$materials[[id]]$ior                = ior              
+        if(!is.null(dissolve))                  mesh$materials[[id]]$dissolve           = dissolve         
+        if(!is.null(illum))                     mesh$materials[[id]]$illum              = illum            
+        if(!is.null(ambient_texture_location))  mesh$materials[[id]]$ambient_texname    = ambient_texture_location  
+        if(!is.null(texture_location))          mesh$materials[[id]]$diffuse_texname    = texture_location  
+        if(!is.null(emissive_texture_location)) mesh$materials[[id]]$emissive_texname   = emissive_texture_location 
+        if(!is.null(specular_texture_location)) mesh$materials[[id]]$specular_texname   = specular_texture_location 
+        if(!is.null(normal_texture_location))   mesh$materials[[id]]$normal_texname     = normal_texture_location   
+        if(!is.null(diffuse_intensity))         mesh$materials[[id]]$diffuse_intensity  = diffuse_intensity 
+        if(!is.null(specular_intensity))        mesh$materials[[id]]$specular_intensity = specular_intensity   
+        if(!is.null(emission_intensity))        mesh$materials[[id]]$emission_intensity = emission_intensity  
+        if(!is.null(ambient_intensity))         mesh$materials[[id]]$ambient_intensity  = ambient_intensity  
+        if(!is.null(culling))                   mesh$materials[[id]]$culling            = culling   
+        if(!is.null(type))                      mesh$materials[[id]]$type               = type   
+      }
+      if(is.character(id)) {
+        for(i in seq_len(length(mesh$materials))) {
+          if(names(mesh$materials)[i] == id) {
+            if(!is.null(ambient))                   mesh$materials[[i]]$ambient            = convert_color(ambient)
+            if(!is.null(diffuse))                   mesh$materials[[i]]$diffuse            = convert_color(diffuse)
+            if(!is.null(specular))                  mesh$materials[[i]]$specular           = convert_color(specular)
+            if(!is.null(transmittance))             mesh$materials[[i]]$transmittance      = convert_color(transmittance)
+            if(!is.null(emission))                  mesh$materials[[i]]$emission           = convert_color(emission)
+            if(!is.null(shininess))                 mesh$materials[[i]]$shininess          = shininess
+            if(!is.null(ior))                       mesh$materials[[i]]$ior                = ior              
+            if(!is.null(dissolve))                  mesh$materials[[i]]$dissolve           = dissolve         
+            if(!is.null(illum))                     mesh$materials[[i]]$illum              = illum            
+            if(!is.null(ambient_texture_location))  mesh$materials[[i]]$ambient_texname    = ambient_texture_location  
+            if(!is.null(texture_location))          mesh$materials[[i]]$diffuse_texname    = texture_location  
+            if(!is.null(emissive_texture_location)) mesh$materials[[i]]$emissive_texname   = emissive_texture_location 
+            if(!is.null(specular_texture_location)) mesh$materials[[i]]$specular_texname   = specular_texture_location 
+            if(!is.null(normal_texture_location))   mesh$materials[[i]]$normal_texname     = normal_texture_location   
+            if(!is.null(diffuse_intensity))         mesh$materials[[i]]$diffuse_intensity  = diffuse_intensity 
+            if(!is.null(specular_intensity))        mesh$materials[[i]]$specular_intensity = specular_intensity   
+            if(!is.null(emission_intensity))        mesh$materials[[i]]$emission_intensity = emission_intensity  
+            if(!is.null(ambient_intensity))         mesh$materials[[i]]$ambient_intensity  = ambient_intensity  
+            if(!is.null(culling))                   mesh$materials[[i]]$culling            = culling   
+            if(!is.null(type))                      mesh$materials[[i]]$type               = type   
+          }
+        }
+      }
     }
   } else {
    stop("No materials detected")

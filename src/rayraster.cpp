@@ -334,11 +334,7 @@ List rasterize(List mesh,
     Float specular_intensity = as<Float>(single_material["specular_intensity"]);
     Float emission_intensity = as<Float>(single_material["emission_intensity"]);
     Float ambient_intensity = as<Float>(single_material["ambient_intensity"]);
-    
     int cull_type = as<int>(single_material["culling"]);
-    
-    // bool has_norms = has_normals_vec(i);
-    // bool has_tex = has_tex_vec(i);
     
     bool has_texture_single          = has_texture(i);
     bool has_ambient_texture_single  = has_ambient_texture(i);
@@ -367,8 +363,6 @@ List rasterize(List mesh,
       (Float)diffuse_intensity,
       (Float)specular_intensity,
       (Float)ambient_intensity,
-      true, //THIS SHOULD BE FIXED, but isn't currently used -- has_norms
-      true, //THIS SHOULD BE FIXED, but isn't currently used -- has_tex
       has_texture_single,
       has_ambient_texture_single,
       has_normal_texture_single,
@@ -481,8 +475,6 @@ List rasterize(List mesh,
     (Float)1.0,
     (Float)1.0,
     (Float)1.0,
-    true, //THIS SHOULD BE FIXED, but isn't currently used -- has_norms
-    true, //THIS SHOULD BE FIXED, but isn't currently used -- has_tex
     false,
     false,
     false,

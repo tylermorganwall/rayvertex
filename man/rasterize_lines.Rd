@@ -7,8 +7,8 @@
 rasterize_lines(
   line_info = NULL,
   filename = NA,
-  width = 400,
-  height = 400,
+  width = 800,
+  height = 800,
   alpha_line = 1,
   parallel = TRUE,
   fov = 20,

@@ -113,7 +113,7 @@ vec4 GouraudShader::vertex(int iface, int nthvert, ModelInfo& model) {
   vec4 clip = vp * MVP * vec4(model.vertex(iface, nthvert),1.0f);
   
   vec_varying_tri[iface][nthvert] = clip;
-  has_normals = model.has_normals;
+  
   return (clip);
 }
 
@@ -231,7 +231,7 @@ vec4 ColorShader::vertex(int iface, int nthvert, ModelInfo& model) {
   vec_varying_uv[iface][nthvert] = model.tex(iface,nthvert);
   vec_varying_tri[iface][nthvert] =  vp * clip;
   vec_varying_pos[iface][nthvert] = uniform_M * vec4(model.vertex(iface, nthvert),1.0f);
-  vec_varying_world_nrm[iface][nthvert] = model.has_normals ?
+  vec_varying_world_nrm[iface][nthvert] = model.model_vertex_normals(iface) ?
     uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
     uniform_MIT * normalize(vec4(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
                                             model.vertex(iface,2)-model.vertex(iface,0)),0.0f));
@@ -342,12 +342,12 @@ vec4 DiffuseShader::vertex(int iface, int nthvert, ModelInfo& model) {
   vec_varying_tri[iface][nthvert] =  vp * clip;
   vec_varying_pos[iface][nthvert] = uniform_M * vec4(model.vertex(iface, nthvert),1.0f);
   
-  vec_varying_world_nrm[iface][nthvert] = model.has_normals ?
+  vec_varying_world_nrm[iface][nthvert] = model.model_vertex_normals(iface) ?
     uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
     uniform_MIT * normalize(vec4(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
                                             model.vertex(iface,2)-model.vertex(iface,0)),0.0f));
     
-  has_normals = model.has_normals;
+  
   return (vec_varying_tri[iface][nthvert]);
 }
 
@@ -383,10 +383,10 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   //Directional light contribution
   color = diffuse_color * vec4(light_color,1.0);
   
+  
   for(int i = 0; i < plights.size(); i++) {
     color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
   }
-
   //Emissive and ambient terms
   color += emissive(uv);
   color += ambient(uv);
@@ -486,7 +486,7 @@ vec4 DiffuseNormalShader::vertex(int iface, int nthvert, ModelInfo& model) {
   
   vec4 clip = vp * MVP * vec4(model.vertex(iface,nthvert),1.0f);
   vec_varying_tri[iface][nthvert] = clip;
-  has_normals = model.has_normals;
+  
   
   return (clip);
 }
@@ -629,7 +629,7 @@ vec4 DiffuseShaderTangent::vertex(int iface, int nthvert, ModelInfo& model) {
   vec_varying_ndc_tri[iface][nthvert] = vec3(ndc/ndc.w);
   vec4 clip = vp * MVP * vec4(gl_Vertex, 1.0f);
   vec_varying_tri[iface][nthvert] = clip;
-  has_normals = model.has_normals;
+  
   
   return clip;
 }
@@ -783,7 +783,7 @@ vec4 PhongShader::vertex(int iface, int nthvert, ModelInfo& model) {
   vec_varying_pos[iface][nthvert] = uniform_M * vec4(model.vertex(iface, nthvert),1.0f);
   vec4 clip = vp * MVP * vec4(model.vertex(iface,nthvert),1.0f);
   vec_varying_tri[iface][nthvert] = clip;
-  has_normals = model.has_normals;
+  
   vec_varying_world_nrm[iface][nthvert] = model.model_vertex_normals(iface) ?
     uniform_MIT * normalize(vec4(model.normal(iface, nthvert),0.0f)) : 
     uniform_MIT * normalize(vec4(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
@@ -796,9 +796,8 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
-  normal =  //has_normals ? 
-    (vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z);
-    //normalize(glm::cross(vec3(vec_varying_tri[iface][1]-vec_varying_tri[iface][0]),vec3(vec_varying_tri[iface][2]-vec_varying_tri[iface][0])));
+  normal =  (vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z);
+  
   vec3 spec_uv = specular(uv);
   vec3 light_color(0.0);
   vec4 spec_total(0.0);
@@ -937,7 +936,7 @@ vec4 PhongNormalShader::vertex(int iface, int nthvert, ModelInfo& model) {
   vec3 gl_Vertex = model.vertex(iface,nthvert);
   vec4 clip = vp * MVP * vec4(gl_Vertex, 1.0f);
   vec_varying_tri[iface][nthvert] = clip;
-  has_normals = model.has_normals;
+  
   
   return clip;
 }
@@ -1093,7 +1092,7 @@ vec4 PhongShaderTangent::vertex(int iface, int nthvert, ModelInfo& model) {
   vec_varying_ndc_tri[iface][nthvert] = clip/clip.w;
   clip = vp * clip;
   vec_varying_tri[iface][nthvert] = clip;
-  has_normals = model.has_normals;
+  
   
   return clip;
 }

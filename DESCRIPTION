@@ -14,5 +14,6 @@ Imports: magrittr,
          png,
          jpeg,
          raster
-LinkingTo: Rcpp, spacefillr, RcppThread, Rvcg
+Suggests: Rvcg
+LinkingTo: Rcpp, spacefillr, RcppThread
 RoxygenNote: 7.1.1

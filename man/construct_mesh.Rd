@@ -41,5 +41,39 @@ Rasterized image.
 Manually construct a mesh
 }
 \examples{
-#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+#Let's construct a mesh from the volcano dataset
+#Build the vertex matrix
+vertex_list = list()
+counter = 1
+for(i in 1:nrow(volcano)) {
+  for(j in 1:ncol(volcano)) {
+    vertex_list[[counter]] = matrix(c(j,volcano[i,j],i), ncol=3)
+    counter = counter + 1
+  }
+}
+vertices = do.call(rbind,vertex_list)
+
+#Build the index matrix
+index_list = list()
+counter = 0
+for(i in 1:(nrow(volcano)-1)) {
+  for(j in 1:(ncol(volcano)-1)) {
+    index_list[[counter+1]] = matrix(c(counter,counter+ncol(volcano),counter+1,
+                                       counter+ncol(volcano),counter+ncol(volcano)+1,counter + 1), 
+                                     nrow=2, ncol=3, byrow=TRUE)
+    counter = counter + 1
+  }
+  counter = counter + 1
+}
+indices = do.call(rbind,index_list)
+
+#Construct the mesh
+volc_mesh = construct_mesh(vertices = vertices, indices = indices,
+                           material = material_list(type="phong", diffuse="darkred", 
+                                                    ambient = "darkred", ambient_intensity=0.2))
+
+#Rasterize the scene
+rasterize_scene(volc_mesh, lookfrom=c(-50,230,100),fov=60,width=1200,height=1200,
+                light_info = directional_light(c(0,1,1)) \%>\% 
+                  add_light(directional_light(c(1,1,-1))))
 }

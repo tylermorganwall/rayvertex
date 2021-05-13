@@ -11,10 +11,21 @@ template:
     twitter:
       creator: "@tylermorganwall"
       card: summary_large_image
+      
+figures:
+  dev: ragg::agg_png
+  dpi: 100
+  dev.args: []
+  fig.ext: png
+  fig.width: 8
+  fig.height: 8
+  fig.retina: 2
+  fig.asp: 1
+  bg: NA
 
 reference:
   - title: "Meshes"
-    desc: "Functions to generate and manipulate nmeshes to add to scenes"
+    desc: "Functions to generate meshes to add to scenes"
     contents: 
       - starts_with("sphere")
       - starts_with("cube")
@@ -25,22 +36,33 @@ reference:
       - starts_with("cone")
       - starts_with("arrow")
       - starts_with("extruded")
-      - ends_with("mesh")
-  - title: "Lines"
-    desc: "Functions to generate and manipulate lines for the scene"
-    contents:
-      - ends_with("line")
-      - ends_with("lines")
-  - title: "Light"
-    desc: "Functions to generate and manipulate lights for the scene"
-    contents:
-      - ends_with("light")
-      - ends_with("lights")
+      - starts_with("torus")
+      - starts_with("xy_rect_mesh")
+      - starts_with("xz_rect_mesh")
+      - starts_with("yz_rect_mesh")
+      - starts_with("generate_cornell_mesh")
+
   - title: "Materials"
     desc: "Functions to specify the visual properties of objects"
     contents:
       - starts_with("material")
       - ends_with("material")
+  - title: "Transformations"
+    desc: "Functions to manipulate meshes and lines in the scene"
+    contents:
+      - starts_with("scale")
+      - starts_with("rotate")
+      - starts_with("translate")
+  - title: "Lines"
+    desc: "Functions to generate lines for the scene"
+    contents:
+      - ends_with("line")
+      - ends_with("lines")
+  - title: "Light"
+    desc: "Functions to generate lights for the scene"
+    contents:
+      - ends_with("light")
+      - ends_with("lights")
   - title: "Composing Scenes"
     desc: "Function for adding meshes, lines, and lights together to form a scene."
     contents:
