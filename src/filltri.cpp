@@ -123,6 +123,13 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                   if(color.w >= 1.0f) {
                     zbuffer(i,j) = z;
                     image.set_color(i,j,vec3(color));
+                  } else {
+                    alpha_info tmp_data;
+                    tmp_data.color = color;
+                    tmp_data.normal = normal;
+                    tmp_data.position = position;
+                    tmp_data.uv = bc_clip;
+                    alpha_depths[j + ny*i][z] = tmp_data;
                   }
                 } else {
                   if(color.w >= 1.0f) {

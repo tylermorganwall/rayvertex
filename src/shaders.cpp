@@ -26,7 +26,9 @@ IShader::~IShader() {}
 GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                              bool has_shadow_map, Float shadow_map_bias,
                              material_info mat_info,  std::vector<Light>& point_lights,
-                             std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                             std::vector<DirectionalLight> directional_lights, 
+                             std::vector<rayimage>& shadowbuffers,
+                             std::vector<rayimage>& transparency_buffers,
                              std::vector<vec3>& vec_varying_intensity,
                              std::vector<std::vector<vec3> >& vec_varying_uv,
                              std::vector<std::vector<vec4> >& vec_varying_tri,
@@ -37,7 +39,7 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
-  directional_lights(directional_lights), shadowbuffers(shadowbuffers),
+  directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm) {
   MVP = Projection * View * Model;
@@ -275,7 +277,9 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
               
               bool has_shadow_map, Float shadow_map_bias,
               material_info mat_info,  std::vector<Light>& point_lights, 
-              std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+              std::vector<DirectionalLight> directional_lights, 
+              std::vector<rayimage>& shadowbuffers,
+              std::vector<rayimage>& transparency_buffers,
               std::vector<vec3>& vec_varying_intensity,
               std::vector<std::vector<vec3> >& vec_varying_uv,
               std::vector<std::vector<vec4> >& vec_varying_tri,
@@ -286,7 +290,7 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
     Projection(Projection), View(View), viewport(viewport),
     has_shadow_map(has_shadow_map),
     shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
-    directional_lights(directional_lights), shadowbuffers(shadowbuffers),
+    directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
     vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
     vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm)  {
   vp = glm::scale(glm::translate(Mat(1.0f),
@@ -358,6 +362,7 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;
 
   vec3 light_color(0.0);
+  vec3 trans_color(1.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
     Float shadow = 1.0f;
     Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0))),0.0);
@@ -375,9 +380,15 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
           }    
         }
         shadow /= 25;
+        // for(int x = -2; x <= 2; ++x) {
+        //   for(int y = -2; y <= 2; ++y) {
+        //     trans_color += transparency_buffers[ii].get_color_bounded(i+x,j+y);
+        //   }    
+        // }
+        // trans_color /= 25;
       }
     }
-    light_color += directional_lights[ii].color * shadow * intensity;
+    light_color += trans_color * directional_lights[ii].color * shadow * intensity;
   }
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   //Directional light contribution
@@ -416,7 +427,9 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
              
              bool has_shadow_map, Float shadow_map_bias,
              material_info mat_info,  std::vector<Light>& point_lights, 
-             std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+             std::vector<DirectionalLight> directional_lights, 
+             std::vector<rayimage>& shadowbuffers,
+             std::vector<rayimage>& transparency_buffers,
              std::vector<vec3>& vec_varying_intensity,
              std::vector<std::vector<vec3> >& vec_varying_uv,
              std::vector<std::vector<vec4> >& vec_varying_tri,
@@ -427,7 +440,7 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
-  directional_lights(directional_lights), shadowbuffers(shadowbuffers),
+  directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm)  {
   MVP = Projection * View * Model;
@@ -555,7 +568,9 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
                                        
                                        bool has_shadow_map, Float shadow_map_bias,
                                        material_info mat_info,  std::vector<Light>& point_lights,
-                                       std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                                       std::vector<DirectionalLight> directional_lights, 
+                                       std::vector<rayimage>& shadowbuffers,
+                                       std::vector<rayimage>& transparency_buffers,
                                        std::vector<vec3>& vec_varying_intensity,
                                        std::vector<std::vector<vec3> >& vec_varying_uv,
                                        std::vector<std::vector<vec4> >& vec_varying_tri,
@@ -566,7 +581,7 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
-  directional_lights(directional_lights), shadowbuffers(shadowbuffers),
+  directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), 
   vec_varying_ndc_tri(vec_varying_ndc_tri), vec_varying_world_nrm(vec_varying_world_nrm),
@@ -713,10 +728,11 @@ PhongShader::~PhongShader() {
 }
 
 PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-                                     
                                      bool has_shadow_map, Float shadow_map_bias,
                                      material_info mat_info,  std::vector<Light>& point_lights,
-                                     std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                                     std::vector<DirectionalLight> directional_lights, 
+                                     std::vector<rayimage>& shadowbuffers,
+                                     std::vector<rayimage>& transparency_buffers,
                                      std::vector<vec3>& vec_varying_intensity,
                                      std::vector<std::vector<vec3> >& vec_varying_uv,
                                      std::vector<std::vector<vec4> >& vec_varying_tri,
@@ -727,7 +743,7 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
-  directional_lights(directional_lights), shadowbuffers(shadowbuffers),
+  directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), 
   vec_varying_nrm(vec_varying_nrm), vec_varying_pos(vec_varying_pos), 
@@ -868,7 +884,9 @@ PhongNormalShader::~PhongNormalShader() {
 PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
             bool has_shadow_map, Float shadow_map_bias,
             material_info mat_info,  std::vector<Light>& point_lights,
-            std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+            std::vector<DirectionalLight> directional_lights, 
+            std::vector<rayimage>& shadowbuffers,
+            std::vector<rayimage>& transparency_buffers,
             std::vector<vec3>& vec_varying_intensity,
             std::vector<std::vector<vec3> >& vec_varying_uv,
             std::vector<std::vector<vec4> >& vec_varying_tri,
@@ -879,7 +897,7 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
-  directional_lights(directional_lights), shadowbuffers(shadowbuffers),
+  directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm)  {
   MVP = Projection * View * Model;
@@ -1019,7 +1037,9 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
                          
                          bool has_shadow_map, Float shadow_map_bias,
                          material_info mat_info,  std::vector<Light>& point_lights,
-                         std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                         std::vector<DirectionalLight> directional_lights, 
+                         std::vector<rayimage>& shadowbuffers,
+                         std::vector<rayimage>& transparency_buffers,
                          std::vector<vec3>& vec_varying_intensity,
                          std::vector<std::vector<vec3> >& vec_varying_uv,
                          std::vector<std::vector<vec4> >& vec_varying_tri,
@@ -1030,7 +1050,7 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
-  directional_lights(directional_lights), shadowbuffers(shadowbuffers),
+  directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), 
   vec_varying_ndc_tri(vec_varying_ndc_tri), vec_varying_world_nrm(vec_varying_world_nrm),

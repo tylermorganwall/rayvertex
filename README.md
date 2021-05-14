@@ -161,8 +161,9 @@ generate_cornell_mesh(ceiling=FALSE) %>%
 
 <img src="man/figures/README-cornell5-1.png" width="100%" />
 
-And let’s add all the other basic shapes (including the included OBJ
-file and the `humface` mesh3d object from the Rvcg package):
+And let’s add all the other basic mesh shapes included in the package
+(including the included OBJ file and the `humface` mesh3d object from
+the Rvcg package):
 
 ``` r
 library(Rvcg)

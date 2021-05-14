@@ -25,10 +25,11 @@ class IShader {
 class GouraudShader : public IShader {
   public:
     GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-                  
                   bool has_shadow_map, Float shadow_map_bias,
                   material_info mat_info,  std::vector<Light>& point_lights, 
-                  std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                  std::vector<DirectionalLight> directional_lights, 
+                  std::vector<rayimage>& shadowbuffers,
+                  std::vector<rayimage>& transparency_buffers,
                   std::vector<vec3>& vec_varying_intensity,
                   std::vector<std::vector<vec3> >& vec_varying_uv,
                   std::vector<std::vector<vec4> >& vec_varying_tri,
@@ -90,6 +91,7 @@ class GouraudShader : public IShader {
   
     std::vector<DirectionalLight> directional_lights;
     std::vector<rayimage>& shadowbuffers;
+    std::vector<rayimage>& transparency_buffers;
     
     std::vector<vec3>& vec_varying_intensity;
     std::vector<std::vector<vec3> >& vec_varying_uv;
@@ -169,7 +171,9 @@ class DiffuseShader : public IShader {
     DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
            bool has_shadow_map, Float shadow_map_bias,
            material_info mat_info,  std::vector<Light>& point_lights, 
-           std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+           std::vector<DirectionalLight> directional_lights, 
+           std::vector<rayimage>& shadowbuffers,
+           std::vector<rayimage>& transparency_buffers,
            std::vector<vec3>& vec_varying_intensity,
            std::vector<std::vector<vec3> >& vec_varying_uv,
            std::vector<std::vector<vec4> >& vec_varying_tri,
@@ -232,6 +236,7 @@ class DiffuseShader : public IShader {
     std::vector<Light>& plights;
     std::vector<DirectionalLight> directional_lights;
     std::vector<rayimage>& shadowbuffers;
+    std::vector<rayimage>& transparency_buffers;
     
     std::vector<vec3>& vec_varying_intensity;
     std::vector<std::vector<vec3> >& vec_varying_uv;
@@ -246,7 +251,9 @@ public:
                
                bool has_shadow_map, Float shadow_map_bias,
                material_info mat_info,  std::vector<Light>& point_lights, 
-               std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+               std::vector<DirectionalLight> directional_lights, 
+               std::vector<rayimage>& shadowbuffers,
+               std::vector<rayimage>& transparency_buffers,
                std::vector<vec3>& vec_varying_intensity,
                std::vector<std::vector<vec3> >& vec_varying_uv,
                std::vector<std::vector<vec4> >& vec_varying_tri,
@@ -268,7 +275,8 @@ public:
     return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
   }
   vec4 diffuse(vec3 uv) {
-    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
+    return(has_texture ? vec4(material.diffuse * material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
+             vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
   }
   vec4 ambient(vec3 uv) {
     return(material.has_ambient_texture ? 
@@ -306,6 +314,7 @@ public:
   std::vector<Light>& plights;
   std::vector<DirectionalLight> directional_lights;
   std::vector<rayimage>& shadowbuffers;
+  std::vector<rayimage>& transparency_buffers;
   
   std::vector<std::vector<vec3> >& vec_varying_uv;
   std::vector<std::vector<vec4> >& vec_varying_tri;
@@ -319,7 +328,9 @@ class DiffuseShaderTangent : public IShader {
                        
                        bool has_shadow_map, Float shadow_map_bias,
                        material_info mat_info,  std::vector<Light>& point_lights, 
-                       std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                       std::vector<DirectionalLight> directional_lights, 
+                       std::vector<rayimage>& shadowbuffers,
+                       std::vector<rayimage>& transparency_buffers,
                        std::vector<vec3>& vec_varying_intensity,
                        std::vector<std::vector<vec3> >& vec_varying_uv,
                        std::vector<std::vector<vec4> >& vec_varying_tri,
@@ -339,7 +350,8 @@ class DiffuseShaderTangent : public IShader {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
+      return(has_texture ? vec4(material.diffuse * material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
+               vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
     }
     vec4 ambient(vec3 uv) {
       return(material.has_ambient_texture ? 
@@ -381,6 +393,7 @@ class DiffuseShaderTangent : public IShader {
     std::vector<Light>& plights;
     std::vector<DirectionalLight> directional_lights;
     std::vector<rayimage>& shadowbuffers;
+    std::vector<rayimage>& transparency_buffers;
     
     std::vector<vec3>& vec_varying_intensity;
     std::vector<std::vector<vec3> >& vec_varying_uv;
@@ -396,7 +409,9 @@ class PhongShader : public IShader {
     PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                       bool has_shadow_map, Float shadow_map_bias,
                       material_info mat_info,  std::vector<Light>& point_lights, 
-                      std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                      std::vector<DirectionalLight> directional_lights, 
+                      std::vector<rayimage>& shadowbuffers,
+                      std::vector<rayimage>& transparency_buffers,
                       std::vector<vec3>& vec_varying_intensity,
                       std::vector<std::vector<vec3> >& vec_varying_uv,
                       std::vector<std::vector<vec4> >& vec_varying_tri,
@@ -420,7 +435,7 @@ class PhongShader : public IShader {
       return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
     }
     vec4 diffuse(vec3 uv) {
-      return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
+      return(has_texture ? vec4(material.diffuse * material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
                vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
     }
     vec4 ambient(vec3 uv) {
@@ -459,6 +474,7 @@ class PhongShader : public IShader {
     std::vector<Light>& plights;
     std::vector<DirectionalLight> directional_lights;
     std::vector<rayimage>& shadowbuffers;
+    std::vector<rayimage>& transparency_buffers;
     
     std::vector<vec3>& vec_varying_intensity;
     std::vector<std::vector<vec3> >& vec_varying_uv;
@@ -475,7 +491,9 @@ public:
                
                bool has_shadow_map, Float shadow_map_bias,
                material_info mat_info,  std::vector<Light>& point_lights, 
-               std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+               std::vector<DirectionalLight> directional_lights, 
+               std::vector<rayimage>& shadowbuffers,
+               std::vector<rayimage>& transparency_buffers,
                std::vector<vec3>& vec_varying_intensity,
                std::vector<std::vector<vec3> >& vec_varying_uv,
                std::vector<std::vector<vec4> >& vec_varying_tri,
@@ -498,7 +516,8 @@ public:
     return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
   }
   vec4 diffuse(vec3 uv) {
-    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
+    return(has_texture ? vec4(material.diffuse * material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
+             vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
   }
   vec4 ambient(vec3 uv) {
     return(material.has_ambient_texture ? 
@@ -535,6 +554,7 @@ public:
   std::vector<Light>& plights;
   std::vector<DirectionalLight> directional_lights;
   std::vector<rayimage>& shadowbuffers;
+  std::vector<rayimage>& transparency_buffers;
   
   std::vector<std::vector<vec3> >& vec_varying_uv;
   std::vector<std::vector<vec4> >& vec_varying_tri;
@@ -550,7 +570,9 @@ public:
                      
                      bool has_shadow_map, Float shadow_map_bias,
                      material_info mat_info,  std::vector<Light>& point_lights, 
-                     std::vector<DirectionalLight> directional_lights, std::vector<rayimage>& shadowbuffers,
+                     std::vector<DirectionalLight> directional_lights, 
+                     std::vector<rayimage>& shadowbuffers,
+                     std::vector<rayimage>& transparency_buffers,
                      std::vector<vec3>& vec_varying_intensity,
                      std::vector<std::vector<vec3> >& vec_varying_uv,
                      std::vector<std::vector<vec4> >& vec_varying_tri,
@@ -574,7 +596,7 @@ public:
     return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
   }
   vec4 diffuse(vec3 uv) {
-    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
+    return(has_texture ? vec4(material.diffuse * material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
              vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
   }
   vec4 ambient(vec3 uv) {
@@ -612,6 +634,7 @@ public:
   std::vector<Light>& plights;
   std::vector<DirectionalLight> directional_lights;
   std::vector<rayimage>& shadowbuffers;
+  std::vector<rayimage>& transparency_buffers;
   
   std::vector<std::vector<vec3> >& vec_varying_uv;
   std::vector<std::vector<vec4> >& vec_varying_tri;
@@ -637,7 +660,8 @@ public:
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec4 diffuse(vec3 uv) {
-    return(has_texture ? vec4(material.diffuse_intensity,material.diffuse_intensity,material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
+    return(has_texture ? vec4(material.diffuse * material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
+                         vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
   }
   int get_culling() {
     return(material.cull_type);

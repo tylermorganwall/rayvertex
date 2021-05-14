@@ -255,25 +255,27 @@ List rasterize(List mesh,
   std::vector<rayimage > shadowbuffers;
   std::vector<Rcpp::NumericMatrix> shadowbuffer_mats;
   
+  std::vector<rayimage > transparency_buffers;
+  std::vector<Rcpp::NumericMatrix> transparency_buffer_mats_r;
+  std::vector<Rcpp::NumericMatrix> transparency_buffer_mats_g;
+  std::vector<Rcpp::NumericMatrix> transparency_buffer_mats_b;
+  
   std::vector<DirectionalLight> directional_lights;
   for(int i = 0; i < is_dir_light.length(); i++) {
     if(is_dir_light(i)) {
-      shadowbuffer_mats.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
-
-      rayimage shadowbuffer_temp(shadowbuffer_mats.back(),shadowdims(0),shadowdims(1),shadow_map_intensity);
-
-      shadowbuffers.push_back(shadowbuffer_temp);
+      transparency_buffer_mats_r.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
+      transparency_buffer_mats_g.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
+      transparency_buffer_mats_b.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
       
-      vec3 light_dir_temp = glm::normalize(vec3(lightinfo(i,0),lightinfo(i,1),lightinfo(i,2)));
-      vec3 light_up_dir = vec3(0.,1.,0.);
-      if(glm::length(glm::cross(light_dir_temp,light_up_dir)) == 0) {
-        light_up_dir = vec3(0.f,0.f,1.0f);
-      }
-      directional_lights.push_back(DirectionalLight(light_dir_temp,
-                                                    vec3(lightinfo(i,3),lightinfo(i,4),lightinfo(i,5)),
-                                                    scene_center, light_up_dir, scene_diag,
-                                                    near_plane, far_plane,
-                                                    vp_shadow, Model, shadow_inv));
+      std::fill(transparency_buffer_mats_r.back().begin(), transparency_buffer_mats_r.back().end(), 1.0) ;
+      std::fill(transparency_buffer_mats_g.back().begin(), transparency_buffer_mats_g.back().end(), 1.0) ;
+      std::fill(transparency_buffer_mats_b.back().begin(), transparency_buffer_mats_b.back().end(), 1.0) ;
+      
+      rayimage trans_buffer_temp(transparency_buffer_mats_r.back(),
+                                 transparency_buffer_mats_g.back(),
+                                 transparency_buffer_mats_b.back(),shadowdims(0),shadowdims(1),shadow_map_intensity);
+
+      transparency_buffers.push_back(trans_buffer_temp);
     }
   }
   
@@ -378,7 +380,9 @@ List rasterize(List mesh,
       shader = new GouraudShader(Model, Projection, View, viewport,
                                  has_shadow_map,
                                  shadow_map_bias,mat_info[i], point_lights,
-                                 directional_lights, shadowbuffers,
+                                 directional_lights, 
+                                 shadowbuffers,
+                                 transparency_buffers,
                                  vec_varying_intensity,
                                  vec_varying_uv,
                                  vec_varying_tri,
@@ -388,7 +392,9 @@ List rasterize(List mesh,
       shader = new DiffuseShader(Model, Projection, View, viewport,
                                  has_shadow_map,
                                  shadow_map_bias,mat_info[i], point_lights,
-                                 directional_lights, shadowbuffers,
+                                 directional_lights, 
+                                 shadowbuffers,
+                                 transparency_buffers,
                                  vec_varying_intensity,
                                  vec_varying_uv,
                                  vec_varying_tri,
@@ -398,7 +404,9 @@ List rasterize(List mesh,
       shader = new PhongShader(Model, Projection, View, viewport,
                                has_shadow_map,
                                shadow_map_bias,mat_info[i], point_lights,
-                               directional_lights, shadowbuffers,
+                               directional_lights, 
+                               shadowbuffers,
+                               transparency_buffers,
                                vec_varying_intensity,
                                vec_varying_uv,
                                vec_varying_tri,
@@ -408,7 +416,9 @@ List rasterize(List mesh,
       shader = new DiffuseNormalShader(Model, Projection, View, viewport,
                                        has_shadow_map,
                                        shadow_map_bias,mat_info[i], point_lights,
-                                       directional_lights, shadowbuffers,
+                                       directional_lights, 
+                                       shadowbuffers,
+                                       transparency_buffers,
                                        vec_varying_intensity,
                                        vec_varying_uv,
                                        vec_varying_tri,
@@ -418,7 +428,9 @@ List rasterize(List mesh,
       shader = new DiffuseShaderTangent(Model, Projection, View, viewport,
                                         has_shadow_map,
                                         shadow_map_bias,mat_info[i], point_lights,
-                                        directional_lights, shadowbuffers,
+                                        directional_lights, 
+                                        shadowbuffers,
+                                        transparency_buffers,
                                         vec_varying_intensity,
                                         vec_varying_uv,
                                         vec_varying_tri,
@@ -428,7 +440,9 @@ List rasterize(List mesh,
       shader = new PhongNormalShader(Model, Projection, View, viewport,
                                      has_shadow_map,
                                      shadow_map_bias,mat_info[i], point_lights,
-                                     directional_lights, shadowbuffers,
+                                     directional_lights,
+                                     shadowbuffers,
+                                     transparency_buffers,
                                      vec_varying_intensity,
                                      vec_varying_uv,
                                      vec_varying_tri,
@@ -438,7 +452,9 @@ List rasterize(List mesh,
       shader = new PhongShaderTangent(Model, Projection, View, viewport,
                                       has_shadow_map,
                                       shadow_map_bias,mat_info[i], point_lights,
-                                      directional_lights, shadowbuffers,
+                                      directional_lights, 
+                                      shadowbuffers,
+                                      transparency_buffers,
                                       vec_varying_intensity,
                                       vec_varying_uv,
                                       vec_varying_tri,
@@ -490,7 +506,9 @@ List rasterize(List mesh,
     shaders.push_back(new GouraudShader(Model, Projection, View, viewport,
                                has_shadow_map,
                                shadow_map_bias,mat_info.back(), point_lights,
-                               directional_lights, shadowbuffers,
+                               directional_lights, 
+                               shadowbuffers,
+                               transparency_buffers,
                                vec_varying_intensity,
                                vec_varying_uv,
                                vec_varying_tri,
@@ -500,7 +518,9 @@ List rasterize(List mesh,
     shaders.push_back(new DiffuseShader(Model, Projection, View, viewport,
                                has_shadow_map,
                                shadow_map_bias,mat_info.back(), point_lights,
-                               directional_lights, shadowbuffers,
+                               directional_lights, 
+                               shadowbuffers,
+                               transparency_buffers,
                                vec_varying_intensity,
                                vec_varying_uv,
                                vec_varying_tri,
@@ -510,7 +530,9 @@ List rasterize(List mesh,
     shaders.push_back(new PhongShader(Model, Projection, View, viewport,
                              has_shadow_map,
                              shadow_map_bias,mat_info.back(), point_lights,
-                             directional_lights, shadowbuffers,
+                             directional_lights, 
+                             shadowbuffers,
+                             transparency_buffers,
                              vec_varying_intensity,
                              vec_varying_uv,
                              vec_varying_tri,
@@ -572,6 +594,10 @@ List rasterize(List mesh,
   
   //For alpha transparency
   std::vector<std::map<Float, alpha_info> > alpha_depths(nx*ny);
+  
+  //For per-light transparent colors
+  std::vector<std::vector<std::map<Float, alpha_info> > > alpha_depths_trans(nx*ny);
+  
   
   //Set up blocks
   int blocksize = block_size;
@@ -705,11 +731,12 @@ List rasterize(List mesh,
       
       rayimage& shadowbuff = shadowbuffers[sb];
       std::vector<IShader*>& depth_shader_single = depthshaders[sb];
+      std::vector<std::map<Float, alpha_info> >& alpha_depth_single = alpha_depths_trans[sb];
       //Calculate shadow buffer
       auto task = [&depth_shader_single, &blocks_depth, &ndc_verts_depth, &ndc_inv_w_depth,  
                    &min_block_bound_depth, &max_block_bound_depth,
                    &zbuffer_depth, &shadowbuff, &normalbuffer, &positionbuffer, &uvbuffer, 
-                   &models, &alpha_depths, sb] (unsigned int i) {
+                   &models, &alpha_depth_single, sb] (unsigned int i) {
         fill_tri_blocks(blocks_depth[i],
                         ndc_verts_depth,
                         ndc_inv_w_depth,
@@ -722,7 +749,7 @@ List rasterize(List mesh,
                         positionbuffer,
                         uvbuffer,
                         models, true,
-                        alpha_depths);
+                        alpha_depth_single);
       };
       RcppThread::ThreadPool pool2(numbercores);
       for(int i = 0; i < nx_blocks_depth*ny_blocks_depth; i++) {
@@ -734,6 +761,20 @@ List rasterize(List mesh,
           blocks_depth[j][model_num].clear();
         }
       }
+      //To-do: calculate transparency buffer
+      // for(int i = 0; i < nx; i++) {
+      //   for(int j = 0; j < ny; j++) {
+      //     for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depth_single[j + ny*i].rbegin();
+      //         it != alpha_depth_single[j + ny*i].rend(); ++it) {
+      //       if(it->first <= zbuffer_depth(i,j)) {
+      //         // zbuffer_depth(i,j) = it->first;
+      //         vec3 temp_col = vec3(it->second.color);
+      //         vec3 old_color = transparency_buffers[sb].get_color(i,j) * temp_col;
+      //         transparency_buffers[sb].set_color(i,j,old_color);
+      //       }
+      //     }
+      //   }
+      // }
       std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<Float>::infinity() ) ;
     }
   }
