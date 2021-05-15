@@ -362,8 +362,9 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;
 
   vec3 light_color(0.0);
-  vec3 trans_color(1.0);
+
   for(int ii = 0; ii < directional_lights.size(); ii++) {
+    vec4 trans_color(0.0,0.0,0.0,0.0);
     Float shadow = 1.0f;
     Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0))),0.0);
     if(has_shadow_map && intensity != 0.0) {
@@ -380,15 +381,18 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
           }    
         }
         shadow /= 25;
-        // for(int x = -2; x <= 2; ++x) {
-        //   for(int y = -2; y <= 2; ++y) {
-        //     trans_color += transparency_buffers[ii].get_color_bounded(i+x,j+y);
-        //   }    
-        // }
-        // trans_color /= 25;
+        if(diffuse_color.w == 1.0) {
+          for(int x = -2; x <= 2; ++x) {
+            for(int y = -2; y <= 2; ++y) {
+              trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
+            }
+          }
+          trans_color /= 25;
+        }
       }
     }
-    light_color += trans_color * directional_lights[ii].color * shadow * intensity;
+    light_color += (vec3(trans_color) * trans_color.w * directional_lights[ii].intensity + 
+      (1-trans_color.w) *  directional_lights[ii].color * directional_lights[ii].intensity) * shadow * intensity;
   }
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   //Directional light contribution
@@ -1230,7 +1234,8 @@ bool DepthShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   if(diffuse_color.w == 0.0) return true;
   
   vec4 p = vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z;
-  color = vec4(p.z,p.z,p.z,1.0);
+  color = diffuse_color;
+  pos = p;
   return false;
 }
 

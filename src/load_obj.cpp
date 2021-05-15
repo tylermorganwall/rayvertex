@@ -4,6 +4,22 @@ using namespace Rcpp;
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 
+template <typename T>
+inline void set_item_impl( List& target, int i, const T& obj, CharacterVector& names, traits::true_type ){
+  target[i] = obj.object ;
+  names[i] = obj.name ;
+}
+
+template <typename T>
+inline void set_item_impl( List& target, int i, const T& obj, CharacterVector&, traits::false_type ){
+  target[i] = obj ;
+}
+
+template <typename T>
+inline void set_item( List& target, int i, const T& obj, CharacterVector& names){
+  set_item_impl( target, i, obj, names, typename traits::is_named<T>::type() ) ;
+}
+
 // [[Rcpp::export]]
 List load_obj(std::string inputfile, std::string basedir) {
   tinyobj::ObjReader reader;
@@ -73,26 +89,32 @@ List load_obj(std::string inputfile, std::string basedir) {
   for(unsigned int i=0; i < materials.size(); i++) {
     tinyobj::material_t m = materials[i];
     int culltype = m.dissolve < 1.0 ? 3 : 1; //no culling if at all transparent
-    material_list[m.name] = List::create(Named("ambient", NumericVector::create(m.ambient[0], m.ambient[1], m.ambient[2])),
-                                         Named("diffuse", NumericVector::create(m.diffuse[0], m.diffuse[1], m.diffuse[2])),
-                                         Named("specular", NumericVector::create(m.specular[0], m.specular[1], m.specular[2])),
-                                         Named("transmittance", NumericVector::create(m.transmittance[0], m.transmittance[1], m.transmittance[2])),
-                                         Named("emission", NumericVector::create(m.emission[0], m.emission[1], m.emission[2])),
-                                         Named("shininess", m.shininess),
-                                         Named("ior", m.ior), 
-                                         Named("dissolve", m.dissolve), 
-                                         Named("illum", m.illum),
-                                         Named("ambient_texname", m.ambient_texname), 
-                                         Named("diffuse_texname", m.diffuse_texname),
-                                         Named("emissive_texname", m.emissive_texname),
-                                         Named("specular_texname", m.specular_texname), 
-                                         Named("normal_texname", m.normal_texname),
-                                         Named("diffuse_intensity", 1.0),
-                                         Named("emission_intensity", 1.0),
-                                         Named("specular_intensity", 1.0), 
-                                         Named("ambient_intensity", 1.0),
-                                         Named("culling", culltype), 
-                                         Named("type", "diffuse"));
+    List out(21);
+    CharacterVector names(21) ;
+    
+    set_item( out, 0 , _["ambient"]  =  NumericVector::create(m.ambient[0], m.ambient[1], m.ambient[2]), names) ;
+    set_item( out, 1 , _["diffuse"]  = NumericVector::create(m.diffuse[0], m.diffuse[1], m.diffuse[2]), names) ;
+    set_item( out, 2 , _["specular"]  = NumericVector::create(m.specular[0], m.specular[1], m.specular[2]), names) ;
+    set_item( out, 3 , _["transmittance"]  = NumericVector::create(m.transmittance[0], m.transmittance[1], m.transmittance[2]), names) ;
+    set_item( out, 4 , _["emission"]  = NumericVector::create(m.emission[0], m.emission[1], m.emission[2]), names) ;
+    set_item( out, 5 , _["shininess"]  = m.shininess, names) ;
+    set_item( out, 6 , _["ior"]  = m.ior, names) ;
+    set_item( out, 7 , _["dissolve"]  = m.dissolve, names) ;
+    set_item( out, 8 , _["illum"]  = m.illum, names) ;
+    set_item( out, 9 , _["ambient_texname"]    = m.ambient_texname ,  names) ;
+    set_item( out, 10, _["diffuse_texname"]    = m.diffuse_texname ,  names) ;
+    set_item( out, 11, _["emissive_texname"]   = m.emissive_texname,  names) ;
+    set_item( out, 12, _["specular_texname"]   = m.specular_texname,  names) ;
+    set_item( out, 13, _["normal_texname"]     = m.normal_texname  ,  names) ;
+    set_item( out, 14, _["diffuse_intensity"]  = 1.0  , names) ;
+    set_item( out, 15, _["emission_intensity"] = 1.0, names) ;
+    set_item( out, 16, _["specular_intensity"] = 1.0, names) ;
+    set_item( out, 17, _["ambient_intensity"] = 1.0, names) ;
+    set_item( out, 18, _["culling"] = 1.0, names) ;
+    set_item( out, 19, _["type"] = culltype, names) ;
+    set_item( out, 20, _["translucent"] = false, names) ;
+    out.names() = names ;
+    material_list[m.name] = out;
   }
   List return_val;
   return_val["shapes"]    = shape_list;

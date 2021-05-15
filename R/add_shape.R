@@ -241,6 +241,7 @@ rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rot
 #'@param ambient_intensity         Default `1`. The ambient intensity.
 #'@param culling                   Default `"back"`. The culling type. Options are `back`, `front`, and `none`.
 #'@param type                      Default `"diffuse"`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.
+#'@param translucent               Default `TRUE`. Whether light should transmit through a semi-transparent material.
 #'
 #'@return Shape with new material
 #'@export
@@ -275,7 +276,8 @@ set_material = function(mesh, material = NULL,
                         emission_intensity        = 1,
                         ambient_intensity         = 1,
                         culling                   = "back",
-                        type                      = "diffuse") {
+                        type                      = "diffuse",
+                        translucent               = TRUE) {
   culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   
   if(!is.null(material)) {
@@ -298,7 +300,8 @@ set_material = function(mesh, material = NULL,
     emission_intensity        = material$emission_intensity        
     ambient_intensity         = material$ambient_intensity        
     culling                   = material$culling                   
-    type                      = material$type                      
+    type                      = material$type     
+    translucent               = material$translucent
   }
   
   if(!is.null(mesh$materials) && length(mesh$materials) > 0) {
@@ -324,6 +327,8 @@ set_material = function(mesh, material = NULL,
       mesh$materials[[i]]$ambient_intensity  = ambient_intensity  
       mesh$materials[[i]]$culling            = culling   
       mesh$materials[[i]]$type               = type   
+      mesh$materials[[i]]$translucent        = translucent   
+      
       
     }
     for(i in seq_len(length(mesh$shapes))) {
@@ -353,6 +358,7 @@ set_material = function(mesh, material = NULL,
     mesh$materials[[1]]$ambient_intensity  = ambient_intensity  
     mesh$materials[[1]]$culling            = culling    
     mesh$materials[[1]]$type               = type    
+    mesh$materials[[1]]$translucent        = translucent   
     
   }
   return(mesh)
@@ -400,6 +406,7 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'@param ambient_intensity         Default `NULL`. The ambient intensity.
 #'@param culling                   Default `NULL`. The culling type. Options are `back`, `front`, and `none`.
 #'@param type                      Default `NULL`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.
+#'@param translucent               Default `TRUE`. Whether light should transmit through a semi-transparent material.
 #'
 #'@return Shape with new material settings
 #'@export
@@ -434,7 +441,8 @@ change_material = function(mesh, id = NULL,
                            emission_intensity        = NULL,
                            ambient_intensity         = NULL,
                            culling                   = NULL,
-                           type                      = NULL) {
+                           type                      = NULL,
+                           translucent               = NULL) {
   if(!is.null(culling)) {
     culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   }
@@ -462,6 +470,8 @@ change_material = function(mesh, id = NULL,
         if(!is.null(ambient_intensity))         mesh$materials[[i]]$ambient_intensity  = ambient_intensity  
         if(!is.null(culling))                   mesh$materials[[i]]$culling            = culling   
         if(!is.null(type))                      mesh$materials[[i]]$type               = type   
+        if(!is.null(translucent))               mesh$materials[[i]]$translucent        = translucent   
+        
       }
     } else {
       if(is.numeric(id)) {
@@ -485,6 +495,7 @@ change_material = function(mesh, id = NULL,
         if(!is.null(ambient_intensity))         mesh$materials[[id]]$ambient_intensity  = ambient_intensity  
         if(!is.null(culling))                   mesh$materials[[id]]$culling            = culling   
         if(!is.null(type))                      mesh$materials[[id]]$type               = type   
+        if(!is.null(translucent))               mesh$materials[[id]]$translucent        = translucent  
       }
       if(is.character(id)) {
         for(i in seq_len(length(mesh$materials))) {
@@ -509,6 +520,7 @@ change_material = function(mesh, id = NULL,
             if(!is.null(ambient_intensity))         mesh$materials[[i]]$ambient_intensity  = ambient_intensity  
             if(!is.null(culling))                   mesh$materials[[i]]$culling            = culling   
             if(!is.null(type))                      mesh$materials[[i]]$type               = type   
+            if(!is.null(translucent))               mesh$materials[[i]]$translucent        = translucent   
           }
         }
       }
@@ -543,6 +555,7 @@ change_material = function(mesh, id = NULL,
 #'@param ambient_intensity         Default `1`. The ambient intensity.
 #'@param culling                   Default `"back"`. The culling type. Options are `back`, `front`, and `none`.
 #'@param type                      Default `"diffuse"`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.
+#'@param translucent               Default `FALSE`. Whether light should transmit through a semi-transparent material.
 #'
 #'@return List of material properties.
 #'@export
@@ -574,7 +587,8 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
                          emission_intensity        = 1,
                          ambient_intensity         = 1,
                          culling                   = "back",
-                         type                      = "diffuse") {
+                         type                      = "diffuse",
+                         translucent               = TRUE) {
   material_props = 
   list(diffuse                   = diffuse                   ,
        ambient                   = ambient                   ,
@@ -595,6 +609,7 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
        emission_intensity        = emission_intensity        ,
        ambient_intensity         = ambient_intensity         ,
        culling                   = culling                   ,
-       type                      = type                      )
+       type                      = type                      ,
+       translucent               = translucent)
   return(material_props)
 }

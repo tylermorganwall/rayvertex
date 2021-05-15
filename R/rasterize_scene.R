@@ -181,12 +181,12 @@ rasterize_scene  = function(scene,
   }
   #lights
   if(!is.null(light_info)) {
-    if(ncol(light_info) != 9) {
-      stop("light_info must have 9 cols")
+    if(ncol(light_info) != 10) {
+      stop("light_info must have 10 cols")
     }
     lightinfo = light_info
   } else {
-    lightinfo = matrix(nrow=0,ncol=9)
+    lightinfo = matrix(nrow=0,ncol=10)
   }
   culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   shaderval = switch(shader, "default" = 1, "diffuse" = 2, "phong" = 3, "color" = 4, 1)

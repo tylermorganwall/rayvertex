@@ -18,6 +18,7 @@ class IShader {
     virtual bool fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) = 0;
     virtual ~IShader();
     virtual int get_culling() = 0;
+    virtual bool is_translucent() = 0;
 };
 
 
@@ -61,6 +62,9 @@ class GouraudShader : public IShader {
     }
     int get_culling() {
       return(material.cull_type);
+    }
+    bool is_translucent() {
+      return(material.translucent);
     }
     
     Mat Model;
@@ -139,6 +143,9 @@ class ColorShader : public IShader {
     int get_culling() {
       return(material.cull_type);
     }
+    bool is_translucent() {
+      return(material.translucent);
+    }
     
     Mat Model;
     Mat Projection;
@@ -207,6 +214,9 @@ class DiffuseShader : public IShader {
     }
     int get_culling() {
       return(material.cull_type);
+    }
+    bool is_translucent() {
+      return(material.translucent);
     }
     
     Mat Model;
@@ -286,6 +296,9 @@ public:
   int get_culling() {
     return(material.cull_type);
   }
+  bool is_translucent() {
+    return(material.translucent);
+  }
   Mat Model;
   Mat Projection;
   Mat View;
@@ -360,6 +373,9 @@ class DiffuseShaderTangent : public IShader {
     }
     int get_culling() {
       return(material.cull_type);
+    }
+    bool is_translucent() {
+      return(material.translucent);
     }
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
     virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
@@ -446,6 +462,9 @@ class PhongShader : public IShader {
     int get_culling() {
       return(material.cull_type);
     }
+    bool is_translucent() {
+      return(material.translucent);
+    }
     Mat Model;
     Mat Projection;
     Mat View;
@@ -527,6 +546,9 @@ public:
   int get_culling() {
     return(material.cull_type);
   }
+  bool is_translucent() {
+    return(material.translucent);
+  }
   Mat Model;
   Mat Projection;
   Mat View;
@@ -607,6 +629,9 @@ public:
   int get_culling() {
     return(material.cull_type);
   }
+  bool is_translucent() {
+    return(material.translucent);
+  }
   Mat Model;
   Mat Projection;
   Mat View;
@@ -665,6 +690,9 @@ public:
   }
   int get_culling() {
     return(material.cull_type);
+  }
+  bool is_translucent() {
+    return(material.translucent);
   }
   
   Mat Model;

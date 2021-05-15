@@ -118,14 +118,19 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
               if(z > zbuffer(i,j)) continue;
               
               bool discard = shaders[mat_num]->fragment(bc_clip, color, position, normal, face);
+              bool is_translucent = shaders[mat_num]->is_translucent();
               if(!discard) {
                 if (depth) {
                   if(color.w >= 1.0f) {
                     zbuffer(i,j) = z;
-                    image.set_color(i,j,vec3(color));
+                    image.set_color(i,j,vec3(position));
                   } else {
                     alpha_info tmp_data;
-                    tmp_data.color = color;
+                    if(is_translucent) {
+                      tmp_data.color = color;
+                    } else {
+                      tmp_data.color = vec4(0.0,0.0,0.0,color.w);
+                    }
                     tmp_data.normal = normal;
                     tmp_data.position = position;
                     tmp_data.uv = bc_clip;

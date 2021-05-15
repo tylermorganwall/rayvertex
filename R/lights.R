@@ -11,7 +11,7 @@
 #'@param falloff Default `1`. Linear falloff term. See description for details.
 #'@param falloff_quad Default `1`. Quadratic falloff term. See description for details.
 
-#'@return Rasterized image.
+#'@return A matrix representing the light information.
 #'@export
 #'@examples
 #'#Add point lights and vary the intensity
@@ -72,8 +72,8 @@
 point_light = function(position = c(0,0,0), color = "white",  intensity=1, 
                        constant = 1, falloff = 1, falloff_quad = 1) {
   color = convert_color(color)
-  returnmat = matrix(c(position, color*intensity, constant, falloff,falloff_quad), nrow=1,ncol=9)
-  colnames(returnmat) = c("x","y","z","r","g","b","constant","falloff","falloff_quad")
+  returnmat = matrix(c(position, color, constant, falloff,falloff_quad,intensity), nrow=1,ncol=10)
+  colnames(returnmat) = c("x","y","z","r","g","b","constant","falloff","falloff_quad","intensity")
   returnmat
 }
 
@@ -83,7 +83,7 @@ point_light = function(position = c(0,0,0), color = "white",  intensity=1,
 #'@param color Default `white`. COlor of the light.
 #'@param intensity Default `1`. Intensity of the light.
 #'
-#'@return Light matrix.
+#'@return A matrix representing the light information.
 #'@export
 #'@examples
 #'#Add a light to scene (manually specify the light automatically added to the Cornell Box
@@ -110,8 +110,8 @@ point_light = function(position = c(0,0,0), color = "white",  intensity=1,
 #'}
 directional_light = function(direction = c(0,1,0), color = "white", intensity=1) {
   color = convert_color(color)
-  returnmat = matrix(c(direction, color*intensity, 0, 0, 0), nrow=1,ncol=9)
-  colnames(returnmat) = c("x","y","z","r","g","b","constant","falloff","falloff_quad")
+  returnmat = matrix(c(direction, color, 0, 0, 0, intensity), nrow=1,ncol=10)
+  colnames(returnmat) = c("x","y","z","r","g","b","constant","falloff","falloff_quad", "intensity")
   returnmat
 }
 
@@ -120,7 +120,7 @@ directional_light = function(direction = c(0,1,0), color = "white", intensity=1)
 #'@param lights Current light scene.
 #'@param light New light to add.
 #'
-#'@return Light matrix.
+#'@return A matrix representing the light information.
 #'@export
 #'@examples
 #'#Add a light to scene (manually specify the light automatically added to the Cornell Box

@@ -248,32 +248,60 @@ List rasterize(List mesh,
       vec3 light_position = View * Model * vec4(lightinfo(i,0),lightinfo(i,1),lightinfo(i,2),1.0);
       point_lights.push_back(Light(light_position,
                                    vec3(lightinfo(i,3),lightinfo(i,4),lightinfo(i,5)),
-                                   lightinfo(i,6),lightinfo(i,7),lightinfo(i,8)));
+                                   lightinfo(i,6),lightinfo(i,7),lightinfo(i,8),
+                                   lightinfo(i,9)));
     }
   }
   
   std::vector<rayimage > shadowbuffers;
   std::vector<Rcpp::NumericMatrix> shadowbuffer_mats;
   
+  std::vector<DirectionalLight> directional_lights;
+  for(int i = 0; i < is_dir_light.length(); i++) {
+    if(is_dir_light(i)) {
+      shadowbuffer_mats.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
+      
+      rayimage shadowbuffer_temp(shadowbuffer_mats.back(),shadowdims(0),shadowdims(1),shadow_map_intensity);
+      
+      shadowbuffers.push_back(shadowbuffer_temp);
+      
+      vec3 light_dir_temp = glm::normalize(vec3(lightinfo(i,0),lightinfo(i,1),lightinfo(i,2)));
+      vec3 light_up_dir = vec3(0.,1.,0.);
+      if(glm::length(glm::cross(light_dir_temp,light_up_dir)) == 0) {
+        light_up_dir = vec3(0.f,0.f,1.0f);
+      }
+      directional_lights.push_back(DirectionalLight(light_dir_temp,
+                                                    vec3(lightinfo(i,3),lightinfo(i,4),lightinfo(i,5)),
+                                                    scene_center, light_up_dir, scene_diag,
+                                                    near_plane, far_plane,
+                                                    vp_shadow, Model, shadow_inv,
+                                                    lightinfo(i,9)));
+    }
+  }
+  
   std::vector<rayimage > transparency_buffers;
   std::vector<Rcpp::NumericMatrix> transparency_buffer_mats_r;
   std::vector<Rcpp::NumericMatrix> transparency_buffer_mats_g;
   std::vector<Rcpp::NumericMatrix> transparency_buffer_mats_b;
+  std::vector<Rcpp::NumericMatrix> transparency_buffer_mats_a;
   
-  std::vector<DirectionalLight> directional_lights;
   for(int i = 0; i < is_dir_light.length(); i++) {
     if(is_dir_light(i)) {
       transparency_buffer_mats_r.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
       transparency_buffer_mats_g.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
       transparency_buffer_mats_b.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
+      transparency_buffer_mats_a.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
       
       std::fill(transparency_buffer_mats_r.back().begin(), transparency_buffer_mats_r.back().end(), 1.0) ;
       std::fill(transparency_buffer_mats_g.back().begin(), transparency_buffer_mats_g.back().end(), 1.0) ;
       std::fill(transparency_buffer_mats_b.back().begin(), transparency_buffer_mats_b.back().end(), 1.0) ;
+      std::fill(transparency_buffer_mats_a.back().begin(), transparency_buffer_mats_a.back().end(), 0.0) ;
       
       rayimage trans_buffer_temp(transparency_buffer_mats_r.back(),
                                  transparency_buffer_mats_g.back(),
-                                 transparency_buffer_mats_b.back(),shadowdims(0),shadowdims(1),shadow_map_intensity);
+                                 transparency_buffer_mats_b.back(),
+                                 transparency_buffer_mats_a.back(), 
+                                 shadowdims(0),shadowdims(1),shadow_map_intensity);
 
       transparency_buffers.push_back(trans_buffer_temp);
     }
@@ -337,6 +365,8 @@ List rasterize(List mesh,
     Float emission_intensity = as<Float>(single_material["emission_intensity"]);
     Float ambient_intensity = as<Float>(single_material["ambient_intensity"]);
     int cull_type = as<int>(single_material["culling"]);
+    bool is_translucent = as<int>(single_material["translucent"]);
+    
     
     bool has_texture_single          = has_texture(i);
     bool has_ambient_texture_single  = has_ambient_texture(i);
@@ -370,7 +400,8 @@ List rasterize(List mesh,
       has_normal_texture_single,
       has_specular_texture_single,
       has_emissive_texture_single,
-      cull_type
+      cull_type,
+      is_translucent
     };
     mat_info.push_back(temp);
     
@@ -496,7 +527,8 @@ List rasterize(List mesh,
     false,
     false,
     false,
-    1
+    1,
+    false
   };
   
   mat_info.push_back(default_mat);
@@ -596,7 +628,11 @@ List rasterize(List mesh,
   std::vector<std::map<Float, alpha_info> > alpha_depths(nx*ny);
   
   //For per-light transparent colors
-  std::vector<std::vector<std::map<Float, alpha_info> > > alpha_depths_trans(nx*ny);
+  std::vector<std::vector<std::map<Float, alpha_info> > > alpha_depths_trans;
+  for(int i = 0; i < shadowbuffers.size(); i++) {
+    std::vector<std::map<Float, alpha_info> > temp_adt(nx*ny);
+    alpha_depths_trans.push_back(temp_adt);
+  }
   
   
   //Set up blocks
@@ -761,20 +797,23 @@ List rasterize(List mesh,
           blocks_depth[j][model_num].clear();
         }
       }
-      //To-do: calculate transparency buffer
-      // for(int i = 0; i < nx; i++) {
-      //   for(int j = 0; j < ny; j++) {
-      //     for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depth_single[j + ny*i].rbegin();
-      //         it != alpha_depth_single[j + ny*i].rend(); ++it) {
-      //       if(it->first <= zbuffer_depth(i,j)) {
-      //         // zbuffer_depth(i,j) = it->first;
-      //         vec3 temp_col = vec3(it->second.color);
-      //         vec3 old_color = transparency_buffers[sb].get_color(i,j) * temp_col;
-      //         transparency_buffers[sb].set_color(i,j,old_color);
-      //       }
-      //     }
-      //   }
-      // }
+      //Calculate transparency buffer
+      for(int i = 0; i < nx; i++) {
+        for(int j = 0; j < ny; j++) {
+          for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depth_single[j + ny*i].rbegin();
+              it != alpha_depth_single[j + ny*i].rend(); ++it) {
+            if(it->first <= zbuffer_depth(i,j)) {
+              // zbuffer_depth(i,j) = it->first;
+              vec4 temp_col = it->second.color;
+              vec4 old_color = transparency_buffers[sb].get_color_a(i,j);
+              Float d = (1 - old_color.w) * (1 - temp_col.w) ;
+              old_color *= temp_col;
+              old_color.w = (1-d);
+              transparency_buffers[sb].set_color(i,j,old_color);
+            }
+          }
+        }
+      }
       std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<Float>::infinity() ) ;
     }
   }
