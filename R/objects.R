@@ -447,20 +447,20 @@ segment_mesh = function(start = c(0,-1,0), end = c(0,1,0), radius = 0.5,
   y = (start[2] + end[2])/2
   z = (start[3] + end[3])/2
   order_rotation = c(3, 2, 1)
-  phi =  atan2( as.numeric(end[1]-start[1]), as.numeric(end[3]-start[3]))/pi*180 + 90
+  phi =  atan2( as.numeric(end[1]-start[1]), as.numeric(end[3]-start[3]))/pi*180+90
   
   length_xy = sqrt((end[1]-start[1])^2 + (end[3]-start[3])^2)
   if(end[1] == start[1] && end[3] == start[3]) {
     if(start[2] - end[2] > 0) {
-      theta = 0
-    } else {
       theta = 180
+    } else {
+      theta = 0
     }
   } else {
     theta = atan2(-length_xy, (end[2]-start[2]))/pi*180
   }
   fulllength = sqrt(sum((end-start)^2))
-  angle = c(0, phi, theta)
+  angle = c(0, -phi, theta)
   
   if(!square) {
     obj = cylinder_mesh(angle = angle, order_rotation = order_rotation, radius = radius, length = fulllength)
@@ -468,7 +468,7 @@ segment_mesh = function(start = c(0,-1,0), end = c(0,1,0), radius = 0.5,
     obj = cube_mesh(angle = angle, order_rotation = order_rotation, scale=c(radius*2,fulllength,radius*2))
   }
   obj = translate_mesh(obj,c(x,y,z))
-  obj = set_material(obj, material = material)
+  obj = set_material(obj, material = material) %>% add_shape(sphere_mesh(position=start, radius=0.2)) %>% add_shape(sphere_mesh(position=end, radius=0.2))
   obj
 }
 

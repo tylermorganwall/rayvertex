@@ -120,10 +120,13 @@ vec4 GouraudShader::vertex(int iface, int nthvert, ModelInfo& model) {
 }
 
 bool GouraudShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
-  normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;;
+  normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;
+  vec4 diffuse_color = vec4(material.diffuse,material.dissolve);
   
-  vec3 light_color(0.0);
+  vec4 light_color(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
+    vec4 trans_color(0.0,0.0,0.0,0.0);
+    
     Float shadow = 1.0f;
     Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
     if(has_shadow_map) {
@@ -140,11 +143,21 @@ bool GouraudShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
           }    
         }
         shadow /= 25;
+        if(diffuse_color.w == 1.0) {
+          for(int x = -2; x <= 2; ++x) {
+            for(int y = -2; y <= 2; ++y) {
+              trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
+            }
+          }
+          trans_color /= 25;
+        }
       }
     }
-    light_color += directional_lights[ii].color * shadow * intensity;
+    light_color += vec4(vec3(trans_color) * trans_color.w * directional_lights[ii].intensity + 
+      (1-trans_color.w) *  directional_lights[ii].color * directional_lights[ii].intensity,0.0) * shadow * intensity;
   }
-  color = vec4(light_color * material.diffuse,1.0f);
+  // color = vec4(light_color * material.diffuse,1.0f);
+  color = light_color; 
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
 
   return(false);
@@ -516,6 +529,8 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3&
   
   vec3 light_color(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
+    vec4 trans_color(0.0,0.0,0.0,0.0);
+    
     Float shadow = 1.0f;
     Float intensity = std::fmax(dot(n, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
     if(has_shadow_map) {
@@ -532,9 +547,18 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3&
           }    
         }
         shadow /= 25;
+        if(diffuse_color.w == 1.0) {
+          for(int x = -2; x <= 2; ++x) {
+            for(int y = -2; y <= 2; ++y) {
+              trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
+            }
+          }
+          trans_color /= 25;
+        }
       }
     }
-    light_color += directional_lights[ii].color * shadow * intensity;
+    light_color += (vec3(trans_color) * trans_color.w * directional_lights[ii].intensity + 
+      (1-trans_color.w) *  directional_lights[ii].color * directional_lights[ii].intensity) * shadow * intensity;
   }
   
   for(int i = 0; i < plights.size(); i++) {
@@ -674,6 +698,8 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3
   
   vec3 light_color(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
+    vec4 trans_color(0.0,0.0,0.0,0.0);
+    
     Float shadow = 1.0f;
     Float intensity = std::fmax(dot(norm, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
     if(has_shadow_map) {
@@ -690,9 +716,18 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3
           }    
         }
         shadow /= 25;
+        if(diffuse_color.w == 1.0) {
+          for(int x = -2; x <= 2; ++x) {
+            for(int y = -2; y <= 2; ++y) {
+              trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
+            }
+          }
+          trans_color /= 25;
+        }
       }
     }
-    light_color += directional_lights[ii].color * shadow * intensity;
+    light_color += (vec3(trans_color) * trans_color.w * directional_lights[ii].intensity + 
+      (1-trans_color.w) *  directional_lights[ii].color * directional_lights[ii].intensity) * shadow * intensity;
   }
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   
@@ -822,6 +857,8 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   vec3 light_color(0.0);
   vec4 spec_total(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
+    vec4 trans_color(0.0,0.0,0.0,0.0);
+    
     Float shadow = 1.0f;
     vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
@@ -841,11 +878,20 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
           }    
         }
         shadow /= 25;
+        if(diffuse_color.w == 1.0) {
+          for(int x = -2; x <= 2; ++x) {
+            for(int y = -2; y <= 2; ++y) {
+              trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
+            }
+          }
+          trans_color /= 25;
+        }
       }
     }
-    light_color += directional_lights[ii].color * shadow * intensity;
+    light_color += (vec3(trans_color) * trans_color.w * directional_lights[ii].intensity + 
+      (1-trans_color.w) *  directional_lights[ii].color * directional_lights[ii].intensity) * shadow * intensity;
     vec3 r = normalize(2.0f*dot(normal,l_dir)*normal - l_dir);
-    spec_total += vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f) * (shadow); 
+    spec_total += vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f) * (shadow) * directional_lights[ii].intensity; 
   }
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
   
@@ -973,6 +1019,8 @@ bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& n
   vec3 light_color(0.0);
   vec4 spec_total(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
+    vec4 trans_color(0.0,0.0,0.0,0.0);
+    
     Float shadow = 1.0f;
     vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
@@ -992,11 +1040,20 @@ bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& n
           }    
         }
         shadow /= 25;
+        if(diffuse_color.w == 1.0) {
+          for(int x = -2; x <= 2; ++x) {
+            for(int y = -2; y <= 2; ++y) {
+              trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
+            }
+          }
+          trans_color /= 25;
+        }
       }
     }
-    light_color += directional_lights[ii].color * shadow * intensity;
+    light_color += (vec3(trans_color) * trans_color.w * directional_lights[ii].intensity + 
+      (1-trans_color.w) *  directional_lights[ii].color * directional_lights[ii].intensity) * shadow * intensity;
     vec3 r = normalize(2.0f*dot(normal,l_dir)*normal - l_dir);
-    spec_total += vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f) * (shadow); 
+    spec_total += vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f) * (shadow) * directional_lights[ii].intensity; 
   }
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   
@@ -1144,6 +1201,8 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
   vec3 light_color(0.0);
   vec4 spec_total(0.0);
   for(int ii = 0; ii < directional_lights.size(); ii++) {
+    vec4 trans_color(0.0,0.0,0.0,0.0);
+    
     Float shadow = 1.0f;
     vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
@@ -1163,11 +1222,20 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
           }    
         }
         shadow /= 25;
+        if(diffuse_color.w == 1.0) {
+          for(int x = -2; x <= 2; ++x) {
+            for(int y = -2; y <= 2; ++y) {
+              trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
+            }
+          }
+          trans_color /= 25;
+        }
       }
     }
-    light_color += directional_lights[ii].color * shadow * intensity;
+    light_color += (vec3(trans_color) * trans_color.w * directional_lights[ii].intensity + 
+      (1-trans_color.w) *  directional_lights[ii].color * directional_lights[ii].intensity) * shadow * intensity;
     vec3 r = normalize(2.0f*dot(normal,l_dir)*normal - l_dir);
-    spec_total += vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f) * (shadow); 
+    spec_total += vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f) * (shadow) * directional_lights[ii].intensity; 
   }
   
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;

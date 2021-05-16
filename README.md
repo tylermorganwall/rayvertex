@@ -208,15 +208,15 @@ surface.
 base_model = cube_mesh() %>%
   scale_mesh(scale=c(5,0.2,5)) %>%
   translate_mesh(c(0,-0.1,0)) %>%
-  set_material(diffuse="grey80")
+  set_material(diffuse="white")
 
 r_model = obj_mesh(r_obj()) %>%
   scale_mesh(scale=0.5) %>%
-  set_material(diffuse="dodgerblue") %>%
+  set_material(diffuse="red") %>%
   add_shape(base_model)
 
-rasterize_scene(r_model, lookfrom=c(2,4,10),
-               light_info = directional_light(direction=c(0.5,1,0.7)))
+rasterize_scene(r_model, lookfrom=c(2,4,10),fov=20,
+               light_info = directional_light(direction=c(0.8,1,0.7)))
 #> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
 
@@ -228,7 +228,7 @@ Alternatively, you can add an `ambient` term to the material.
 ``` r
 #Zoom in and reduce the shadow mapping intensity
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,shadow_map = TRUE, shadow_map_intensity=0.3,
-               light_info = directional_light(direction=c(0.5,1,0.7)))
+               light_info = directional_light(direction=c(0.8,1,0.7)))
 #> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
 
@@ -240,7 +240,7 @@ around the edges.
 
 ``` r
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
-               shadow_map_dims=2, light_info = directional_light(direction=c(0.5,1,0.7)))
+                shadow_map_dims=2, light_info = directional_light(direction=c(0.8,1,0.7)))
 #> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
 
@@ -260,13 +260,35 @@ rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 
 <img src="man/figures/README-line4-1.png" width="100%" />
 
-Now let’s add some point lights:
+We can change the transparency of the material, which allows for colored
+shadows.
+
+``` r
+r_model_t = obj_mesh(r_obj()) %>%
+  scale_mesh(scale=0.5) %>%
+  set_material(diffuse="red", dissolve=0.5, translucent = T) %>%
+  add_shape(base_model)
+
+r_model_t = obj_mesh(r_obj(),c(-2,0,0.3)) %>%
+  scale_mesh(scale=0.5) %>%
+  set_material(diffuse="dodgerblue", dissolve=0.5, translucent = T) %>%
+  add_shape(r_model_t)
+
+rasterize_scene(r_model_t, lookfrom=c(2,4,10),fov=15,lookat=c(-0.5,0,0),
+                light_info = directional_light(direction=c(0.8,1,0.7), intensity = 0.5) %>% 
+                   add_light(directional_light(direction=c(-0.8,1,0.7),intensity = 0.5)))
+```
+
+<img src="man/figures/README-trans1-1.png" width="100%" />
+
+We can also add some point lights:
 
 ``` r
 #Add some point lights
 lights_p = lights %>%
   add_light(point_light(position=c(-1,1,0),color="red", intensity=2)) %>%
   add_light(point_light(position=c(1,1,0),color="purple", intensity=2))
+
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
                light_info = lights_p)
 #> Setting `lookat` to: c(0.00, 0.34, 0.00)
