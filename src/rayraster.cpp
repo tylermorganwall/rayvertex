@@ -365,7 +365,7 @@ List rasterize(List mesh,
     Float emission_intensity = as<Float>(single_material["emission_intensity"]);
     Float ambient_intensity = as<Float>(single_material["ambient_intensity"]);
     int cull_type = as<int>(single_material["culling"]);
-    bool is_translucent = as<int>(single_material["translucent"]);
+    bool is_translucent = as<bool>(single_material["translucent"]);
     
     
     bool has_texture_single          = has_texture(i);

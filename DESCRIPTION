@@ -13,7 +13,8 @@ Imports: magrittr,
          rayimage,
          png,
          jpeg,
-         raster
+         raster,
+         digest
 Suggests: Rvcg
 LinkingTo: Rcpp, spacefillr, RcppThread
 RoxygenNote: 7.1.1

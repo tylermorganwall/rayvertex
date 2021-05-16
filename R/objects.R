@@ -468,7 +468,7 @@ segment_mesh = function(start = c(0,-1,0), end = c(0,1,0), radius = 0.5,
     obj = cube_mesh(angle = angle, order_rotation = order_rotation, scale=c(radius*2,fulllength,radius*2))
   }
   obj = translate_mesh(obj,c(x,y,z))
-  obj = set_material(obj, material = material) %>% add_shape(sphere_mesh(position=start, radius=0.2)) %>% add_shape(sphere_mesh(position=end, radius=0.2))
+  obj = set_material(obj, material = material)
   obj
 }
 

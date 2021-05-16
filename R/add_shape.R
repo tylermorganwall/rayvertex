@@ -29,6 +29,8 @@ add_shape = function(scene, shape) {
   max_norms = nrow(scene$normals)
   max_tex = nrow(scene$texcoords)
   max_material = length(scene$materials)
+  
+  
   for(i in seq_len(length(shape$shapes))) {
     shape$shapes[[i]]$indices      = shape$shapes[[i]]$indices      + max_vertices
     shape$shapes[[i]]$tex_indices  = shape$shapes[[i]]$tex_indices  + max_tex
@@ -42,7 +44,11 @@ add_shape = function(scene, shape) {
   scene$vertices  = rbind(scene$vertices,  shape$vertices)
   scene$normals   = rbind(scene$normals,   shape$normals)
   scene$texcoords = rbind(scene$texcoords, shape$texcoords)
+  
   scene$materials = c(scene$materials,shape$materials)
+  scene$material_hashes = c(scene$material_hashes,shape$material_hashes)
+  
+  scene = remove_duplicate_materials(scene)
   
   if(!is.null(attr(shape,"cornell")) || !is.null(attr(scene,"cornell"))) {
     attr(scene,"cornell") = TRUE
@@ -54,6 +60,57 @@ add_shape = function(scene, shape) {
   }
   return(scene)
 }
+
+#'@title Add Shape
+#'
+#'Add shape to the scene
+#'
+#'@param scene The scene to add the shape.
+
+#'@return Scene with shape added.
+#'
+#'@examples
+#'#Generate several spheres in the cornell box
+#'scene = generate_cornell_mesh()
+#'set.seed(1)
+#'
+#'for(i in 1:30) {
+#'  col = hsv(runif(1))
+#'  scene = add_shape(scene, sphere_mesh(position=runif(3)*400+155/2,
+#'                                       material=material_list(diffuse=col, type="phong",
+#'                                                              ambient=col,ambient_intensity=0.2), 
+#'                                       radius=30))
+#'}
+#'rasterize_scene(scene, light_info=directional_light(direction=c(0.1,0.6,-1)))
+remove_duplicate_materials = function(scene) {
+  if(length(scene$materials) == 1 || length(scene$materials) == 0) {
+    return(scene)
+  }
+  
+  scene_material_hashes = scene$material_hashes
+  unique_materials = unique(scene_material_hashes)
+  new_ids = rep(0,length(scene_material_hashes))
+  old_ids = seq_len(length(scene_material_hashes)) - 1
+  
+  for(i in seq_len(length(scene_material_hashes))) {
+    new_ids[i] = min(which(scene_material_hashes[i] == unique_materials)) - 1
+  }
+  
+  for(i in seq_len(length(scene$shapes))) {
+    tmp_ids = scene$shapes[[i]]$material_ids
+    scene$shapes[[i]]$material_ids[tmp_ids %in% old_ids] = new_ids[match(tmp_ids, old_ids, nomatch = 0)]
+  }
+  unique_ids = unique(new_ids)
+  new_mat = list()
+  for(i in seq_len(length(unique_ids))) {
+    new_mat[[i]] = scene$materials[[unique_ids[i]+1]]
+  }
+  scene$materials = new_mat
+  scene$material_hashes = unique_materials
+  
+  return(scene)
+}
+
 
 #'@title Merge shapes
 #'
@@ -77,7 +134,6 @@ merge_shapes = function(scene) {
     material_ids[[i]] = scene$shapes[[i]]$material_ids
     has_vertex_tex[[i]] = scene$shapes[[i]]$has_vertex_tex
     has_vertex_normals[[i]] = scene$shapes[[i]]$has_vertex_normals
-    
   }
   
   scene$shapes = list()
@@ -327,10 +383,10 @@ set_material = function(mesh, material = NULL,
       mesh$materials[[i]]$ambient_intensity  = ambient_intensity  
       mesh$materials[[i]]$culling            = culling   
       mesh$materials[[i]]$type               = type   
-      mesh$materials[[i]]$translucent        = translucent   
-      
+      mesh$materials[[i]]$translucent        = translucent
       
     }
+    mesh$material_hashes[i] = digest::digest(mesh$materials[[i]])
     for(i in seq_len(length(mesh$shapes))) {
       mesh$shapes[[i]]$material_ids = rep(0,nrow(mesh$shapes[[i]]$indices))
     }
@@ -359,7 +415,7 @@ set_material = function(mesh, material = NULL,
     mesh$materials[[1]]$culling            = culling    
     mesh$materials[[1]]$type               = type    
     mesh$materials[[1]]$translucent        = translucent   
-    
+    mesh$material_hashes[1] = digest::digest(mesh$materials[[1]])
   }
   return(mesh)
 }
@@ -524,6 +580,9 @@ change_material = function(mesh, id = NULL,
           }
         }
       }
+    }
+    for(i in seq_len(length(mesh$materials))) {
+      mesh$material_hashes[i] = digest::digest(mesh$materials[[i]])
     }
   } else {
    stop("No materials detected")

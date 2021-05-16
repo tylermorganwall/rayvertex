@@ -35,5 +35,10 @@ read_obj = function(filename, materialspath = NULL) {
       obj_loaded$shapes[[i]]$has_vertex_normals[apply(obj_loaded$shapes[[i]]$norm_indices,1,(function(x) any(x == -1)))] = FALSE
     }
   }
+  hashes = rep("",length(obj_loaded$materials))
+  for(i in seq_len(length(obj_loaded$materials))) {
+    hashes[i] = digest::digest(obj_loaded$materials[[i]])
+  }
+  obj_loaded$material_hashes = hashes
   obj_loaded
 }
