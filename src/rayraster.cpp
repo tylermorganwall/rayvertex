@@ -630,7 +630,7 @@ List rasterize(List mesh,
   //For per-light transparent colors
   std::vector<std::vector<std::map<Float, alpha_info> > > alpha_depths_trans;
   for(int i = 0; i < shadowbuffers.size(); i++) {
-    std::vector<std::map<Float, alpha_info> > temp_adt(nx*ny);
+    std::vector<std::map<Float, alpha_info> > temp_adt(shadowdims(0) * shadowdims(1));
     alpha_depths_trans.push_back(temp_adt);
   }
   
@@ -798,10 +798,10 @@ List rasterize(List mesh,
         }
       }
       //Calculate transparency buffer
-      for(int i = 0; i < nx; i++) {
-        for(int j = 0; j < ny; j++) {
-          for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depth_single[j + ny*i].rbegin();
-              it != alpha_depth_single[j + ny*i].rend(); ++it) {
+      for(int i = 0; i < shadowdims(0); i++) {
+        for(int j = 0; j < shadowdims(1); j++) {
+          for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depth_single[j + shadowdims(1)*i].rbegin();
+              it != alpha_depth_single[j + shadowdims(1)*i].rend(); ++it) {
             if(it->first <= zbuffer_depth(i,j)) {
               // zbuffer_depth(i,j) = it->first;
               vec4 temp_col = it->second.color;
