@@ -842,11 +842,16 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
     }
   }
   indices = do.call(rbind,indices)
+  normals = do.call(rbind,normals)
+  normalize = function(x) {
+    x/sqrt(sum(x * x))
+  }
+  normalized_normals = t(apply(normals,1,normalize))
   obj = construct_mesh(vertices = do.call(rbind,vertices),
                        indices = indices,
-                       normals = do.call(rbind,normals),
-                       norm_indices = indices)
-  obj = set_material(obj, material = material)
+                       normals = normalized_normals,
+                       norm_indices = indices,
+                       material = material)
   
   if(any(scale != 1)) {
     obj = scale_mesh(obj, scale=scale)
