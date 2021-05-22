@@ -8,12 +8,13 @@
 
 Rayvertex is a 3D software renderer that allows you to generate 3D
 visualizations without worrying about hardware requirements or
-dependencies. It uses rasterization, a method that transforms meshes of
+dependencies. It uses rasterization: a method that transforms meshes of
 triangles into an image. These meshes are specified entirely in R, and
-can be built either by importing external meshes, building scenes out of
+can be built either by importing external files, building scenes out of
 the included objects, or by constructing the mesh yourself. Rayvertex
 also allows the user to add any number of point lights and directional
-lights to a scene, and support anti-aliased lines and shadow mapping.
+lights to a scene, and support anti-aliased lines, shadow mapping,
+transparent (and translucent) objects.
 
 Rayvertex features the following:
 
@@ -23,9 +24,10 @@ Rayvertex features the following:
     -   Diffuse
     -   Phong
     -   Vertex
+    -   Toon (cel) shading
     -   Flat shading
 -   Built in shapes:
-    -   Sphere, cube, cylinder, segment, cone, arrow, torus, and plane,
+    -   Sphere, cube, cylinder, segment, cone, arrow, torus, and plane
     -   OBJ file support
     -   `mesh3d` support
 -   Built-in mesh transformations:
@@ -35,9 +37,11 @@ Rayvertex features the following:
     mapping
 -   Support for multicolor 3D line rasterization (both basic and
     anti-aliased)
+-   Hashed material IDs for efficient memory use
 -   Order-independent transparency rendering
 -   Orthographic and projective cameras
 -   Screen-space ambient occlusion
+-   Translucent (tinted) shadows
 -   Bloom
 -   Tone mapping
 
@@ -53,7 +57,7 @@ following:
     -   A logical vector, indicating whether each vertex has normals
     -   A logical vector, indicating whether each vertex has texture
         coordinates
--   A list of material properties that each specify:
+-   A list of material properties. Rayvertex looks for the following:
     -   Diffuse color
     -   Ambient color
     -   Specular color
@@ -74,9 +78,12 @@ following:
     -   Ambient Intensity
     -   Culling type
     -   Shader type
+    -   Translucency
 -   A 3xN matrix of vertex positions
 -   A 2xN matrix of texture coordinates for each vertex
 -   A 3xN matrix of normals for each vertex
+-   A vector of material hashes. This can save memory by only adding a
+    new material when it does not already exist in the object.
 
 Rayvertex includes a series of helper functions that allow you to
 generate, translate, and scale meshes.
@@ -250,9 +257,9 @@ We can add multiple directional lights and change their color and
 intensity:
 
 ``` r
- lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 1) %>%
-            add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 1)) %>%
-            add_light(directional_light(c(2,4,10),color = "white",intensity = 0.5))
+lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 0.7) %>%
+            add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 0.7)) %>%
+            add_light(directional_light(c(2,4,10),color = "white",intensity = 0.3))
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
                light_info = lights)
 #> Setting `lookat` to: c(0.00, 0.34, 0.00)

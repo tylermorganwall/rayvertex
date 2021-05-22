@@ -8,6 +8,7 @@ Change individual material properties, leaving others alone.}
 \usage{
 change_material(
   mesh,
+  id = NULL,
   diffuse = NULL,
   ambient = NULL,
   specular = NULL,
@@ -27,11 +28,18 @@ change_material(
   emission_intensity = NULL,
   ambient_intensity = NULL,
   culling = NULL,
-  type = NULL
+  type = NULL,
+  translucent = NULL,
+  toon_levels = NULL,
+  toon_outline_width = NULL,
+  toon_outline_color = NULL
 )
 }
 \arguments{
 \item{mesh}{Mesh to change.}
+
+\item{id}{Default `NULL`. Either a number specifying the material to change, or a character vector 
+matching the material name.}
 
 \item{diffuse}{Default `NULL`. The diffuse color.}
 
@@ -72,6 +80,10 @@ change_material(
 \item{culling}{Default `NULL`. The culling type. Options are `back`, `front`, and `none`.}
 
 \item{type}{Default `NULL`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.}
+
+\item{translucent}{Default `TRUE`. Whether light should transmit through a semi-transparent material.}
+
+\item{toon_levels}{Default `5`. Number of color breaks in the toon shader.}
 }
 \value{
 Shape with new material settings

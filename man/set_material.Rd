@@ -9,6 +9,7 @@ Add shape to a mesh}
 set_material(
   mesh,
   material = NULL,
+  id = NULL,
   diffuse = c(0.5, 0.5, 0.5),
   ambient = c(0, 0, 0),
   specular = c(1, 1, 1),
@@ -28,7 +29,11 @@ set_material(
   emission_intensity = 1,
   ambient_intensity = 1,
   culling = "back",
-  type = "diffuse"
+  type = "diffuse",
+  translucent = TRUE,
+  toon_levels = 5,
+  toon_outline_width = 1.01,
+  toon_outline_color = "black"
 )
 }
 \arguments{
@@ -76,6 +81,10 @@ to specify the material, or use the following individual settings.}
 \item{culling}{Default `"back"`. The culling type. Options are `back`, `front`, and `none`.}
 
 \item{type}{Default `"diffuse"`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.}
+
+\item{translucent}{Default `TRUE`. Whether light should transmit through a semi-transparent material.}
+
+\item{toon_levels}{Default `5`. Number of color breaks in the toon shader.}
 }
 \value{
 Shape with new material
@@ -91,7 +100,7 @@ generate_cornell_mesh() \%>\%
  add_shape(set_material(sphere_mesh(position=c(400,555/2,555/2),radius=40), 
                         diffuse="purple", type="phong")) \%>\% 
  add_shape(set_material(sphere_mesh(position=c(555/2,220,555/2),radius=40),
-                        dissolve=0.2,culling=FALSE,diffuse="red")) \%>\% 
+                        dissolve=0.2,culling="none",diffuse="red")) \%>\% 
  add_shape(set_material(sphere_mesh(position=c(155,300,555/2),radius=60), 
                         material = material_list(diffuse="gold", type="phong", 
                                                  ambient="gold", ambient_intensity=0.4))) \%>\% 

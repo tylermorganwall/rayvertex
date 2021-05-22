@@ -14,7 +14,7 @@ directional_light(direction = c(0, 1, 0), color = "white", intensity = 1)
 \item{intensity}{Default `1`. Intensity of the light.}
 }
 \value{
-Light matrix.
+A matrix representing the light information.
 }
 \description{
 Generate Directional Lights

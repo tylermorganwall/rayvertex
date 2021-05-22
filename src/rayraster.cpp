@@ -140,7 +140,6 @@ List rasterize(List mesh,
                NumericVector bounds,
                IntegerVector shadowdims,
                NumericVector camera_up,
-               int culling, 
                double alpha_line, double line_offset,
                NumericVector ortho_dims, LogicalVector is_dir_light,
                bool aa_lines, LogicalVector &has_vertex_tex, LogicalVector &has_vertex_normals) {
@@ -366,6 +365,7 @@ List rasterize(List mesh,
     Float ambient_intensity = as<Float>(single_material["ambient_intensity"]);
     int cull_type = as<int>(single_material["culling"]);
     bool is_translucent = as<bool>(single_material["translucent"]);
+    Float toon_levels = as<Float>(single_material["toon_levels"]);
     
     
     bool has_texture_single          = has_texture(i);
@@ -401,7 +401,8 @@ List rasterize(List mesh,
       has_specular_texture_single,
       has_emissive_texture_single,
       cull_type,
-      is_translucent
+      is_translucent,
+      toon_levels
     };
     mat_info.push_back(temp);
     
@@ -498,6 +499,30 @@ List rasterize(List mesh,
                                vec_varying_tri,
                                vec_varying_pos,
                                vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
+    } else if (type == 9) {
+      shader = new ToonShader(Model, Projection, View, viewport,
+                              has_shadow_map,
+                              shadow_map_bias,mat_info[i], point_lights,
+                              directional_lights, 
+                              shadowbuffers,
+                              transparency_buffers,
+                              vec_varying_intensity,
+                              vec_varying_uv,
+                              vec_varying_tri,
+                              vec_varying_pos,
+                              vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
+    } else if (type == 10) {
+      shader = new ToonShaderPhong(Model, Projection, View, viewport,
+                              has_shadow_map,
+                              shadow_map_bias,mat_info[i], point_lights,
+                              directional_lights, 
+                              shadowbuffers,
+                              transparency_buffers,
+                              vec_varying_intensity,
+                              vec_varying_uv,
+                              vec_varying_tri,
+                              vec_varying_pos,
+                              vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
     } else {
       throw std::runtime_error("shader not recognized");
     }
@@ -528,7 +553,8 @@ List rasterize(List mesh,
     false,
     false,
     1,
-    false
+    false,
+    5
   };
   
   mat_info.push_back(default_mat);
@@ -577,6 +603,30 @@ List rasterize(List mesh,
                                       vec_varying_tri,
                                       vec_varying_pos,
                                       vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm));
+  } else if (typevals(0) == 9) {
+    shaders.push_back(new ToonShader(Model, Projection, View, viewport,
+                                     has_shadow_map,
+                                     shadow_map_bias,mat_info.back(), point_lights,
+                                     directional_lights, 
+                                     shadowbuffers,
+                                     transparency_buffers,
+                                     vec_varying_intensity,
+                                     vec_varying_uv,
+                                     vec_varying_tri,
+                                     vec_varying_pos,
+                                     vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm));
+  } else if (typevals(0) == 10) {
+    shaders.push_back(new ToonShaderPhong(Model, Projection, View, viewport,
+                                 has_shadow_map,
+                                 shadow_map_bias,mat_info.back(), point_lights,
+                                 directional_lights, 
+                                 shadowbuffers,
+                                 transparency_buffers,
+                                 vec_varying_intensity,
+                                 vec_varying_uv,
+                                 vec_varying_tri,
+                                 vec_varying_pos,
+                                 vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm));
   }
   
   

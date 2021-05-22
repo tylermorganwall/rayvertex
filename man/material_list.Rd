@@ -26,7 +26,11 @@ material_list(
   emission_intensity = 1,
   ambient_intensity = 1,
   culling = "back",
-  type = "diffuse"
+  type = "diffuse",
+  translucent = TRUE,
+  toon_levels = 5,
+  toon_outline_width = 1.01,
+  toon_outline_color = "black"
 )
 }
 \arguments{
@@ -69,6 +73,14 @@ material_list(
 \item{culling}{Default `"back"`. The culling type. Options are `back`, `front`, and `none`.}
 
 \item{type}{Default `"diffuse"`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.}
+
+\item{translucent}{Default `FALSE`. Whether light should transmit through a semi-transparent material.}
+
+\item{toon_levels}{Default `5`. Number of color breaks in the toon shader.}
+
+\item{toon_outline_width}{Default `1.01`. Expansion term for model to specify toon outline width.}
+
+\item{toon_outline_color}{Default `black`. Toon outline color.}
 }
 \value{
 List of material properties.

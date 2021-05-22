@@ -32,7 +32,6 @@ rasterize_scene(
   debug = "none",
   near_plane = 0.1,
   far_plane = 100,
-  culling = "back",
   shader = "default",
   block_size = 4,
   shape = NULL,
@@ -97,8 +96,6 @@ rasterize_scene(
 \item{near_plane}{Default `0.1`.}
 
 \item{far_plane}{Default `100`.}
-
-\item{culling}{Default `"back"`.}
 
 \item{shader}{Default `"default"`.}
 

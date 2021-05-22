@@ -36,14 +36,14 @@ File location of the R.obj file (saved with a .txt extension)
 #Generate a cube
 \donttest{
 generate_cornell_mesh() \%>\%
-  add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 200)) \%>\%
+  add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100)) \%>\%
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
 
 #Generate a blue rotated cube 
 \donttest{
 generate_cornell_mesh() \%>\%
-  add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 200, angle=c(0,45,0),
+  add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100, angle=c(0,45,0),
                       material = material_list(diffuse="dodgerblue"))) \%>\%
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
@@ -52,7 +52,7 @@ generate_cornell_mesh() \%>\%
 \donttest{
 generate_cornell_mesh() \%>\%
   add_shape(cube_mesh(position = c(555/2, 100, 555/2), angle=c(0,45,0),
-                      scale = c(2,0.5,0.8)*200,
+                      scale = c(2,0.5,0.8)*100,
                       material = material_list(diffuse="dodgerblue"))) \%>\%
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }

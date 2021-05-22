@@ -12,7 +12,7 @@ add_light(lights, light)
 \item{light}{New light to add.}
 }
 \value{
-Light matrix.
+A matrix representing the light information.
 }
 \description{
 Add light

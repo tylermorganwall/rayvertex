@@ -298,6 +298,7 @@ rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rot
 #'@param culling                   Default `"back"`. The culling type. Options are `back`, `front`, and `none`.
 #'@param type                      Default `"diffuse"`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.
 #'@param translucent               Default `TRUE`. Whether light should transmit through a semi-transparent material.
+#'@param toon_levels               Default `5`. Number of color breaks in the toon shader. 
 #'
 #'@return Shape with new material
 #'@export
@@ -307,12 +308,12 @@ rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rot
 #'  add_shape(set_material(sphere_mesh(position=c(400,555/2,555/2),radius=40), 
 #'                         diffuse="purple", type="phong")) %>% 
 #'  add_shape(set_material(sphere_mesh(position=c(555/2,220,555/2),radius=40),
-#'                         dissolve=0.2,culling=FALSE,diffuse="red")) %>% 
+#'                         dissolve=0.2,culling="none",diffuse="red")) %>% 
 #'  add_shape(set_material(sphere_mesh(position=c(155,300,555/2),radius=60), 
 #'                         material = material_list(diffuse="gold", type="phong", 
 #'                                                  ambient="gold", ambient_intensity=0.4))) %>% 
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
-set_material = function(mesh, material = NULL,
+set_material = function(mesh, material = NULL, id = NULL,
                         diffuse                   = c(0.5,0.5,0.5),
                         ambient                   = c(0,0,0),
                         specular                  = c(1,1,1),
@@ -333,7 +334,10 @@ set_material = function(mesh, material = NULL,
                         ambient_intensity         = 1,
                         culling                   = "back",
                         type                      = "diffuse",
-                        translucent               = TRUE) {
+                        translucent               = TRUE,
+                        toon_levels               = 5,
+                        toon_outline_width        = 1.01,
+                        toon_outline_color        = "black") {
   culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   
   if(!is.null(material)) {
@@ -358,37 +362,71 @@ set_material = function(mesh, material = NULL,
     culling                   = material$culling                   
     type                      = material$type     
     translucent               = material$translucent
+    toon_levels               = material$toon_levels      
+    toon_outline_width        = material$toon_outline_width       
+    toon_outline_color        = material$toon_outline_color        
   }
   
   if(!is.null(mesh$materials) && length(mesh$materials) > 0) {
-    for(i in seq_len(length(mesh$materials))) {
-      mesh$materials[[i]] = list()
-      mesh$materials[[i]]$ambient            = convert_color(ambient)
-      mesh$materials[[i]]$diffuse            = convert_color(diffuse)
-      mesh$materials[[i]]$specular           = convert_color(specular) 
-      mesh$materials[[i]]$transmittance      = convert_color(transmittance)
-      mesh$materials[[i]]$emission           = convert_color(emission) 
-      mesh$materials[[i]]$shininess          = shininess
-      mesh$materials[[i]]$ior                = ior              
-      mesh$materials[[i]]$dissolve           = dissolve         
-      mesh$materials[[i]]$illum              = illum            
-      mesh$materials[[i]]$ambient_texname    = ambient_texture_location  
-      mesh$materials[[i]]$diffuse_texname    = texture_location  
-      mesh$materials[[i]]$emissive_texname   = emissive_texture_location 
-      mesh$materials[[i]]$specular_texname   = specular_texture_location 
-      mesh$materials[[i]]$normal_texname     = normal_texture_location   
-      mesh$materials[[i]]$diffuse_intensity  = diffuse_intensity 
-      mesh$materials[[i]]$specular_intensity = specular_intensity   
-      mesh$materials[[i]]$emission_intensity = emission_intensity  
-      mesh$materials[[i]]$ambient_intensity  = ambient_intensity  
-      mesh$materials[[i]]$culling            = culling   
-      mesh$materials[[i]]$type               = type   
-      mesh$materials[[i]]$translucent        = translucent
-      
-    }
-    mesh$material_hashes[i] = digest::digest(mesh$materials[[i]])
-    for(i in seq_len(length(mesh$shapes))) {
-      mesh$shapes[[i]]$material_ids = rep(0,nrow(mesh$shapes[[i]]$indices))
+    if(is.null(id)) {
+      for(i in seq_len(length(mesh$materials))) {
+        mesh$materials[[i]] = list()
+        mesh$materials[[i]]$ambient            = convert_color(ambient)
+        mesh$materials[[i]]$diffuse            = convert_color(diffuse)
+        mesh$materials[[i]]$specular           = convert_color(specular) 
+        mesh$materials[[i]]$transmittance      = convert_color(transmittance)
+        mesh$materials[[i]]$emission           = convert_color(emission) 
+        mesh$materials[[i]]$shininess          = shininess
+        mesh$materials[[i]]$ior                = ior              
+        mesh$materials[[i]]$dissolve           = dissolve         
+        mesh$materials[[i]]$illum              = illum            
+        mesh$materials[[i]]$ambient_texname    = ambient_texture_location  
+        mesh$materials[[i]]$diffuse_texname    = texture_location  
+        mesh$materials[[i]]$emissive_texname   = emissive_texture_location 
+        mesh$materials[[i]]$specular_texname   = specular_texture_location 
+        mesh$materials[[i]]$normal_texname     = normal_texture_location   
+        mesh$materials[[i]]$diffuse_intensity  = diffuse_intensity 
+        mesh$materials[[i]]$specular_intensity = specular_intensity   
+        mesh$materials[[i]]$emission_intensity = emission_intensity  
+        mesh$materials[[i]]$ambient_intensity  = ambient_intensity  
+        mesh$materials[[i]]$culling            = culling   
+        mesh$materials[[i]]$type               = type   
+        mesh$materials[[i]]$translucent        = translucent
+        mesh$materials[[i]]$toon_levels        = toon_levels   
+        mesh$materials[[i]]$toon_outline_width = toon_outline_width   
+        mesh$materials[[i]]$toon_outline_color = convert_color(toon_outline_color)
+        
+      }
+      mesh$material_hashes[i] = digest::digest(mesh$materials[[i]])
+      for(i in seq_len(length(mesh$shapes))) {
+        mesh$shapes[[i]]$material_ids = rep(0,nrow(mesh$shapes[[i]]$indices))
+      }
+    } else {
+      mesh$materials[[id]] = list()
+      mesh$materials[[id]]$ambient            = convert_color(ambient)
+      mesh$materials[[id]]$diffuse            = convert_color(diffuse)
+      mesh$materials[[id]]$specular           = convert_color(specular) 
+      mesh$materials[[id]]$transmittance      = convert_color(transmittance)
+      mesh$materials[[id]]$emission           = convert_color(emission) 
+      mesh$materials[[id]]$shininess          = shininess
+      mesh$materials[[id]]$ior                = ior              
+      mesh$materials[[id]]$dissolve           = dissolve         
+      mesh$materials[[id]]$illum              = illum            
+      mesh$materials[[id]]$ambient_texname    = ambient_texture_location  
+      mesh$materials[[id]]$diffuse_texname    = texture_location  
+      mesh$materials[[id]]$emissive_texname   = emissive_texture_location 
+      mesh$materials[[id]]$specular_texname   = specular_texture_location 
+      mesh$materials[[id]]$normal_texname     = normal_texture_location   
+      mesh$materials[[id]]$diffuse_intensity  = diffuse_intensity 
+      mesh$materials[[id]]$specular_intensity = specular_intensity   
+      mesh$materials[[id]]$emission_intensity = emission_intensity  
+      mesh$materials[[id]]$ambient_intensity  = ambient_intensity  
+      mesh$materials[[id]]$culling            = culling   
+      mesh$materials[[id]]$type               = type   
+      mesh$materials[[id]]$translucent        = translucent
+      mesh$materials[[id]]$toon_levels        = toon_levels   
+      mesh$materials[[id]]$toon_outline_width = toon_outline_width   
+      mesh$materials[[id]]$toon_outline_color = convert_color(toon_outline_color)
     }
   } else {
     mesh$shapes[[1]]$material_ids = rep(0,nrow(mesh$shapes[[1]]$indices))
@@ -415,6 +453,9 @@ set_material = function(mesh, material = NULL,
     mesh$materials[[1]]$culling            = culling    
     mesh$materials[[1]]$type               = type    
     mesh$materials[[1]]$translucent        = translucent   
+    mesh$materials[[1]]$toon_levels        = toon_levels   
+    mesh$materials[[1]]$toon_outline_width = toon_outline_width   
+    mesh$materials[[1]]$toon_outline_color = convert_color(toon_outline_color)
     mesh$material_hashes[1] = digest::digest(mesh$materials[[1]])
   }
   return(mesh)
@@ -463,6 +504,7 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'@param culling                   Default `NULL`. The culling type. Options are `back`, `front`, and `none`.
 #'@param type                      Default `NULL`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.
 #'@param translucent               Default `TRUE`. Whether light should transmit through a semi-transparent material.
+#'@param toon_levels               Default `5`. Number of color breaks in the toon shader.
 #'
 #'@return Shape with new material settings
 #'@export
@@ -498,7 +540,10 @@ change_material = function(mesh, id = NULL,
                            ambient_intensity         = NULL,
                            culling                   = NULL,
                            type                      = NULL,
-                           translucent               = NULL) {
+                           translucent               = NULL,
+                           toon_levels               = NULL,
+                           toon_outline_width        = NULL,
+                           toon_outline_color        = NULL) {
   if(!is.null(culling)) {
     culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   }
@@ -527,7 +572,9 @@ change_material = function(mesh, id = NULL,
         if(!is.null(culling))                   mesh$materials[[i]]$culling            = culling   
         if(!is.null(type))                      mesh$materials[[i]]$type               = type   
         if(!is.null(translucent))               mesh$materials[[i]]$translucent        = translucent   
-        
+        if(!is.null(toon_levels))               mesh$materials[[i]]$toon_levels        = toon_levels   
+        if(!is.null(toon_outline_width))        mesh$materials[[i]]$toon_outline_width = toon_outline_width   
+        if(!is.null(toon_outline_color))        mesh$materials[[i]]$toon_outline_color = convert_color(toon_outline_color)
       }
     } else {
       if(is.numeric(id)) {
@@ -552,6 +599,9 @@ change_material = function(mesh, id = NULL,
         if(!is.null(culling))                   mesh$materials[[id]]$culling            = culling   
         if(!is.null(type))                      mesh$materials[[id]]$type               = type   
         if(!is.null(translucent))               mesh$materials[[id]]$translucent        = translucent  
+        if(!is.null(toon_levels))               mesh$materials[[id]]$toon_levels        = toon_levels   
+        if(!is.null(toon_outline_width))        mesh$materials[[id]]$toon_outline_width = toon_outline_width   
+        if(!is.null(toon_outline_color))        mesh$materials[[id]]$toon_outline_color = convert_color(toon_outline_color) 
       }
       if(is.character(id)) {
         for(i in seq_len(length(mesh$materials))) {
@@ -577,6 +627,9 @@ change_material = function(mesh, id = NULL,
             if(!is.null(culling))                   mesh$materials[[i]]$culling            = culling   
             if(!is.null(type))                      mesh$materials[[i]]$type               = type   
             if(!is.null(translucent))               mesh$materials[[i]]$translucent        = translucent   
+            if(!is.null(toon_levels))               mesh$materials[[i]]$toon_levels        = toon_levels   
+            if(!is.null(toon_outline_width))        mesh$materials[[i]]$toon_outline_width = toon_outline_width   
+            if(!is.null(toon_outline_color))        mesh$materials[[i]]$toon_outline_color = convert_color(toon_outline_color)
           }
         }
       }
@@ -615,6 +668,9 @@ change_material = function(mesh, id = NULL,
 #'@param culling                   Default `"back"`. The culling type. Options are `back`, `front`, and `none`.
 #'@param type                      Default `"diffuse"`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.
 #'@param translucent               Default `FALSE`. Whether light should transmit through a semi-transparent material.
+#'@param toon_levels               Default `5`. Number of color breaks in the toon shader.
+#'@param toon_outline_width        Default `1.01`. Expansion term for model to specify toon outline width.
+#'@param toon_outline_color        Default `black`. Toon outline color.
 #'
 #'@return List of material properties.
 #'@export
@@ -647,7 +703,10 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
                          ambient_intensity         = 1,
                          culling                   = "back",
                          type                      = "diffuse",
-                         translucent               = TRUE) {
+                         translucent               = TRUE,
+                         toon_levels               = 5,
+                         toon_outline_width        = 1.01,
+                         toon_outline_color        = "black") {
   material_props = 
   list(diffuse                   = diffuse                   ,
        ambient                   = ambient                   ,
@@ -669,6 +728,29 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
        ambient_intensity         = ambient_intensity         ,
        culling                   = culling                   ,
        type                      = type                      ,
-       translucent               = translucent)
+       translucent               = translucent               ,
+       toon_levels               = toon_levels               ,
+       toon_outline_width        = toon_outline_width        ,
+       toon_outline_color        = toon_outline_color        )
   return(material_props)
+}
+
+#' Add Outline
+#'
+#'@param angle The angle
+#'@param order_rotation Default `c(1,2,3)`. 
+#'@return Matrix
+#'@keywords internal
+#'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+#' 
+generate_toon_outline = function(single_obj, material, scale = 1) {
+  if((material$type == "toon" || material$type == "toon_phong") && material$toon_outline_width != 0.0) {
+    bbox = apply(single_obj$vertices,2,range)
+    bbox_size = bbox[2,] - bbox[1,]
+    scaleval = (bbox_size + material$toon_outline_width)/bbox_size
+    single_obj = single_obj %>% 
+      scale_mesh(scale = scaleval) %>% 
+      set_material(diffuse=material$toon_outline_color , culling = "front", type="color")
+  }
+  return(single_obj)
 }

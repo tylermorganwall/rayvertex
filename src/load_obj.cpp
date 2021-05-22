@@ -89,8 +89,8 @@ List load_obj(std::string inputfile, std::string basedir) {
   for(unsigned int i=0; i < materials.size(); i++) {
     tinyobj::material_t m = materials[i];
     int culltype = m.dissolve < 1.0 ? 3 : 1; //no culling if at all transparent
-    List out(21);
-    CharacterVector names(21) ;
+    List out(24);
+    CharacterVector names(24) ;
     
     set_item( out, 0 , _["ambient"]  =  NumericVector::create(m.ambient[0], m.ambient[1], m.ambient[2]), names) ;
     set_item( out, 1 , _["diffuse"]  = NumericVector::create(m.diffuse[0], m.diffuse[1], m.diffuse[2]), names) ;
@@ -113,6 +113,9 @@ List load_obj(std::string inputfile, std::string basedir) {
     set_item( out, 18, _["culling"] = culltype, names) ;
     set_item( out, 19, _["type"] = "diffuse", names) ;
     set_item( out, 20, _["translucent"] = true, names) ;
+    set_item( out, 21, _["toon_levels"] = 5, names) ;
+    set_item( out, 22, _["toon_outline_width"] = 1.01, names) ;
+    set_item( out, 23, _["toon_outline_color"] = "black", names) ;
     out.names() = names ;
     material_list[m.name] = out;
   }

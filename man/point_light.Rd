@@ -27,7 +27,7 @@ point_light(
 \item{falloff_quad}{Default `1`. Quadratic falloff term. See description for details.}
 }
 \value{
-Rasterized image.
+A matrix representing the light information.
 }
 \description{
 The falloff of the point light intensity is given by the following equation (referenc:

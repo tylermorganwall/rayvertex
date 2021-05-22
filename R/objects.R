@@ -16,14 +16,14 @@
 #' #Generate a cube
 #' \donttest{
 #' generate_cornell_mesh() %>%
-#'   add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 200)) %>%
+#'   add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100)) %>%
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 #' 
 #' #Generate a blue rotated cube 
 #' \donttest{
 #' generate_cornell_mesh() %>%
-#'   add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 200, angle=c(0,45,0),
+#'   add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100, angle=c(0,45,0),
 #'                       material = material_list(diffuse="dodgerblue"))) %>%
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
@@ -32,7 +32,7 @@
 #' \donttest{
 #' generate_cornell_mesh() %>%
 #'   add_shape(cube_mesh(position = c(555/2, 100, 555/2), angle=c(0,45,0),
-#'                       scale = c(2,0.5,0.8)*200,
+#'                       scale = c(2,0.5,0.8)*100,
 #'                       material = material_list(diffuse="dodgerblue"))) %>%
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
@@ -43,14 +43,19 @@ cube_mesh = function(position = c(0,0,0),
                      order_rotation = c(1,2,3),
                      material = material_list()) {
   obj = read_obj(system.file("extdata", "cube.txt", package="rayvertex"))
+  obj = set_material(obj, material = material)
   if(any(scale != 1)) {
     obj = scale_mesh(obj, scale=scale)
   }
+  if(material$type == "toon" || material$type == "toon_phong") {
+    obj2 = generate_toon_outline(obj, material)
+    obj = add_shape(obj,obj2)
+  }
+  
   if(any(angle != 0)) {
     obj = rotate_mesh(obj, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
   }
   obj = translate_mesh(obj,position)
-  obj = set_material(obj, material = material)
   obj
 }
 
@@ -112,8 +117,16 @@ sphere_mesh = function(position = c(0,0,0),
   if(any(angle != 0)) {
     obj = rotate_mesh(obj, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
   }
+  if(material$type == "toon" || material$type == "toon_phong") {
+    obj2 = generate_toon_outline(obj, material)
+    obj2 = rotate_mesh(obj2, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
+    obj2 = translate_mesh(obj2,position)
+  }
   obj = translate_mesh(obj,position)
   obj = set_material(obj, material = material)
+  if(material$type == "toon" || material$type == "toon_phong") {
+    obj = add_shape(obj,obj2)
+  }
   obj
 }
 
@@ -161,6 +174,8 @@ cone_mesh = function(start = c(0,0,0), end=c(0,1,0),
                      radius = 0.5, direction = NA, from_center = FALSE,
                      material = material_list()) {
   obj = read_obj(system.file("extdata", "cone.txt", package="rayvertex"))
+  obj = set_material(obj, material = material)
+  
   if(all(!is.na(direction)) && length(direction) == 3) {
     if(from_center) {
       new_start = start - direction/2
@@ -192,9 +207,14 @@ cone_mesh = function(start = c(0,0,0), end=c(0,1,0),
   angle = c(0, -phi, theta)
   
   obj = scale_mesh(obj, scale = c(radius/0.5,fulllength,radius/0.5))
+  
+  if(material$type == "toon" || material$type == "toon_phong") {
+    obj2 = generate_toon_outline(obj, material)
+    obj = add_shape(obj,obj2)
+  }
+  
   obj = rotate_mesh(obj, angle=angle, order_rotation=order_rotation)
   obj = translate_mesh(obj,c(x,y,z))
-  obj = set_material(obj, material = material)
   obj
 }
 
@@ -294,6 +314,23 @@ arrow_mesh = function(start = c(0,0,0), end = c(0,1,0), radius_top = 0.5, radius
   angle = c(0, -phi, theta)
   
   obj = read_obj(system.file("extdata", "arrow.txt", package="rayvertex"))
+  obj = set_material(obj, material = material)
+  if(material$type == "toon" || material$type == "toon_phong") {
+    obj2 = generate_toon_outline(obj, material)
+    
+    new_radius = (2*radius_top) / (fulllength * (1-tail_proportion)) * (fulllength * (1-tail_proportion) + material$toon_outline_width)
+    
+    obj2$vertices[c(1:32,66:97),c(1,3)] = obj$vertices[c(1:32,66:97),c(1,3)] * radius_tail/0.25 * (radius_tail + material$toon_outline_width)/radius_tail
+    obj2$vertices[34:65,c(1,3)] = obj$vertices[34:65,c(1,3)] * new_radius
+
+    #Proportions
+    obj2$vertices[33,2]            = (1 - 0.5) * fulllength + material$toon_outline_width/2
+    obj2$vertices[c(1:32,34:65),2] = (tail_proportion  - 0.5) * fulllength - material$toon_outline_width/2
+    obj2$vertices[66:97,2]         = (-0.5 * fulllength) - material$toon_outline_width/2
+    
+    obj = add_shape(obj,obj2)
+  }
+  
   obj$vertices[c(1:32,66:97),c(1,3)] = obj$vertices[c(1:32,66:97),c(1,3)] * radius_tail/0.25
   obj$vertices[34:65,c(1,3)] = obj$vertices[34:65,c(1,3)] * radius_top/0.5
   
@@ -301,9 +338,9 @@ arrow_mesh = function(start = c(0,0,0), end = c(0,1,0), radius_top = 0.5, radius
   obj$vertices[33,2]            = (1 - 0.5) * fulllength
   obj$vertices[c(1:32,34:65),2] = (tail_proportion  - 0.5) * fulllength
   obj$vertices[66:97,2]         = (-0.5 * fulllength)
+
   obj = rotate_mesh(obj, angle=angle, order_rotation=order_rotation)
   obj = translate_mesh(obj,c(x,y,z))
-  obj = set_material(obj, material = material)
   obj
 }
 
@@ -349,12 +386,18 @@ cylinder_mesh = function(position = c(0,0,0), radius = 0.5, length=1,
                          pivot_point = c(0,0,0), order_rotation = c(1,2,3),
                          material = material_list()) {
   obj = read_obj(system.file("extdata", "cylinder.txt", package="rayvertex"))
+  obj = set_material(obj, material = material)
   obj = scale_mesh(obj, scale=c(radius,length,radius))
+
+  if(material$type == "toon" || material$type == "toon_phong") {
+    obj2 = generate_toon_outline(obj, material)
+    obj = add_shape(obj,obj2)
+  }
   if(any(angle != 0)) {
     obj = rotate_mesh(obj, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
   }
   obj = translate_mesh(obj,position)
-  obj = set_material(obj, material = material)
+
   obj
 }
 
@@ -463,12 +506,11 @@ segment_mesh = function(start = c(0,-1,0), end = c(0,1,0), radius = 0.5,
   angle = c(0, -phi, theta)
   
   if(!square) {
-    obj = cylinder_mesh(angle = angle, order_rotation = order_rotation, radius = radius, length = fulllength)
+    obj = cylinder_mesh(angle = angle, order_rotation = order_rotation, radius = radius, length = fulllength, material = material)
   } else {
-    obj = cube_mesh(angle = angle, order_rotation = order_rotation, scale=c(radius*2,fulllength,radius*2))
+    obj = cube_mesh(angle = angle, order_rotation = order_rotation, scale=c(radius*2,fulllength,radius*2), material = material)
   }
   obj = translate_mesh(obj,c(x,y,z))
-  obj = set_material(obj, material = material)
   obj
 }
 
@@ -505,14 +547,19 @@ xy_rect_mesh = function(position = c(0,0,0),
                         order_rotation = c(1,2,3),
                         material = material_list()) {
   obj = read_obj(system.file("extdata", "xy_plane.txt", package="rayvertex"))
+  obj = set_material(obj, material = material)
+  
   if(any(scale != 1)) {
     obj = scale_mesh(obj, scale=scale)
+  }
+  if(material$type == "toon" || material$type == "toon_phong") {
+    obj2 = generate_toon_outline(obj, material)
+    obj = add_shape(obj,obj2)
   }
   if(any(angle != 0)) {
     obj = rotate_mesh(obj, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
   }
   obj = translate_mesh(obj,position)
-  obj = set_material(obj, material = material)
   obj
 }
 
@@ -587,14 +634,19 @@ yz_rect_mesh = function(position = c(0,0,0), scale = c(1,1,1),
                         angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3),
                         material = material_list()) {
   obj = read_obj(system.file("extdata", "yz_plane.txt", package="rayvertex"))
+
   if(any(scale != 1)) {
     obj = scale_mesh(obj, scale=scale)
+  }
+  if(material$type == "toon" || material$type == "toon_phong") {
+    obj2 = generate_toon_outline(obj, material)
+    obj = add_shape(obj,obj2)
   }
   if(any(angle != 0)) {
     obj = rotate_mesh(obj, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
   }
   obj = translate_mesh(obj,position)
-  obj = set_material(obj, material = material)
+  obj = set_material(obj, material = material, id = 1)
   obj
 }
 
@@ -692,13 +744,13 @@ obj_mesh = function(filename, position = c(0,0,0), scale = c(1,1,1),
   if(any(scale != 1)) {
     obj_loaded = scale_mesh(obj_loaded, scale=scale)
   }
+  if(!is.null(material)) {
+    obj_loaded = set_material(obj_loaded,material = material)
+  }
   if(any(angle != 0)) {
     obj_loaded = rotate_mesh(obj_loaded, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
   }
   obj_loaded = translate_mesh(obj_loaded,position)
-  if(!is.null(material)) {
-    obj_loaded = set_material(obj_loaded,material = material)
-  }
   obj_loaded
 }
 
@@ -794,14 +846,22 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
                        indices = indices,
                        normals = do.call(rbind,normals),
                        norm_indices = indices)
+  obj = set_material(obj, material = material)
+  
   if(any(scale != 1)) {
     obj = scale_mesh(obj, scale=scale)
+  }
+  if(material$type == "toon" || material$type == "toon_phong") {
+    obj2 = torus_mesh(position = c(0,0,0), scale = scale, 
+                      radius = radius, 
+                      ring_radius = ring_radius + material$toon_outline_width , sides = sides, rings=rings,
+                      material = material_list(diffuse=material$toon_outline_color, type="color",culling="front"))
+    obj = add_shape(obj,obj2)
   }
   if(any(angle != 0)) {
     obj = rotate_mesh(obj, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
   }
   obj = translate_mesh(obj,position)
-  obj = set_material(obj, material = material)
   obj
 }
 
@@ -866,8 +926,13 @@ mesh3d_mesh = function(mesh, position = c(0,0,0), scale = c(1,1,1),
                           indices = t(mesh$it)-1,
                           material = material)
   }
+
   if(any(scale != 1)) {
     mesh = scale_mesh(mesh, scale=scale)
+  }
+  if(material$type == "toon" || material$type == "toon_phong") {
+    obj2 = generate_toon_outline(mesh, material)
+    mesh = add_shape(mesh,obj2)
   }
   if(any(angle != 0)) {
     mesh = rotate_mesh(mesh, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)

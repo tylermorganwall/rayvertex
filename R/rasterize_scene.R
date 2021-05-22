@@ -30,7 +30,6 @@
 #'@param debug Default `"none"`.
 #'@param near_plane Default `0.1`.
 #'@param far_plane Default `100`.
-#'@param culling Default `"back"`.
 #'@param shader Default `"default"`.
 #'@param block_size Default `4`. 
 #'@param shape Default `NULL`. The shape to render in the OBJ mesh. 
@@ -134,7 +133,7 @@ rasterize_scene  = function(scene,
                            shadow_map_bias = 0.003, shadow_map_intensity = 0, shadow_map_dims = NULL,
                            ssao = FALSE, ssao_intensity = 10, ssao_radius = 0.1, 
                            tonemap = "none", debug = "none", 
-                           near_plane = 0.1, far_plane = 100, culling = "back",
+                           near_plane = 0.1, far_plane = 100,
                            shader = "default", 
                            block_size = 4, shape = NULL, line_offset = 0.00001,
                            ortho_dimensions = c(1,1), bloom = FALSE, antialias_lines = TRUE) {
@@ -170,6 +169,7 @@ rasterize_scene  = function(scene,
     }
   }
   obj = merge_shapes(scene)
+  
   max_indices = 0
   has_norms = rep(FALSE,length(obj$shapes))
   has_tex = rep(FALSE,length(obj$shapes))
@@ -188,8 +188,6 @@ rasterize_scene  = function(scene,
   } else {
     lightinfo = matrix(nrow=0,ncol=10)
   }
-  culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
-  shaderval = switch(shader, "default" = 1, "diffuse" = 2, "phong" = 3, "color" = 4, 1)
 
   if(is.null(line_info)) {
     line_info = matrix(nrow=0,ncol=0)
@@ -239,6 +237,7 @@ rasterize_scene  = function(scene,
     has_specular_texture = FALSE
     has_emissive_texture = FALSE
   }
+  
 
   for(i in seq_len(length(obj$materials))) {
     if(!is.null(obj$materials[[i]]$diffuse_texname) && obj$materials[[i]]$diffuse_texname != "") {
@@ -282,8 +281,8 @@ rasterize_scene  = function(scene,
   typevals = rep(2,max(c(length(obj$materials),1)))
   if(!use_default_material) {
     for(i in seq_len(length(obj$materials))) {
-      typeval = switch(obj$materials[[i]]$type, "vertex" = 1, "diffuse" = 2, "phong" = 3, "color" = 8, 1)
-      if(typeval != 8) {
+      typeval = switch(obj$materials[[i]]$type, "vertex" = 1, "diffuse" = 2, "phong" = 3, "color" = 8,"toon" = 9, "toon_phong" = 10, 1)
+      if(typeval < 8) {
         if(has_normal_texture[i]) {
           if(typeval == 2) {
             if(!tangent_space_normals) {
@@ -307,8 +306,9 @@ rasterize_scene  = function(scene,
     }
   }
   for(i in seq_len(length(obj$materials))) {
-    obj$materials[[i]]$culling = culling
+    obj$materials[[i]]$culling = switch(obj$materials[[i]]$culling, "back" = 1, "front" = 2, "none" = 3, 1)
   }
+  
   if(is.null(shadow_map_dims)) {
     shadow_map_dims = c(width,height)
   } else {
@@ -353,7 +353,7 @@ rasterize_scene  = function(scene,
                         block_size = block_size, use_default_material = use_default_material,
                         near_plane, far_plane,
                         shadow_map_intensity,
-                        bounds, shadow_map_dims, camera_up, culling,
+                        bounds, shadow_map_dims, camera_up, 
                         alpha_line, line_offset,
                         ortho_dimensions, is_dir_light,
                         antialias_lines,
@@ -364,6 +364,7 @@ rasterize_scene  = function(scene,
     imagelist$g = imagelist$g * imagelist$amb
     imagelist$b = imagelist$b * imagelist$amb
   }
+  # browser()
   if(debug == "normals") {
     norm_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
     norm_array[,,1] = (imagelist$normalx+1)/2
