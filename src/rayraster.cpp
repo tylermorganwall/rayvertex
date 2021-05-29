@@ -142,7 +142,23 @@ List rasterize(List mesh,
                NumericVector camera_up,
                double alpha_line, double line_offset,
                NumericVector ortho_dims, LogicalVector is_dir_light,
-               bool aa_lines, LogicalVector &has_vertex_tex, LogicalVector &has_vertex_normals) {
+               bool aa_lines, LogicalVector &has_vertex_tex, LogicalVector &has_vertex_normals,
+               bool has_reflection, Rcpp::String reflection_map_file) {
+  float* reflection_map_data = nullptr;
+  int nx_r = 0, ny_r = 0, nn_r = 0;
+  if(has_reflection) {
+    reflection_map_data = stbi_loadf(reflection_map_file.get_cstring(), &nx_r, &ny_r, &nn_r, 0);
+    if(nx_r == 0 || ny_r == 0 || ny_r == 0) {
+      throw std::runtime_error("Reflection map loading failed");
+    }
+  } 
+  reflection_map_info reflection_map {
+    reflection_map_data,
+    nx_r,
+    ny_r,
+    nn_r
+  };
+  
   //Convert R vectors to vec3
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
   vec3 center(lookat(0),lookat(1),lookat(2));    //lookat
@@ -366,6 +382,7 @@ List rasterize(List mesh,
     int cull_type = as<int>(single_material["culling"]);
     bool is_translucent = as<bool>(single_material["translucent"]);
     Float toon_levels = as<Float>(single_material["toon_levels"]);
+    Float reflection_intensity = as<Float>(single_material["reflection_intensity"]);
     
     
     bool has_texture_single          = has_texture(i);
@@ -402,7 +419,8 @@ List rasterize(List mesh,
       has_emissive_texture_single,
       cull_type,
       is_translucent,
-      toon_levels
+      toon_levels,
+      reflection_intensity
     };
     mat_info.push_back(temp);
     
@@ -410,7 +428,7 @@ List rasterize(List mesh,
     int type = typevals(i);
     if(type == 1) {
       shader = new GouraudShader(Model, Projection, View, viewport,
-                                 has_shadow_map,
+                                 has_shadow_map, 
                                  shadow_map_bias,mat_info[i], point_lights,
                                  directional_lights, 
                                  shadowbuffers,
@@ -419,7 +437,8 @@ List rasterize(List mesh,
                                  vec_varying_uv,
                                  vec_varying_tri,
                                  vec_varying_pos,
-                                 vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
+                                 vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                                 reflection_map, has_reflection);
     } else if (type == 2) {
       shader = new DiffuseShader(Model, Projection, View, viewport,
                                  has_shadow_map,
@@ -431,7 +450,8 @@ List rasterize(List mesh,
                                  vec_varying_uv,
                                  vec_varying_tri,
                                  vec_varying_pos,
-                                 vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
+                                 vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                                 reflection_map, has_reflection);
     } else if (type == 3) {
       shader = new PhongShader(Model, Projection, View, viewport,
                                has_shadow_map,
@@ -443,7 +463,8 @@ List rasterize(List mesh,
                                vec_varying_uv,
                                vec_varying_tri,
                                vec_varying_pos,
-                               vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
+                               vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                               reflection_map, has_reflection);
     } else if (type == 4) {
       shader = new DiffuseNormalShader(Model, Projection, View, viewport,
                                        has_shadow_map,
@@ -455,7 +476,8 @@ List rasterize(List mesh,
                                        vec_varying_uv,
                                        vec_varying_tri,
                                        vec_varying_pos,
-                                       vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
+                                       vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                                       reflection_map, has_reflection);
     } else if (type == 5) {
       shader = new DiffuseShaderTangent(Model, Projection, View, viewport,
                                         has_shadow_map,
@@ -467,7 +489,8 @@ List rasterize(List mesh,
                                         vec_varying_uv,
                                         vec_varying_tri,
                                         vec_varying_pos,
-                                        vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
+                                        vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                                        reflection_map, has_reflection);
     } else if (type == 6) {
       shader = new PhongNormalShader(Model, Projection, View, viewport,
                                      has_shadow_map,
@@ -479,7 +502,8 @@ List rasterize(List mesh,
                                      vec_varying_uv,
                                      vec_varying_tri,
                                      vec_varying_pos,
-                                     vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
+                                     vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                                     reflection_map, has_reflection);
     } else if (type == 7) {
       shader = new PhongShaderTangent(Model, Projection, View, viewport,
                                       has_shadow_map,
@@ -491,14 +515,16 @@ List rasterize(List mesh,
                                       vec_varying_uv,
                                       vec_varying_tri,
                                       vec_varying_pos,
-                                      vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
+                                      vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                                      reflection_map, has_reflection);
     } else if (type == 8) {
       shader = new ColorShader(Model, Projection, View, viewport,mat_info[i],
                                vec_varying_intensity,
                                vec_varying_uv,
                                vec_varying_tri,
                                vec_varying_pos,
-                               vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
+                               vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                               reflection_map, has_reflection);
     } else if (type == 9) {
       shader = new ToonShader(Model, Projection, View, viewport,
                               has_shadow_map,
@@ -510,7 +536,8 @@ List rasterize(List mesh,
                               vec_varying_uv,
                               vec_varying_tri,
                               vec_varying_pos,
-                              vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
+                              vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                              reflection_map, has_reflection);
     } else if (type == 10) {
       shader = new ToonShaderPhong(Model, Projection, View, viewport,
                               has_shadow_map,
@@ -522,7 +549,8 @@ List rasterize(List mesh,
                               vec_varying_uv,
                               vec_varying_tri,
                               vec_varying_pos,
-                              vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm);
+                              vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                              reflection_map, has_reflection);
     } else {
       throw std::runtime_error("shader not recognized");
     }
@@ -554,7 +582,8 @@ List rasterize(List mesh,
     false,
     1,
     false,
-    5
+    5,
+    0.0
   };
   
   mat_info.push_back(default_mat);
@@ -571,7 +600,8 @@ List rasterize(List mesh,
                                vec_varying_uv,
                                vec_varying_tri,
                                vec_varying_pos,
-                               vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm));
+                               vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                               reflection_map, has_reflection));
   } else if (typevals(0) == 2 || typevals(0) == 4 || typevals(0) == 5) {
     shaders.push_back(new DiffuseShader(Model, Projection, View, viewport,
                                has_shadow_map,
@@ -583,7 +613,8 @@ List rasterize(List mesh,
                                vec_varying_uv,
                                vec_varying_tri,
                                vec_varying_pos,
-                               vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm));
+                               vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                               reflection_map, has_reflection));
   } else if (typevals(0) == 3 || typevals(0) == 6 || typevals(0) == 7) {
     shaders.push_back(new PhongShader(Model, Projection, View, viewport,
                              has_shadow_map,
@@ -595,14 +626,16 @@ List rasterize(List mesh,
                              vec_varying_uv,
                              vec_varying_tri,
                              vec_varying_pos,
-                             vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm));
+                             vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                             reflection_map, has_reflection));
   } else if (typevals(0) == 8) {
     shaders.push_back(new ColorShader(Model, Projection, View, viewport,mat_info.back(),
                                       vec_varying_intensity,
                                       vec_varying_uv,
                                       vec_varying_tri,
                                       vec_varying_pos,
-                                      vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm));
+                                      vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                                      reflection_map, has_reflection));
   } else if (typevals(0) == 9) {
     shaders.push_back(new ToonShader(Model, Projection, View, viewport,
                                      has_shadow_map,
@@ -614,7 +647,8 @@ List rasterize(List mesh,
                                      vec_varying_uv,
                                      vec_varying_tri,
                                      vec_varying_pos,
-                                     vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm));
+                                     vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                                     reflection_map, has_reflection));
   } else if (typevals(0) == 10) {
     shaders.push_back(new ToonShaderPhong(Model, Projection, View, viewport,
                                  has_shadow_map,
@@ -626,7 +660,8 @@ List rasterize(List mesh,
                                  vec_varying_uv,
                                  vec_varying_tri,
                                  vec_varying_pos,
-                                 vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm));
+                                 vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                                 reflection_map, has_reflection));
   }
   
   
@@ -1077,6 +1112,10 @@ List rasterize(List mesh,
   }
   for(int i = 0; i < shaders.size(); i++) {
     delete shaders[i];
+  }
+  
+  if(has_reflection) {
+    stbi_image_free(reflection_map_data);
   }
 
   return(List::create(_["r"] = r, _["g"] = g, _["b"] = b,

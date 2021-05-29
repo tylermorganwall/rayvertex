@@ -136,7 +136,8 @@ rasterize_scene  = function(scene,
                            near_plane = 0.1, far_plane = 100,
                            shader = "default", 
                            block_size = 4, shape = NULL, line_offset = 0.00001,
-                           ortho_dimensions = c(1,1), bloom = FALSE, antialias_lines = TRUE) {
+                           ortho_dimensions = c(1,1), bloom = FALSE, antialias_lines = TRUE,
+                           reflection_map = "") {
   if(!is.null(attr(scene,"cornell"))) {
     corn_message = "Setting default values for Cornell box: "
     missing_corn = FALSE
@@ -326,6 +327,14 @@ rasterize_scene  = function(scene,
       is_dir_light[i] = FALSE
     }
   }
+  has_reflection = FALSE
+  if(reflection_map != "") {
+    if(file.exists(reflection_map) && !dir.exists(reflection_map)) {
+      has_reflection = TRUE
+      reflection_map = path.expand(reflection_map)
+    }
+  }
+  
   imagelist = rasterize(obj,
                         lightinfo,
                         line_mat=line_info,
@@ -357,7 +366,8 @@ rasterize_scene  = function(scene,
                         alpha_line, line_offset,
                         ortho_dimensions, is_dir_light,
                         antialias_lines,
-                        has_vertex_tex,has_vertex_normals)
+                        has_vertex_tex,has_vertex_normals,
+                        has_reflection, reflection_map)
   if(ssao) {
     imagelist$amb = (imagelist$amb)^ssao_intensity
     imagelist$r = imagelist$r * imagelist$amb

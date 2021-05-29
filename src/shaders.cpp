@@ -35,13 +35,15 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
                              std::vector<std::vector<vec3> >& vec_varying_pos,
                              std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                              std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                             std::vector<std::vector<vec3> >& vec_varying_nrm) :
+                             std::vector<std::vector<vec3> >& vec_varying_nrm,
+                             reflection_map_info reflection_map, bool has_reflection) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
-  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm) {
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
+  reflection_map(reflection_map), has_reflection(has_reflection)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -190,10 +192,12 @@ ColorShader::ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                              std::vector<std::vector<vec3> >& vec_varying_pos,
                              std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                              std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                             std::vector<std::vector<vec3> >& vec_varying_nrm) :
+                             std::vector<std::vector<vec3> >& vec_varying_nrm,
+                             reflection_map_info reflection_map, bool has_reflection) :
   Projection(Projection), View(View), viewport(viewport), material(mat_info),
   vec_varying_uv(vec_varying_uv),
-  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm) {
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
+  reflection_map(reflection_map), has_reflection(has_reflection)   {
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
@@ -299,13 +303,15 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
               std::vector<std::vector<vec3> >& vec_varying_pos,
               std::vector<std::vector<vec3> >& vec_varying_world_nrm,
               std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-              std::vector<std::vector<vec3> >& vec_varying_nrm) :
+              std::vector<std::vector<vec3> >& vec_varying_nrm,
+              reflection_map_info reflection_map, bool has_reflection) :
     Projection(Projection), View(View), viewport(viewport),
     has_shadow_map(has_shadow_map),
     shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
     directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
     vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
-    vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm)  {
+    vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
+    reflection_map(reflection_map), has_reflection(has_reflection)    {
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
@@ -453,13 +459,15 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
              std::vector<std::vector<vec3> >& vec_varying_pos,
              std::vector<std::vector<vec3> >& vec_varying_world_nrm,
              std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-             std::vector<std::vector<vec3> >& vec_varying_nrm) :
+             std::vector<std::vector<vec3> >& vec_varying_nrm,
+             reflection_map_info reflection_map, bool has_reflection) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_uv(vec_varying_uv),
-  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm)  {
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
+  reflection_map(reflection_map), has_reflection(has_reflection)    {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -605,7 +613,8 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
                                        std::vector<std::vector<vec3> >& vec_varying_pos,
                                        std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                                        std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                                       std::vector<std::vector<vec3> >& vec_varying_nrm) :
+                                       std::vector<std::vector<vec3> >& vec_varying_nrm,
+                                       reflection_map_info reflection_map, bool has_reflection) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
@@ -613,7 +622,8 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
   vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), 
   vec_varying_ndc_tri(vec_varying_ndc_tri), vec_varying_world_nrm(vec_varying_world_nrm),
-  vec_varying_nrm(vec_varying_nrm)  {
+  vec_varying_nrm(vec_varying_nrm),
+  reflection_map(reflection_map), has_reflection(has_reflection)    {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -778,7 +788,8 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                                      std::vector<std::vector<vec3> >& vec_varying_pos,
                                      std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                                      std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                                     std::vector<std::vector<vec3> >& vec_varying_nrm) :
+                                     std::vector<std::vector<vec3> >& vec_varying_nrm,
+                                     reflection_map_info reflection_map, bool has_reflection) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
@@ -786,7 +797,8 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), 
   vec_varying_nrm(vec_varying_nrm), vec_varying_pos(vec_varying_pos), 
-  vec_varying_world_nrm(vec_varying_world_nrm)  {
+  vec_varying_world_nrm(vec_varying_world_nrm),
+  reflection_map(reflection_map), has_reflection(has_reflection)    {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -909,7 +921,9 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   }
   color += amb;
   color += emit;
-  
+  if(has_reflection) {
+    color = material.reflection_intensity * reflection(normal) + (1-material.reflection_intensity) * color;
+  }
   return false;
 }
 
@@ -943,13 +957,15 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
             std::vector<std::vector<vec3> >& vec_varying_pos,
             std::vector<std::vector<vec3> >& vec_varying_world_nrm,
             std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-            std::vector<std::vector<vec3> >& vec_varying_nrm) :
+            std::vector<std::vector<vec3> >& vec_varying_nrm,
+            reflection_map_info reflection_map, bool has_reflection) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_uv(vec_varying_uv),
-  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm)  {
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
+  reflection_map(reflection_map), has_reflection(has_reflection)    {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -1107,7 +1123,8 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
                          std::vector<std::vector<vec3> >& vec_varying_pos,
                          std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                          std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                         std::vector<std::vector<vec3> >& vec_varying_nrm) :
+                         std::vector<std::vector<vec3> >& vec_varying_nrm,
+                         reflection_map_info reflection_map, bool has_reflection) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
@@ -1115,7 +1132,8 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
   vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), 
   vec_varying_ndc_tri(vec_varying_ndc_tri), vec_varying_world_nrm(vec_varying_world_nrm),
-  vec_varying_nrm(vec_varying_nrm)   {
+  vec_varying_nrm(vec_varying_nrm),
+  reflection_map(reflection_map), has_reflection(has_reflection)     {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -1321,13 +1339,15 @@ ToonShader::ToonShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                              std::vector<std::vector<vec3> >& vec_varying_pos,
                              std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                              std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                             std::vector<std::vector<vec3> >& vec_varying_nrm) :
+                             std::vector<std::vector<vec3> >& vec_varying_nrm,
+                             reflection_map_info reflection_map, bool has_reflection) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
-  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm)  {
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
+  reflection_map(reflection_map), has_reflection(has_reflection)    {
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
@@ -1476,13 +1496,15 @@ ToonShaderPhong::ToonShaderPhong(Mat& Model, Mat& Projection, Mat& View, vec4& v
                        std::vector<std::vector<vec3> >& vec_varying_pos,
                        std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                        std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                       std::vector<std::vector<vec3> >& vec_varying_nrm) :
+                       std::vector<std::vector<vec3> >& vec_varying_nrm,
+                       reflection_map_info reflection_map, bool has_reflection) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
-  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm)  {
+  vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
+  reflection_map(reflection_map), has_reflection(has_reflection)    {
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));

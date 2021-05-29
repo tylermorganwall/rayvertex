@@ -17,4 +17,12 @@ typedef glm::dvec2 vec2;
 typedef glm::dmat4x4 Mat;
 // #endif
 
+struct reflection_map_info {
+  float* reflection;
+  int nx;
+  int ny; 
+  int nn;
+};
+
+
 #endif

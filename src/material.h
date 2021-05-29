@@ -34,6 +34,7 @@ struct material_info {
   int cull_type; //1 = back, 2 = front, 3 = none
   bool translucent;
   Float toon_levels;
+  Float reflection_intensity;
 };
 
 #endif

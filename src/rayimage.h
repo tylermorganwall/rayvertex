@@ -14,6 +14,8 @@
 vec4 trivalue(Float uu, Float vv,  float* data, 
               int nx, int ny, int channels);
 
+vec4 trivalue(Float uu, Float vv, reflection_map_info ref);
+
 class rayimage {
   public:
     rayimage(Rcpp::NumericMatrix &r_, Rcpp::NumericMatrix &g_, Rcpp::NumericMatrix &b_,

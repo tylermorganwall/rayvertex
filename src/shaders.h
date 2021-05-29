@@ -8,8 +8,16 @@
 #include "gtc/matrix_inverse.hpp"
 #include "light.h"
 #include "defines.h"
+#include "rayimage.h"
 
 #include "material.h"
+
+static void get_sphere_uv(const vec3& dir, vec2& uv) {
+  Float phi = atan2(dir.z, dir.x);
+  Float theta = asin(dir.y);
+  uv.x = 1 - (phi + M_PI) / (2*M_PI);
+  uv.y = (theta + M_PI/2) / M_PI;
+}
 
 
 class IShader {
@@ -37,7 +45,8 @@ class GouraudShader : public IShader {
                   std::vector<std::vector<vec3> >& vec_varying_pos,
                   std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                   std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                  std::vector<std::vector<vec3> >& vec_varying_nrm);
+                  std::vector<std::vector<vec3> >& vec_varying_nrm,
+                  reflection_map_info reflection_map, bool has_reflection);
     ~GouraudShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -59,6 +68,12 @@ class GouraudShader : public IShader {
       return(material.has_ambient_texture ? 
              material.ambient * material.ambient_intensity * vec3(trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a))  : 
              vec4(material.ambient * material.ambient_intensity,0.0f));
+    }
+    vec4 reflection(vec3 norm) {
+      norm = glm::normalize(norm);
+      vec2 uv;
+      get_sphere_uv(norm, uv);
+      return(trivalue(uv.x, uv.y, reflection_map));
     }
     int get_culling() {
       return(material.cull_type);
@@ -89,6 +104,7 @@ class GouraudShader : public IShader {
     float* normal_texture;
     float* specular_texture;
     float* emissive_texture;
+    
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
     std::vector<Light>& plights;
@@ -102,6 +118,9 @@ class GouraudShader : public IShader {
     std::vector<std::vector<vec4> >& vec_varying_tri;
     std::vector<std::vector<vec3> >& vec_varying_pos;
     std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+    
+    reflection_map_info reflection_map;
+    bool has_reflection;
 };
 
 
@@ -115,7 +134,8 @@ class ColorShader : public IShader {
                 std::vector<std::vector<vec3> >& vec_varying_pos,
                 std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                 std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                std::vector<std::vector<vec3> >& vec_varying_nrm);
+                std::vector<std::vector<vec3> >& vec_varying_nrm,
+                reflection_map_info reflection_map, bool has_reflection);
     ~ColorShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -140,6 +160,12 @@ class ColorShader : public IShader {
              vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
              vec4(material.ambient * material.ambient_intensity,0.0f));
     }
+    vec4 reflection(vec3 norm) {
+      norm = glm::normalize(norm);
+      vec2 uv;
+      get_sphere_uv(norm, uv);
+      return(trivalue(uv.x, uv.y, reflection_map));
+    }
     int get_culling() {
       return(material.cull_type);
     }
@@ -164,13 +190,17 @@ class ColorShader : public IShader {
     float* normal_texture;
     float* specular_texture;
     float* emissive_texture;
+
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     
     std::vector<std::vector<vec3> >& vec_varying_uv;
     std::vector<std::vector<vec4> >& vec_varying_tri;
     std::vector<std::vector<vec3> >& vec_varying_pos;
     std::vector<std::vector<vec3> >& vec_varying_world_nrm;
-
+    
+    reflection_map_info reflection_map;
+    bool has_reflection;
+    
 };
 
 class DiffuseShader : public IShader {
@@ -187,7 +217,8 @@ class DiffuseShader : public IShader {
            std::vector<std::vector<vec3> >& vec_varying_pos,
            std::vector<std::vector<vec3> >& vec_varying_world_nrm,
            std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-           std::vector<std::vector<vec3> >& vec_varying_nrm);
+           std::vector<std::vector<vec3> >& vec_varying_nrm,
+           reflection_map_info reflection_map, bool has_reflection);
     ~DiffuseShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -212,6 +243,12 @@ class DiffuseShader : public IShader {
              vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
              vec4(material.ambient * material.ambient_intensity,0.0f));
     }
+    vec4 reflection(vec3 norm) {
+      norm = glm::normalize(norm);
+      vec2 uv;
+      get_sphere_uv(norm, uv);
+      return(trivalue(uv.x, uv.y, reflection_map));
+    }
     int get_culling() {
       return(material.cull_type);
     }
@@ -239,7 +276,7 @@ class DiffuseShader : public IShader {
     float* normal_texture;
     float* specular_texture;
     float* emissive_texture;
-    
+
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
     
@@ -253,6 +290,10 @@ class DiffuseShader : public IShader {
     std::vector<std::vector<vec4> >& vec_varying_tri;
     std::vector<std::vector<vec3> >& vec_varying_pos;
     std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+    
+    
+    reflection_map_info reflection_map;
+    bool has_reflection;    
 };
 
 class DiffuseNormalShader : public IShader {
@@ -270,7 +311,8 @@ public:
                std::vector<std::vector<vec3> >& vec_varying_pos,
                std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-               std::vector<std::vector<vec3> >& vec_varying_nrm);
+               std::vector<std::vector<vec3> >& vec_varying_nrm,
+               reflection_map_info reflection_map, bool has_reflection);
   ~DiffuseNormalShader();
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
@@ -292,6 +334,12 @@ public:
     return(material.has_ambient_texture ? 
              vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
              vec4(material.ambient * material.ambient_intensity,0.0f));
+  }
+  vec4 reflection(vec3 norm) {
+    norm = glm::normalize(norm);
+    vec2 uv;
+    get_sphere_uv(norm, uv);
+    return(trivalue(uv.x, uv.y, reflection_map));
   }
   int get_culling() {
     return(material.cull_type);
@@ -317,10 +365,10 @@ public:
   int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
   float* texture;
   float* ambient_texture;
-  
   float* normal_texture;
   float* specular_texture;
   float* emissive_texture;
+
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
   
@@ -333,6 +381,10 @@ public:
   std::vector<std::vector<vec4> >& vec_varying_tri;
   std::vector<std::vector<vec3> >& vec_varying_pos;
   std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+  
+  
+  reflection_map_info reflection_map;
+  bool has_reflection;  
 };
 
 class DiffuseShaderTangent : public IShader {
@@ -350,7 +402,8 @@ class DiffuseShaderTangent : public IShader {
                        std::vector<std::vector<vec3> >& vec_varying_pos,
                        std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                        std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                       std::vector<std::vector<vec3> >& vec_varying_nrm);
+                       std::vector<std::vector<vec3> >& vec_varying_nrm,
+                       reflection_map_info reflection_map, bool has_reflection);
     ~DiffuseShaderTangent();
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
@@ -370,6 +423,12 @@ class DiffuseShaderTangent : public IShader {
       return(material.has_ambient_texture ? 
                vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
                vec4(material.ambient * material.ambient_intensity,0.0f));
+    }
+    vec4 reflection(vec3 norm) {
+      norm = glm::normalize(norm);
+      vec2 uv;
+      get_sphere_uv(norm, uv);
+      return(trivalue(uv.x, uv.y, reflection_map));
     }
     int get_culling() {
       return(material.cull_type);
@@ -402,7 +461,7 @@ class DiffuseShaderTangent : public IShader {
     float* normal_texture;
     float* specular_texture;
     float* emissive_texture;
-    
+
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
     
@@ -418,6 +477,10 @@ class DiffuseShaderTangent : public IShader {
     std::vector<std::vector<vec3> >& vec_varying_ndc_tri;
     std::vector<std::vector<vec3> >& vec_varying_world_nrm;
     std::vector<std::vector<vec3> >& vec_varying_nrm;
+    
+    
+    reflection_map_info reflection_map;
+    bool has_reflection;    
 };
 
 class PhongShader : public IShader {
@@ -434,7 +497,8 @@ class PhongShader : public IShader {
                       std::vector<std::vector<vec3> >& vec_varying_pos,
                       std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                       std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                      std::vector<std::vector<vec3> >& vec_varying_nrm);
+                      std::vector<std::vector<vec3> >& vec_varying_nrm,
+                      reflection_map_info reflection_map, bool has_reflection);
     ~PhongShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -459,6 +523,12 @@ class PhongShader : public IShader {
                vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
                vec4(material.ambient * material.ambient_intensity,0.0f));
     }
+    vec4 reflection(vec3 norm) {
+      norm = glm::normalize(norm);
+      vec2 uv;
+      get_sphere_uv(norm, uv);
+      return(trivalue(uv.x, uv.y, reflection_map));
+    }
     int get_culling() {
       return(material.cull_type);
     }
@@ -486,7 +556,7 @@ class PhongShader : public IShader {
     float* normal_texture;
     float* specular_texture;
     float* emissive_texture;
-    
+
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
     
@@ -501,6 +571,10 @@ class PhongShader : public IShader {
     std::vector<std::vector<vec3> >& vec_varying_nrm;
     std::vector<std::vector<vec3> >& vec_varying_pos;
     std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+    
+    
+    reflection_map_info reflection_map;
+    bool has_reflection;    
     
 };
 
@@ -519,7 +593,8 @@ public:
                std::vector<std::vector<vec3> >& vec_varying_pos,
                std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-               std::vector<std::vector<vec3> >& vec_varying_nrm);
+               std::vector<std::vector<vec3> >& vec_varying_nrm,
+               reflection_map_info reflection_map, bool has_reflection);
   ~PhongNormalShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -542,6 +617,12 @@ public:
     return(material.has_ambient_texture ? 
              vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
              vec4(material.ambient * material.ambient_intensity,0.0f));
+  }
+  vec4 reflection(vec3 norm) {
+    norm = glm::normalize(norm);
+    vec2 uv;
+    get_sphere_uv(norm, uv);
+    return(trivalue(uv.x, uv.y, reflection_map));
   }
   int get_culling() {
     return(material.cull_type);
@@ -569,7 +650,7 @@ public:
   float* normal_texture;
   float* specular_texture;
   float* emissive_texture;
-  
+
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
   
@@ -583,6 +664,9 @@ public:
   std::vector<std::vector<vec3> >& vec_varying_pos;
   std::vector<std::vector<vec3> >& vec_varying_world_nrm;
   
+  
+  reflection_map_info reflection_map;
+  bool has_reflection;  
   
 };
 
@@ -601,7 +685,8 @@ public:
                      std::vector<std::vector<vec3> >& vec_varying_pos,
                      std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                      std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                     std::vector<std::vector<vec3> >& vec_varying_nrm);
+                     std::vector<std::vector<vec3> >& vec_varying_nrm,
+                     reflection_map_info reflection_map, bool has_reflection);
   ~PhongShaderTangent();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -626,6 +711,12 @@ public:
              vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
              vec4(material.ambient * material.ambient_intensity,0.0f));
   }
+  vec4 reflection(vec3 norm) {
+    norm = glm::normalize(norm);
+    vec2 uv;
+    get_sphere_uv(norm, uv);
+    return(trivalue(uv.x, uv.y, reflection_map));
+  }
   int get_culling() {
     return(material.cull_type);
   }
@@ -653,6 +744,7 @@ public:
   float* normal_texture;
   float* specular_texture;
   float* emissive_texture;
+
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
   
@@ -667,6 +759,10 @@ public:
   std::vector<std::vector<vec3> >& vec_varying_ndc_tri;
   std::vector<std::vector<vec3> >& vec_varying_world_nrm;
   std::vector<std::vector<vec3> >& vec_varying_nrm;
+  
+  
+  reflection_map_info reflection_map;
+  bool has_reflection;  
 };
 
 //
@@ -731,7 +827,8 @@ public:
                 std::vector<std::vector<vec3> >& vec_varying_pos,
                 std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                 std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                std::vector<std::vector<vec3> >& vec_varying_nrm);
+                std::vector<std::vector<vec3> >& vec_varying_nrm,
+                reflection_map_info reflection_map, bool has_reflection);
   ~ToonShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -756,6 +853,12 @@ public:
              vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
              vec4(material.ambient * material.ambient_intensity,0.0f));
   }
+  vec4 reflection(vec3 norm) {
+    norm = glm::normalize(norm);
+    vec2 uv;
+    get_sphere_uv(norm, uv);
+    return(trivalue(uv.x, uv.y, reflection_map));
+  }
   int get_culling() {
     return(material.cull_type);
   }
@@ -783,7 +886,7 @@ public:
   float* normal_texture;
   float* specular_texture;
   float* emissive_texture;
-  
+
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
   
@@ -797,6 +900,10 @@ public:
   std::vector<std::vector<vec4> >& vec_varying_tri;
   std::vector<std::vector<vec3> >& vec_varying_pos;
   std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+  
+  
+  reflection_map_info reflection_map;
+  bool has_reflection;  
 };
 
 class ToonShaderPhong : public IShader {
@@ -813,7 +920,8 @@ public:
              std::vector<std::vector<vec3> >& vec_varying_pos,
              std::vector<std::vector<vec3> >& vec_varying_world_nrm,
              std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-             std::vector<std::vector<vec3> >& vec_varying_nrm);
+             std::vector<std::vector<vec3> >& vec_varying_nrm,
+             reflection_map_info reflection_map, bool has_reflection);
   ~ToonShaderPhong();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -838,6 +946,12 @@ public:
              vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
              vec4(material.ambient * material.ambient_intensity,0.0f));
   }
+  vec4 reflection(vec3 norm) {
+    norm = glm::normalize(norm);
+    vec2 uv;
+    get_sphere_uv(norm, uv);
+    return(trivalue(uv.x, uv.y, reflection_map));
+  }
   int get_culling() {
     return(material.cull_type);
   }
@@ -865,7 +979,7 @@ public:
   float* normal_texture;
   float* specular_texture;
   float* emissive_texture;
-  
+
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
   
@@ -879,6 +993,10 @@ public:
   std::vector<std::vector<vec4> >& vec_varying_tri;
   std::vector<std::vector<vec3> >& vec_varying_pos;
   std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+  
+  
+  reflection_map_info reflection_map;
+  bool has_reflection;  
 };
 
 
