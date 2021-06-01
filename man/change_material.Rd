@@ -32,7 +32,9 @@ change_material(
   translucent = NULL,
   toon_levels = NULL,
   toon_outline_width = NULL,
-  toon_outline_color = NULL
+  toon_outline_color = NULL,
+  reflection_intensity = NULL,
+  reflection_sharpness = NULL
 )
 }
 \arguments{
@@ -81,9 +83,13 @@ matching the material name.}
 
 \item{type}{Default `NULL`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.}
 
-\item{translucent}{Default `TRUE`. Whether light should transmit through a semi-transparent material.}
+\item{translucent}{Default `NULL`. Whether light should transmit through a semi-transparent material.}
 
-\item{toon_levels}{Default `5`. Number of color breaks in the toon shader.}
+\item{toon_levels}{Default `NULL`. Number of color breaks in the toon shader.}
+
+\item{reflection_intensity}{Default `NULL`. Intensity of the reflection of the environment map, if present.}
+
+\item{reflection_sharpness}{Default `NULL`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero.}
 }
 \value{
 Shape with new material settings

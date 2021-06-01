@@ -30,7 +30,9 @@ material_list(
   translucent = TRUE,
   toon_levels = 5,
   toon_outline_width = 1.01,
-  toon_outline_color = "black"
+  toon_outline_color = "black",
+  reflection_intensity = 0,
+  reflection_sharpness = 0
 )
 }
 \arguments{
@@ -81,6 +83,10 @@ material_list(
 \item{toon_outline_width}{Default `1.01`. Expansion term for model to specify toon outline width.}
 
 \item{toon_outline_color}{Default `black`. Toon outline color.}
+
+\item{reflection_intensity}{Default `0.0`. Intensity of the reflection of the environment map, if present.}
+
+\item{reflection_sharpness}{Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero.}
 }
 \value{
 List of material properties.

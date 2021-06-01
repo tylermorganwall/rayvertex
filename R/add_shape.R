@@ -300,6 +300,7 @@ rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rot
 #'@param translucent               Default `TRUE`. Whether light should transmit through a semi-transparent material.
 #'@param toon_levels               Default `5`. Number of color breaks in the toon shader. 
 #'@param reflection_intensity      Default `0.0`. Intensity of the reflection of the environment map, if present.
+#'@param reflection_sharpness      Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero.
 #'
 #'@return Shape with new material
 #'@export
@@ -339,7 +340,8 @@ set_material = function(mesh, material = NULL, id = NULL,
                         toon_levels               = 5,
                         toon_outline_width        = 1.01,
                         toon_outline_color        = "black",
-                        reflection_intensity      = 0.0) {
+                        reflection_intensity      = 0.0,
+                        reflection_sharpness      = 0.0) {
   culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   
   if(!is.null(material)) {
@@ -368,6 +370,7 @@ set_material = function(mesh, material = NULL, id = NULL,
     toon_outline_width        = material$toon_outline_width       
     toon_outline_color        = material$toon_outline_color   
     reflection_intensity      = material$reflection_intensity        
+    reflection_sharpness      = material$reflection_sharpness   
     
   }
   
@@ -400,6 +403,7 @@ set_material = function(mesh, material = NULL, id = NULL,
         mesh$materials[[i]]$toon_outline_width   = toon_outline_width   
         mesh$materials[[i]]$toon_outline_color   = convert_color(toon_outline_color)
         mesh$materials[[i]]$reflection_intensity = reflection_intensity
+        mesh$materials[[i]]$reflection_sharpness = reflection_sharpness
         
         
       }
@@ -434,6 +438,8 @@ set_material = function(mesh, material = NULL, id = NULL,
       mesh$materials[[id]]$toon_outline_width   = toon_outline_width   
       mesh$materials[[id]]$toon_outline_color   = convert_color(toon_outline_color)
       mesh$materials[[id]]$reflection_intensity = reflection_intensity
+      mesh$materials[[id]]$reflection_sharpness = reflection_sharpness
+      
       
     }
   } else {
@@ -465,6 +471,7 @@ set_material = function(mesh, material = NULL, id = NULL,
     mesh$materials[[1]]$toon_outline_width   = toon_outline_width   
     mesh$materials[[1]]$toon_outline_color   = convert_color(toon_outline_color)
     mesh$materials[[1]]$reflection_intensity = reflection_intensity
+    mesh$materials[[1]]$reflection_sharpness = reflection_sharpness
     
     mesh$material_hashes[1] = digest::digest(mesh$materials[[1]])
   }
@@ -516,6 +523,7 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'@param translucent               Default `NULL`. Whether light should transmit through a semi-transparent material.
 #'@param toon_levels               Default `NULL`. Number of color breaks in the toon shader.
 #'@param reflection_intensity      Default `NULL`. Intensity of the reflection of the environment map, if present.
+#'@param reflection_sharpness      Default `NULL`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero.
 #'
 #'@return Shape with new material settings
 #'@export
@@ -555,7 +563,8 @@ change_material = function(mesh, id = NULL,
                            toon_levels               = NULL,
                            toon_outline_width        = NULL,
                            toon_outline_color        = NULL,
-                           reflection_intensity      = NULL) {
+                           reflection_intensity      = NULL,
+                           reflection_sharpness      = NULL) {
   if(!is.null(culling)) {
     culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   }
@@ -588,6 +597,8 @@ change_material = function(mesh, id = NULL,
         if(!is.null(toon_outline_width))        mesh$materials[[i]]$toon_outline_width   = toon_outline_width   
         if(!is.null(toon_outline_color))        mesh$materials[[i]]$toon_outline_color   = convert_color(toon_outline_color)
         if(!is.null(reflection_intensity))      mesh$materials[[i]]$reflection_intensity = reflection_intensity
+        if(!is.null(reflection_sharpness))      mesh$materials[[i]]$reflection_sharpness = reflection_sharpness
+        
         
       }
     } else {
@@ -617,6 +628,8 @@ change_material = function(mesh, id = NULL,
         if(!is.null(toon_outline_width))        mesh$materials[[id]]$toon_outline_width   = toon_outline_width   
         if(!is.null(toon_outline_color))        mesh$materials[[id]]$toon_outline_color   = convert_color(toon_outline_color) 
         if(!is.null(reflection_intensity))      mesh$materials[[id]]$reflection_intensity = reflection_intensity
+        if(!is.null(reflection_sharpness))      mesh$materials[[id]]$reflection_sharpness = reflection_sharpness
+        
       }
       if(is.character(id)) {
         for(i in seq_len(length(mesh$materials))) {
@@ -646,6 +659,8 @@ change_material = function(mesh, id = NULL,
             if(!is.null(toon_outline_width))        mesh$materials[[i]]$toon_outline_width   = toon_outline_width   
             if(!is.null(toon_outline_color))        mesh$materials[[i]]$toon_outline_color   = convert_color(toon_outline_color)
             if(!is.null(reflection_intensity))      mesh$materials[[i]]$reflection_intensity = reflection_intensity
+            if(!is.null(reflection_sharpness))      mesh$materials[[i]]$reflection_sharpness = reflection_sharpness
+            
           }
         }
       }
@@ -688,6 +703,7 @@ change_material = function(mesh, id = NULL,
 #'@param toon_outline_width        Default `1.01`. Expansion term for model to specify toon outline width.
 #'@param toon_outline_color        Default `black`. Toon outline color.
 #'@param reflection_intensity      Default `0.0`. Intensity of the reflection of the environment map, if present.
+#'@param reflection_sharpness      Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero.
 #'
 #'@return List of material properties.
 #'@export
@@ -724,7 +740,8 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
                          toon_levels               = 5,
                          toon_outline_width        = 1.01,
                          toon_outline_color        = "black",
-                         reflection_intensity      = 0.0) {
+                         reflection_intensity      = 0.0,
+                         reflection_sharpness      = 0.0) {
   material_props = 
   list(diffuse                   = diffuse                   ,
        ambient                   = ambient                   ,
@@ -750,7 +767,8 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
        toon_levels               = toon_levels               ,
        toon_outline_width        = toon_outline_width        ,
        toon_outline_color        = toon_outline_color        ,
-       reflection_intensity      = reflection_intensity)
+       reflection_intensity      = reflection_intensity      ,
+       reflection_sharpness      = reflection_sharpness)
   return(material_props)
 }
 

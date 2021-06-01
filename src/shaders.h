@@ -19,6 +19,13 @@ static void get_sphere_uv(const vec3& dir, vec2& uv) {
   uv.y = (theta + M_PI/2) / M_PI;
 }
 
+static void get_sphere_uv_angles(const vec3& dir, vec2& uv, vec2 env_angles) {
+  Float phi = atan2(dir.z, dir.x) - env_angles.x;
+  Float theta = asin(dir.y) - env_angles.y;
+  uv.x = 1 - (phi + M_PI) / (2*M_PI);
+  uv.y = (theta + M_PI/2) / M_PI;
+}
+
 
 class IShader {
   public:
@@ -90,6 +97,8 @@ class GouraudShader : public IShader {
     Mat uniform_Mshadow;
     Mat uniform_M;   //  Projection*ModelView
     Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
+    Mat uniform_M_inv;
+    Mat uniform_MIT_inv;
     vec4 viewport;
     vec3 light_dir;
     vec3 l;
@@ -121,6 +130,7 @@ class GouraudShader : public IShader {
     
     reflection_map_info reflection_map;
     bool has_reflection;
+    
 };
 
 
@@ -180,6 +190,8 @@ class ColorShader : public IShader {
     Mat vp;
     Mat uniform_M;
     Mat uniform_MIT;
+    Mat uniform_M_inv;
+    Mat uniform_MIT_inv;
     vec4 viewport;
     
     material_info material;
@@ -200,6 +212,7 @@ class ColorShader : public IShader {
     
     reflection_map_info reflection_map;
     bool has_reflection;
+    
     
 };
 
@@ -264,6 +277,9 @@ class DiffuseShader : public IShader {
     Mat uniform_Mshadow;
     Mat uniform_M;
     Mat uniform_MIT;
+    Mat uniform_M_inv;
+    Mat uniform_MIT_inv;
+    
     vec4 viewport;
     
     bool has_shadow_map;
@@ -293,7 +309,8 @@ class DiffuseShader : public IShader {
     
     
     reflection_map_info reflection_map;
-    bool has_reflection;    
+    bool has_reflection;  
+      
 };
 
 class DiffuseNormalShader : public IShader {
@@ -355,6 +372,8 @@ public:
   Mat uniform_Mshadow;
   Mat uniform_M;   //  Projection*ModelView
   Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
+  Mat uniform_M_inv;
+  Mat uniform_MIT_inv;
   vec4 viewport;
   
   bool has_shadow_map;
@@ -385,6 +404,7 @@ public:
   
   reflection_map_info reflection_map;
   bool has_reflection;  
+  
 };
 
 class DiffuseShaderTangent : public IShader {
@@ -450,6 +470,8 @@ class DiffuseShaderTangent : public IShader {
     
     Mat uniform_M;   //  Projection*ModelView
     Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
+    Mat uniform_M_inv;
+    Mat uniform_MIT_inv;
     
     bool has_shadow_map;
     Float shadow_map_bias;
@@ -481,6 +503,7 @@ class DiffuseShaderTangent : public IShader {
     
     reflection_map_info reflection_map;
     bool has_reflection;    
+    
 };
 
 class PhongShader : public IShader {
@@ -545,6 +568,8 @@ class PhongShader : public IShader {
     
     Mat uniform_M;   //  Projection*ModelView
     Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
+    Mat uniform_M_inv;
+    Mat uniform_MIT_inv;
     
     bool has_shadow_map;
     Float shadow_map_bias;
@@ -574,7 +599,8 @@ class PhongShader : public IShader {
     
     
     reflection_map_info reflection_map;
-    bool has_reflection;    
+    bool has_reflection;  
+      
     
 };
 
@@ -638,6 +664,8 @@ public:
   Mat uniform_Mshadow;
   Mat uniform_M;   //  Projection*ModelView
   Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
+  Mat uniform_M_inv;
+  Mat uniform_MIT_inv;
   vec4 viewport;
   
   bool has_shadow_map;
@@ -667,6 +695,7 @@ public:
   
   reflection_map_info reflection_map;
   bool has_reflection;  
+  
   
 };
 
@@ -733,6 +762,8 @@ public:
   
   Mat uniform_M;   //  Projection*ModelView
   Mat uniform_MIT; // (Projection*ModelView).invert_transpose()
+  Mat uniform_M_inv;
+  Mat uniform_MIT_inv;
   
   bool has_shadow_map;
   Float shadow_map_bias;
@@ -763,6 +794,7 @@ public:
   
   reflection_map_info reflection_map;
   bool has_reflection;  
+  
 };
 
 //
@@ -874,6 +906,8 @@ public:
   Mat uniform_Mshadow;
   Mat uniform_M;
   Mat uniform_MIT;
+  Mat uniform_M_inv;
+  Mat uniform_MIT_inv;
   vec4 viewport;
   
   bool has_shadow_map;
@@ -904,6 +938,7 @@ public:
   
   reflection_map_info reflection_map;
   bool has_reflection;  
+  
 };
 
 class ToonShaderPhong : public IShader {
@@ -967,6 +1002,8 @@ public:
   Mat uniform_Mshadow;
   Mat uniform_M;
   Mat uniform_MIT;
+  Mat uniform_M_inv;
+  Mat uniform_MIT_inv;
   vec4 viewport;
   
   bool has_shadow_map;
@@ -997,6 +1034,7 @@ public:
   
   reflection_map_info reflection_map;
   bool has_reflection;  
+  
 };
 
 

@@ -33,7 +33,9 @@ set_material(
   translucent = TRUE,
   toon_levels = 5,
   toon_outline_width = 1.01,
-  toon_outline_color = "black"
+  toon_outline_color = "black",
+  reflection_intensity = 0,
+  reflection_sharpness = 0
 )
 }
 \arguments{
@@ -85,6 +87,10 @@ to specify the material, or use the following individual settings.}
 \item{translucent}{Default `TRUE`. Whether light should transmit through a semi-transparent material.}
 
 \item{toon_levels}{Default `5`. Number of color breaks in the toon shader.}
+
+\item{reflection_intensity}{Default `0.0`. Intensity of the reflection of the environment map, if present.}
+
+\item{reflection_sharpness}{Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero.}
 }
 \value{
 Shape with new material

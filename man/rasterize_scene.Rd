@@ -38,7 +38,8 @@ rasterize_scene(
   line_offset = 1e-05,
   ortho_dimensions = c(1, 1),
   bloom = FALSE,
-  antialias_lines = TRUE
+  antialias_lines = TRUE,
+  reflection_map = ""
 )
 }
 \arguments{
@@ -113,6 +114,8 @@ exponential kernel, which does not visibly affect dimly pixels, but does result 
 slightly bleeding into adjacent pixels.}
 
 \item{antialias_lines}{Default `TRUE`. Whether to anti-alias lines in the scene.}
+
+\item{reflection_map}{Default `""`. Image file to use as a reflection map}
 }
 \value{
 Rasterized image.

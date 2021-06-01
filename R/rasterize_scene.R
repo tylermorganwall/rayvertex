@@ -40,6 +40,7 @@
 #' exponential kernel, which does not visibly affect dimly pixels, but does result in emitters light
 #' slightly bleeding into adjacent pixels. 
 #'@param antialias_lines Default `TRUE`. Whether to anti-alias lines in the scene.
+#'@param reflection_map Default `""`. Image file to use as a reflection map
 #'
 #'@return Rasterized image.
 #'@export
@@ -306,8 +307,16 @@ rasterize_scene  = function(scene,
       }
     }
   }
+  has_reflection_map = rep(FALSE,length(obj$materials)) 
   for(i in seq_len(length(obj$materials))) {
     obj$materials[[i]]$culling = switch(obj$materials[[i]]$culling, "back" = 1, "front" = 2, "none" = 3, 1)
+    if(reflection_map != "" && obj$materials[[i]]$reflection_intensity > 0 && 
+       file.exists(reflection_map) && !dir.exists(reflection_map)) {
+      has_reflection_map[i] = TRUE
+    }
+  }
+  if(reflection_map != "") {
+    reflection_map = path.expand(reflection_map)
   }
   
   if(is.null(shadow_map_dims)) {
@@ -327,33 +336,26 @@ rasterize_scene  = function(scene,
       is_dir_light[i] = FALSE
     }
   }
-  has_reflection = FALSE
-  if(reflection_map != "") {
-    if(file.exists(reflection_map) && !dir.exists(reflection_map)) {
-      has_reflection = TRUE
-      reflection_map = path.expand(reflection_map)
-    }
-  }
-  
+
   imagelist = rasterize(obj,
                         lightinfo,
-                        line_mat=line_info,
-                        nx=width,
-                        ny=height,
+                        line_mat = line_info,
+                        nx = width,
+                        ny = height,
                         model_color = color,
-                        lookfrom=lookfrom,
-                        lookat=lookat,
+                        lookfrom = lookfrom,
+                        lookat = lookat,
                         fov=fov,
                         typevals = typevals,
                         has_shadow_map=shadow_map,
                         calc_ambient = ssao,
                         tbn = tangent_space_normals,
                         ambient_radius = ssao_radius,
-                        shadow_map_bias=shadow_map_bias,
-                        numbercores=numbercores,
+                        shadow_map_bias = shadow_map_bias,
+                        numbercores = numbercores,
                         max_indices = max_indices,
-                        has_normals_vec=has_norms,
-                        has_tex_vec=has_tex,
+                        has_normals_vec = has_norms,
+                        has_tex_vec = has_tex,
                         has_texture,
                         has_ambient_texture,
                         has_normal_texture,
@@ -367,7 +369,7 @@ rasterize_scene  = function(scene,
                         ortho_dimensions, is_dir_light,
                         antialias_lines,
                         has_vertex_tex,has_vertex_normals,
-                        has_reflection, reflection_map)
+                        has_reflection_map, reflection_map)
   if(ssao) {
     imagelist$amb = (imagelist$amb)^ssao_intensity
     imagelist$r = imagelist$r * imagelist$amb

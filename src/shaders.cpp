@@ -51,7 +51,8 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   
   uniform_M = View * Model;
   uniform_MIT = glm::inverseTranspose(uniform_M);
-  l = normalize(vec3(uniform_M * vec4(light_dir, 0.0f)));
+  uniform_M_inv = glm::inverse(uniform_M);
+  uniform_MIT_inv = glm::inverse(uniform_MIT);
 
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
@@ -161,7 +162,12 @@ bool GouraudShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   // color = vec4(light_color * material.diffuse,1.0f);
   color = light_color; 
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
-
+  if(has_reflection) {
+    vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
+    vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
+    vec3 r = glm::reflect(dir,normal_w);
+    color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  }
   return(false);
 }
 
@@ -204,6 +210,8 @@ ColorShader::ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   MVP = Projection * View * Model;
   uniform_M = View * Model;
   uniform_MIT = glm::inverseTranspose(uniform_M);
+  uniform_M_inv = glm::inverse(uniform_M);
+  uniform_MIT_inv = glm::inverse(uniform_MIT);
 
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
@@ -269,6 +277,12 @@ bool ColorShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   //Emissive and ambient terms
   color += emissive(uv);
   color += ambient(uv);
+  if(has_reflection) {
+    vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
+    vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
+    vec3 r = glm::reflect(dir,normal_w);
+    color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  }
   return false; 
 }
 
@@ -318,6 +332,8 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   MVP = Projection * View * Model;
   uniform_M = View * Model;
   uniform_MIT = glm::inverseTranspose(uniform_M);
+  uniform_M_inv = glm::inverse(uniform_M);
+  uniform_MIT_inv = glm::inverse(uniform_MIT);
 
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
@@ -424,7 +440,12 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   //Emissive and ambient terms
   color += emissive(uv);
   color += ambient(uv);
-  
+  if(has_reflection) {
+    vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
+    vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
+    vec3 r = glm::reflect(dir,normal_w);
+    color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  }
   return false; 
 }
 
@@ -514,6 +535,8 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
   
   uniform_M = View * Model;
   uniform_MIT = glm::inverseTranspose(uniform_M);
+  uniform_M_inv = glm::inverse(uniform_M);
+  uniform_MIT_inv = glm::inverse(uniform_MIT);
 };
 
 
@@ -579,6 +602,12 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3&
   
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
   normal = n;
+  if(has_reflection) {
+    vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
+    vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
+    vec3 r = glm::reflect(dir,normal_w);
+    color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  }
   return false;
 }
 
@@ -630,6 +659,8 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
   uniform_M = View * Model;
   uniform_MIT = glm::inverseTranspose(uniform_M);
+  uniform_M_inv = glm::inverse(uniform_M);
+  uniform_MIT_inv = glm::inverse(uniform_MIT);
   
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
@@ -754,7 +785,12 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3
   color += emissive(uv);
   color += ambient(uv);
   normal =  norm;
-  
+  if(has_reflection) {
+    vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
+    vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
+    vec3 r = glm::reflect(dir,normal_w);
+    color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  }
   return false;
 }
 
@@ -843,6 +879,8 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   }
   uniform_M = View * Model;
   uniform_MIT = glm::inverse(glm::transpose(uniform_M));
+  uniform_M_inv = glm::inverse(uniform_M);
+  uniform_MIT_inv = glm::inverse(uniform_MIT);
 }
 
 vec4 PhongShader::vertex(int iface, int nthvert, ModelInfo& model) {
@@ -922,7 +960,10 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   color += amb;
   color += emit;
   if(has_reflection) {
-    color = material.reflection_intensity * reflection(normal) + (1-material.reflection_intensity) * color;
+    vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
+    vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
+    vec3 r = glm::reflect(dir,normal_w);
+    color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
   }
   return false;
 }
@@ -972,6 +1013,8 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
   uniform_M = View * Model;
   uniform_MIT = glm::transpose(glm::inverse(uniform_M)); 
+  uniform_M_inv = glm::inverse(uniform_M);
+  uniform_MIT_inv = glm::inverse(uniform_MIT);
   
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
@@ -1088,7 +1131,12 @@ bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& n
   }
   color += vec4(ambient,0.0f);
   color += emit;
-
+  if(has_reflection) {
+    vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
+    vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
+    vec3 r = glm::reflect(dir,normal_w);
+    color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  }
   return false;
 }
 
@@ -1140,6 +1188,8 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
   uniform_M = View * Model;
   uniform_MIT = glm::inverseTranspose(uniform_M);
+  uniform_M_inv = glm::inverse(uniform_M);
+  uniform_MIT_inv = glm::inverse(uniform_MIT);
   
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
@@ -1273,7 +1323,12 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
   }
   color += amb;
   color += emit;
-  
+  if(has_reflection) {
+    vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
+    vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
+    vec3 r = glm::reflect(dir,normal_w);
+    color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  }
   return false;
 }
 
@@ -1354,6 +1409,8 @@ ToonShader::ToonShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   MVP = Projection * View * Model;
   uniform_M = View * Model;
   uniform_MIT = glm::inverseTranspose(uniform_M);
+  uniform_M_inv = glm::inverse(uniform_M);
+  uniform_MIT_inv = glm::inverse(uniform_MIT);
   
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
@@ -1479,7 +1536,12 @@ bool ToonShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, 
   //Emissive and ambient terms
   color += emissive(uv);
   color += ambient(uv);
-  
+  if(has_reflection) {
+    vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
+    vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
+    vec3 r = glm::reflect(dir,normal_w);
+    color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  }
   return false; 
 }
 
@@ -1511,6 +1573,8 @@ ToonShaderPhong::ToonShaderPhong(Mat& Model, Mat& Projection, Mat& View, vec4& v
   MVP = Projection * View * Model;
   uniform_M = View * Model;
   uniform_MIT = glm::inverseTranspose(uniform_M);
+  uniform_M_inv = glm::inverse(uniform_M);
+  uniform_MIT_inv = glm::inverse(uniform_MIT);
   
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
@@ -1648,6 +1712,12 @@ bool ToonShaderPhong::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& nor
   }
   color += amb;
   color += emit;
+  if(has_reflection) {
+    vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
+    vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
+    vec3 r = glm::reflect(dir,normal_w);
+    color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  }
   
   return false;
 }
