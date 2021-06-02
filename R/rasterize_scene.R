@@ -138,7 +138,7 @@ rasterize_scene  = function(scene,
                            shader = "default", 
                            block_size = 4, shape = NULL, line_offset = 0.00001,
                            ortho_dimensions = c(1,1), bloom = FALSE, antialias_lines = TRUE,
-                           reflection_map = "") {
+                           reflection_map = "", background_sharpness = 1.0) {
   if(!is.null(attr(scene,"cornell"))) {
     corn_message = "Setting default values for Cornell box: "
     missing_corn = FALSE
@@ -244,25 +244,25 @@ rasterize_scene  = function(scene,
   for(i in seq_len(length(obj$materials))) {
     if(!is.null(obj$materials[[i]]$diffuse_texname) && obj$materials[[i]]$diffuse_texname != "") {
       has_texture[i] = TRUE
-      obj$materials[[i]]$diffuse_texname = obj$materials[[i]]$diffuse_texname
+      obj$materials[[i]]$diffuse_texname = path.expand(obj$materials[[i]]$diffuse_texname)
     }
     if(!is.null(obj$materials[[i]]$ambient_texname) && obj$materials[[i]]$ambient_texname != "") {
       has_ambient_texture[i] = TRUE
-      obj$materials[[i]]$ambient_texname = obj$materials[[i]]$ambient_texname
+      obj$materials[[i]]$ambient_texname = path.expand(obj$materials[[i]]$ambient_texname)
     }
     if(!is.null(obj$materials[[i]]$specular_texname) && obj$materials[[i]]$specular_texname != "") {
       has_specular_texture[i] = TRUE
-      obj$materials[[i]]$specular_texname = obj$materials[[i]]$specular_texname
+      obj$materials[[i]]$specular_texname = path.expand(obj$materials[[i]]$specular_texname)
     }
     if(!is.null(obj$materials[[i]]$normal_texname) && obj$materials[[i]]$normal_texname != "") {
       has_normal_texture[i] = TRUE
 
-      obj$materials[[i]]$normal_texname = obj$materials[[i]]$normal_texname
+      obj$materials[[i]]$normal_texname = path.expand(obj$materials[[i]]$normal_texname)
     }
     if(!is.null(obj$materials[[i]]$emissive_texname) && obj$materials[[i]]$emissive_texname != "") {
       has_emissive_texture[i] = TRUE
 
-      obj$materials[[i]]$emissive_texname = obj$materials[[i]]$emissive_texname
+      obj$materials[[i]]$emissive_texname = path.expand(obj$materials[[i]]$emissive_texname)
     } else if (is.null(obj$materials[[i]]$emissive_texname) ) {
       obj$materials[[i]]$emissive_texname = ""
     }
@@ -308,11 +308,17 @@ rasterize_scene  = function(scene,
     }
   }
   has_reflection_map = rep(FALSE,length(obj$materials)) 
+  has_refraction = rep(FALSE,length(obj$materials)) 
+  
   for(i in seq_len(length(obj$materials))) {
     obj$materials[[i]]$culling = switch(obj$materials[[i]]$culling, "back" = 1, "front" = 2, "none" = 3, 1)
     if(reflection_map != "" && obj$materials[[i]]$reflection_intensity > 0 && 
        file.exists(reflection_map) && !dir.exists(reflection_map)) {
       has_reflection_map[i] = TRUE
+    }
+    if(reflection_map != "" && obj$materials[[i]]$ior != 1 && 
+       file.exists(reflection_map) && !dir.exists(reflection_map)) {
+      has_refraction[i] = TRUE
     }
   }
   if(reflection_map != "") {
@@ -369,7 +375,7 @@ rasterize_scene  = function(scene,
                         ortho_dimensions, is_dir_light,
                         antialias_lines,
                         has_vertex_tex,has_vertex_normals,
-                        has_reflection_map, reflection_map)
+                        has_reflection_map, reflection_map, background_sharpness, has_refraction)
   if(ssao) {
     imagelist$amb = (imagelist$amb)^ssao_intensity
     imagelist$r = imagelist$r * imagelist$amb
@@ -421,10 +427,12 @@ rasterize_scene  = function(scene,
     rayimage::plot_image(uv_array)
     return(invisible(uv_array))
   }
-
-  imagelist$r[is.infinite(imagelist$depth)] = bg_color[1]
-  imagelist$g[is.infinite(imagelist$depth)] = bg_color[2]
-  imagelist$b[is.infinite(imagelist$depth)] = bg_color[3]
+  
+  if(reflection_map == "") {
+    imagelist$r[is.infinite(imagelist$depth)] = bg_color[1]
+    imagelist$g[is.infinite(imagelist$depth)] = bg_color[2]
+    imagelist$b[is.infinite(imagelist$depth)] = bg_color[3]
+  }
 
   retmat = array(0,dim=c(dim(imagelist$r)[2:1],3))
   if(tonemap != 4) {

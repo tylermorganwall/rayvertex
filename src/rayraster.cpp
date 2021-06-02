@@ -146,7 +146,9 @@ List rasterize(List mesh,
                double alpha_line, double line_offset,
                NumericVector ortho_dims, LogicalVector is_dir_light,
                bool aa_lines, LogicalVector &has_vertex_tex, LogicalVector &has_vertex_normals,
-               LogicalVector has_reflection_map, Rcpp::String reflection_map_file) {
+               LogicalVector has_reflection_map, Rcpp::String reflection_map_file, 
+               double background_sharpness,
+               LogicalVector has_refraction) {
   List materials = as<List>(mesh["materials"]);
   int number_materials = materials.size();
   
@@ -154,11 +156,12 @@ List rasterize(List mesh,
   float* reflection_map_data = nullptr;
   int nx_r = 0, ny_r = 0, nn_r = 0;
   std::vector<reflection_map_info> reflection_maps;
+  reflection_map_info main_reflection_map;
   std::vector<float* > reflection_data;
   bool loaded_reflection_map = false;
   
   for(int i = 0; i < has_reflection_map.size(); i++) {
-    if(has_reflection_map(i)) {
+    if(has_reflection_map(i) || has_refraction(i)) {
       List single_material = as<List>(materials(i));
       double reflection_sharpness = as<double>(single_material["reflection_sharpness"]);
       if(!loaded_reflection_map) {
@@ -167,6 +170,10 @@ List rasterize(List mesh,
           throw std::runtime_error("Reflection map loading failed");
         }
         loaded_reflection_map = true;
+        main_reflection_map.reflection = reflection_map_data;
+        main_reflection_map.nx = nx_r;
+        main_reflection_map.ny = ny_r;
+        main_reflection_map.nn = nn_r;
       }
       
       int nx_r_resize = (double)nx_r * reflection_sharpness;
@@ -174,14 +181,13 @@ List rasterize(List mesh,
       
       float* reflection_map_data_temp = new float[nx_r_resize * ny_r_resize * nn_r];
       float* reflection_map_data_new = new float[nx_r * ny_r * nn_r];
+      stbir_resize_float_generic(reflection_map_data, nx_r, ny_r, 0, 
+                                 reflection_map_data_temp, nx_r_resize, ny_r_resize, 0,
+                                 nn_r, 0, 0, STBIR_EDGE_WRAP, STBIR_FILTER_CUBICBSPLINE, STBIR_COLORSPACE_LINEAR, NULL);
       
-      stbir_resize_float(reflection_map_data, nx_r, ny_r, 0, 
-                         reflection_map_data_temp, nx_r_resize, ny_r_resize, 0,
-                         nn_r);
-      
-      stbir_resize_float(reflection_map_data_temp, nx_r_resize, ny_r_resize, 0, 
-                         reflection_map_data_new, nx_r, ny_r, 0,
-                         nn_r);
+      stbir_resize_float_generic(reflection_map_data_temp, nx_r_resize, ny_r_resize, 0, 
+                                 reflection_map_data_new, nx_r, ny_r, 0,
+                                 nn_r, 0, 0, STBIR_EDGE_WRAP, STBIR_FILTER_CUBICBSPLINE, STBIR_COLORSPACE_LINEAR, NULL);
       
       delete[] reflection_map_data_temp;
       reflection_data.push_back(reflection_map_data_new);
@@ -479,7 +485,7 @@ List rasterize(List mesh,
                                  vec_varying_tri,
                                  vec_varying_pos,
                                  vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                                 reflection_maps[i], has_reflection_map(i));
+                                 reflection_maps[i], has_reflection_map(i), has_refraction(i));
     } else if (type == 2) {
       shader = new DiffuseShader(Model, Projection, View, viewport,
                                  has_shadow_map,
@@ -492,7 +498,7 @@ List rasterize(List mesh,
                                  vec_varying_tri,
                                  vec_varying_pos,
                                  vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                                 reflection_maps[i], has_reflection_map(i));
+                                 reflection_maps[i], has_reflection_map(i), has_refraction(i));
     } else if (type == 3) {
       shader = new PhongShader(Model, Projection, View, viewport,
                                has_shadow_map,
@@ -505,7 +511,7 @@ List rasterize(List mesh,
                                vec_varying_tri,
                                vec_varying_pos,
                                vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                               reflection_maps[i], has_reflection_map(i));
+                               reflection_maps[i], has_reflection_map(i), has_refraction(i));
     } else if (type == 4) {
       shader = new DiffuseNormalShader(Model, Projection, View, viewport,
                                        has_shadow_map,
@@ -518,7 +524,7 @@ List rasterize(List mesh,
                                        vec_varying_tri,
                                        vec_varying_pos,
                                        vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                                       reflection_maps[i], has_reflection_map(i));
+                                       reflection_maps[i], has_reflection_map(i), has_refraction(i));
     } else if (type == 5) {
       shader = new DiffuseShaderTangent(Model, Projection, View, viewport,
                                         has_shadow_map,
@@ -531,7 +537,7 @@ List rasterize(List mesh,
                                         vec_varying_tri,
                                         vec_varying_pos,
                                         vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                                        reflection_maps[i], has_reflection_map(i));
+                                        reflection_maps[i], has_reflection_map(i), has_refraction(i));
     } else if (type == 6) {
       shader = new PhongNormalShader(Model, Projection, View, viewport,
                                      has_shadow_map,
@@ -544,7 +550,7 @@ List rasterize(List mesh,
                                      vec_varying_tri,
                                      vec_varying_pos,
                                      vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                                     reflection_maps[i], has_reflection_map(i));
+                                     reflection_maps[i], has_reflection_map(i), has_refraction(i));
     } else if (type == 7) {
       shader = new PhongShaderTangent(Model, Projection, View, viewport,
                                       has_shadow_map,
@@ -557,7 +563,7 @@ List rasterize(List mesh,
                                       vec_varying_tri,
                                       vec_varying_pos,
                                       vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                                      reflection_maps[i], has_reflection_map(i));
+                                      reflection_maps[i], has_reflection_map(i), has_refraction(i));
     } else if (type == 8) {
       shader = new ColorShader(Model, Projection, View, viewport,mat_info[i],
                                vec_varying_intensity,
@@ -565,7 +571,7 @@ List rasterize(List mesh,
                                vec_varying_tri,
                                vec_varying_pos,
                                vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                               reflection_maps[i], has_reflection_map(i));
+                               reflection_maps[i], has_reflection_map(i), has_refraction(i));
     } else if (type == 9) {
       shader = new ToonShader(Model, Projection, View, viewport,
                               has_shadow_map,
@@ -578,7 +584,7 @@ List rasterize(List mesh,
                               vec_varying_tri,
                               vec_varying_pos,
                               vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                              reflection_maps[i], has_reflection_map(i));
+                              reflection_maps[i], has_reflection_map(i), has_refraction(i));
     } else if (type == 10) {
       shader = new ToonShaderPhong(Model, Projection, View, viewport,
                               has_shadow_map,
@@ -591,7 +597,7 @@ List rasterize(List mesh,
                               vec_varying_tri,
                               vec_varying_pos,
                               vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                              reflection_maps[i], has_reflection_map(i));
+                              reflection_maps[i], has_reflection_map(i), has_refraction(i));
     } else {
       throw std::runtime_error("shader not recognized");
     }
@@ -648,7 +654,7 @@ List rasterize(List mesh,
                                vec_varying_tri,
                                vec_varying_pos,
                                vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                               reflection_map_default, false));
+                               reflection_map_default, false, false));
   } else if (typevals(0) == 2 || typevals(0) == 4 || typevals(0) == 5) {
     shaders.push_back(new DiffuseShader(Model, Projection, View, viewport,
                                has_shadow_map,
@@ -661,7 +667,7 @@ List rasterize(List mesh,
                                vec_varying_tri,
                                vec_varying_pos,
                                vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                               reflection_map_default, false));
+                               reflection_map_default, false, false));
   } else if (typevals(0) == 3 || typevals(0) == 6 || typevals(0) == 7) {
     shaders.push_back(new PhongShader(Model, Projection, View, viewport,
                              has_shadow_map,
@@ -674,7 +680,7 @@ List rasterize(List mesh,
                              vec_varying_tri,
                              vec_varying_pos,
                              vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                             reflection_map_default, false));
+                             reflection_map_default, false, false));
   } else if (typevals(0) == 8) {
     shaders.push_back(new ColorShader(Model, Projection, View, viewport,mat_info.back(),
                                       vec_varying_intensity,
@@ -682,7 +688,7 @@ List rasterize(List mesh,
                                       vec_varying_tri,
                                       vec_varying_pos,
                                       vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                                      reflection_map_default, false));
+                                      reflection_map_default, false, false));
   } else if (typevals(0) == 9) {
     shaders.push_back(new ToonShader(Model, Projection, View, viewport,
                                      has_shadow_map,
@@ -695,7 +701,7 @@ List rasterize(List mesh,
                                      vec_varying_tri,
                                      vec_varying_pos,
                                      vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                                     reflection_map_default, false));
+                                     reflection_map_default, false, false));
   } else if (typevals(0) == 10) {
     shaders.push_back(new ToonShaderPhong(Model, Projection, View, viewport,
                                  has_shadow_map,
@@ -708,7 +714,7 @@ List rasterize(List mesh,
                                  vec_varying_tri,
                                  vec_varying_pos,
                                  vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                                 reflection_map_default, false));
+                                 reflection_map_default, false, false));
   }
   
   
@@ -1152,6 +1158,52 @@ List rasterize(List mesh,
     }
   }
   
+  //Load/blur environment image
+  if(loaded_reflection_map) {
+    if(background_sharpness != 1.0) {
+      int nx_r_resize = (double)nx_r * background_sharpness;
+      int ny_r_resize = (double)ny_r * background_sharpness;
+      
+      float* reflection_map_data_temp = new float[nx_r_resize * ny_r_resize * nn_r];
+      
+      stbir_resize_float_generic(main_reflection_map.reflection, nx_r, ny_r, 0, 
+                         reflection_map_data_temp, nx_r_resize, ny_r_resize, 0,
+                         nn_r, 0, 0, STBIR_EDGE_WRAP, STBIR_FILTER_CUBICBSPLINE, STBIR_COLORSPACE_LINEAR, NULL);
+      
+      stbir_resize_float_generic(reflection_map_data_temp, nx_r_resize, ny_r_resize, 0, 
+                         main_reflection_map.reflection, nx_r, ny_r, 0,
+                         nn_r, 0, 0, STBIR_EDGE_WRAP, STBIR_FILTER_CUBICBSPLINE, STBIR_COLORSPACE_LINEAR, NULL);
+      delete[] reflection_map_data_temp;
+    }
+    Float theta = fov * M_PI/180;
+    Float half_height = tan(theta/2);
+    Float half_width = Float(nx)/Float(ny) * half_height;
+    vec3 origin = eye;
+    vec3 w = glm::normalize(eye - center);
+    vec3 u = glm::normalize(glm::cross(cam_up, w));
+    vec3 v = glm::cross(w, u);
+    vec3 lower_left_corner = origin - half_width *  u - half_height * v - w;
+    vec3 horizontal = 2.0f * half_width * u;
+    vec3 vertical = 2.0f * half_height * v;
+    for(int i = 0; i < nx; i++) {
+      for(int j = 0; j < ny; j++) {
+        if(std::isinf(zbuffer(i,j))) {
+          Float s = (Float(i)) / Float(nx);
+          Float t = (Float(j)) / Float(ny);
+          vec2 uv;
+          vec3 dir = glm::normalize(lower_left_corner + s * horizontal + t * vertical - origin);
+          get_sphere_uv(dir,uv);
+          vec3 ref_color = trivalue(uv.x,uv.y,main_reflection_map);
+          image.set_color(i,j,ref_color);
+        }
+      }
+    }
+  }
+  
+  if(loaded_reflection_map) {
+    stbi_image_free(main_reflection_map.reflection);
+  }
+  
   for(int j = 0; j < directional_lights.size(); j++) {
     for(int i = 0; i < depthshaders[j].size(); i++) {
       delete depthshaders[j][i];
@@ -1166,14 +1218,6 @@ List rasterize(List mesh,
       delete[] reflection_maps[i].reflection;
     }
   }
-  
-  // for(int i = 0; i < nx; i++) {
-  //   for(int j = 0; j < ny; j++) {
-  //     if(std::isinf(zbuffer(i,j))) {
-  // 
-  //     }
-  //   }
-  // }
 
   return(List::create(_["r"] = r, _["g"] = g, _["b"] = b,
                       _["amb"] = abuffer, _["depth"] = zbuffer,

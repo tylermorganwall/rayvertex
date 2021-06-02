@@ -19,13 +19,6 @@ static void get_sphere_uv(const vec3& dir, vec2& uv) {
   uv.y = (theta + M_PI/2) / M_PI;
 }
 
-static void get_sphere_uv_angles(const vec3& dir, vec2& uv, vec2 env_angles) {
-  Float phi = atan2(dir.z, dir.x) - env_angles.x;
-  Float theta = asin(dir.y) - env_angles.y;
-  uv.x = 1 - (phi + M_PI) / (2*M_PI);
-  uv.y = (theta + M_PI/2) / M_PI;
-}
-
 
 class IShader {
   public:
@@ -53,7 +46,7 @@ class GouraudShader : public IShader {
                   std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                   std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                   std::vector<std::vector<vec3> >& vec_varying_nrm,
-                  reflection_map_info reflection_map, bool has_reflection);
+                  reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
     ~GouraudShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -130,6 +123,7 @@ class GouraudShader : public IShader {
     
     reflection_map_info reflection_map;
     bool has_reflection;
+    bool has_refraction;
     
 };
 
@@ -145,7 +139,7 @@ class ColorShader : public IShader {
                 std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                 std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                 std::vector<std::vector<vec3> >& vec_varying_nrm,
-                reflection_map_info reflection_map, bool has_reflection);
+                reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
     ~ColorShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -212,7 +206,7 @@ class ColorShader : public IShader {
     
     reflection_map_info reflection_map;
     bool has_reflection;
-    
+    bool has_refraction;
     
 };
 
@@ -231,7 +225,7 @@ class DiffuseShader : public IShader {
            std::vector<std::vector<vec3> >& vec_varying_world_nrm,
            std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
            std::vector<std::vector<vec3> >& vec_varying_nrm,
-           reflection_map_info reflection_map, bool has_reflection);
+           reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
     ~DiffuseShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -309,7 +303,8 @@ class DiffuseShader : public IShader {
     
     
     reflection_map_info reflection_map;
-    bool has_reflection;  
+    bool has_reflection;   
+    bool has_refraction;  
       
 };
 
@@ -329,7 +324,7 @@ public:
                std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                std::vector<std::vector<vec3> >& vec_varying_nrm,
-               reflection_map_info reflection_map, bool has_reflection);
+               reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~DiffuseNormalShader();
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
@@ -403,7 +398,8 @@ public:
   
   
   reflection_map_info reflection_map;
-  bool has_reflection;  
+  bool has_reflection;   
+  bool has_refraction;  
   
 };
 
@@ -423,7 +419,7 @@ class DiffuseShaderTangent : public IShader {
                        std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                        std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                        std::vector<std::vector<vec3> >& vec_varying_nrm,
-                       reflection_map_info reflection_map, bool has_reflection);
+                       reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
     ~DiffuseShaderTangent();
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
@@ -503,6 +499,7 @@ class DiffuseShaderTangent : public IShader {
     
     reflection_map_info reflection_map;
     bool has_reflection;    
+    bool has_refraction;   
     
 };
 
@@ -521,7 +518,7 @@ class PhongShader : public IShader {
                       std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                       std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                       std::vector<std::vector<vec3> >& vec_varying_nrm,
-                      reflection_map_info reflection_map, bool has_reflection);
+                      reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
     ~PhongShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -599,7 +596,8 @@ class PhongShader : public IShader {
     
     
     reflection_map_info reflection_map;
-    bool has_reflection;  
+    bool has_reflection;   
+    bool has_refraction;  
       
     
 };
@@ -620,7 +618,7 @@ public:
                std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                std::vector<std::vector<vec3> >& vec_varying_nrm,
-               reflection_map_info reflection_map, bool has_reflection);
+               reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~PhongNormalShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -694,7 +692,8 @@ public:
   
   
   reflection_map_info reflection_map;
-  bool has_reflection;  
+  bool has_reflection;   
+  bool has_refraction;  
   
   
 };
@@ -715,7 +714,7 @@ public:
                      std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                      std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                      std::vector<std::vector<vec3> >& vec_varying_nrm,
-                     reflection_map_info reflection_map, bool has_reflection);
+                     reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~PhongShaderTangent();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -793,7 +792,8 @@ public:
   
   
   reflection_map_info reflection_map;
-  bool has_reflection;  
+  bool has_reflection;   
+  bool has_refraction;  
   
 };
 
@@ -860,7 +860,7 @@ public:
                 std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                 std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                 std::vector<std::vector<vec3> >& vec_varying_nrm,
-                reflection_map_info reflection_map, bool has_reflection);
+                reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~ToonShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -937,7 +937,8 @@ public:
   
   
   reflection_map_info reflection_map;
-  bool has_reflection;  
+  bool has_reflection;   
+  bool has_refraction;  
   
 };
 
@@ -956,7 +957,7 @@ public:
              std::vector<std::vector<vec3> >& vec_varying_world_nrm,
              std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
              std::vector<std::vector<vec3> >& vec_varying_nrm,
-             reflection_map_info reflection_map, bool has_reflection);
+             reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~ToonShaderPhong();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -1034,6 +1035,7 @@ public:
   
   reflection_map_info reflection_map;
   bool has_reflection;  
+  bool has_refraction;  
   
 };
 

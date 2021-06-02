@@ -36,14 +36,14 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
                              std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                              std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                              std::vector<std::vector<vec3> >& vec_varying_nrm,
-                             reflection_map_info reflection_map, bool has_reflection) :
+                             reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
-  reflection_map(reflection_map), has_reflection(has_reflection)  {
+  reflection_map(reflection_map), has_reflection(has_reflection), has_refraction(has_refraction)  {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -162,11 +162,28 @@ bool GouraudShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   // color = vec4(light_color * material.diffuse,1.0f);
   color = light_color; 
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
-  if(has_reflection) {
+  if(has_reflection && !has_refraction) {
     vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
     vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
     vec3 r = glm::reflect(dir,normal_w);
     color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  } 
+  if(has_refraction) {
+    vec4 temp_col = diffuse_color;
+    vec3 dir = glm::normalize(uniform_M_inv * vec4(pos,0.0f));
+    vec3 normal_w =  glm::normalize(uniform_MIT_inv * vec4(normal,0.0f));
+    vec3 rl = glm::reflect(dir,normal_w);
+    
+    vec3 rf = glm::refract(dir,normal_w, 1.0/material.ior);
+    vec4 reflect_col = reflection(rl);
+    vec4 refract_col = reflection(rf);
+    Float Ro = (material.ior - 1.0)/(material.ior + 1.0);
+    Ro = Ro * Ro;
+    Float c0 = 1.0-dot(dir,-normal_w);
+    Float c0_5 = c0*c0*c0*c0*c0;
+    Float reflect_coef = Ro + (1.0 - Ro) * c0_5;
+    color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
+    color.w = 1.0;
   }
   return(false);
 }
@@ -199,11 +216,11 @@ ColorShader::ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                              std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                              std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                              std::vector<std::vector<vec3> >& vec_varying_nrm,
-                             reflection_map_info reflection_map, bool has_reflection) :
+                             reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport), material(mat_info),
   vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
-  reflection_map(reflection_map), has_reflection(has_reflection)   {
+  reflection_map(reflection_map), has_reflection(has_reflection), has_refraction(has_refraction)   {
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
@@ -277,11 +294,28 @@ bool ColorShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   //Emissive and ambient terms
   color += emissive(uv);
   color += ambient(uv);
-  if(has_reflection) {
+  if(has_reflection && !has_refraction) {
     vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
     vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
     vec3 r = glm::reflect(dir,normal_w);
     color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  } 
+  if(has_refraction) {
+    vec4 temp_col = diffuse_color;
+    vec3 dir = glm::normalize(uniform_M_inv * vec4(pos,0.0f));
+    vec3 normal_w =  glm::normalize(uniform_MIT_inv * vec4(normal,0.0f));
+    vec3 rl = glm::reflect(dir,normal_w);
+    
+    vec3 rf = glm::refract(dir,normal_w, 1.0/material.ior);
+    vec4 reflect_col = reflection(rl);
+    vec4 refract_col = reflection(rf);
+    Float Ro = (material.ior - 1.0)/(material.ior + 1.0);
+    Ro = Ro * Ro;
+    Float c0 = 1.0-dot(dir,-normal_w);
+    Float c0_5 = c0*c0*c0*c0*c0;
+    Float reflect_coef = Ro + (1.0 - Ro) * c0_5;
+    color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
+    color.w = 1.0;
   }
   return false; 
 }
@@ -318,14 +352,14 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
               std::vector<std::vector<vec3> >& vec_varying_world_nrm,
               std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
               std::vector<std::vector<vec3> >& vec_varying_nrm,
-              reflection_map_info reflection_map, bool has_reflection) :
+              reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
     Projection(Projection), View(View), viewport(viewport),
     has_shadow_map(has_shadow_map),
     shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
     directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
     vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
     vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
-    reflection_map(reflection_map), has_reflection(has_reflection)    {
+    reflection_map(reflection_map), has_reflection(has_reflection), has_refraction(has_refraction)    {
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
@@ -440,11 +474,28 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   //Emissive and ambient terms
   color += emissive(uv);
   color += ambient(uv);
-  if(has_reflection) {
+  if(has_reflection && !has_refraction) {
     vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
     vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
     vec3 r = glm::reflect(dir,normal_w);
     color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  } 
+  if(has_refraction) {
+    vec4 temp_col = diffuse_color;
+    vec3 dir = glm::normalize(uniform_M_inv * vec4(-pos,0.0f));
+    vec3 normal_w =  glm::normalize(uniform_MIT_inv * vec4(normal,0.0f));
+    vec3 rl = glm::reflect(dir,normal_w);
+    
+    vec3 rf = glm::normalize(glm::refract(dir,normal_w, 1.0/material.ior));
+    vec4 reflect_col = reflection(-rl);
+    vec4 refract_col = reflection(rf);
+    Float Ro = (material.ior - 1.0)/(material.ior + 1.0);
+    Ro = Ro * Ro;
+    Float c0 = 1.0-dot(dir,normal_w);
+    Float c0_5 = c0*c0*c0*c0*c0;
+    Float reflect_coef = Ro + (1.0 - Ro) * c0_5;
+    color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
+    color.w = 1.0;
   }
   return false; 
 }
@@ -481,14 +532,14 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
              std::vector<std::vector<vec3> >& vec_varying_world_nrm,
              std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
              std::vector<std::vector<vec3> >& vec_varying_nrm,
-             reflection_map_info reflection_map, bool has_reflection) :
+             reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
-  reflection_map(reflection_map), has_reflection(has_reflection)    {
+  reflection_map(reflection_map), has_reflection(has_reflection), has_refraction(has_refraction)    {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -602,11 +653,28 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3&
   
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
   normal = n;
-  if(has_reflection) {
+  if(has_reflection && !has_refraction) {
     vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
     vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
     vec3 r = glm::reflect(dir,normal_w);
     color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  } 
+  if(has_refraction) {
+    vec4 temp_col = diffuse_color;
+    vec3 dir = glm::normalize(uniform_M_inv * vec4(pos,0.0f));
+    vec3 normal_w =  glm::normalize(uniform_MIT_inv * vec4(normal,0.0f));
+    vec3 rl = glm::reflect(dir,normal_w);
+    
+    vec3 rf = glm::refract(dir,normal_w, 1.0/material.ior);
+    vec4 reflect_col = reflection(rl);
+    vec4 refract_col = reflection(rf);
+    Float Ro = (material.ior - 1.0)/(material.ior + 1.0);
+    Ro = Ro * Ro;
+    Float c0 = 1.0-dot(dir,-normal_w);
+    Float c0_5 = c0*c0*c0*c0*c0;
+    Float reflect_coef = Ro + (1.0 - Ro) * c0_5;
+    color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
+    color.w = 1.0;
   }
   return false;
 }
@@ -643,7 +711,7 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
                                        std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                                        std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                                        std::vector<std::vector<vec3> >& vec_varying_nrm,
-                                       reflection_map_info reflection_map, bool has_reflection) :
+                                       reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
@@ -652,7 +720,7 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), 
   vec_varying_ndc_tri(vec_varying_ndc_tri), vec_varying_world_nrm(vec_varying_world_nrm),
   vec_varying_nrm(vec_varying_nrm),
-  reflection_map(reflection_map), has_reflection(has_reflection)    {
+  reflection_map(reflection_map), has_reflection(has_reflection), has_refraction(has_refraction)    {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -785,11 +853,28 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3
   color += emissive(uv);
   color += ambient(uv);
   normal =  norm;
-  if(has_reflection) {
+  if(has_reflection && !has_refraction) {
     vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
     vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
     vec3 r = glm::reflect(dir,normal_w);
     color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  } 
+  if(has_refraction) {
+    vec4 temp_col = diffuse_color;
+    vec3 dir = glm::normalize(uniform_M_inv * vec4(pos,0.0f));
+    vec3 normal_w =  glm::normalize(uniform_MIT_inv * vec4(normal,0.0f));
+    vec3 rl = glm::reflect(dir,normal_w);
+    
+    vec3 rf = glm::refract(dir,normal_w, 1.0/material.ior);
+    vec4 reflect_col = reflection(rl);
+    vec4 refract_col = reflection(rf);
+    Float Ro = (material.ior - 1.0)/(material.ior + 1.0);
+    Ro = Ro * Ro;
+    Float c0 = 1.0-dot(dir,-normal_w);
+    Float c0_5 = c0*c0*c0*c0*c0;
+    Float reflect_coef = Ro + (1.0 - Ro) * c0_5;
+    color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
+    color.w = 1.0;
   }
   return false;
 }
@@ -825,7 +910,7 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                                      std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                                      std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                                      std::vector<std::vector<vec3> >& vec_varying_nrm,
-                                     reflection_map_info reflection_map, bool has_reflection) :
+                                     reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
@@ -834,7 +919,7 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   vec_varying_tri(vec_varying_tri), 
   vec_varying_nrm(vec_varying_nrm), vec_varying_pos(vec_varying_pos), 
   vec_varying_world_nrm(vec_varying_world_nrm),
-  reflection_map(reflection_map), has_reflection(has_reflection)    {
+  reflection_map(reflection_map), has_reflection(has_reflection), has_refraction(has_refraction)    {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -959,11 +1044,28 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   }
   color += amb;
   color += emit;
-  if(has_reflection) {
+  if(has_reflection && !has_refraction) {
     vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
     vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
     vec3 r = glm::reflect(dir,normal_w);
     color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  } 
+  if(has_refraction) {
+    vec4 temp_col = diffuse_color;
+    vec3 dir = glm::normalize(uniform_M_inv * vec4(pos,0.0f));
+    vec3 normal_w =  glm::normalize(uniform_MIT_inv * vec4(normal,0.0f));
+    vec3 rl = glm::reflect(dir,normal_w);
+    
+    vec3 rf = glm::refract(dir,normal_w, 1.0/material.ior);
+    vec4 reflect_col = reflection(rl);
+    vec4 refract_col = reflection(rf);
+    Float Ro = (material.ior - 1.0)/(material.ior + 1.0);
+    Ro = Ro * Ro;
+    Float c0 = 1.0-dot(dir,-normal_w);
+    Float c0_5 = c0*c0*c0*c0*c0;
+    Float reflect_coef = Ro + (1.0 - Ro) * c0_5;
+    color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
+    color.w = 1.0;
   }
   return false;
 }
@@ -999,14 +1101,14 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
             std::vector<std::vector<vec3> >& vec_varying_world_nrm,
             std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
             std::vector<std::vector<vec3> >& vec_varying_nrm,
-            reflection_map_info reflection_map, bool has_reflection) :
+            reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
-  reflection_map(reflection_map), has_reflection(has_reflection)    {
+  reflection_map(reflection_map), has_reflection(has_reflection), has_refraction(has_refraction)    {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -1131,11 +1233,28 @@ bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& n
   }
   color += vec4(ambient,0.0f);
   color += emit;
-  if(has_reflection) {
+  if(has_reflection && !has_refraction) {
     vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
     vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
     vec3 r = glm::reflect(dir,normal_w);
     color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  } 
+  if(has_refraction) {
+    vec4 temp_col = diffuse_color;
+    vec3 dir = glm::normalize(uniform_M_inv * vec4(pos,0.0f));
+    vec3 normal_w =  glm::normalize(uniform_MIT_inv * vec4(normal,0.0f));
+    vec3 rl = glm::reflect(dir,normal_w);
+    
+    vec3 rf = glm::refract(dir,normal_w, 1.0/material.ior);
+    vec4 reflect_col = reflection(rl);
+    vec4 refract_col = reflection(rf);
+    Float Ro = (material.ior - 1.0)/(material.ior + 1.0);
+    Ro = Ro * Ro;
+    Float c0 = 1.0-dot(dir,-normal_w);
+    Float c0_5 = c0*c0*c0*c0*c0;
+    Float reflect_coef = Ro + (1.0 - Ro) * c0_5;
+    color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
+    color.w = 1.0;
   }
   return false;
 }
@@ -1172,7 +1291,7 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
                          std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                          std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                          std::vector<std::vector<vec3> >& vec_varying_nrm,
-                         reflection_map_info reflection_map, bool has_reflection) :
+                         reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
@@ -1181,7 +1300,7 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), 
   vec_varying_ndc_tri(vec_varying_ndc_tri), vec_varying_world_nrm(vec_varying_world_nrm),
   vec_varying_nrm(vec_varying_nrm),
-  reflection_map(reflection_map), has_reflection(has_reflection)     {
+  reflection_map(reflection_map), has_reflection(has_reflection), has_refraction(has_refraction)     {
   MVP = Projection * View * Model;
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
@@ -1323,11 +1442,28 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
   }
   color += amb;
   color += emit;
-  if(has_reflection) {
+  if(has_reflection && !has_refraction) {
     vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
     vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
     vec3 r = glm::reflect(dir,normal_w);
     color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
+  } 
+  if(has_refraction) {
+    vec4 temp_col = diffuse_color;
+    vec3 dir = glm::normalize(uniform_M_inv * vec4(pos,0.0f));
+    vec3 normal_w =  glm::normalize(uniform_MIT_inv * vec4(normal,0.0f));
+    vec3 rl = glm::reflect(dir,normal_w);
+    
+    vec3 rf = glm::refract(dir,normal_w, 1.0/material.ior);
+    vec4 reflect_col = reflection(rl);
+    vec4 refract_col = reflection(rf);
+    Float Ro = (material.ior - 1.0)/(material.ior + 1.0);
+    Ro = Ro * Ro;
+    Float c0 = 1.0-dot(dir,-normal_w);
+    Float c0_5 = c0*c0*c0*c0*c0;
+    Float reflect_coef = Ro + (1.0 - Ro) * c0_5;
+    color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
+    color.w = 1.0;
   }
   return false;
 }
@@ -1395,14 +1531,14 @@ ToonShader::ToonShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                              std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                              std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                              std::vector<std::vector<vec3> >& vec_varying_nrm,
-                             reflection_map_info reflection_map, bool has_reflection) :
+                             reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
-  reflection_map(reflection_map), has_reflection(has_reflection)    {
+  reflection_map(reflection_map), has_reflection(has_reflection), has_refraction(has_refraction)    {
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
@@ -1536,12 +1672,6 @@ bool ToonShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, 
   //Emissive and ambient terms
   color += emissive(uv);
   color += ambient(uv);
-  if(has_reflection) {
-    vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
-    vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
-    vec3 r = glm::reflect(dir,normal_w);
-    color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
-  }
   return false; 
 }
 
@@ -1559,14 +1689,14 @@ ToonShaderPhong::ToonShaderPhong(Mat& Model, Mat& Projection, Mat& View, vec4& v
                        std::vector<std::vector<vec3> >& vec_varying_world_nrm,
                        std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
                        std::vector<std::vector<vec3> >& vec_varying_nrm,
-                       reflection_map_info reflection_map, bool has_reflection) :
+                       reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
   vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
-  reflection_map(reflection_map), has_reflection(has_reflection)    {
+  reflection_map(reflection_map), has_reflection(has_reflection), has_refraction(has_refraction)    {
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
@@ -1712,12 +1842,6 @@ bool ToonShaderPhong::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& nor
   }
   color += amb;
   color += emit;
-  if(has_reflection) {
-    vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
-    vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
-    vec3 r = glm::reflect(dir,normal_w);
-    color = material.reflection_intensity * reflection(r) + (1-material.reflection_intensity) * color;
-  }
   
   return false;
 }

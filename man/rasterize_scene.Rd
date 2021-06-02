@@ -39,7 +39,8 @@ rasterize_scene(
   ortho_dimensions = c(1, 1),
   bloom = FALSE,
   antialias_lines = TRUE,
-  reflection_map = ""
+  reflection_map = "",
+  background_sharpness = 1
 )
 }
 \arguments{
