@@ -55,7 +55,7 @@ matching the material name.}
 
 \item{shininess}{Default `NULL`. The shininess exponent.}
 
-\item{ior}{Default `NULL`. The index of refraction.}
+\item{ior}{Default `NULL`. The index of refraction. If this is not equal to `1.0`, the material will be refractive.}
 
 \item{dissolve}{Default `NULL`. The transparency.}
 
@@ -87,9 +87,13 @@ matching the material name.}
 
 \item{toon_levels}{Default `NULL`. Number of color breaks in the toon shader.}
 
-\item{reflection_intensity}{Default `NULL`. Intensity of the reflection of the environment map, if present.}
+\item{toon_outline_width}{Default `NULL`. Expansion term for model to specify toon outline width. Note: setting this property via this function currently does not generate outlines. Specify it during object creation.}
 
-\item{reflection_sharpness}{Default `NULL`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero.}
+\item{toon_outline_color}{Default `NULL`. Toon outline color.Note: setting this property via this function currently does not color outlines. Specify it during object creation.}
+
+\item{reflection_intensity}{Default `NULL`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.}
+
+\item{reflection_sharpness}{Default `NULL`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.}
 }
 \value{
 Shape with new material settings

@@ -29,7 +29,7 @@ material_list(
   type = "diffuse",
   translucent = TRUE,
   toon_levels = 5,
-  toon_outline_width = 1.01,
+  toon_outline_width = 0.05,
   toon_outline_color = "black",
   reflection_intensity = 0,
   reflection_sharpness = 0
@@ -48,7 +48,7 @@ material_list(
 
 \item{shininess}{Default `10.0`. The shininess exponent.}
 
-\item{ior}{Default `1.0`. The index of refraction.}
+\item{ior}{Default `1.0`. The index of refraction. If this is not equal to `1.0`, the material will be refractive.}
 
 \item{dissolve}{Default `1.0`. The transparency.}
 
@@ -80,13 +80,13 @@ material_list(
 
 \item{toon_levels}{Default `5`. Number of color breaks in the toon shader.}
 
-\item{toon_outline_width}{Default `1.01`. Expansion term for model to specify toon outline width.}
+\item{toon_outline_width}{Default `0.05`. Expansion term for model to specify toon outline width.}
 
 \item{toon_outline_color}{Default `black`. Toon outline color.}
 
-\item{reflection_intensity}{Default `0.0`. Intensity of the reflection of the environment map, if present.}
+\item{reflection_intensity}{Default `0.0`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.}
 
-\item{reflection_sharpness}{Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero.}
+\item{reflection_sharpness}{Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.}
 }
 \value{
 List of material properties.

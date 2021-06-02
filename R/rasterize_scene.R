@@ -40,7 +40,10 @@
 #' exponential kernel, which does not visibly affect dimly pixels, but does result in emitters light
 #' slightly bleeding into adjacent pixels. 
 #'@param antialias_lines Default `TRUE`. Whether to anti-alias lines in the scene.
-#'@param reflection_map Default `""`. Image file to use as a reflection map
+#'@param environment_map Default `""`. Image file to use as a texture for all reflective and refractive
+#'materials in the scene, along with the background.
+#'@param background_sharpness Default `1.0`. A number greater than zero but less than one indicating the sharpness
+#'of the background image.
 #'
 #'@return Rasterized image.
 #'@export
@@ -138,7 +141,7 @@ rasterize_scene  = function(scene,
                            shader = "default", 
                            block_size = 4, shape = NULL, line_offset = 0.00001,
                            ortho_dimensions = c(1,1), bloom = FALSE, antialias_lines = TRUE,
-                           reflection_map = "", background_sharpness = 1.0) {
+                           environment_map= "", background_sharpness = 1.0) {
   if(!is.null(attr(scene,"cornell"))) {
     corn_message = "Setting default values for Cornell box: "
     missing_corn = FALSE
@@ -312,17 +315,17 @@ rasterize_scene  = function(scene,
   
   for(i in seq_len(length(obj$materials))) {
     obj$materials[[i]]$culling = switch(obj$materials[[i]]$culling, "back" = 1, "front" = 2, "none" = 3, 1)
-    if(reflection_map != "" && obj$materials[[i]]$reflection_intensity > 0 && 
-       file.exists(reflection_map) && !dir.exists(reflection_map)) {
+    if(environment_map != "" && obj$materials[[i]]$reflection_intensity > 0 && 
+       file.exists(environment_map) && !dir.exists(environment_map)) {
       has_reflection_map[i] = TRUE
     }
-    if(reflection_map != "" && obj$materials[[i]]$ior != 1 && 
-       file.exists(reflection_map) && !dir.exists(reflection_map)) {
+    if(environment_map != "" && obj$materials[[i]]$ior != 1 && 
+       file.exists(environment_map) && !dir.exists(environment_map)) {
       has_refraction[i] = TRUE
     }
   }
-  if(reflection_map != "") {
-    reflection_map = path.expand(reflection_map)
+  if(environment_map != "") {
+    environment_map = path.expand(environment_map)
   }
   
   if(is.null(shadow_map_dims)) {
@@ -375,7 +378,7 @@ rasterize_scene  = function(scene,
                         ortho_dimensions, is_dir_light,
                         antialias_lines,
                         has_vertex_tex,has_vertex_normals,
-                        has_reflection_map, reflection_map, background_sharpness, has_refraction)
+                        has_reflection_map, environment_map, background_sharpness, has_refraction)
   if(ssao) {
     imagelist$amb = (imagelist$amb)^ssao_intensity
     imagelist$r = imagelist$r * imagelist$amb
@@ -428,7 +431,7 @@ rasterize_scene  = function(scene,
     return(invisible(uv_array))
   }
   
-  if(reflection_map == "") {
+  if(environment_map == "") {
     imagelist$r[is.infinite(imagelist$depth)] = bg_color[1]
     imagelist$g[is.infinite(imagelist$depth)] = bg_color[2]
     imagelist$b[is.infinite(imagelist$depth)] = bg_color[3]

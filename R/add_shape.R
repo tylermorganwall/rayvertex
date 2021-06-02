@@ -277,13 +277,15 @@ rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rot
 #'@param mesh The target mesh. 
 #'@param material Default `NULL`. You can pass the output of the `material_list()` function
 #'to specify the material, or use the following individual settings.
+#'@param id Default `NULL`. Either a number specifying the material to change, or a character vector 
+#'matching the material name.
 #'@param diffuse                   Default `c(0.5,0.5,0.5)`. The diffuse color.
 #'@param ambient                   Default `c(0,0,0)`. The ambient color.
 #'@param specular                  Default `c(1,1,1)`. The specular color.
 #'@param transmittance             Default `c(1,1,1)`. The transmittance
 #'@param emission                  Default `c(0,0,0)`. The emissive color.
 #'@param shininess                 Default `10.0`. The shininess exponent.
-#'@param ior                       Default `1.0`. The index of refraction.
+#'@param ior                       Default `1.0`. The index of refraction. If this is not equal to `1.0`, the material will be refractive.
 #'@param dissolve                  Default `1.0`. The transparency.
 #'@param illum                     Default `1.0`. The illumination.
 #'@param texture_location          Default `""`. The diffuse texture location.
@@ -299,8 +301,10 @@ rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rot
 #'@param type                      Default `"diffuse"`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.
 #'@param translucent               Default `TRUE`. Whether light should transmit through a semi-transparent material.
 #'@param toon_levels               Default `5`. Number of color breaks in the toon shader. 
-#'@param reflection_intensity      Default `0.0`. Intensity of the reflection of the environment map, if present.
-#'@param reflection_sharpness      Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero.
+#'@param toon_outline_width        Default `0.05`. Expansion term for model to specify toon outline width. Note: setting this property via this function currently does not generate outlines. Specify it during object creation.
+#'@param toon_outline_color        Default `black`. Toon outline color. Note: setting this property via this function currently does not color outlines. Specify it during object creation.
+#'@param reflection_intensity      Default `0.0`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.
+#'@param reflection_sharpness      Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.
 #'
 #'@return Shape with new material
 #'@export
@@ -338,7 +342,7 @@ set_material = function(mesh, material = NULL, id = NULL,
                         type                      = "diffuse",
                         translucent               = TRUE,
                         toon_levels               = 5,
-                        toon_outline_width        = 1.01,
+                        toon_outline_width        = 0.05,
                         toon_outline_color        = "black",
                         reflection_intensity      = 0.0,
                         reflection_sharpness      = 0.0) {
@@ -506,7 +510,7 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'@param transmittance             Default `NULL`. The transmittance
 #'@param emission                  Default `NULL`. The emissive color.
 #'@param shininess                 Default `NULL`. The shininess exponent.
-#'@param ior                       Default `NULL`. The index of refraction.
+#'@param ior                       Default `NULL`. The index of refraction. If this is not equal to `1.0`, the material will be refractive. 
 #'@param dissolve                  Default `NULL`. The transparency.
 #'@param illum                     Default `NULL`. The illumination.
 #'@param texture_location          Default `NULL`. The diffuse texture location.
@@ -522,8 +526,10 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'@param type                      Default `NULL`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.
 #'@param translucent               Default `NULL`. Whether light should transmit through a semi-transparent material.
 #'@param toon_levels               Default `NULL`. Number of color breaks in the toon shader.
-#'@param reflection_intensity      Default `NULL`. Intensity of the reflection of the environment map, if present.
-#'@param reflection_sharpness      Default `NULL`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero.
+#'@param toon_outline_width        Default `NULL`. Expansion term for model to specify toon outline width. Note: setting this property via this function currently does not generate outlines. Specify it during object creation.
+#'@param toon_outline_color        Default `NULL`. Toon outline color.Note: setting this property via this function currently does not color outlines. Specify it during object creation.
+#'@param reflection_intensity      Default `NULL`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.
+#'@param reflection_sharpness      Default `NULL`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.
 #'
 #'@return Shape with new material settings
 #'@export
@@ -684,7 +690,7 @@ change_material = function(mesh, id = NULL,
 #'@param transmittance             Default `c(1,1,1)`. The transmittance
 #'@param emission                  Default `c(0,0,0)`. The emissive color.
 #'@param shininess                 Default `10.0`. The shininess exponent.
-#'@param ior                       Default `1.0`. The index of refraction.
+#'@param ior                       Default `1.0`. The index of refraction. If this is not equal to `1.0`, the material will be refractive.
 #'@param dissolve                  Default `1.0`. The transparency.
 #'@param illum                     Default `1.0`. The illumination.
 #'@param texture_location          Default `""`. The diffuse texture location.
@@ -700,10 +706,10 @@ change_material = function(mesh, id = NULL,
 #'@param type                      Default `"diffuse"`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.
 #'@param translucent               Default `FALSE`. Whether light should transmit through a semi-transparent material.
 #'@param toon_levels               Default `5`. Number of color breaks in the toon shader.
-#'@param toon_outline_width        Default `1.01`. Expansion term for model to specify toon outline width.
+#'@param toon_outline_width        Default `0.05`. Expansion term for model to specify toon outline width.
 #'@param toon_outline_color        Default `black`. Toon outline color.
-#'@param reflection_intensity      Default `0.0`. Intensity of the reflection of the environment map, if present.
-#'@param reflection_sharpness      Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero.
+#'@param reflection_intensity      Default `0.0`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.
+#'@param reflection_sharpness      Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.
 #'
 #'@return List of material properties.
 #'@export
@@ -738,7 +744,7 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
                          type                      = "diffuse",
                          translucent               = TRUE,
                          toon_levels               = 5,
-                         toon_outline_width        = 1.01,
+                         toon_outline_width        = 0.05,
                          toon_outline_color        = "black",
                          reflection_intensity      = 0.0,
                          reflection_sharpness      = 0.0) {

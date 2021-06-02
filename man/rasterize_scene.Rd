@@ -39,7 +39,7 @@ rasterize_scene(
   ortho_dimensions = c(1, 1),
   bloom = FALSE,
   antialias_lines = TRUE,
-  reflection_map = "",
+  environment_map = "",
   background_sharpness = 1
 )
 }
@@ -116,7 +116,11 @@ slightly bleeding into adjacent pixels.}
 
 \item{antialias_lines}{Default `TRUE`. Whether to anti-alias lines in the scene.}
 
-\item{reflection_map}{Default `""`. Image file to use as a reflection map}
+\item{environment_map}{Default `""`. Image file to use as a texture for all reflective and refractive
+materials in the scene, along with the background.}
+
+\item{background_sharpness}{Default `1.0`. A number greater than zero but less than one indicating the sharpness
+of the background image.}
 }
 \value{
 Rasterized image.

@@ -32,7 +32,7 @@ set_material(
   type = "diffuse",
   translucent = TRUE,
   toon_levels = 5,
-  toon_outline_width = 1.01,
+  toon_outline_width = 0.05,
   toon_outline_color = "black",
   reflection_intensity = 0,
   reflection_sharpness = 0
@@ -43,6 +43,9 @@ set_material(
 
 \item{material}{Default `NULL`. You can pass the output of the `material_list()` function
 to specify the material, or use the following individual settings.}
+
+\item{id}{Default `NULL`. Either a number specifying the material to change, or a character vector 
+matching the material name.}
 
 \item{diffuse}{Default `c(0.5,0.5,0.5)`. The diffuse color.}
 
@@ -56,7 +59,7 @@ to specify the material, or use the following individual settings.}
 
 \item{shininess}{Default `10.0`. The shininess exponent.}
 
-\item{ior}{Default `1.0`. The index of refraction.}
+\item{ior}{Default `1.0`. The index of refraction. If this is not equal to `1.0`, the material will be refractive.}
 
 \item{dissolve}{Default `1.0`. The transparency.}
 
@@ -88,9 +91,13 @@ to specify the material, or use the following individual settings.}
 
 \item{toon_levels}{Default `5`. Number of color breaks in the toon shader.}
 
-\item{reflection_intensity}{Default `0.0`. Intensity of the reflection of the environment map, if present.}
+\item{toon_outline_width}{Default `0.05`. Expansion term for model to specify toon outline width. Note: setting this property via this function currently does not generate outlines. Specify it during object creation.}
 
-\item{reflection_sharpness}{Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero.}
+\item{toon_outline_color}{Default `black`. Toon outline color. Note: setting this property via this function currently does not color outlines. Specify it during object creation.}
+
+\item{reflection_intensity}{Default `0.0`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.}
+
+\item{reflection_sharpness}{Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.}
 }
 \value{
 Shape with new material
