@@ -19,17 +19,11 @@ Add Shape
 
 Add shape to the scene
 }
-\examples{
-#Generate several spheres in the cornell box
-scene = generate_cornell_mesh()
-set.seed(1)
-
-for(i in 1:30) {
- col = hsv(runif(1))
- scene = add_shape(scene, sphere_mesh(position=runif(3)*400+155/2,
-                                      material=material_list(diffuse=col, type="phong",
-                                                             ambient=col,ambient_intensity=0.2), 
-                                      radius=30))
-}
-rasterize_scene(scene, light_info=directional_light(direction=c(0.1,0.6,-1)))
-}
+\keyword{#Generate}
+\keyword{box}
+\keyword{cornell}
+\keyword{in}
+\keyword{internal}
+\keyword{several}
+\keyword{spheres}
+\keyword{the}
