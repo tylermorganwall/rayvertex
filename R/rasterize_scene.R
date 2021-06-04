@@ -324,8 +324,12 @@ rasterize_scene  = function(scene,
       has_refraction[i] = TRUE
     }
   }
+  environment_map_hdr = FALSE
   if(environment_map != "") {
     environment_map = path.expand(environment_map)
+    if(tools::file_ext(environment_map) == "hdr") {
+      environment_map_hdr = TRUE
+    }
   }
   
   if(is.null(shadow_map_dims)) {
@@ -378,7 +382,8 @@ rasterize_scene  = function(scene,
                         ortho_dimensions, is_dir_light,
                         antialias_lines,
                         has_vertex_tex,has_vertex_normals,
-                        has_reflection_map, environment_map, background_sharpness, has_refraction)
+                        has_reflection_map, environment_map, background_sharpness, has_refraction,
+                        environment_map_hdr)
   if(ssao) {
     imagelist$amb = (imagelist$amb)^ssao_intensity
     imagelist$r = imagelist$r * imagelist$amb

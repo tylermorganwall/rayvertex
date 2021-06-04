@@ -148,9 +148,12 @@ List rasterize(List mesh,
                bool aa_lines, LogicalVector &has_vertex_tex, LogicalVector &has_vertex_normals,
                LogicalVector has_reflection_map, Rcpp::String reflection_map_file, 
                double background_sharpness,
-               LogicalVector has_refraction) {
+               LogicalVector has_refraction, bool environment_map_hdr) {
   List materials = as<List>(mesh["materials"]);
   int number_materials = materials.size();
+  
+  //Turn off gamma correction or get seams in textures/normal maps
+  stbi_ldr_to_hdr_gamma(1.0f);
   
   //Resize reflection map for different roughness materials
   float* reflection_map_data = nullptr;
@@ -169,6 +172,12 @@ List rasterize(List mesh,
         if(nx_r == 0 || ny_r == 0 || nn_r == 0) {
           throw std::runtime_error("Reflection map loading failed");
         }
+        if(environment_map_hdr) {
+          float gamma_exp = 1.0/2.2f;
+          for(int j = 0; j < nx_r * ny_r * nn_r; j++) {
+            reflection_map_data[j] = powf(reflection_map_data[j],gamma_exp);
+          }
+        }
         loaded_reflection_map = true;
         main_reflection_map.reflection = reflection_map_data;
         main_reflection_map.nx = nx_r;
@@ -178,18 +187,20 @@ List rasterize(List mesh,
       
       int nx_r_resize = (double)nx_r * reflection_sharpness;
       int ny_r_resize = (double)ny_r * reflection_sharpness;
-      
-      float* reflection_map_data_temp = new float[nx_r_resize * ny_r_resize * nn_r];
       float* reflection_map_data_new = new float[nx_r * ny_r * nn_r];
-      stbir_resize_float_generic(reflection_map_data, nx_r, ny_r, 0, 
-                                 reflection_map_data_temp, nx_r_resize, ny_r_resize, 0,
-                                 nn_r, 0, 0, STBIR_EDGE_WRAP, STBIR_FILTER_CUBICBSPLINE, STBIR_COLORSPACE_LINEAR, NULL);
-      
-      stbir_resize_float_generic(reflection_map_data_temp, nx_r_resize, ny_r_resize, 0, 
-                                 reflection_map_data_new, nx_r, ny_r, 0,
-                                 nn_r, 0, 0, STBIR_EDGE_WRAP, STBIR_FILTER_CUBICBSPLINE, STBIR_COLORSPACE_LINEAR, NULL);
-      
-      delete[] reflection_map_data_temp;
+      if(reflection_sharpness < 1.0 && reflection_sharpness > 0.0) {
+        float* reflection_map_data_temp = new float[nx_r_resize * ny_r_resize * nn_r];
+        stbir_resize_float_generic(reflection_map_data, nx_r, ny_r, 0, 
+                                   reflection_map_data_temp, nx_r_resize, ny_r_resize, 0,
+                                   nn_r, 0, 0, STBIR_EDGE_WRAP, STBIR_FILTER_CUBICBSPLINE, STBIR_COLORSPACE_LINEAR, NULL);
+        
+        stbir_resize_float_generic(reflection_map_data_temp, nx_r_resize, ny_r_resize, 0, 
+                                   reflection_map_data_new, nx_r, ny_r, 0,
+                                   nn_r, 0, 0, STBIR_EDGE_WRAP, STBIR_FILTER_CUBICBSPLINE, STBIR_COLORSPACE_LINEAR, NULL);
+        delete[] reflection_map_data_temp;
+      } else {
+        memcpy(reflection_map_data_new, main_reflection_map.reflection, sizeof(float) * nx_r * ny_r * nn_r);
+      }
       reflection_data.push_back(reflection_map_data_new);
       reflection_map_info reflection_map {
         reflection_map_data_new,
@@ -208,6 +219,7 @@ List rasterize(List mesh,
       reflection_maps.push_back(reflection_map);
     }
   }
+  stbi_ldr_to_hdr_gamma(1.0f);
   
   //Convert R vectors to vec3
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
@@ -228,9 +240,6 @@ List rasterize(List mesh,
   
   far_clip = scene_diag + dist_to_focus;
   
-  
-  //Turn off gamma correction or get seams in textures/normal maps
-  stbi_ldr_to_hdr_gamma(1.0);
     
   //Generate MVP matrices
   Mat View       = glm::lookAt(eye, center, cam_up);
@@ -1193,6 +1202,8 @@ List rasterize(List mesh,
           vec2 uv;
           vec3 dir = glm::normalize(lower_left_corner + s * horizontal + t * vertical - origin);
           get_sphere_uv(dir,uv);
+          uv.x = 1 - uv.x;
+          uv.x += 0.25;
           vec3 ref_color = trivalue(uv.x,uv.y,main_reflection_map);
           image.set_color(i,j,ref_color);
         }

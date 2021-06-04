@@ -320,7 +320,7 @@ arrow_mesh = function(start = c(0,0,0), end = c(0,1,0), radius_top = 0.5, radius
     
     new_radius = (2*radius_top) / (fulllength * (1-tail_proportion)) * (fulllength * (1-tail_proportion) + material$toon_outline_width)
     
-    obj2$vertices[c(1:32,66:97),c(1,3)] = obj$vertices[c(1:32,66:97),c(1,3)] * radius_tail/0.25 * (radius_tail + material$toon_outline_width)/radius_tail
+    obj2$vertices[c(1:32,66:97),c(1,3)] = obj$vertices[c(1:32,66:97),c(1,3)] * radius_tail/0.25 * (radius_tail + material$toon_outline_width/2)/radius_tail
     obj2$vertices[34:65,c(1,3)] = obj$vertices[34:65,c(1,3)] * new_radius
 
     #Proportions
@@ -746,10 +746,15 @@ obj_mesh = function(filename, position = c(0,0,0), scale = c(1,1,1),
   }
   if(!is.null(material)) {
     obj_loaded = set_material(obj_loaded,material = material)
+    if(material$type == "toon" || material$type == "toon_phong") {
+      obj2 = generate_toon_outline(obj_loaded, material)
+      obj_loaded = add_shape(obj_loaded,obj2)
+    }
   }
   if(any(angle != 0)) {
     obj_loaded = rotate_mesh(obj_loaded, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
   }
+  
   obj_loaded = translate_mesh(obj_loaded,position)
   obj_loaded
 }
@@ -859,7 +864,7 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
   if(material$type == "toon" || material$type == "toon_phong") {
     obj2 = torus_mesh(position = c(0,0,0), scale = scale, 
                       radius = radius, 
-                      ring_radius = ring_radius + material$toon_outline_width , sides = sides, rings=rings,
+                      ring_radius = ring_radius + material$toon_outline_width/2 , sides = sides, rings=rings,
                       material = material_list(diffuse=material$toon_outline_color, type="color",culling="front"))
     obj = add_shape(obj,obj2)
   }

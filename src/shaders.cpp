@@ -482,16 +482,16 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   } 
   if(has_refraction) {
     vec4 temp_col = diffuse_color;
-    vec3 dir = glm::normalize(uniform_M_inv * vec4(-pos,0.0f));
+    vec3 dir = glm::normalize(uniform_M_inv * vec4(pos,0.0f));
     vec3 normal_w =  glm::normalize(uniform_MIT_inv * vec4(normal,0.0f));
     vec3 rl = glm::reflect(dir,normal_w);
     
-    vec3 rf = glm::normalize(glm::refract(dir,normal_w, 1.0/material.ior));
-    vec4 reflect_col = reflection(-rl);
+    vec3 rf = glm::refract(dir,normal_w, 1.0/material.ior);
+    vec4 reflect_col = reflection(rl);
     vec4 refract_col = reflection(rf);
     Float Ro = (material.ior - 1.0)/(material.ior + 1.0);
     Ro = Ro * Ro;
-    Float c0 = 1.0-dot(dir,normal_w);
+    Float c0 = 1.0-dot(dir,-normal_w);
     Float c0_5 = c0*c0*c0*c0*c0;
     Float reflect_coef = Ro + (1.0 - Ro) * c0_5;
     color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;

@@ -42,6 +42,8 @@ Rayvertex features the following:
 -   Orthographic and projective cameras
 -   Screen-space ambient occlusion
 -   Translucent (tinted) shadows
+-   Reflection Maps
+-   Refractive Materials
 -   Bloom
 -   Tone mapping
 
@@ -79,6 +81,8 @@ following:
     -   Culling type
     -   Shader type
     -   Translucency
+    -   Number of Toon levels
+    -   Reflection Intensity
 -   A 3xN matrix of vertex positions
 -   A 2xN matrix of texture coordinates for each vertex
 -   A 3xN matrix of normals for each vertex
@@ -207,6 +211,79 @@ generate_cornell_mesh(ceiling=FALSE) %>%
 ```
 
 <img src="man/figures/README-cornell6-1.png" width="100%" />
+
+We can also draw shapes with toon shading:
+
+``` r
+set.seed(1)
+col = hsv(runif(1))
+scene = sphere_mesh(position=runif(3),
+                    material=material_list(diffuse=col, type="toon",toon_levels = 3, 
+                                           toon_outline_width = 0.025,
+                                           ambient=col,ambient_intensity=0.2),radius=0.1)
+
+for(i in 1:30) {
+  col = hsv(runif(1))
+  scene = add_shape(scene, sphere_mesh(position=runif(3),
+                                       material=material_list(diffuse=col, type="toon",toon_levels = 3,
+                                                              toon_outline_width = 0.025,
+                                                              ambient=col, ambient_intensity=0.2),
+                                       radius=0.1))
+}
+
+rasterize_scene(scene, light_info=directional_light(direction=c(0.5,0.8,1)),
+                background = "white",fov=10)
+#> Setting `lookat` to: c(0.53, 0.49, 0.50)
+```
+
+<img src="man/figures/README-toonshading-1.png" width="100%" />
+
+You can also include a environment map to use for reflective,
+semi-reflective, and refractive surfaces. The roughness of the
+reflection can be controlled on a per-material basis with the
+`reflection_sharpness` argument.
+
+``` r
+tempfilehdr = tempfile(fileext = ".hdr")
+download.file("https://www.tylermw.com/data/venice_sunset_2k.hdr",tempfilehdr)
+
+scene = torus_mesh(position=c(0.4,0,0),angle=c(-30,20,-30),
+                   material=material_list(diffuse=c(1,1,1), type="color", 
+                                           reflection_intensity = 1.0, reflection_sharpness = 0.2),
+                   ring_radius=0.05,radius=0.2) %>% 
+  add_shape(torus_mesh(position=c(0.4,0.5,0),angle=c(-30,20,-130),
+                   material=material_list(diffuse="green", ambient="green", type="phong", 
+                                          ambient_intensity = 0.2, diffuse_intensity=0.8,
+                                          reflection_intensity = 0.5, reflection_sharpness = 0.05),
+                   ring_radius=0.05,radius=0.2)) %>% 
+  add_shape(sphere_mesh(position=c(-0.4,0,0),
+                   material=material_list(diffuse="white", type="color",ior=1.6),radius=0.2)) %>% 
+  add_shape(sphere_mesh(position=c(-0.4,0.5,0),
+                   material=material_list(diffuse="purple", type="color",ior=1.6),radius=0.2)) %>% 
+  add_shape(sphere_mesh(position=c(0,0.25,0),
+                   material=material_list(diffuse="white", type="color",reflection_intensity = 1.0),
+                   radius=0.2)) 
+
+rasterize_scene(scene, lookat=c(0,0.25,0),
+                light_info=directional_light(direction=c(0.5,1,1)),
+                lookfrom=c(0,0.3,2.5), 
+                fov=30, environment_map = tempfilehdr)
+```
+
+<img src="man/figures/README-reflectionshading-1.png" width="100%" />
+
+You can also blur the background but keep the reflections sharp by
+setting the `background_sharpness` argument to draw focus to your 3D
+scene.
+
+``` r
+rasterize_scene(scene, lookat=c(0,0.25,0),
+                light_info=directional_light(direction=c(0.5,1,1)),
+                lookfrom=c(0,0.3,2.5), 
+                fov=30, environment_map = tempfilehdr, background_sharpness = 0.5)
+```
+
+<img src="man/figures/README-sharpness-1.png" width="100%" />
 
 Now let’s draw another example scene: we’ll add the R OBJ to a flat
 surface.

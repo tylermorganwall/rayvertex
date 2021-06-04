@@ -73,6 +73,8 @@ class GouraudShader : public IShader {
       norm = glm::normalize(norm);
       vec2 uv;
       get_sphere_uv(norm, uv);
+      uv.x = 1 - uv.x;
+      uv.x += 0.25;
       return(trivalue(uv.x, uv.y, reflection_map));
     }
     int get_culling() {
@@ -168,6 +170,8 @@ class ColorShader : public IShader {
       norm = glm::normalize(norm);
       vec2 uv;
       get_sphere_uv(norm, uv);
+      uv.x = 1 - uv.x;
+      uv.x += 0.25;
       return(trivalue(uv.x, uv.y, reflection_map));
     }
     int get_culling() {
@@ -254,6 +258,8 @@ class DiffuseShader : public IShader {
       norm = glm::normalize(norm);
       vec2 uv;
       get_sphere_uv(norm, uv);
+      uv.x = 1 - uv.x;
+      uv.x += 0.25;
       return(trivalue(uv.x, uv.y, reflection_map));
     }
     int get_culling() {
@@ -351,6 +357,8 @@ public:
     norm = glm::normalize(norm);
     vec2 uv;
     get_sphere_uv(norm, uv);
+    uv.x = 1 - uv.x;
+    uv.x += 0.25;
     return(trivalue(uv.x, uv.y, reflection_map));
   }
   int get_culling() {
@@ -444,6 +452,8 @@ class DiffuseShaderTangent : public IShader {
       norm = glm::normalize(norm);
       vec2 uv;
       get_sphere_uv(norm, uv);
+      uv.x = 1 - uv.x;
+      uv.x += 0.25;
       return(trivalue(uv.x, uv.y, reflection_map));
     }
     int get_culling() {
@@ -547,6 +557,8 @@ class PhongShader : public IShader {
       norm = glm::normalize(norm);
       vec2 uv;
       get_sphere_uv(norm, uv);
+      uv.x = 1 - uv.x;
+      uv.x += 0.25;
       return(trivalue(uv.x, uv.y, reflection_map));
     }
     int get_culling() {
@@ -646,6 +658,8 @@ public:
     norm = glm::normalize(norm);
     vec2 uv;
     get_sphere_uv(norm, uv);
+    uv.x = 1 - uv.x;
+    uv.x += 0.25;
     return(trivalue(uv.x, uv.y, reflection_map));
   }
   int get_culling() {
@@ -743,6 +757,8 @@ public:
     norm = glm::normalize(norm);
     vec2 uv;
     get_sphere_uv(norm, uv);
+    uv.x = 1 - uv.x;
+    uv.x += 0.25;
     return(trivalue(uv.x, uv.y, reflection_map));
   }
   int get_culling() {
@@ -889,6 +905,8 @@ public:
     norm = glm::normalize(norm);
     vec2 uv;
     get_sphere_uv(norm, uv);
+    uv.x = 1 - uv.x;
+    uv.x += 0.25;
     return(trivalue(uv.x, uv.y, reflection_map));
   }
   int get_culling() {
@@ -986,6 +1004,8 @@ public:
     norm = glm::normalize(norm);
     vec2 uv;
     get_sphere_uv(norm, uv);
+    uv.x = 1 - uv.x;
+    uv.x += 0.25;
     return(trivalue(uv.x, uv.y, reflection_map));
   }
   int get_culling() {
