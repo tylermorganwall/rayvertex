@@ -3,7 +3,7 @@
 
 # rayvertex
 
-<!-- badges: start -->
+<img src="man/figures/cubey.gif" ></img> <!-- badges: start -->
 <!-- badges: end -->
 
 Rayvertex is a 3D software renderer that allows you to generate 3D
@@ -15,6 +15,8 @@ the included objects, or by constructing the mesh yourself. Rayvertex
 also allows the user to add any number of point lights and directional
 lights to a scene, and support anti-aliased lines, shadow mapping,
 transparent (and translucent) objects.
+
+## <img src="man/figures/featuredfull.jpg" ></img>
 
 Rayvertex features the following:
 
@@ -46,6 +48,7 @@ Rayvertex features the following:
 -   Refractive Materials
 -   Bloom
 -   Tone mapping
+-   Environment Maps
 
 Meshes and scenes are specified via list structure that contains the
 following:
