@@ -258,15 +258,15 @@ scene = torus_mesh(position=c(0.4,0,0),angle=c(-30,20,-30),
                    ring_radius=0.05,radius=0.2)) %>% 
   add_shape(sphere_mesh(position=c(-0.4,0,0),
                    material=material_list(diffuse="white", type="color",ior=1.6),radius=0.2)) %>% 
-  add_shape(sphere_mesh(position=c(-0.4,0.5,0),
-                   material=material_list(diffuse="purple", type="color",ior=1.6),radius=0.2)) %>% 
+  add_shape(obj_mesh(r_obj(),position=c(-0.4,0.35,0),scale=0.2, angle=c(0,-30,0),
+                   material=material_list(diffuse="purple", type="color",ior=1.6))) %>% 
   add_shape(sphere_mesh(position=c(0,0.25,0),
                    material=material_list(diffuse="white", type="color",reflection_intensity = 1.0),
                    radius=0.2)) 
 
 rasterize_scene(scene, lookat=c(0,0.25,0),
                 light_info=directional_light(direction=c(0.5,1,1)),
-                lookfrom=c(0,0.3,2.5), 
+                lookfrom=c(0,0.5,2.5), 
                 fov=30, environment_map = tempfilehdr)
 ```
 
@@ -279,7 +279,7 @@ scene.
 ``` r
 rasterize_scene(scene, lookat=c(0,0.25,0),
                 light_info=directional_light(direction=c(0.5,1,1)),
-                lookfrom=c(0,0.3,2.5), 
+                lookfrom=c(0,0.5,2.5), 
                 fov=30, environment_map = tempfilehdr, background_sharpness = 0.5)
 ```
 
