@@ -14,3 +14,4 @@
 ^\.github$
 ^.+\.png$
 ^.+\.mp4$
+^_pkgdown\.yml$
