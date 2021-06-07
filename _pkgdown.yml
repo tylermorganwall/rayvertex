@@ -8,7 +8,7 @@ articles: []
 template:
   opengraph:
     image: 
-      src: references/figures/rayvertex_logo.png
+      src: reference/figures/rayvertex_logo.png
       alt: "A card image for rayvertex"
     twitter: 
       creator: "@tylermorganwall"
