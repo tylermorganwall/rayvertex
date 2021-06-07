@@ -9,10 +9,11 @@ template:
   opengraph:
     image: 
       src: references/figures/rayvertex_logo.png
-    image_alt: "A card image for rayvertex"
+      alt: "A card image for rayvertex"
     twitter: 
       creator: "@tylermorganwall"
-    twitter_card: summary_large_image
+      site: "@tylermorganwall"
+      card: summary_large_image
 
 figures:
   dev: ragg::agg_png
