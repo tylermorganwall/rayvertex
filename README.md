@@ -1,11 +1,12 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-rayvertex <!-- badges: start -->
+# rayvertex
+
+<!-- badges: start -->
+
 [![R-CMD-check](https://github.com/tylermorganwall/rayvertex/workflows/R-CMD-check/badge.svg)](https://github.com/tylermorganwall/rayvertex/actions)
-<!-- badges: end -->
-=========================================================
-<img src="man/figures/cubey.gif" ></img>
+<!-- badges: end --> <img src="man/figures/cubey.gif" ></img>
 
 Rayvertex is a 3D software renderer that allows you to generate 3D
 visualizations without worrying about hardware requirements or

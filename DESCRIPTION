@@ -18,3 +18,4 @@ Imports: magrittr,
 Suggests: Rvcg
 LinkingTo: Rcpp, spacefillr, RcppThread
 RoxygenNote: 7.1.1
+URL: https://www.rayvertex.com
