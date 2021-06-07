@@ -19,10 +19,11 @@ knitr::opts_chunk$set(
 ```
 
 rayvertex
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/tylermorganwall/rayvertex/workflows/R-CMD-check/badge.svg)](https://github.com/tylermorganwall/rayvertex/actions)
+<!-- badges: end -->
 =========================================================
 <img src="man/figures/cubey.gif" ></img>
-<!-- badges: start -->
-<!-- badges: end -->
 
 Rayvertex is a 3D software renderer that allows you to generate 3D visualizations without worrying about hardware requirements or dependencies. It uses rasterization: a method that transforms meshes of triangles into an image. These meshes are specified entirely in R, and can be built either by importing external files, building scenes out of the included objects, or by constructing the mesh yourself. Rayvertex also allows the user to add any number of point lights and directional lights to a scene, and support anti-aliased lines, shadow mapping, transparent (and translucent) objects.
 
@@ -379,3 +380,4 @@ rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10, line_info = line_mat,
                light_info = lights)
 
 ```
+
