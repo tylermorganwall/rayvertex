@@ -3,6 +3,7 @@
 ^\.github$
 ^CODE_OF_CONDUCT\.md$
 ^CONTRIBUTING\.md$
+^\.gitattributes$
 ^.+\.png$
 ^.+\.mp4$
 ^.+\.tga$
