@@ -82,7 +82,7 @@ Change individual material properties, leaving others alone." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rayvertex</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
       </span>
     </div>
 
@@ -289,9 +289,12 @@ matching the material name.</p></td>
     <p>Shape with new material settings</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>p_sphere</span> <span class='op'>=</span> <span class='fu'><a href='sphere_mesh.html'>sphere_mesh</a></span><span class='op'>(</span>position<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span><span class='op'>)</span>, 
+    <pre class="examples"><div class='input'><span class='co'># \dontshow{</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span><span class='st'>"cores"</span><span class='op'>=</span><span class='fl'>1</span><span class='op'>)</span>
+<span class='co'># }</span>
+<span class='va'>p_sphere</span> <span class='op'>=</span> <span class='fu'><a href='sphere_mesh.html'>sphere_mesh</a></span><span class='op'>(</span>position<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span><span class='op'>)</span>, 
                       radius<span class='op'>=</span><span class='fl'>40</span>,material<span class='op'>=</span><span class='fu'><a href='material_list.html'>material_list</a></span><span class='op'>(</span>diffuse<span class='op'>=</span><span class='st'>"purple"</span><span class='op'>)</span><span class='op'>)</span>
-                      
+<span class='co'># \donttest{            </span>
 <span class='fu'><a href='generate_cornell_mesh.html'>generate_cornell_mesh</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
  <span class='fu'><a href='add_shape.html'>add_shape</a></span><span class='op'>(</span><span class='va'>p_sphere</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
  <span class='fu'><a href='add_shape.html'>add_shape</a></span><span class='op'>(</span><span class='fu'>change_material</span><span class='op'>(</span><span class='fu'><a href='translate_mesh.html'>translate_mesh</a></span><span class='op'>(</span><span class='va'>p_sphere</span>,<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>200</span>,<span class='fl'>0</span>,<span class='fl'>0</span><span class='op'>)</span><span class='op'>)</span>,diffuse<span class='op'>=</span><span class='st'>"red"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
@@ -299,7 +302,8 @@ matching the material name.</p></td>
  <span class='fu'><a href='add_shape.html'>add_shape</a></span><span class='op'>(</span><span class='fu'>change_material</span><span class='op'>(</span><span class='fu'><a href='translate_mesh.html'>translate_mesh</a></span><span class='op'>(</span><span class='va'>p_sphere</span>,<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>-</span><span class='fl'>100</span>,<span class='fl'>0</span>,<span class='fl'>0</span><span class='op'>)</span><span class='op'>)</span>,type<span class='op'>=</span><span class='st'>"phong"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
  <span class='fu'><a href='add_shape.html'>add_shape</a></span><span class='op'>(</span><span class='fu'>change_material</span><span class='op'>(</span><span class='fu'><a href='translate_mesh.html'>translate_mesh</a></span><span class='op'>(</span><span class='va'>p_sphere</span>,<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>-</span><span class='fl'>200</span>,<span class='fl'>0</span>,<span class='fl'>0</span><span class='op'>)</span><span class='op'>)</span>,type<span class='op'>=</span><span class='st'>"phong"</span>,shininess<span class='op'>=</span><span class='fl'>30</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
  <span class='fu'><a href='rasterize_scene.html'>rasterize_scene</a></span><span class='op'>(</span>light_info<span class='op'>=</span><span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span>direction<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.1</span>,<span class='fl'>0.6</span>,<span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='img'><img src='change_material-1.png' alt='' width='800' height='800' /></div></pre>
+</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='img'><img src='change_material-1.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

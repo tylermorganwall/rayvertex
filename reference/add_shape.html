@@ -82,7 +82,7 @@ Add shape to the scene" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rayvertex</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
       </span>
     </div>
 
@@ -156,6 +156,9 @@ Add shape to the scene</h1>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>#Generate several spheres in the cornell box</span>
+<span class='co'># \dontshow{</span>
+<span class='fu'><a href='https://rdrr.io/r/base/options.html'>options</a></span><span class='op'>(</span><span class='st'>"cores"</span><span class='op'>=</span><span class='fl'>1</span><span class='op'>)</span>
+<span class='co'># }</span>
 <span class='va'>scene</span> <span class='op'>=</span> <span class='fu'><a href='generate_cornell_mesh.html'>generate_cornell_mesh</a></span><span class='op'>(</span><span class='op'>)</span>
 <span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span>
 
@@ -166,8 +169,10 @@ Add shape to the scene</h1>
                                                              ambient<span class='op'>=</span><span class='va'>col</span>,ambient_intensity<span class='op'>=</span><span class='fl'>0.2</span><span class='op'>)</span>, 
                                       radius<span class='op'>=</span><span class='fl'>30</span><span class='op'>)</span><span class='op'>)</span>
 <span class='op'>}</span>
+<span class='co'># \donttest{</span>
 <span class='fu'><a href='rasterize_scene.html'>rasterize_scene</a></span><span class='op'>(</span><span class='va'>scene</span>, light_info<span class='op'>=</span><span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span>direction<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.1</span>,<span class='fl'>0.6</span>,<span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='img'><img src='add_shape-1.png' alt='' width='800' height='800' /></div></pre>
+</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='img'><img src='add_shape-1.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
