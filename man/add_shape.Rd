@@ -23,6 +23,9 @@ Add shape to the scene
 }
 \examples{
 #Generate several spheres in the cornell box
+\dontshow{
+options("cores"=1)
+}
 scene = generate_cornell_mesh()
 set.seed(1)
 
@@ -33,5 +36,7 @@ for(i in 1:30) {
                                                              ambient=col,ambient_intensity=0.2), 
                                       radius=30))
 }
+\donttest{
 rasterize_scene(scene, light_info=directional_light(direction=c(0.1,0.6,-1)))
+}
 }

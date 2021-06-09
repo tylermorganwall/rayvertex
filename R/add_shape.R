@@ -10,6 +10,9 @@
 #'
 #'@examples
 #'#Generate several spheres in the cornell box
+#'\dontshow{
+#' options("cores"=1)
+#' }
 #'scene = generate_cornell_mesh()
 #'set.seed(1)
 #'
@@ -20,7 +23,9 @@
 #'                                                              ambient=col,ambient_intensity=0.2), 
 #'                                       radius=30))
 #'}
+#'\donttest{
 #'rasterize_scene(scene, light_info=directional_light(direction=c(0.1,0.6,-1)))
+#'}
 add_shape = function(scene, shape) {
   if(length(scene) == 0) {
     return(shape)
@@ -146,6 +151,9 @@ merge_shapes = function(scene) {
 #'@return Translated mesh
 #'@export
 #'@examples
+#'\dontshow{
+#' options("cores"=1)
+#' }
 #'#Translate a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 #'generate_cornell_mesh() %>% 
@@ -169,6 +177,9 @@ translate_mesh = function(mesh, position = c(0,0,0)) {
 #'@return Scaled mesh
 #'@export
 #'@examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #'#Scale a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 #'
@@ -226,6 +237,9 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'@return Rotated Mesh
 #'@export
 #'@examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #'#Rotate a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 #'
@@ -298,6 +312,9 @@ rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rot
 #'@return Shape with new material
 #'@export
 #'@examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #'#Set the material of an object
 #'generate_cornell_mesh() %>% 
 #'  add_shape(set_material(sphere_mesh(position=c(400,555/2,555/2),radius=40), 
@@ -523,9 +540,12 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'@return Shape with new material settings
 #'@export
 #'@examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #'p_sphere = sphere_mesh(position=c(555/2,555/2,555/2), 
 #'                       radius=40,material=material_list(diffuse="purple"))
-#'                       
+#'\donttest{            
 #'generate_cornell_mesh() %>% 
 #'  add_shape(p_sphere) %>% 
 #'  add_shape(change_material(translate_mesh(p_sphere,c(200,0,0)),diffuse="red")) %>% 
@@ -533,6 +553,7 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'  add_shape(change_material(translate_mesh(p_sphere,c(-100,0,0)),type="phong")) %>% 
 #'  add_shape(change_material(translate_mesh(p_sphere,c(-200,0,0)),type="phong",shininess=30)) %>% 
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
+#'}
 change_material = function(mesh, id = NULL, 
                            diffuse                   = NULL,
                            ambient                   = NULL,
@@ -703,14 +724,18 @@ change_material = function(mesh, id = NULL,
 #'@return List of material properties.
 #'@export
 #'@examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #'mat_prop = material_list(diffuse="purple", type="phong", shininess=20,
 #'                         ambient="purple", ambient_intensity=0.3,
 #'                         specular = "red", specular_intensity=2)
 #'                         
 #'p_sphere = sphere_mesh(position=c(555/2,555/2,555/2), 
 #'                       radius=40,material=mat_prop)
-#'
+#'\donttest{
 #'rasterize_scene(p_sphere, light_info=directional_light(direction=c(0.1,0.6,-1)))
+#'}
 material_list = function(diffuse                   = c(0.8,0.8,0.8),
                          ambient                   = c(0,0,0),
                          specular                  = c(1,1,1),

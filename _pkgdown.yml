@@ -43,6 +43,7 @@ reference:
       - starts_with("xy_rect_mesh")
       - starts_with("xz_rect_mesh")
       - starts_with("yz_rect_mesh")
+      - starts_with("construct")
       - starts_with("generate_cornell_mesh")
 
   - title: "Materials"

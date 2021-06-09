@@ -9,10 +9,14 @@
 ^.+\.tga$
 ^.+\.obj$
 ^README\.Rmd$
+^README\.md$
 ^.*yml$
 ^docs$
 ^pkgdown$
 ^\.github$
 ^.+\.png$
 ^.+\.mp4$
+^.+\.gif$
+^.+\.jpg$
 ^_pkgdown\.yml$
+

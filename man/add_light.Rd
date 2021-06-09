@@ -18,6 +18,9 @@ A matrix representing the light information.
 Add light
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 #Add a light to scene (manually specify the light automatically added to the Cornell Box
 lights = point_light(position=c(555/2,450,555/2),
                     falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)

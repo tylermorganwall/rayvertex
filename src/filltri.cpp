@@ -1,12 +1,12 @@
 #include "filltri.h"
 
-static void print_vec(vec3 m) {
-  RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << "\n";
-}
-
-static void print_vec(glm::dvec4 m) {
-  RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << " " << m[3] << "\n";
-}
+// static void print_vec(vec3 m) {
+//   RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << "\n";
+// }
+// 
+// static void print_vec(glm::dvec4 m) {
+//   RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << " " << m[3] << "\n";
+// }
 
 inline Float DifferenceOfProducts(Float a, Float b, Float c, Float d) {
   Float cd = c * d;
@@ -33,12 +33,11 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                      std::vector<ModelInfo> &models,
                      bool depth, 
                      std::vector<std::map<Float, alpha_info> >& alpha_depths) {
-  int nx = image.width();
-  int ny = image.height();
+  unsigned int ny = image.height();
   
-  for(int model_num = 0; model_num < models.size(); model_num++ ) {
+  for(unsigned int model_num = 0; model_num < models.size(); model_num++ ) {
     ModelInfo &shp = models[model_num];
-    for(int entry=0; entry < block_faces[model_num].size(); entry++) {
+    for(unsigned int entry=0; entry < block_faces[model_num].size(); entry++) {
       int face = block_faces[model_num][entry];
       
       vec3 v1 = ndc_verts[model_num][0][face] * ndc_inv_w[model_num][0][face];
@@ -49,14 +48,14 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
       Float v2_ndc_inv_w = ndc_inv_w[model_num][1][face];
       Float v3_ndc_inv_w = ndc_inv_w[model_num][2][face];
 
-      int mat_num = shp.materials[face] >= 0 && shp.materials[face] < shaders.size() ? 
+      int mat_num = shp.materials[face] >= 0 && shp.materials[face] < (int)shaders.size() ? 
         shp.materials[face] : shaders.size()-1;
       
       int culling = shaders[mat_num]->get_culling();
     
       bool not_culled = culling == 1 ? cross(v2-v1, v3-v2).z > 0 :
         culling == 2 ? cross(v2-v1, v3-v2).z < 0 : true;
-      not_culled = !depth ? not_culled : 2;
+      not_culled = !depth ? not_culled : true;
       
       if(not_culled) {
         vec3 bound_min = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
@@ -67,10 +66,10 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                               fmax(v1.z,fmax(v2.z,v3.z)));
         
         
-        int xmin =  std::min(std::max((int)floor(bound_min.x),(int)min_block_bound.x ),(int)min_block_bound.x);
-        int xmax =  std::max(std::min((int)ceil(bound_max.x), (int)max_block_bound.x), (int)max_block_bound.x);
-        int ymin =  std::min(std::max((int)floor(bound_min.y),(int)min_block_bound.y), (int)min_block_bound.y);
-        int ymax =  std::max(std::min((int)ceil(bound_max.y), (int)max_block_bound.y ),(int)max_block_bound.y);
+        unsigned int xmin =  std::min(std::max((int)floor(bound_min.x),(int)min_block_bound.x ),(int)min_block_bound.x);
+        unsigned int xmax =  std::max(std::min((int)ceil(bound_max.x), (int)max_block_bound.x), (int)max_block_bound.x);
+        unsigned int ymin =  std::min(std::max((int)floor(bound_min.y),(int)min_block_bound.y), (int)min_block_bound.y);
+        unsigned int ymax =  std::max(std::min((int)ceil(bound_max.y), (int)max_block_bound.y ),(int)max_block_bound.y);
         
         Float area =  edgeFunction(v3, v2, v1); 
         Float inv_area = 1.0f/area;

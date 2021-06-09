@@ -14,6 +14,9 @@
 #'@return A matrix representing the light information.
 #'@export
 #'@examples
+#'\dontshow{
+#'options("cores"=1)
+#'}
 #'#Add point lights and vary the intensity
 #'lights_int = point_light(position=c(100,100,400), color="white", intensity=0.125,
 #'                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.005) %>% 
@@ -86,6 +89,9 @@ point_light = function(position = c(0,0,0), color = "white",  intensity=1,
 #'@return A matrix representing the light information.
 #'@export
 #'@examples
+#'\dontshow{
+#'options("cores"=1)
+#'}
 #'#Add a light to scene (manually specify the light automatically added to the Cornell Box
 #'lights = point_light(position=c(555/2,450,555/2),
 #'                     falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)
@@ -123,6 +129,9 @@ directional_light = function(direction = c(0,1,0), color = "white", intensity=1)
 #'@return A matrix representing the light information.
 #'@export
 #'@examples
+#'\dontshow{
+#'options("cores"=1)
+#'}
 #'#Add a light to scene (manually specify the light automatically added to the Cornell Box
 #'lights = point_light(position=c(555/2,450,555/2),
 #'                     falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)

@@ -36,6 +36,9 @@ File location of the R.obj file (saved with a .txt extension)
 Cylinder 3D Model
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 #Generate a cylinder
 \donttest{
 generate_cornell_mesh() \%>\%

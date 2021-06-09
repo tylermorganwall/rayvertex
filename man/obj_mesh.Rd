@@ -40,6 +40,9 @@ Rasterized image.
 OBJ Mesh 3D Model
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 #Read in the provided 3D R mesh
 generate_cornell_mesh(ceiling=FALSE) \%>\% 
   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) \%>\% 

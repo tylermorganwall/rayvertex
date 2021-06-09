@@ -33,6 +33,9 @@ File location of the R.obj file (saved with a .txt extension)
 3D obj model of the letter R
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 #Generate a cube
 \donttest{
 generate_cornell_mesh() \%>\%

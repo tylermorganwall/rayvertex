@@ -108,6 +108,9 @@ Set Material
 Add shape to a mesh
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 #Set the material of an object
 generate_cornell_mesh() \%>\% 
  add_shape(set_material(sphere_mesh(position=c(400,555/2,555/2),radius=40), 

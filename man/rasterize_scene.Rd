@@ -129,6 +129,9 @@ Rasterized image.
 Render a 3D scene with meshes, lights, and lines using a software rasterizer.
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 #Let's load the cube OBJ file included with the package
 
 \donttest{

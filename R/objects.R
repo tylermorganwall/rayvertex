@@ -13,6 +13,9 @@
 #' @export
 #'
 #' @examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #' #Generate a cube
 #' \donttest{
 #' generate_cornell_mesh() %>%
@@ -74,6 +77,9 @@ cube_mesh = function(position = c(0,0,0),
 #' @export
 #'
 #' @examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #' #Generate a sphere in the cornell box.
 #' \donttest{
 #' generate_cornell_mesh() %>%
@@ -147,6 +153,9 @@ sphere_mesh = function(position = c(0,0,0),
 #' @export
 #'
 #' @examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #' #Generate a cone
 #' \donttest{
 #' generate_cornell_mesh() %>%
@@ -236,6 +245,9 @@ cone_mesh = function(start = c(0,0,0), end=c(0,1,0),
 #' @export
 #'
 #' @examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #' #Generate an arrow
 #' \donttest{
 #' generate_cornell_mesh() %>%
@@ -358,6 +370,9 @@ arrow_mesh = function(start = c(0,0,0), end = c(0,1,0), radius_top = 0.5, radius
 #' @return File location of the R.obj file (saved with a .txt extension)
 #' @export
 #' @examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #' #Generate a cylinder
 #' \donttest{
 #' generate_cornell_mesh() %>%
@@ -417,6 +432,9 @@ cylinder_mesh = function(position = c(0,0,0), radius = 0.5, length=1,
 #' @return File location of the R.obj file (saved with a .txt extension)
 #' @export
 #' @examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #' #Generate a segment in the cornell box. 
 #' \donttest{
 #' generate_cornell_mesh() %>%
@@ -526,6 +544,9 @@ segment_mesh = function(start = c(0,-1,0), end = c(0,1,0), radius = 0.5,
 #' @return File location of the R.obj file (saved with a .txt extension)
 #' @export
 #' @examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #' \donttest{
 #' generate_cornell_mesh() %>%
 #'   add_shape(xy_rect_mesh(position = c(555/2, 100, 555/2), scale=200,
@@ -575,6 +596,9 @@ xy_rect_mesh = function(position = c(0,0,0),
 #' @return File location of the R.obj file (saved with a .txt extension)
 #' @export
 #' @examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #' \donttest{
 #' generate_cornell_mesh() %>%
 #'   add_shape(xz_rect_mesh(position = c(555/2, 100, 555/2), scale=200,
@@ -616,6 +640,9 @@ xz_rect_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #' @return File location of the R.obj file (saved with a .txt extension)
 #' @export
 #' @examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #' \donttest{
 #' generate_cornell_mesh() %>%
 #'   add_shape(yz_rect_mesh(position = c(500, 100, 555/2), scale=200,
@@ -660,6 +687,9 @@ yz_rect_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #'@return Rasterized image.
 #'@export
 #'@examples
+#'\dontshow{
+#' options("cores"=1)
+#' }
 #' #Generate and render the default Cornell box and add an object.
 #' \donttest{
 #' generate_cornell_mesh() %>% 
@@ -733,6 +763,9 @@ generate_cornell_mesh = function(leftcolor = "#1f7326",
 #'@return Rasterized image.
 #'@export
 #'@examples
+#'\dontshow{
+#' options("cores"=1)
+#' }
 #' #Read in the provided 3D R mesh
 #' generate_cornell_mesh(ceiling=FALSE) %>% 
 #'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) %>% 
@@ -775,6 +808,9 @@ obj_mesh = function(filename, position = c(0,0,0), scale = c(1,1,1),
 #'@return Torus mesh
 #'@export
 #'@examples
+#'\dontshow{
+#' options("cores"=1)
+#' }
 #'#Plot a group of tori in the cornell box
 #'generate_cornell_mesh(ceiling = FALSE) %>% 
 #'  add_shape(torus_mesh(position=c(555/2,555/3,555/2), angle=c(20,0,45),
@@ -889,6 +925,9 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #'@return Rasterized image.
 #'@export
 #'@examples
+#'\dontshow{
+#' options("cores"=1)
+#' }
 #' #Read in a mesh3d object and rasterize it
 #' if("Rvcg" %in% rownames(utils::installed.packages())) {
 #'   library(Rvcg)

@@ -91,7 +91,7 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
       throw std::runtime_error("Emissive texture loading failed");
     }
   }
-};
+}
 
 GouraudShader::~GouraudShader() {
   if(has_texture) {
@@ -127,7 +127,7 @@ bool GouraudShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   vec4 diffuse_color = vec4(material.diffuse,material.dissolve);
   
   vec4 light_color(0.0);
-  for(int ii = 0; ii < directional_lights.size(); ii++) {
+  for(unsigned int ii = 0; ii < directional_lights.size(); ii++) {
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
     Float shadow = 1.0f;
@@ -161,7 +161,7 @@ bool GouraudShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   }
   // color = vec4(light_color * material.diffuse,1.0f);
   color = light_color; 
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
+  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   if(has_reflection && !has_refraction) {
     vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
     vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
@@ -267,7 +267,7 @@ ColorShader::ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
       throw std::runtime_error("Emissive texture loading failed");
     }
   }
-};
+}
 
 
 vec4 ColorShader::vertex(int iface, int nthvert, ModelInfo& model) {
@@ -406,7 +406,7 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
       throw std::runtime_error("Emissive texture loading failed");
     }
   }
-};
+}
 
 
 vec4 DiffuseShader::vertex(int iface, int nthvert, ModelInfo& model) {
@@ -432,7 +432,7 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
 
   vec3 light_color(0.0);
 
-  for(int ii = 0; ii < directional_lights.size(); ii++) {
+  for(unsigned int ii = 0; ii < directional_lights.size(); ii++) {
     vec4 trans_color(0.0,0.0,0.0,0.0);
     Float shadow = 1.0f;
     Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0))),0.0);
@@ -468,7 +468,7 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   color = diffuse_color * vec4(light_color,1.0);
   
   
-  for(int i = 0; i < plights.size(); i++) {
+  for(unsigned int i = 0; i < plights.size(); i++) {
     color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
   }
   //Emissive and ambient terms
@@ -588,7 +588,7 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
   uniform_MIT = glm::inverseTranspose(uniform_M);
   uniform_M_inv = glm::inverse(uniform_M);
   uniform_MIT_inv = glm::inverse(uniform_MIT);
-};
+}
 
 
 vec4 DiffuseNormalShader::vertex(int iface, int nthvert, ModelInfo& model) {
@@ -610,7 +610,7 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3&
   vec3 n = normalize(vec3(uniform_MIT * vec4(normal_uv(uv), 0.0f)));
   
   vec3 light_color(0.0);
-  for(int ii = 0; ii < directional_lights.size(); ii++) {
+  for(unsigned int ii = 0; ii < directional_lights.size(); ii++) {
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
     Float shadow = 1.0f;
@@ -643,7 +643,7 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3&
       (1-trans_color.w) *  directional_lights[ii].color * directional_lights[ii].intensity) * shadow * intensity;
   }
   
-  for(int i = 0; i < plights.size(); i++) {
+  for(unsigned int i = 0; i < plights.size(); i++) {
     color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
   }
   
@@ -651,7 +651,7 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3&
   color += emissive(uv);
   color += ambient(uv);
   
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
+  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   normal = n;
   if(has_reflection && !has_refraction) {
     vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
@@ -806,7 +806,7 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3
   vec3 norm = normalize(B * normal_uv(uv));
   
   vec3 light_color(0.0);
-  for(int ii = 0; ii < directional_lights.size(); ii++) {
+  for(unsigned int ii = 0; ii < directional_lights.size(); ii++) {
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
     Float shadow = 1.0f;
@@ -843,7 +843,7 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3
   vec4 dir_shadow_int = vec4(light_color, 1.0f);
   //Directional light contribution
   color = diffuse_color * dir_shadow_int;
-  for(int i = 0; i < plights.size(); i++) {
+  for(unsigned int i = 0; i < plights.size(); i++) {
     vec3 p_light_dir = vec4(plights[i].CalcLightDir(pos),0.0f);
     color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f, dot(norm, p_light_dir));
   }
@@ -991,13 +991,12 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   vec3 spec_uv = specular(uv);
   vec3 light_color(0.0);
   vec4 spec_total(0.0);
-  for(int ii = 0; ii < directional_lights.size(); ii++) {
+  for(unsigned int ii = 0; ii < directional_lights.size(); ii++) {
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
     Float shadow = 1.0f;
     vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
-    Float max_shadow_int = 0.0;
     Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
     if(has_shadow_map && intensity != 0.0) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
@@ -1028,14 +1027,14 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
     vec3 r = normalize(2.0f*dot(normal,l_dir)*normal - l_dir);
     spec_total += vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f) * (shadow) * directional_lights[ii].intensity; 
   }
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
+  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   
   vec4 amb = ambient(uv);
   vec4 emit = emissive(uv);
   vec4 shadow_vec = vec4(light_color,1.0f);
   color = clamp( diffuse_color*shadow_vec + spec_total,(Float)0.0,(Float)1.0);
   
-  for(int i = 0; i < plights.size(); i++) {
+  for(unsigned int i = 0; i < plights.size(); i++) {
     vec3 l_p = vec4(plights[i].CalcLightDir(pos),0.0f);
     vec3 r = normalize(2.0f*dot(normal,l_p)*normal - l_p);
     vec4 spec = vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
@@ -1179,13 +1178,12 @@ bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& n
   vec3 spec_uv = specular(uv);
   vec3 light_color(0.0);
   vec4 spec_total(0.0);
-  for(int ii = 0; ii < directional_lights.size(); ii++) {
+  for(unsigned int ii = 0; ii < directional_lights.size(); ii++) {
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
     Float shadow = 1.0f;
     vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
-    Float max_shadow_int = 0.0;
     Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
     if(has_shadow_map && intensity != 0.0) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
@@ -1224,7 +1222,7 @@ bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& n
   color = clamp( diffuse_color*shadow_vec + spec_total,(Float)0.0,(Float)1.0);
 
   
-  for(int i = 0; i < plights.size(); i++) {
+  for(unsigned int i = 0; i < plights.size(); i++) {
     vec3 l_p = vec4(plights[i].CalcLightDir(pos),0.0f);
     vec3 r = normalize(2.0f*dot(normal,l_p)*normal - l_p);
     vec4 spec = vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
@@ -1387,13 +1385,12 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
   vec3 spec_uv = specular(uv);
   vec3 light_color(0.0);
   vec4 spec_total(0.0);
-  for(int ii = 0; ii < directional_lights.size(); ii++) {
+  for(unsigned int ii = 0; ii < directional_lights.size(); ii++) {
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
     Float shadow = 1.0f;
     vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
-    Float max_shadow_int = 0.0;
     Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
     if(has_shadow_map && intensity != 0.0) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
@@ -1425,7 +1422,7 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
     spec_total += vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f) * (shadow) * directional_lights[ii].intensity; 
   }
   
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
+  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   
   vec4 amb = ambient(uv);
   vec4 emit = emissive(uv);
@@ -1433,7 +1430,7 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
   color = clamp( diffuse_color*shadow_vec + spec_total,(Float)0.0,(Float)1.0);
   
 
-  for(int i = 0; i < plights.size(); i++) {
+  for(unsigned int i = 0; i < plights.size(); i++) {
     vec3 l_p = vec4(plights[i].CalcLightDir(pos),0.0f);
     vec3 r = normalize(2.0f*dot(normal,l_p)*normal - l_p);
     vec4 spec = vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
@@ -1585,7 +1582,7 @@ ToonShader::ToonShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
       throw std::runtime_error("Emissive texture loading failed");
     }
   }
-};
+}
 
 ToonShader::~ToonShader() {
   if(has_texture) {
@@ -1629,7 +1626,7 @@ bool ToonShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, 
   
   vec3 light_color(0.0);
   
-  for(int ii = 0; ii < directional_lights.size(); ii++) {
+  for(unsigned int ii = 0; ii < directional_lights.size(); ii++) {
     vec4 trans_color(0.0,0.0,0.0,0.0);
     Float shadow = 1.0f;
     Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0))),0.0);
@@ -1666,7 +1663,7 @@ bool ToonShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, 
   color = diffuse_color * vec4(light_color,1.0);
   
   
-  for(int i = 0; i < plights.size(); i++) {
+  for(unsigned int i = 0; i < plights.size(); i++) {
     color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
   }
   //Emissive and ambient terms
@@ -1743,7 +1740,7 @@ ToonShaderPhong::ToonShaderPhong(Mat& Model, Mat& Projection, Mat& View, vec4& v
       throw std::runtime_error("Emissive texture loading failed");
     }
   }
-};
+}
 
 ToonShaderPhong::~ToonShaderPhong() {
   if(has_texture) {
@@ -1787,13 +1784,12 @@ bool ToonShaderPhong::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& nor
   vec3 spec_uv = specular(uv);
   vec3 light_color(0.0);
   vec4 spec_total(0.0);
-  for(int ii = 0; ii < directional_lights.size(); ii++) {
+  for(unsigned int ii = 0; ii < directional_lights.size(); ii++) {
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
     Float shadow = 1.0f;
     vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
-    Float max_shadow_int = 0.0;
     Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
     if(has_shadow_map && intensity != 0.0) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
@@ -1826,14 +1822,14 @@ bool ToonShaderPhong::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& nor
     spec_total += vec4(spec_uv * 
     (Float)round(material.toon_levels * std::pow(std::fmax(r.z, 0.0f), material.shininess) * shadow * directional_lights[ii].intensity)/material.toon_levels,0.0f); 
   }
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;;
+  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   
   vec4 amb = ambient(uv);
   vec4 emit = emissive(uv);
   vec4 shadow_vec = vec4(light_color,1.0f);
   color = clamp( diffuse_color*shadow_vec + spec_total,(Float)0.0,(Float)1.0);
   
-  for(int i = 0; i < plights.size(); i++) {
+  for(unsigned int i = 0; i < plights.size(); i++) {
     vec3 l_p = vec4(plights[i].CalcLightDir(pos),0.0f);
     vec3 r = normalize(2.0f*dot(normal,l_p)*normal - l_p);
     vec4 spec = vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);

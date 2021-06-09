@@ -7,7 +7,7 @@ void aa_line(std::vector<vec3>& line_mat_start,
              std::vector<std::map<Float, alpha_info> >& alpha_depths,
              Float alpha_line, Float line_offset) {
   auto ipart = [](Float x) -> int {return int(std::floor(x));};
-  auto round = [](Float x) -> Float {return std::round(x);};
+  // auto round = [](Float x) -> Float {return std::round(x);};
   auto fpart = [](Float x) -> Float {return x - std::floor(x);};
   auto rfpart = [=](Float x) -> Float {return 1 - fpart(x);};
   
@@ -15,7 +15,7 @@ void aa_line(std::vector<vec3>& line_mat_start,
   int nx = zbuffer.nrow();
   int ny = zbuffer.ncol();
   
-  for(int ii = 0; ii < line_mat_start.size(); ii++) {
+  for(unsigned int ii = 0; ii < line_mat_start.size(); ii++) {
     x0 = line_mat_start[ii].x;
     x1 =   line_mat_end[ii].x;
     y0 = line_mat_start[ii].y;
@@ -49,7 +49,7 @@ void aa_line(std::vector<vec3>& line_mat_start,
     {
       const Float xend = floor(x0);
       const Float yend = y0 + gradient * (xend - x0);
-      const Float xgap = rfpart(x0 + 0.5);
+      // const Float xgap = rfpart(x0 + 0.5);
       xpx11 = xend;
       const int ypx11 = ipart(yend);
       if (steep) {
@@ -105,7 +105,7 @@ void aa_line(std::vector<vec3>& line_mat_start,
     {
       const Float xend = floor(x1);
       const Float yend = y1 + gradient * (xend - x1);
-      const Float xgap = rfpart(x1 + 0.5);
+      // const Float xgap = rfpart(x1 + 0.5);
       xpx12 = xend;
       const int ypx12 = ipart(yend);
       if (steep) {
@@ -228,7 +228,7 @@ void noaa_line(std::vector<vec3>& line_mat_start,
   int ny = zbuffer.ncol();
   Float offset = line_offset;
   
-  for(int ii = 0; ii < line_mat_start.size(); ii += 1) {
+  for(unsigned int ii = 0; ii < line_mat_start.size(); ii += 1) {
     x0 = line_mat_start[ii].x;
     x1 =   line_mat_end[ii].x;
     y0 = line_mat_start[ii].y;

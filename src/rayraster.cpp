@@ -41,13 +41,13 @@
 // typedef glm::dvec2 vec2;
 // typedef glm::dmat4x4 Mat;
 
-static void print_vec(vec3 m) {
-  RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << "\n";
-}
-
-static void print_vec(glm::dvec4 m) {
-  RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << " " << m[3] << "\n";
-}
+// static void print_vec(vec3 m) {
+//   RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << "\n";
+// }
+// 
+// static void print_vec(glm::dvec4 m) {
+//   RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << " " << m[3] << "\n";
+// }
 
 using namespace Rcpp;
 
@@ -101,14 +101,14 @@ inline T lerp(Float t, T v1, T v2) {
   return((1-t) * v1 + t * v2);
 }
 
-void print_mat(Mat m) {
-  m = glm::transpose(m);
-  Rcpp::Rcout.precision(5);
-  Rcpp::Rcout << std::fixed << m[0][0] << " " << m[0][1] << " " << m[0][2] << " " << m[0][3] << "\n";
-  Rcpp::Rcout << std::fixed << m[1][0] << " " << m[1][1] << " " << m[1][2] << " " << m[1][3] << "\n";
-  Rcpp::Rcout << std::fixed << m[2][0] << " " << m[2][1] << " " << m[2][2] << " " << m[2][3] << "\n";
-  Rcpp::Rcout << std::fixed << m[3][0] << " " << m[3][1] << " " << m[3][2] << " " << m[3][3] << "\n";
-}
+// void print_mat(Mat m) {
+//   m = glm::transpose(m);
+//   Rcpp::Rcout.precision(5);
+//   Rcpp::Rcout << std::fixed << m[0][0] << " " << m[0][1] << " " << m[0][2] << " " << m[0][3] << "\n";
+//   Rcpp::Rcout << std::fixed << m[1][0] << " " << m[1][1] << " " << m[1][2] << " " << m[1][3] << "\n";
+//   Rcpp::Rcout << std::fixed << m[2][0] << " " << m[2][1] << " " << m[2][2] << " " << m[2][3] << "\n";
+//   Rcpp::Rcout << std::fixed << m[3][0] << " " << m[3][1] << " " << m[3][2] << " " << m[3][3] << "\n";
+// }
 
 
 // [[Rcpp::export]]
@@ -163,7 +163,7 @@ List rasterize(List mesh,
   std::vector<float* > reflection_data;
   bool loaded_reflection_map = false;
   
-  for(int i = 0; i < has_reflection_map.size(); i++) {
+  for(unsigned int i = 0; i < has_reflection_map.size(); i++) {
     if(has_reflection_map(i) || has_refraction(i)) {
       List single_material = as<List>(materials(i));
       double reflection_sharpness = as<double>(single_material["reflection_sharpness"]);
@@ -312,8 +312,6 @@ List rasterize(List mesh,
   Float near_plane = 0.1, far_plane = 10.0;
   // Float near_plane = 0.1f, far_plane = 100.0f;
   
-  vec3 light_up = vec3(0.,1.,0.);
-
   Mat shadow_inv = glm::inverse(vp * Projection * View * Model);
 
   std::vector<Light> point_lights;
@@ -331,7 +329,7 @@ List rasterize(List mesh,
   std::vector<Rcpp::NumericMatrix> shadowbuffer_mats;
   
   std::vector<DirectionalLight> directional_lights;
-  for(int i = 0; i < is_dir_light.length(); i++) {
+  for(unsigned int i = 0; i < is_dir_light.length(); i++) {
     if(is_dir_light(i)) {
       shadowbuffer_mats.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
       
@@ -388,8 +386,7 @@ List rasterize(List mesh,
   //Start by generating a shader for every material
   std::vector<material_info> mat_info;
   std::vector<IShader*> shaders;
-  bool double_sided = true;
-  
+
   
   std::vector<vec3> vec_varying_intensity;
   std::vector<std::vector<vec3> > vec_varying_uv;
@@ -776,7 +773,7 @@ List rasterize(List mesh,
   
   //For per-light transparent colors
   std::vector<std::vector<std::map<Float, alpha_info> > > alpha_depths_trans;
-  for(int i = 0; i < shadowbuffers.size(); i++) {
+  for(unsigned int i = 0; i < shadowbuffers.size(); i++) {
     std::vector<std::map<Float, alpha_info> > temp_adt(shadowdims(0) * shadowdims(1));
     alpha_depths_trans.push_back(temp_adt);
   }
@@ -810,7 +807,7 @@ List rasterize(List mesh,
       blocks.push_back(temp);
       //This is a vector of all the models for that block
       //blocks[j + ny_blocks * i]
-      for(int k = 0; k < models.size(); k++) {
+      for(unsigned int k = 0; k < models.size(); k++) {
         std::vector<int> model_inds_temp;
         //This is a vector for per-model indices in that specific block
         //blocks[j + ny_blocks * i][model_num]
@@ -844,7 +841,7 @@ List rasterize(List mesh,
       blocks_depth.push_back(temp);
       //This is a vector of all the models for that block
       //blocks[j + ny_blocks * i]
-      for(int k = 0; k < models.size(); k++) {
+      for(unsigned int k = 0; k < models.size(); k++) {
         std::vector<int> model_inds_temp;
         //This is a vector for per-model indices in that specific block
         //blocks[j + ny_blocks * i][model_num]
@@ -854,7 +851,7 @@ List rasterize(List mesh,
   }
   
   std::vector<std::vector<IShader*> > depthshaders(directional_lights.size());
-  for(int j = 0; j < directional_lights.size(); j++) {
+  for(unsigned int j = 0; j < directional_lights.size(); j++) {
     for(int i = 0; i < number_materials+1; i++ ) {
       depthshaders[j].push_back(new DepthShader(Model, directional_lights[j].lightProjection, 
                                                 directional_lights[j].lightView, viewport_depth,
@@ -866,12 +863,12 @@ List rasterize(List mesh,
   }
 
   if(has_shadow_map) {
-    for(int sb = 0; sb < shadowbuffers.size(); sb++) {
+    for(unsigned int sb = 0; sb < shadowbuffers.size(); sb++) {
       
-      for(int model_num = 0; model_num < models.size(); model_num++ ) {
+      for(unsigned int model_num = 0; model_num < models.size(); model_num++ ) {
         ModelInfo &shp = models[model_num];
         for(int i = 0; i < shp.num_indices; i++) {
-          int mat_num = shp.materials[i] >= 0 && shp.materials[i] < shaders.size() ? 
+          int mat_num = shp.materials[i] >= 0 && shp.materials[i] < (int)shaders.size() ? 
             shp.materials[i] : shaders.size()-1;
           
           ndc_verts_depth[model_num][0][i] = depthshaders[sb][mat_num]->vertex(i,0, shp);
@@ -939,8 +936,8 @@ List rasterize(List mesh,
         pool2.push(task, i);
       }
       pool2.join();
-      for(int j = 0; j < blocks_depth.size(); j++) {
-        for(int model_num = 0; model_num < models.size(); model_num++ ) {
+      for(unsigned int j = 0; j < blocks_depth.size(); j++) {
+        for(unsigned int model_num = 0; model_num < models.size(); model_num++ ) {
           blocks_depth[j][model_num].clear();
         }
       }
@@ -968,11 +965,11 @@ List rasterize(List mesh,
   //Calculate Image
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<Float>::infinity() ) ;
 
-  for(int model_num = 0; model_num < models.size(); model_num++ ) {
+  for(unsigned int model_num = 0; model_num < models.size(); model_num++ ) {
     ModelInfo &shp = models[model_num];
     for(int i = 0; i < shp.num_indices; i++) {
 
-      int mat_num = shp.materials[i] >= 0 && shp.materials[i] < shaders.size() ?
+      int mat_num = shp.materials[i] >= 0 && shp.materials[i] < (int)shaders.size() ?
         shp.materials[i] : shaders.size()-1;
       ndc_verts[model_num][0][i] = shaders[mat_num]->vertex(i,0, shp);
       ndc_verts[model_num][1][i] = shaders[mat_num]->vertex(i,1, shp);
@@ -1046,9 +1043,9 @@ List rasterize(List mesh,
 
   //Ambient occlusion
   if(calc_ambient) {
-    int kernelSize=64;
+    constexpr unsigned int kernelSize=64;
     vec3 kernel[kernelSize];
-    for (int i = 0; i < kernelSize; ++i) {
+    for (unsigned int i = 0; i < kernelSize; ++i) {
       kernel[i] = normalize(vec3(
         spacefillr::sobol_owen_single(i,0,0) * 2.0f - 1.0f,
         spacefillr::sobol_owen_single(i,1,0) * 2.0f - 1.0f,
@@ -1058,9 +1055,9 @@ List rasterize(List mesh,
       kernel[i] *= scale;
     }
 
-    int noiseSize=16;
+    constexpr unsigned int noiseSize=16;
     vec3 noise[noiseSize];
-    for (int i = 0; i < noiseSize; ++i) {
+    for (unsigned int i = 0; i < noiseSize; ++i) {
       noise[i] = normalize(vec3(
         spacefillr::sobol_owen_single(i,0,1) * 2.0f - 1.0f,
         spacefillr::sobol_owen_single(i,1,1) * 2.0f - 1.0f,
@@ -1081,7 +1078,7 @@ List rasterize(List mesh,
         vec3 bitangent = cross(normal, tangent);
         glm::mat3 tbn{tangent, bitangent, normal};
         Float occlusion = 0.0;
-        for (int i = 0; i < kernelSize; ++i) {
+        for (unsigned int i = 0; i < kernelSize; ++i) {
           // get sample position:
           vec3 sample = tbn * kernel[i];
           sample = sample * (Float)ambient_radius + origin;
@@ -1140,7 +1137,6 @@ List rasterize(List mesh,
     line_verts_cols.push_back(vec3(line_mat(i,6),line_mat(i,7),line_mat(i,8)));
   }
   
-  vec3 line_color = vec3(1.0f,1.0f,1.0f);
   if(line_mat.nrow() > 0) {
     if(aa_lines) {
       aa_line(ndc_line_verts_start, ndc_line_verts_end, line_verts_cols, zbuffer, alpha_depths, alpha_line, line_offset);
@@ -1215,16 +1211,16 @@ List rasterize(List mesh,
     stbi_image_free(main_reflection_map.reflection);
   }
   
-  for(int j = 0; j < directional_lights.size(); j++) {
+  for(unsigned int j = 0; j < directional_lights.size(); j++) {
     for(int i = 0; i < depthshaders[j].size(); i++) {
       delete depthshaders[j][i];
     }
   }
-  for(int i = 0; i < shaders.size(); i++) {
+  for(unsigned int i = 0; i < shaders.size(); i++) {
     delete shaders[i];
   }
   
-  for(int i = 0; i < has_reflection_map.size(); i++) {
+  for(unsigned int i = 0; i < has_reflection_map.size(); i++) {
     if(has_reflection_map(i)) {
       delete[] reflection_maps[i].reflection;
     }

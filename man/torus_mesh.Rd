@@ -45,6 +45,9 @@ Torus mesh
 Torus 3D Model
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 #Plot a group of tori in the cornell box
 generate_cornell_mesh(ceiling = FALSE) \%>\% 
  add_shape(torus_mesh(position=c(555/2,555/3,555/2), angle=c(20,0,45),

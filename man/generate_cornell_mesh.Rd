@@ -30,6 +30,9 @@ Rasterized image.
 Cornell Box 3D Model
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 #Generate and render the default Cornell box and add an object.
 \donttest{
 generate_cornell_mesh() \%>\% 

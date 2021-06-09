@@ -42,6 +42,9 @@ File location of the R.obj file (saved with a .txt extension)
 Arrow 3D Model
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 #Generate an arrow
 \donttest{
 generate_cornell_mesh() \%>\%

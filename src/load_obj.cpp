@@ -54,7 +54,6 @@ List load_obj(std::string inputfile, std::string basedir) {
     const size_t n_faces  = m.material_ids.size();
     const size_t nv_face = m.indices.size() / n_faces;
     List single_shape;
-    size_t index_offset = 0;
     std::vector<float> verts;
     std::vector<float> norms;
     std::vector<float> texs;
@@ -64,15 +63,15 @@ List load_obj(std::string inputfile, std::string basedir) {
       mats.push_back(m.material_ids[f]);
     }
     std::vector<int> inds;
-    for(int j = 0; j < m.indices.size(); j++) {
+    for(unsigned int j = 0; j < m.indices.size(); j++) {
       inds.push_back(m.indices[j].vertex_index);
     }
     std::vector<int> tex_inds;
-    for(int j = 0; j < m.indices.size(); j++) {
+    for(unsigned int j = 0; j < m.indices.size(); j++) {
       tex_inds.push_back(m.indices[j].texcoord_index);
     }
     std::vector<int> norm_inds;
-    for(int j = 0; j < m.indices.size(); j++) {
+    for(unsigned int j = 0; j < m.indices.size(); j++) {
       norm_inds.push_back(m.indices[j].normal_index);
     }
     

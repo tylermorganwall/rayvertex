@@ -20,6 +20,9 @@ Line matrix
 Generate Lines
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 # Make a spiral of lines
 t = seq(0,8*pi,length.out=361)
 line_mat = matrix(nrow=0,ncol=9)

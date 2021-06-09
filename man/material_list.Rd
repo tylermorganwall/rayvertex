@@ -97,12 +97,16 @@ Material List
 Generate a material properties list.
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 mat_prop = material_list(diffuse="purple", type="phong", shininess=20,
                         ambient="purple", ambient_intensity=0.3,
                         specular = "red", specular_intensity=2)
                         
 p_sphere = sphere_mesh(position=c(555/2,555/2,555/2), 
                       radius=40,material=mat_prop)
-
+\donttest{
 rasterize_scene(p_sphere, light_info=directional_light(direction=c(0.1,0.6,-1)))
+}
 }

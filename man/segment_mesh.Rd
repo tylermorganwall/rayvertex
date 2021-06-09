@@ -39,6 +39,9 @@ File location of the R.obj file (saved with a .txt extension)
 Segment 3D Model
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 #Generate a segment in the cornell box. 
 \donttest{
 generate_cornell_mesh() \%>\%

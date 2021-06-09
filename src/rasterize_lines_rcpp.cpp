@@ -156,18 +156,13 @@ List rasterize_lines_rcpp(NumericMatrix line_mat,
   
   //Initialize zbuffer
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<Float>::infinity() ) ;
-
-  //Initialize Shadow Map bounds and orientation
-  //If changed to 0.1-100.0 doesn't work anymore
-  Float near_plane = 0.1f, far_plane = 10.0f;
-  // Float near_plane = 0.1f, far_plane = 100.0f;
   
-  vec3 light_up = vec3(0.,1.,0.);
+  // vec3 light_up = vec3(0.,1.,0.);
   
-  vec3 sceneboundmin = vec3(bounds(0),bounds(1),bounds(2));
-  vec3 sceneboundmax = vec3(bounds(3),bounds(4),bounds(5));
-  Float scene_diag = glm::length(sceneboundmax-sceneboundmin)+0.5;
-  vec3 scene_center = (sceneboundmax+sceneboundmin)/(Float)2.0;
+  // vec3 sceneboundmin = vec3(bounds(0),bounds(1),bounds(2));
+  // vec3 sceneboundmax = vec3(bounds(3),bounds(4),bounds(5));
+  // Float scene_diag = glm::length(sceneboundmax-sceneboundmin)+0.5;
+  // vec3 scene_center = (sceneboundmax+sceneboundmin)/(Float)2.0;
   
   //For alpha transparency
   std::vector<std::map<Float, alpha_info> > alpha_depths(nx*ny);
@@ -188,7 +183,6 @@ List rasterize_lines_rcpp(NumericMatrix line_mat,
     line_verts_cols.push_back(vec3(line_mat(i,6),line_mat(i,7),line_mat(i,8)));
   }
   
-  vec3 line_color = vec3(1.0f,1.0f,1.0f);
   if(ndc_line_verts_start.size() > 0) {
     if(aa_lines) {
       aa_line(ndc_line_verts_start, ndc_line_verts_end, line_verts_cols, zbuffer, alpha_depths, alpha_line, line_offset);

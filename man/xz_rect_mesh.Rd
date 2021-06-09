@@ -33,6 +33,9 @@ File location of the R.obj file (saved with a .txt extension)
 XZ Rectangle 3D Model
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 \donttest{
 generate_cornell_mesh() \%>\%
   add_shape(xz_rect_mesh(position = c(555/2, 100, 555/2), scale=200,

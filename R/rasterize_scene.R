@@ -48,6 +48,9 @@
 #'@return Rasterized image.
 #'@export
 #'@examples
+#'\dontshow{
+#'options("cores"=1)
+#'}
 #'#Let's load the cube OBJ file included with the package
 #'
 #'\donttest{

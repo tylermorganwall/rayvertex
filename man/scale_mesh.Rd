@@ -20,6 +20,9 @@ Scaled mesh
 Scale Mesh
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 #Scale a mesh in the Cornell box
 robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 

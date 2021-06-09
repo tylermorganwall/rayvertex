@@ -40,6 +40,9 @@ Rasterized image.
 OBJ Mesh 3D Model
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 #Read in a mesh3d object and rasterize it
 if("Rvcg" \%in\% rownames(utils::installed.packages())) {
   library(Rvcg)
