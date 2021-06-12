@@ -34,8 +34,6 @@ text3d_mesh(
 \item{order_rotation}{Default `c(1,2,3)`. Order to rotate the axes.}
 
 \item{scale}{Default `c(1,1,1)`. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.}
-
-\item{center}{Default `FALSE`. Whether to center the mesh.}
 }
 \value{
 Single row of a tibble describing the text in the scene.
