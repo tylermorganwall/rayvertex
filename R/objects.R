@@ -1003,6 +1003,9 @@ mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,
 #' @param center Default `FALSE`. Whether to center the mesh.
 #' @param position Default `c(0,0,0)`. Position of the mesh.
 #' @param text_height Default `1`. Height of the text.
+#' @param orientation Default `xy`. Orientation of the plane. Other options are `yz` and `xz`.
+#' @param color Default `black`. Text color.
+
 #' @param scale Default `c(1,1,1)`. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.
 #' @param angle Default `c(0,0,0)`. Angle to rotate the mesh.
 #' @param pivot_point Default `c(0,0,0)`. Point around which to rotate the mesh.
@@ -1047,7 +1050,7 @@ mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,
 #'                                              color="yellow", text_height = 50,
 #'                                              angle=c(0,0,0)))
 #' }
-#' generate_cornell_mesh(light=T) %>% 
+#' generate_cornell_mesh() %>% 
 #'   add_shape(bee_scene) %>%                   
 #'   rasterize_scene(light=directional_light(c(0,1,-1)))
 #' }

@@ -23,6 +23,10 @@ text3d_mesh(
 
 \item{text_height}{Default `1`. Height of the text.}
 
+\item{orientation}{Default `xy`. Orientation of the plane. Other options are `yz` and `xz`.}
+
+\item{color}{Default `black`. Text color.}
+
 \item{angle}{Default `c(0,0,0)`. Angle to rotate the mesh.}
 
 \item{pivot_point}{Default `c(0,0,0)`. Point around which to rotate the mesh.}
@@ -74,7 +78,7 @@ bee_scene = add_shape(bee_scene, text3d_mesh("B", position=c(20+runif(3)*525),
                                              color="yellow", text_height = 50,
                                              angle=c(0,0,0)))
 }
-generate_cornell_mesh(light=T) \%>\% 
+generate_cornell_mesh() \%>\% 
   add_shape(bee_scene) \%>\%                   
   rasterize_scene(light=directional_light(c(0,1,-1)))
 }
