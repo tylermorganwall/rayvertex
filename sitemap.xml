@@ -76,6 +76,9 @@
     <loc>https://www.rayvertex.com/reference/pipe.html</loc>
   </url>
   <url>
+    <loc>https://www.rayvertex.com/reference/ply_mesh.html</loc>
+  </url>
+  <url>
     <loc>https://www.rayvertex.com/reference/point_light.html</loc>
   </url>
   <url>
@@ -92,6 +95,9 @@
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/read_obj.html</loc>
+  </url>
+  <url>
+    <loc>https://www.rayvertex.com/reference/read_ply.html</loc>
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/remove_duplicate_materials.html</loc>
@@ -122,6 +128,9 @@
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/sphere_mesh.html</loc>
+  </url>
+  <url>
+    <loc>https://www.rayvertex.com/reference/text3d_mesh.html</loc>
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/torus_mesh.html</loc>

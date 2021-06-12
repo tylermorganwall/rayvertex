@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Rasterize an OBJ file — read_obj • rayvertex</title>
+<title>Load an OBJ file — read_obj • rayvertex</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Rasterize an OBJ file — read_obj" />
-<meta property="og:description" content="Rasterize an OBJ file" />
+<meta property="og:title" content="Load an OBJ file — read_obj" />
+<meta property="og:description" content="Load an OBJ file" />
 <meta property="og:image" content="https://www.rayvertex.com/reference/figures/rayvertex_logo.png" />
 <meta property="og:image:alt" content="A card image for rayvertex" />
 <meta name="twitter:card" content="summary_large_image" />
@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rayvertex</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -118,45 +118,17 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Rasterize an OBJ file</h1>
+    <h1>Load an OBJ file</h1>
     
     <div class="hidden name"><code>read_obj.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Rasterize an OBJ file</p>
+    <p>Load an OBJ file</p>
     </div>
 
     <pre class="usage"><span class='fu'>read_obj</span><span class='op'>(</span><span class='va'>filename</span>, materialspath <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>obj_model</th>
-      <td><p>A two-dimensional matrix, where each entry in the matrix is the elevation at that point. All points are assumed to be evenly spaced.</p></td>
-    </tr>
-    <tr>
-      <th>width</th>
-      <td><p>Default `400`. Width of the rendered image.</p></td>
-    </tr>
-    <tr>
-      <th>height</th>
-      <td><p>Default `400`. Width of the rendered image.</p></td>
-    </tr>
-    <tr>
-      <th>fov</th>
-      <td><p>Default `20`. Width of the rendered image.</p></td>
-    </tr>
-    <tr>
-      <th>lookfrom</th>
-      <td><p>Default `c(0,0,10)`. Camera location.</p></td>
-    </tr>
-    <tr>
-      <th>lookat</th>
-      <td><p>Default `c(0,0,0)`. Camera focal position.</p></td>
-    </tr>
-    </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
