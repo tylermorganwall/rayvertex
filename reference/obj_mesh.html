@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rayvertex</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
       </span>
     </div>
 
@@ -129,6 +129,7 @@
 
     <pre class="usage"><span class='fu'>obj_mesh</span><span class='op'>(</span>
   <span class='va'>filename</span>,
+  center <span class='op'>=</span> <span class='cn'>FALSE</span>,
   position <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span><span class='op'>)</span>,
   scale <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>1</span><span class='op'>)</span>,
   angle <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>0</span>, <span class='fl'>0</span><span class='op'>)</span>,
@@ -144,6 +145,10 @@
     <tr>
       <th>filename</th>
       <td><p>OBJ filename.</p></td>
+    </tr>
+    <tr>
+      <th>center</th>
+      <td><p>Default `FALSE`. Whether to center the mesh.</p></td>
     </tr>
     <tr>
       <th>position</th>
