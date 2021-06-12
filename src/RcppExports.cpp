@@ -17,6 +17,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// load_ply
+List load_ply(std::string inputfile, std::string basedir);
+RcppExport SEXP _rayvertex_load_ply(SEXP inputfileSEXP, SEXP basedirSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type inputfile(inputfileSEXP);
+    Rcpp::traits::input_parameter< std::string >::type basedir(basedirSEXP);
+    rcpp_result_gen = Rcpp::wrap(load_ply(inputfile, basedir));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rasterize_lines_rcpp
 List rasterize_lines_rcpp(NumericMatrix line_mat, int nx, int ny, NumericVector model_color, NumericVector lookfrom, NumericVector lookat, double fov, double near_clip, double far_clip, NumericVector bounds, NumericVector camera_up, double alpha_line, double line_offset, NumericVector ortho_dims, bool aa_lines);
 RcppExport SEXP _rayvertex_rasterize_lines_rcpp(SEXP line_matSEXP, SEXP nxSEXP, SEXP nySEXP, SEXP model_colorSEXP, SEXP lookfromSEXP, SEXP lookatSEXP, SEXP fovSEXP, SEXP near_clipSEXP, SEXP far_clipSEXP, SEXP boundsSEXP, SEXP camera_upSEXP, SEXP alpha_lineSEXP, SEXP line_offsetSEXP, SEXP ortho_dimsSEXP, SEXP aa_linesSEXP) {
@@ -127,6 +139,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rayvertex_load_obj", (DL_FUNC) &_rayvertex_load_obj, 2},
+    {"_rayvertex_load_ply", (DL_FUNC) &_rayvertex_load_ply, 2},
     {"_rayvertex_rasterize_lines_rcpp", (DL_FUNC) &_rayvertex_rasterize_lines_rcpp, 15},
     {"_rayvertex_rasterize", (DL_FUNC) &_rayvertex_rasterize, 44},
     {"_rayvertex_tonemap_image", (DL_FUNC) &_rayvertex_tonemap_image, 4},

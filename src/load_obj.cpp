@@ -113,7 +113,7 @@ List load_obj(std::string inputfile, std::string basedir) {
     set_item( out, 19, _["type"] = "diffuse", names) ;
     set_item( out, 20, _["translucent"] = true, names) ;
     set_item( out, 21, _["toon_levels"] = 5, names) ;
-    set_item( out, 22, _["toon_outline_width"] = 1.01, names) ;
+    set_item( out, 22, _["toon_outline_width"] = 0.05, names) ;
     set_item( out, 23, _["toon_outline_color"] = "black", names) ;
     set_item( out, 24, _["reflection_intensity"] = 1.0, names) ;
     set_item( out, 25, _["reflection_sharpness"] = 1.0, names) ;

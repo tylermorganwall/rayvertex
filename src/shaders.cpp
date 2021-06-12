@@ -130,9 +130,9 @@ bool GouraudShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   for(unsigned int ii = 0; ii < directional_lights.size(); ii++) {
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
-    Float shadow = 1.0f;
+    Float shadow = 0.0f;
     Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
-    if(has_shadow_map) {
+    if(has_shadow_map && intensity != 0.0) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
@@ -419,7 +419,6 @@ vec4 DiffuseShader::vertex(int iface, int nthvert, ModelInfo& model) {
     uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
     uniform_MIT * normalize(vec4(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
                                             model.vertex(iface,2)-model.vertex(iface,0)),0.0f));
-    
   
   return (vec_varying_tri[iface][nthvert]);
 }
@@ -427,6 +426,7 @@ vec4 DiffuseShader::vertex(int iface, int nthvert, ModelInfo& model) {
 bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
+
   if(diffuse_color.w == 0.0) return true;
   normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;
 
@@ -437,11 +437,13 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
     Float shadow = 1.0f;
     Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0))),0.0);
     if(has_shadow_map && intensity != 0.0) {
+      shadow = 0.0f;
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
+      
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
         Float bias = std::fmax(shadow_map_bias*10.0 * (1.0 - intensity),shadow_map_bias);
-        
+
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
         for(int x = -2; x <= 2; ++x) {
@@ -460,9 +462,11 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
         }
       }
     }
-    light_color += (vec3(trans_color) * trans_color.w * directional_lights[ii].intensity + 
+    light_color += (vec3(trans_color) * trans_color.w * directional_lights[ii].intensity +
       (1-trans_color.w) *  directional_lights[ii].color * directional_lights[ii].intensity) * shadow * intensity;
   }
+
+
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   //Directional light contribution
   color = diffuse_color * vec4(light_color,1.0);
@@ -474,6 +478,7 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   //Emissive and ambient terms
   color += emissive(uv);
   color += ambient(uv);
+  
   if(has_reflection && !has_refraction) {
     vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
     vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
@@ -615,7 +620,8 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3&
     
     Float shadow = 1.0f;
     Float intensity = std::fmax(dot(n, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
-    if(has_shadow_map) {
+    if(has_shadow_map && intensity != 0.0) {
+      shadow = 0.0f;
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
@@ -811,7 +817,9 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3
     
     Float shadow = 1.0f;
     Float intensity = std::fmax(dot(norm, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
-    if(has_shadow_map) {
+    if(has_shadow_map && intensity != 0.0) {
+      shadow = 0.0f;
+      
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
@@ -999,6 +1007,7 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
     Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
     if(has_shadow_map && intensity != 0.0) {
+      shadow = 0.0f;
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
@@ -1186,6 +1195,7 @@ bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& n
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
     Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
     if(has_shadow_map && intensity != 0.0) {
+      shadow = 0.0f;
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
@@ -1393,6 +1403,7 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
     Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
     if(has_shadow_map && intensity != 0.0) {
+      shadow = 0.0f;
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
@@ -1631,6 +1642,8 @@ bool ToonShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, 
     Float shadow = 1.0f;
     Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0))),0.0);
     if(has_shadow_map && intensity != 0.0) {
+      shadow = 0.0f;
+      
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
@@ -1792,6 +1805,8 @@ bool ToonShaderPhong::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& nor
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
     Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
     if(has_shadow_map && intensity != 0.0) {
+      shadow = 0.0f;
+      
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {

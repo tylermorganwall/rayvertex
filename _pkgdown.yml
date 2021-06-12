@@ -45,7 +45,8 @@ reference:
       - starts_with("yz_rect_mesh")
       - starts_with("construct")
       - starts_with("generate_cornell_mesh")
-
+      - starts_with("text")
+      - starts_with("ply")
   - title: "Materials"
     desc: "Functions to specify the visual properties of objects"
     contents:

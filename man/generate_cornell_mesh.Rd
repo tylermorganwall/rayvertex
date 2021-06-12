@@ -24,7 +24,7 @@ generate_cornell_mesh(
 \item{light}{Default `TRUE`. Whether to render a point light near the ceiling.}
 }
 \value{
-Rasterized image.
+List describing the mesh.
 }
 \description{
 Cornell Box 3D Model

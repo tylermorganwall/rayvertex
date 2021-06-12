@@ -30,7 +30,7 @@ cylinder_mesh(
 \item{material}{Default `material_list()` (default values). Specify the material of the object.}
 }
 \value{
-File location of the R.obj file (saved with a .txt extension)
+List describing the mesh.
 }
 \description{
 Cylinder 3D Model

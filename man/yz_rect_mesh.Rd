@@ -27,7 +27,7 @@ yz_rect_mesh(
 \item{material}{Default `material_list()` (default values). Specify the material of the object.}
 }
 \value{
-File location of the R.obj file (saved with a .txt extension)
+List describing the mesh.
 }
 \description{
 YZ Rectangle 3D Model
@@ -36,17 +36,17 @@ YZ Rectangle 3D Model
 \dontshow{
 options("cores"=1)
 }
+
 \donttest{
 generate_cornell_mesh() \%>\%
-  add_shape(yz_rect_mesh(position = c(500, 100, 555/2), scale=200,
+  add_shape(yz_rect_mesh(position = c(100, 100, 555/2), scale=c(1,200,200), angle=c(0,0,0),
              material = material_list(diffuse = "purple"))) \%>\%
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }
-
 #Need to flip it around to see the other side
 \donttest{
 generate_cornell_mesh() \%>\%
-  add_shape(yz_rect_mesh(position = c(100, 100, 555/2), scale=c(1,200,200), angle=c(0,180,0),
+  add_shape(yz_rect_mesh(position = c(500, 100, 555/2), scale=200, angle=c(0,180,0),
              material = material_list(diffuse = "purple"))) \%>\%
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }

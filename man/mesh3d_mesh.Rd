@@ -2,7 +2,7 @@
 % Please edit documentation in R/objects.R
 \name{mesh3d_mesh}
 \alias{mesh3d_mesh}
-\title{OBJ Mesh 3D Model}
+\title{Mesh3d 3D Model}
 \usage{
 mesh3d_mesh(
   mesh,
@@ -34,10 +34,10 @@ mesh3d_mesh(
 from the `material_list()` function to specify the material.}
 }
 \value{
-Rasterized image.
+List describing the mesh.
 }
 \description{
-OBJ Mesh 3D Model
+Mesh3d 3D Model
 }
 \examples{
 \dontshow{

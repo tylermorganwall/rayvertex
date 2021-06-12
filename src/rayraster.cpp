@@ -219,7 +219,6 @@ List rasterize(List mesh,
       reflection_maps.push_back(reflection_map);
     }
   }
-  stbi_ldr_to_hdr_gamma(1.0f);
   
   //Convert R vectors to vec3
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
@@ -332,6 +331,8 @@ List rasterize(List mesh,
   for(unsigned int i = 0; i < is_dir_light.length(); i++) {
     if(is_dir_light(i)) {
       shadowbuffer_mats.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
+      std::fill(shadowbuffer_mats.back().begin(), shadowbuffer_mats.back().end(), 
+                std::numeric_limits<double>::infinity() ) ;
       
       rayimage shadowbuffer_temp(shadowbuffer_mats.back(),shadowdims(0),shadowdims(1),shadow_map_intensity);
       
@@ -444,7 +445,6 @@ List rasterize(List mesh,
     bool has_normal_texture_single   = has_normal_texture(i);
     bool has_specular_texture_single = has_specular_texture(i);
     bool has_emissive_texture_single = has_emissive_texture(i);
-
     material_info temp = {
       vec3(ambient(0),ambient(1),ambient(2)),
       vec3(diffuse(0),diffuse(1),diffuse(2)),

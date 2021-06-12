@@ -9,7 +9,7 @@
 #' @param order_rotation Default `c(1,2,3)`. Order to rotate the axes.
 #' @param material Default `material_list()` (default values). Specify the material of the object.
 #' 
-#' @return File location of the R.obj file (saved with a .txt extension)
+#' @return List describing the mesh.
 #' @export
 #'
 #' @examples
@@ -73,7 +73,7 @@ cube_mesh = function(position = c(0,0,0),
 #' @param low_poly Default `FALSE`. If `TRUE`, will use a low-poly sphere.
 #' @param material Default `material_list()` (default values). Specify the material of the object.
 #' 
-#' @return File location of the R.obj file (saved with a .txt extension)
+#' @return List describing the mesh.
 #' @export
 #'
 #' @examples
@@ -148,8 +148,7 @@ sphere_mesh = function(position = c(0,0,0),
 #' to `FALSE` will make `start` specify the bottom of the cone, instead of the middle.
 #' @param material Default `material_list()` (default values). Specify the material of the object.
 #' 
-#' 
-#' @return File location of the R.obj file (saved with a .txt extension)
+#' @return List describing the mesh.
 #' @export
 #'
 #' @examples
@@ -241,7 +240,7 @@ cone_mesh = function(start = c(0,0,0), end=c(0,1,0),
 #' to `FALSE` will make `start` specify the bottom of the cone, instead of the middle.
 #' @param material Default `material_list()` (default values). Specify the material of the object.
 #' 
-#' @return File location of the R.obj file (saved with a .txt extension)
+#' @return List describing the mesh.
 #' @export
 #'
 #' @examples
@@ -367,7 +366,7 @@ arrow_mesh = function(start = c(0,0,0), end = c(0,1,0), radius_top = 0.5, radius
 #' @param material Default `material_list()` (default values). Specify the material of the object.
 #' 
 #' 
-#' @return File location of the R.obj file (saved with a .txt extension)
+#' @return List describing the mesh.
 #' @export
 #' @examples
 #' \dontshow{
@@ -429,7 +428,7 @@ cylinder_mesh = function(position = c(0,0,0), radius = 0.5, length=1,
 #' @param square Default `FALSE`. If `TRUE`, will use a square instead of a circle for the cylinder.
 #' @param material Default `material_list()` (default values). Specify the material of the object.
 #' 
-#' @return File location of the R.obj file (saved with a .txt extension)
+#' @return List describing the mesh.
 #' @export
 #' @examples
 #' \dontshow{
@@ -541,7 +540,7 @@ segment_mesh = function(start = c(0,-1,0), end = c(0,1,0), radius = 0.5,
 #' @param order_rotation Default `c(1,2,3)`. Order to rotate the axes.
 #' @param material Default `material_list()` (default values). Specify the material of the object.
 #' 
-#' @return File location of the R.obj file (saved with a .txt extension)
+#' @return List describing the mesh.
 #' @export
 #' @examples
 #' \dontshow{
@@ -550,14 +549,14 @@ segment_mesh = function(start = c(0,-1,0), end = c(0,1,0), radius = 0.5,
 #' \donttest{
 #' generate_cornell_mesh() %>%
 #'   add_shape(xy_rect_mesh(position = c(555/2, 100, 555/2), scale=200,
-#'              material = material_list(diffuse = "purple"))) %>%
+#'              material = material_list(diffuse = "purple"),angle=c(0,180,0))) %>%
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
 #' 
 #' #Rotate the plane and scale 
 #' \donttest{
 #' generate_cornell_mesh() %>%
-#'   add_shape(xy_rect_mesh(position = c(555/2, 100, 555/2), scale=c(200,100,1), angle=c(0,30,0),
+#'   add_shape(xy_rect_mesh(position = c(555/2, 100, 555/2), scale=c(200,100,1), angle=c(0,180,0),
 #'              material = material_list(diffuse = "purple"))) %>%
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
@@ -593,7 +592,7 @@ xy_rect_mesh = function(position = c(0,0,0),
 #' @param order_rotation Default `c(1,2,3)`. Order to rotate the axes.
 #' @param material Default `material_list()` (default values). Specify the material of the object.
 #' 
-#' @return File location of the R.obj file (saved with a .txt extension)
+#' @return List describing the mesh.
 #' @export
 #' @examples
 #' \dontshow{
@@ -637,23 +636,23 @@ xz_rect_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #' @param order_rotation Default `c(1,2,3)`. Order to rotate the axes.
 #' @param material Default `material_list()` (default values). Specify the material of the object.
 #' 
-#' @return File location of the R.obj file (saved with a .txt extension)
+#' @return List describing the mesh.
 #' @export
 #' @examples
 #' \dontshow{
 #' options("cores"=1)
 #' }
+#' 
 #' \donttest{
 #' generate_cornell_mesh() %>%
-#'   add_shape(yz_rect_mesh(position = c(500, 100, 555/2), scale=200,
+#'   add_shape(yz_rect_mesh(position = c(100, 100, 555/2), scale=c(1,200,200), angle=c(0,0,0),
 #'              material = material_list(diffuse = "purple"))) %>%
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
-#' 
 #' #Need to flip it around to see the other side
 #' \donttest{
 #' generate_cornell_mesh() %>%
-#'   add_shape(yz_rect_mesh(position = c(100, 100, 555/2), scale=c(1,200,200), angle=c(0,180,0),
+#'   add_shape(yz_rect_mesh(position = c(500, 100, 555/2), scale=200, angle=c(0,180,0),
 #'              material = material_list(diffuse = "purple"))) %>%
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
@@ -684,7 +683,7 @@ yz_rect_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #' @param roomcolor Default `#bababa` (light grey).
 #' @param ceiling Default `TRUE`. Whether to render the ceiling.
 #' @param light Default `TRUE`. Whether to render a point light near the ceiling.
-#'@return Rasterized image.
+#'@return List describing the mesh.
 #'@export
 #'@examples
 #'\dontshow{
@@ -760,7 +759,7 @@ generate_cornell_mesh = function(leftcolor = "#1f7326",
 #' @param materialspath Default `NULL`. Path to the MTL file, if different from the OBJ file.
 #' @param material Default `NULL`, read from the MTL file. If not `NULL`, this accepts the output
 #' from the `material_list()` function to specify the material.
-#'@return Rasterized image.
+#'@return List describing the mesh.
 #'@export
 #'@examples
 #'\dontshow{
@@ -805,7 +804,7 @@ obj_mesh = function(filename, position = c(0,0,0), scale = c(1,1,1),
 #' @param rings Default `36`. The number of faces around the torus.
 #' @param material Default `material_list()` (default values). Specify the material of the object.
 #' 
-#'@return Torus mesh
+#'@return List describing the mesh.
 #'@export
 #'@examples
 #'\dontshow{
@@ -911,7 +910,7 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
   obj
 }
 
-#' OBJ Mesh 3D Model
+#' Mesh3d 3D Model
 #'
 #' @param mesh Mesh3d object.
 #' @param position Default `c(0,0,0)`. Position of the mesh.
@@ -922,7 +921,7 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #' @param materialspath Default `NULL`. Path to the MTL file, if different from the OBJ file.
 #' @param material Default `NULL`, read from the MTL file. If not `NULL`, this accepts the output
 #' from the `material_list()` function to specify the material.
-#'@return Rasterized image.
+#'@return List describing the mesh.
 #'@export
 #'@examples
 #'\dontshow{
@@ -988,4 +987,141 @@ mesh3d_mesh = function(mesh, position = c(0,0,0), scale = c(1,1,1),
   }
   mesh = translate_mesh(mesh,position)
   mesh
+}
+
+#' Text Object
+#'
+#' @param label Text string.
+#' @param x Default `0`. x-coordinate of the center of the label.
+#' @param y Default `0`. y-coordinate of the center of the label.
+#' @param z Default `0`. z-coordinate of the center of the label.
+#' @param text_height Default `1`. Height of the text.
+#' @param orientation Default `xy`. Orientation of the plane. Other options are `yz` and `xz`.
+#' @param material Default  \code{\link{diffuse}}. The material, called from one of the material 
+#' functions \code{\link{diffuse}}, \code{\link{metal}}, or \code{\link{dielectric}}.
+#' @param angle Default `c(0, 0, 0)`. Angle of rotation around the x, y, and z axes, applied in the order specified in `order_rotation`.
+#' @param order_rotation Default `c(1, 2, 3)`. The order to apply the rotations, referring to "x", "y", and "z".
+#' @param velocity Default `c(0, 0, 0)`. Velocity of the sphere, used for motion blur.
+#' @param flipped Default `FALSE`. Whether to flip the normals.
+#' @param scale Default `c(1, 1, 1)`. Scale transformation in the x, y, and z directions. If this is a single value,
+#' number, the object will be scaled uniformly.
+#' Note: emissive objects may not currently function correctly when scaled.
+#' @importFrom  grDevices col2rgb
+#'
+#' @return Single row of a tibble describing the text in the scene.
+#' @export
+#'
+#' @examples
+#' #Generate a label in the cornell box.
+#' \donttest{
+#' generate_cornell_mesh() %>% 
+#'   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),text_height=60)) %>% 
+#'   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
+#'   
+#' #Change the orientation
+#' generate_cornell_mesh() %>% 
+#'   add_shape(text3d_mesh(label="YZ Plane", position=c(540,555/2,555/2),text_height=100,
+#'                     orientation = "yz",angle=c(0,0,0))) %>% 
+#'   add_shape(text3d_mesh(label="XY Plane", position=c(555/2,555/2,540),text_height=100,
+#'                     orientation = "xy", angle=c(0,0,0))) %>% 
+#'   add_shape(text3d_mesh(label="XZ Plane", position=c(555/2,15,555/2),text_height=100,
+#'                     orientation = "xz")) %>% 
+#'   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
+#'   
+#' #Add an label in front of a sphere
+#' generate_cornell_mesh() %>% 
+#'   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),text_height=60,
+#'                     color="grey20")) %>% 
+#'   add_shape(text3d_mesh(label="Sphere", position=c(555/2,100,100),text_height=30,
+#'                     color="white")) %>% 
+#'   add_shape(sphere_mesh(radius=100,position=c(555/2,100,555/2),
+#'                     material=material_list(diffuse="purple",type="phong"))) %>%                  
+#'   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
+#'   
+#'   
+#' #A room full of bees
+#' bee_scene = list()
+#' for(i in 1:100) {
+#' bee_scene = add_shape(bee_scene, text3d_mesh("B", position=c(20+runif(3)*525), 
+#'                                              color="yellow", text_height = 50,
+#'                                              angle=c(0,0,0)))
+#' }
+#' generate_cornell_mesh(light=T) %>% 
+#'   add_shape(bee_scene) %>%                   
+#'   rasterize_scene(light=directional_light(c(0,1,-1)))
+#' }
+text3d_mesh = function(label, position = c(0,0,0), text_height = 1, orientation = "xy",
+                       color = "black",
+                       angle = c(0, 0, 0), pivot_point = c(0,0,0), order_rotation = c(1, 2, 3), 
+                       scale = c(1,1,1)) {
+  labelfile = tempfile(fileext = ".png")
+  rayimage::add_title(matrix(0,ncol = nchar(label)*60, nrow=60*1.2), 
+                      title_size  = 60,
+                      title_offset = c(0,0),title_text = label, title_color = "white",
+                      title_position = "center", filename = labelfile)
+  text_color = convert_color(color)
+  array_label = fliplr(flipud(png::readPNG(labelfile)))
+  image_dim = dim(array_label)
+  temp_array = array(0,dim=c(image_dim[1],image_dim[2],4))
+  temp_array[,,1] = text_color[1]
+  temp_array[,,2] = text_color[2]
+  temp_array[,,3] = text_color[3]
+  temp_array[,,4] = array_label[,,1]
+  if (orientation == "yz" || orientation == "zy") {
+    temp_array = flipud((aperm(temp_array,c(2,1,3))))
+  }
+  png::writePNG(temp_array, labelfile)
+  if(orientation == "xy" || orientation == "yx") {
+    mesh = xy_rect_mesh(position = position, angle = angle,pivot_point = pivot_point,
+                        order_rotation = order_rotation,
+                 scale = c(nchar(label)*text_height, text_height,1),
+                 material = material_list(texture_location = labelfile, type="color"))
+  } else if (orientation == "yz" || orientation == "zy") {
+    mesh = yz_rect_mesh(position = position, angle = angle,pivot_point = pivot_point,
+                        order_rotation = order_rotation,
+                 scale = c(1,text_height,nchar(label)*text_height),
+                 material = material_list(texture_location = labelfile, type="color"))
+  } else if (orientation == "xz" || orientation == "zx") {
+    mesh = xz_rect_mesh(position = position, angle = angle,pivot_point = pivot_point,
+                        order_rotation = order_rotation,
+                 scale = c(nchar(label)*text_height, 1,zwidth = text_height),
+                 material = material_list(texture_location = labelfile, type="color"))
+  } else {
+    stop("Orientation ", orientation, " not recognized")
+  }
+  return(mesh)
+}
+
+#' PLY Mesh 3D Model
+#'
+#' @param filename PLY filename.
+#' @param position Default `c(0,0,0)`. Position of the mesh.
+#' @param scale Default `c(1,1,1)`. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.
+#' @param angle Default `c(0,0,0)`. Angle to rotate the mesh.
+#' @param pivot_point Default `c(0,0,0)`. Point around which to rotate the mesh.
+#' @param order_rotation Default `c(1,2,3)`. Order to rotate the axes.
+#' @param material Default `material_list()` (default values). Specify the material of the object.
+#'@return List describing the mesh.
+#'@export
+#'@examples
+#'#See the documentation for `obj_mesh()`--no example PLY models are included with this package,
+#'#but the process of loading a model is the same (but no materials are included in PLY files).
+ply_mesh = function(filename, position = c(0,0,0), scale = c(1,1,1), 
+                    angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3), 
+                    material = material_list()) {
+  ply_loaded = read_ply(filename)
+  if(any(scale != 1)) {
+    ply_loaded = scale_mesh(ply_loaded, scale=scale)
+  }
+  ply_loaded = set_material(ply_loaded,material = material)
+  if(material$type == "toon" || material$type == "toon_phong") {
+    ply2 = generate_toon_outline(ply_loaded, material)
+    ply_loaded = add_shape(ply_loaded,ply2)
+  }
+  if(any(angle != 0)) {
+    ply_loaded = rotate_mesh(ply_loaded, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
+  }
+  
+  ply_loaded = translate_mesh(ply_loaded,position)
+  ply_loaded
 }

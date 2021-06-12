@@ -158,7 +158,7 @@ class ColorShader : public IShader {
     }
     vec4 diffuse(vec3 uv) {
       return(has_texture ? 
-               vec4(material.diffuse * material.diffuse_intensity, material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
+               material.diffuse_intensity * vec4(1.0,1.0,1.0, material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
                vec4(material.diffuse * material.diffuse_intensity, material.dissolve));
     }
     vec4 ambient(vec3 uv) {

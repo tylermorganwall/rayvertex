@@ -34,7 +34,7 @@ obj_mesh(
 from the `material_list()` function to specify the material.}
 }
 \value{
-Rasterized image.
+List describing the mesh.
 }
 \description{
 OBJ Mesh 3D Model

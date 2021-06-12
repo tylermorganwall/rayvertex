@@ -39,7 +39,7 @@ torus_mesh(
 \item{material}{Default `material_list()` (default values). Specify the material of the object.}
 }
 \value{
-Torus mesh
+List describing the mesh.
 }
 \description{
 Torus 3D Model
