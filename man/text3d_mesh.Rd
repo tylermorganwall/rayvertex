@@ -47,25 +47,26 @@ Text Object
 #Generate a label in the cornell box.
 \donttest{
 generate_cornell_mesh() \%>\% 
-  add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),text_height=60)) \%>\% 
+  add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),angle=c(0,180,0),
+  text_height=60)) \%>\% 
   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
   
 #Change the orientation
 generate_cornell_mesh() \%>\% 
   add_shape(text3d_mesh(label="YZ Plane", position=c(540,555/2,555/2),text_height=100,
-                    orientation = "yz",angle=c(0,0,0))) \%>\% 
+                    orientation = "yz",angle=c(0,180,0))) \%>\% 
   add_shape(text3d_mesh(label="XY Plane", position=c(555/2,555/2,540),text_height=100,
-                    orientation = "xy", angle=c(0,0,0))) \%>\% 
+                    orientation = "xy", angle=c(0,180,0))) \%>\% 
   add_shape(text3d_mesh(label="XZ Plane", position=c(555/2,15,555/2),text_height=100,
-                    orientation = "xz")) \%>\% 
+                    orientation = "xz", angle=c(0,0,0))) \%>\% 
   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
   
 #Add an label in front of a sphere
 generate_cornell_mesh() \%>\% 
   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),text_height=60,
-                    color="grey20")) \%>\% 
+                    color="grey20",angle=c(0,180,0))) \%>\% 
   add_shape(text3d_mesh(label="Sphere", position=c(555/2,100,100),text_height=30,
-                    color="white")) \%>\% 
+                    color="white",angle=c(0,180,0))) \%>\% 
   add_shape(sphere_mesh(radius=100,position=c(555/2,100,555/2),
                     material=material_list(diffuse="purple",type="phong"))) \%>\%                  
   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
@@ -76,7 +77,7 @@ bee_scene = list()
 for(i in 1:100) {
 bee_scene = add_shape(bee_scene, text3d_mesh("B", position=c(20+runif(3)*525), 
                                              color="yellow", text_height = 50,
-                                             angle=c(0,0,0)))
+                                             angle=c(0,180,0)))
 }
 generate_cornell_mesh() \%>\% 
   add_shape(bee_scene) \%>\%                   
