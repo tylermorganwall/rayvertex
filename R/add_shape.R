@@ -208,6 +208,30 @@ scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
   return(mesh)
 }
 
+#'@title Center Mesh
+#'
+#'Centers the mesh at the origin.
+#'
+#'@param mesh The mesh.
+#'
+#'@return Centered mesh
+#'@export
+#'@examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
+#' #Center the Cornell box and the R OBJ at the origin
+#' center_mesh(generate_cornell_mesh()) %>% 
+#'   add_shape(center_mesh(obj_mesh(r_obj(),scale=100,angle=c(0,180,0)))) %>% 
+#'   rasterize_scene(lookfrom=c(0,0,-1100),fov=40,lookat=c(0,0,0),
+#'                   light_info = directional_light(c(0.4,0.4,-1)) %>%
+#'       add_light(point_light(c(0,450,0),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)))
+center_mesh = function(mesh) {
+  center = apply(apply(mesh$vertices,2,range),2,mean)
+  mesh = translate_mesh(mesh, -center)
+  return(mesh)
+}
+
 #'@title Generate Rotation Matrix
 #'
 #'@param angle The angle

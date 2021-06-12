@@ -6,6 +6,7 @@
 \usage{
 ply_mesh(
   filename,
+  center = FALSE,
   position = c(0, 0, 0),
   scale = c(1, 1, 1),
   angle = c(0, 0, 0),
@@ -16,6 +17,8 @@ ply_mesh(
 }
 \arguments{
 \item{filename}{PLY filename.}
+
+\item{center}{Default `FALSE`. Whether to center the mesh.}
 
 \item{position}{Default `c(0,0,0)`. Position of the mesh.}
 

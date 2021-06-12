@@ -751,6 +751,7 @@ generate_cornell_mesh = function(leftcolor = "#1f7326",
 #' OBJ Mesh 3D Model
 #'
 #' @param filename OBJ filename.
+#' @param center Default `FALSE`. Whether to center the mesh.
 #' @param position Default `c(0,0,0)`. Position of the mesh.
 #' @param scale Default `c(1,1,1)`. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.
 #' @param angle Default `c(0,0,0)`. Angle to rotate the mesh.
@@ -769,7 +770,7 @@ generate_cornell_mesh = function(leftcolor = "#1f7326",
 #' generate_cornell_mesh(ceiling=FALSE) %>% 
 #'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) %>% 
 #'   rasterize_scene(light_info = directional_light(direction=c(0.2,0.5,-1)))
-obj_mesh = function(filename, position = c(0,0,0), scale = c(1,1,1), 
+obj_mesh = function(filename, center = FALSE, position = c(0,0,0), scale = c(1,1,1), 
                     angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3), materialspath = NULL,
                     material = NULL) {
   obj_loaded = read_obj(filename, materialspath)
@@ -782,6 +783,9 @@ obj_mesh = function(filename, position = c(0,0,0), scale = c(1,1,1),
       obj2 = generate_toon_outline(obj_loaded, material)
       obj_loaded = add_shape(obj_loaded,obj2)
     }
+  }
+  if(center) {
+    obj_loaded = center_mesh(obj_loaded)
   }
   if(any(angle != 0)) {
     obj_loaded = rotate_mesh(obj_loaded, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
@@ -913,6 +917,7 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #' Mesh3d 3D Model
 #'
 #' @param mesh Mesh3d object.
+#' @param center Default `FALSE`. Whether to center the mesh.
 #' @param position Default `c(0,0,0)`. Position of the mesh.
 #' @param scale Default `c(1,1,1)`. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.
 #' @param angle Default `c(0,0,0)`. Angle to rotate the mesh.
@@ -937,7 +942,7 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #'               ambient = "dodgerblue4", ambient_intensity=0.3)) %>%
 #'     rasterize_scene(lookat = c(0,0.5,1), light_info = directional_light(c(1,0.5,1)))
 #' }
-mesh3d_mesh = function(mesh, position = c(0,0,0), scale = c(1,1,1), 
+mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,1), 
                        angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3), materialspath = NULL,
                        material = material_list()) {
   mat_vals = mesh$material
@@ -981,6 +986,9 @@ mesh3d_mesh = function(mesh, position = c(0,0,0), scale = c(1,1,1),
   if(material$type == "toon" || material$type == "toon_phong") {
     obj2 = generate_toon_outline(mesh, material)
     mesh = add_shape(mesh,obj2)
+  }
+  if(center) {
+    obj_loaded = center_mesh(obj_loaded)
   }
   if(any(angle != 0)) {
     mesh = rotate_mesh(mesh, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
@@ -1095,6 +1103,7 @@ text3d_mesh = function(label, position = c(0,0,0), text_height = 1, orientation 
 #' PLY Mesh 3D Model
 #'
 #' @param filename PLY filename.
+#' @param center Default `FALSE`. Whether to center the mesh.
 #' @param position Default `c(0,0,0)`. Position of the mesh.
 #' @param scale Default `c(1,1,1)`. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.
 #' @param angle Default `c(0,0,0)`. Angle to rotate the mesh.
@@ -1106,7 +1115,7 @@ text3d_mesh = function(label, position = c(0,0,0), text_height = 1, orientation 
 #'@examples
 #'#See the documentation for `obj_mesh()`--no example PLY models are included with this package,
 #'#but the process of loading a model is the same (but no materials are included in PLY files).
-ply_mesh = function(filename, position = c(0,0,0), scale = c(1,1,1), 
+ply_mesh = function(filename, center = FALSE, position = c(0,0,0), scale = c(1,1,1), 
                     angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3), 
                     material = material_list()) {
   ply_loaded = read_ply(filename)
@@ -1117,6 +1126,9 @@ ply_mesh = function(filename, position = c(0,0,0), scale = c(1,1,1),
   if(material$type == "toon" || material$type == "toon_phong") {
     ply2 = generate_toon_outline(ply_loaded, material)
     ply_loaded = add_shape(ply_loaded,ply2)
+  }
+  if(center) {
+    ply_loaded = center_mesh(ply_loaded)
   }
   if(any(angle != 0)) {
     ply_loaded = rotate_mesh(ply_loaded, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)

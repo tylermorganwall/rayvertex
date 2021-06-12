@@ -6,6 +6,7 @@
 \usage{
 mesh3d_mesh(
   mesh,
+  center = FALSE,
   position = c(0, 0, 0),
   scale = c(1, 1, 1),
   angle = c(0, 0, 0),
@@ -17,6 +18,8 @@ mesh3d_mesh(
 }
 \arguments{
 \item{mesh}{Mesh3d object.}
+
+\item{center}{Default `FALSE`. Whether to center the mesh.}
 
 \item{position}{Default `c(0,0,0)`. Position of the mesh.}
 
