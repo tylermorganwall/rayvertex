@@ -147,51 +147,32 @@
       <td><p>Text string.</p></td>
     </tr>
     <tr>
+      <th>position</th>
+      <td><p>Default `c(0,0,0)`. Position of the mesh.</p></td>
+    </tr>
+    <tr>
       <th>text_height</th>
       <td><p>Default `1`. Height of the text.</p></td>
     </tr>
     <tr>
-      <th>orientation</th>
-      <td><p>Default `xy`. Orientation of the plane. Other options are `yz` and `xz`.</p></td>
+      <th>angle</th>
+      <td><p>Default `c(0,0,0)`. Angle to rotate the mesh.</p></td>
     </tr>
     <tr>
-      <th>angle</th>
-      <td><p>Default `c(0, 0, 0)`. Angle of rotation around the x, y, and z axes, applied in the order specified in `order_rotation`.</p></td>
+      <th>pivot_point</th>
+      <td><p>Default `c(0,0,0)`. Point around which to rotate the mesh.</p></td>
     </tr>
     <tr>
       <th>order_rotation</th>
-      <td><p>Default `c(1, 2, 3)`. The order to apply the rotations, referring to "x", "y", and "z".</p></td>
+      <td><p>Default `c(1,2,3)`. Order to rotate the axes.</p></td>
     </tr>
     <tr>
       <th>scale</th>
-      <td><p>Default `c(1, 1, 1)`. Scale transformation in the x, y, and z directions. If this is a single value,
-number, the object will be scaled uniformly.
-Note: emissive objects may not currently function correctly when scaled.</p></td>
+      <td><p>Default `c(1,1,1)`. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.</p></td>
     </tr>
     <tr>
-      <th>x</th>
-      <td><p>Default `0`. x-coordinate of the center of the label.</p></td>
-    </tr>
-    <tr>
-      <th>y</th>
-      <td><p>Default `0`. y-coordinate of the center of the label.</p></td>
-    </tr>
-    <tr>
-      <th>z</th>
-      <td><p>Default `0`. z-coordinate of the center of the label.</p></td>
-    </tr>
-    <tr>
-      <th>material</th>
-      <td><p>Default  <code>diffuse</code>. The material, called from one of the material 
-functions <code>diffuse</code>, <code>metal</code>, or <code>dielectric</code>.</p></td>
-    </tr>
-    <tr>
-      <th>velocity</th>
-      <td><p>Default `c(0, 0, 0)`. Velocity of the sphere, used for motion blur.</p></td>
-    </tr>
-    <tr>
-      <th>flipped</th>
-      <td><p>Default `FALSE`. Whether to flip the normals.</p></td>
+      <th>center</th>
+      <td><p>Default `FALSE`. Whether to center the mesh.</p></td>
     </tr>
     </table>
 
@@ -205,7 +186,7 @@ functions <code>diffuse</code>, <code>metal</code>, or <code>dielectric</code>.<
 <span class='fu'><a href='generate_cornell_mesh.html'>generate_cornell_mesh</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
   <span class='fu'><a href='add_shape.html'>add_shape</a></span><span class='op'>(</span><span class='fu'>text3d_mesh</span><span class='op'>(</span>label<span class='op'>=</span><span class='st'>"Cornell Box"</span>, position<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span><span class='op'>)</span>,text_height<span class='op'>=</span><span class='fl'>60</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
   <span class='fu'><a href='rasterize_scene.html'>rasterize_scene</a></span><span class='op'>(</span>light_info <span class='op'>=</span> <span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.1</span>,<span class='fl'>0.4</span>,<span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in rayimage::add_title(matrix(0, ncol = nchar(label) * 60, nrow = 60 *     1.2), title_size = 60, title_offset = c(0, 0), title_text = label,     title_color = "white", title_position = "center", filename = labelfile): `magick` package required for adding title</span></div><div class='input'>  
+</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='img'><img src='text3d_mesh-1.png' alt='' width='800' height='800' /></div><div class='input'>  
 <span class='co'>#Change the orientation</span>
 <span class='fu'><a href='generate_cornell_mesh.html'>generate_cornell_mesh</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
   <span class='fu'><a href='add_shape.html'>add_shape</a></span><span class='op'>(</span><span class='fu'>text3d_mesh</span><span class='op'>(</span>label<span class='op'>=</span><span class='st'>"YZ Plane"</span>, position<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>540</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span><span class='op'>)</span>,text_height<span class='op'>=</span><span class='fl'>100</span>,
@@ -215,7 +196,7 @@ functions <code>diffuse</code>, <code>metal</code>, or <code>dielectric</code>.<
   <span class='fu'><a href='add_shape.html'>add_shape</a></span><span class='op'>(</span><span class='fu'>text3d_mesh</span><span class='op'>(</span>label<span class='op'>=</span><span class='st'>"XZ Plane"</span>, position<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>15</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span><span class='op'>)</span>,text_height<span class='op'>=</span><span class='fl'>100</span>,
                     orientation <span class='op'>=</span> <span class='st'>"xz"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
   <span class='fu'><a href='rasterize_scene.html'>rasterize_scene</a></span><span class='op'>(</span>light_info <span class='op'>=</span> <span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.1</span>,<span class='fl'>0.4</span>,<span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in rayimage::add_title(matrix(0, ncol = nchar(label) * 60, nrow = 60 *     1.2), title_size = 60, title_offset = c(0, 0), title_text = label,     title_color = "white", title_position = "center", filename = labelfile): `magick` package required for adding title</span></div><div class='input'>  
+</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='img'><img src='text3d_mesh-2.png' alt='' width='800' height='800' /></div><div class='input'>  
 <span class='co'>#Add an label in front of a sphere</span>
 <span class='fu'><a href='generate_cornell_mesh.html'>generate_cornell_mesh</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
   <span class='fu'><a href='add_shape.html'>add_shape</a></span><span class='op'>(</span><span class='fu'>text3d_mesh</span><span class='op'>(</span>label<span class='op'>=</span><span class='st'>"Cornell Box"</span>, position<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span><span class='op'>)</span>,text_height<span class='op'>=</span><span class='fl'>60</span>,
@@ -225,7 +206,7 @@ functions <code>diffuse</code>, <code>metal</code>, or <code>dielectric</code>.<
   <span class='fu'><a href='add_shape.html'>add_shape</a></span><span class='op'>(</span><span class='fu'><a href='sphere_mesh.html'>sphere_mesh</a></span><span class='op'>(</span>radius<span class='op'>=</span><span class='fl'>100</span>,position<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>100</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span><span class='op'>)</span>,
                     material<span class='op'>=</span><span class='fu'><a href='material_list.html'>material_list</a></span><span class='op'>(</span>diffuse<span class='op'>=</span><span class='st'>"purple"</span>,type<span class='op'>=</span><span class='st'>"phong"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>                  
   <span class='fu'><a href='rasterize_scene.html'>rasterize_scene</a></span><span class='op'>(</span>light_info <span class='op'>=</span> <span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.1</span>,<span class='fl'>0.4</span>,<span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in rayimage::add_title(matrix(0, ncol = nchar(label) * 60, nrow = 60 *     1.2), title_size = 60, title_offset = c(0, 0), title_text = label,     title_color = "white", title_position = "center", filename = labelfile): `magick` package required for adding title</span></div><div class='input'>  
+</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='img'><img src='text3d_mesh-3.png' alt='' width='800' height='800' /></div><div class='input'>  
   
 <span class='co'>#A room full of bees</span>
 <span class='va'>bee_scene</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>
@@ -234,10 +215,10 @@ functions <code>diffuse</code>, <code>metal</code>, or <code>dielectric</code>.<
                                              color<span class='op'>=</span><span class='st'>"yellow"</span>, text_height <span class='op'>=</span> <span class='fl'>50</span>,
                                              angle<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>,<span class='fl'>0</span>,<span class='fl'>0</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
 <span class='op'>}</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in rayimage::add_title(matrix(0, ncol = nchar(label) * 60, nrow = 60 *     1.2), title_size = 60, title_offset = c(0, 0), title_text = label,     title_color = "white", title_position = "center", filename = labelfile): `magick` package required for adding title</span></div><div class='input'><span class='fu'><a href='generate_cornell_mesh.html'>generate_cornell_mesh</a></span><span class='op'>(</span>light<span class='op'>=</span><span class='cn'>T</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
+<span class='fu'><a href='generate_cornell_mesh.html'>generate_cornell_mesh</a></span><span class='op'>(</span>light<span class='op'>=</span><span class='cn'>T</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
   <span class='fu'><a href='add_shape.html'>add_shape</a></span><span class='op'>(</span><span class='va'>bee_scene</span><span class='op'>)</span> <span class='op'>%&gt;%</span>                   
   <span class='fu'><a href='rasterize_scene.html'>rasterize_scene</a></span><span class='op'>(</span>light<span class='op'>=</span><span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>,<span class='fl'>1</span>,<span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='img'><img src='text3d_mesh-1.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='img'><img src='text3d_mesh-4.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
