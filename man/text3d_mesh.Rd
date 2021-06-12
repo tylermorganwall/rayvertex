@@ -19,30 +19,19 @@ text3d_mesh(
 \arguments{
 \item{label}{Text string.}
 
+\item{position}{Default `c(0,0,0)`. Position of the mesh.}
+
 \item{text_height}{Default `1`. Height of the text.}
 
-\item{orientation}{Default `xy`. Orientation of the plane. Other options are `yz` and `xz`.}
+\item{angle}{Default `c(0,0,0)`. Angle to rotate the mesh.}
 
-\item{angle}{Default `c(0, 0, 0)`. Angle of rotation around the x, y, and z axes, applied in the order specified in `order_rotation`.}
+\item{pivot_point}{Default `c(0,0,0)`. Point around which to rotate the mesh.}
 
-\item{order_rotation}{Default `c(1, 2, 3)`. The order to apply the rotations, referring to "x", "y", and "z".}
+\item{order_rotation}{Default `c(1,2,3)`. Order to rotate the axes.}
 
-\item{scale}{Default `c(1, 1, 1)`. Scale transformation in the x, y, and z directions. If this is a single value,
-number, the object will be scaled uniformly.
-Note: emissive objects may not currently function correctly when scaled.}
+\item{scale}{Default `c(1,1,1)`. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.}
 
-\item{x}{Default `0`. x-coordinate of the center of the label.}
-
-\item{y}{Default `0`. y-coordinate of the center of the label.}
-
-\item{z}{Default `0`. z-coordinate of the center of the label.}
-
-\item{material}{Default  \code{\link{diffuse}}. The material, called from one of the material 
-functions \code{\link{diffuse}}, \code{\link{metal}}, or \code{\link{dielectric}}.}
-
-\item{velocity}{Default `c(0, 0, 0)`. Velocity of the sphere, used for motion blur.}
-
-\item{flipped}{Default `FALSE`. Whether to flip the normals.}
+\item{center}{Default `FALSE`. Whether to center the mesh.}
 }
 \value{
 Single row of a tibble describing the text in the scene.

@@ -1000,20 +1000,13 @@ mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,
 #' Text Object
 #'
 #' @param label Text string.
-#' @param x Default `0`. x-coordinate of the center of the label.
-#' @param y Default `0`. y-coordinate of the center of the label.
-#' @param z Default `0`. z-coordinate of the center of the label.
+#' @param center Default `FALSE`. Whether to center the mesh.
+#' @param position Default `c(0,0,0)`. Position of the mesh.
 #' @param text_height Default `1`. Height of the text.
-#' @param orientation Default `xy`. Orientation of the plane. Other options are `yz` and `xz`.
-#' @param material Default  \code{\link{diffuse}}. The material, called from one of the material 
-#' functions \code{\link{diffuse}}, \code{\link{metal}}, or \code{\link{dielectric}}.
-#' @param angle Default `c(0, 0, 0)`. Angle of rotation around the x, y, and z axes, applied in the order specified in `order_rotation`.
-#' @param order_rotation Default `c(1, 2, 3)`. The order to apply the rotations, referring to "x", "y", and "z".
-#' @param velocity Default `c(0, 0, 0)`. Velocity of the sphere, used for motion blur.
-#' @param flipped Default `FALSE`. Whether to flip the normals.
-#' @param scale Default `c(1, 1, 1)`. Scale transformation in the x, y, and z directions. If this is a single value,
-#' number, the object will be scaled uniformly.
-#' Note: emissive objects may not currently function correctly when scaled.
+#' @param scale Default `c(1,1,1)`. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.
+#' @param angle Default `c(0,0,0)`. Angle to rotate the mesh.
+#' @param pivot_point Default `c(0,0,0)`. Point around which to rotate the mesh.
+#' @param order_rotation Default `c(1,2,3)`. Order to rotate the axes.
 #' @importFrom  grDevices col2rgb
 #'
 #' @return Single row of a tibble describing the text in the scene.

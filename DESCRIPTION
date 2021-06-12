@@ -18,7 +18,7 @@ Imports: magrittr,
          jpeg,
          raster,
          digest
-Suggests: Rvcg
+Suggests: Rvcg, magick
 LinkingTo: Rcpp, spacefillr, RcppThread
 RoxygenNote: 7.1.1
 URL: https://www.rayvertex.com
