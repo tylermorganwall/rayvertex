@@ -6,7 +6,8 @@
 #' @export
 #'
 #' @examples
-#' #Load and render the included example R object file.
+#' #Return the location of the r_obj() file on your filesystem
+#' r_obj()
 r_obj = function() {
   system.file("extdata", "r_obj.txt", package="rayvertex")
 }

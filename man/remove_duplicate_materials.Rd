@@ -2,28 +2,17 @@
 % Please edit documentation in R/add_shape.R
 \name{remove_duplicate_materials}
 \alias{remove_duplicate_materials}
-\title{Add Shape
-
-Add shape to the scene}
+\title{Remove Duplicate}
 \usage{
 remove_duplicate_materials(scene)
 }
 \arguments{
-\item{scene}{The scene to add the shape.}
+\item{scene}{The scene}
 }
 \value{
 Scene with shape added.
 }
 \description{
-Add Shape
-
-Add shape to the scene
+Remove Duplicate
 }
-\keyword{#Generate}
-\keyword{box}
-\keyword{cornell}
-\keyword{in}
 \keyword{internal}
-\keyword{several}
-\keyword{spheres}
-\keyword{the}

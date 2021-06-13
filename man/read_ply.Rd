@@ -7,12 +7,9 @@
 read_ply(filename)
 }
 \value{
-Rasterized image.
+List
 }
 \description{
 Load an PLY file
-}
-\examples{
-#Here we produce a ambient occlusion map of the `montereybay` elevation map.
 }
 \keyword{internal}

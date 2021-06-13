@@ -21,16 +21,4 @@ Matrix
 \description{
 Generate Rotation Matrix
 }
-\keyword{#Here}
-\keyword{`montereybay`}
-\keyword{a}
-\keyword{ambient}
-\keyword{elevation}
 \keyword{internal}
-\keyword{map}
-\keyword{map.}
-\keyword{occlusion}
-\keyword{of}
-\keyword{produce}
-\keyword{the}
-\keyword{we}

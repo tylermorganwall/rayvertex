@@ -3,8 +3,6 @@
 #'@keywords internal
 #'
 #'@return Rasterized image.
-#'@examples
-#'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
 read_obj = function(filename, materialspath = NULL) {
   filename = path.expand(filename)
   if(!file.exists(filename)) {
@@ -41,9 +39,7 @@ read_obj = function(filename, materialspath = NULL) {
 #'
 #'@keywords internal
 #'
-#'@return Rasterized image.
-#'@examples
-#'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
+#'@return List
 read_ply = function(filename) {
   filename = path.expand(filename)
   if(!file.exists(filename)) {

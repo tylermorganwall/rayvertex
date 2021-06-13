@@ -19,6 +19,7 @@ Add Line
 }
 \examples{
 #Generate a cube out of lines
+\donttest{
 cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) \%>\%
   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) \%>\%
   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) \%>\%
@@ -33,4 +34,5 @@ cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) \%>\%
   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1)))
   
 rasterize_lines(cube_outline,fov=90,lookfrom=c(0,0,3))
+}
 }

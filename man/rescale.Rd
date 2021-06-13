@@ -17,7 +17,4 @@ Color vector
 \description{
 Rescale
 }
-\examples{
-#none
-}
 \keyword{internal}

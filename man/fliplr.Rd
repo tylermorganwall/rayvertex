@@ -15,7 +15,4 @@ Flipped matrix
 \description{
 Flip Left-Right
 }
-\examples{
-#Fake example
-}
 \keyword{internal}

@@ -16,7 +16,4 @@ Color vector
 \description{
 Convert Color
 }
-\examples{
-#none
-}
 \keyword{internal}

@@ -28,6 +28,7 @@ Rotate Lines
 }
 \examples{
 #Generate a cube out of lines
+\donttest{
 cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) \%>\%
   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) \%>\%
   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) \%>\%
@@ -54,4 +55,5 @@ rasterize_lines(add_lines(cube_outline,rotated_cube),lookfrom=c(0,6,10))
 rotated_cube = color_lines(rotate_lines(cube_outline,angle=c(30,30,30), 
                            order_rotation = c(3,2,1)),color="red")
 rasterize_lines(add_lines(cube_outline,rotated_cube),lookfrom=c(0,6,10))
+}
 }

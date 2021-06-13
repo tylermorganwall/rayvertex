@@ -6,8 +6,6 @@
 #'@param filename String with the filename. If `.png` is not at the end of the string, it will be appended automatically.
 #'@param rotate Default 0. Rotates the output. Possible values: 0, 90, 180, 270.
 #'@keywords internal
-#'@examples
-#'#internal
 save_png = function(hillshade,filename ,rotate=0) {
   if(is.null(filename)) {
     stop("save_png requires a filename")

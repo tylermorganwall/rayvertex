@@ -18,7 +18,9 @@
 #'                       generate_line(start = c(0.5*sin(t[i]), t[i]/(8*pi), 0.5*cos(t[i])),
 #'                                     end  = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))))
 #' }
+#' \donttest{
 #' rasterize_lines(line_mat)
+#' }
 #' 
 #' #Change the line color
 #' line_mat = matrix(nrow=0,ncol=9)
@@ -29,12 +31,16 @@
 #'                                    end  = c(sin(t[i+1]), 2*t[i+1]/(8*pi), cos(t[i+1])),
 #'                                    color = cols[i]))
 #' }
+#' \donttest{
 #' rasterize_lines(line_mat,lookfrom=c(0,10,10),fov=15)
+#' }
 #' 
+#' \donttest{
 #' #Use in a scene with a mesh
 #' obj_mesh(r_obj(),material=material_list(diffuse="dodgerblue")) %>%
 #'  rasterize_scene(line_info = line_mat, light_info = directional_light(c(0,1,1)),
 #'                  lookfrom=c(0,5,10),lookat=c(0,0.8,0),fov=15)
+#'  }
 generate_line = function(start = c(0,0,0), end = c(0,1,0), color = "white") {
   color = convert_color(color)
   start = as.numeric(start)
@@ -56,6 +62,7 @@ generate_line = function(start = c(0,0,0), end = c(0,1,0), color = "white") {
 #'@export
 #'@examples
 #' #Generate a cube out of lines
+#' \donttest{
 #' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) %>%
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) %>%
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) %>%
@@ -82,6 +89,7 @@ generate_line = function(start = c(0,0,0), end = c(0,1,0), color = "white") {
 #' rotated_cube = color_lines(rotate_lines(cube_outline,angle=c(30,30,30), 
 #'                            order_rotation = c(3,2,1)),color="red")
 #' rasterize_lines(add_lines(cube_outline,rotated_cube),lookfrom=c(0,6,10))
+#' }
 rotate_lines = function(lines, angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3)) {
   angle = angle*pi/180
   lines[,1]  = lines[,1] - pivot_point[1]
@@ -114,6 +122,7 @@ rotate_lines = function(lines, angle = c(0,0,0), pivot_point = c(0,0,0), order_r
 #'@export
 #'@examples
 #' #Generate a cube out of lines
+#' \donttest{
 #' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) %>%
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) %>%
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) %>%
@@ -135,6 +144,7 @@ rotate_lines = function(lines, angle = c(0,0,0), pivot_point = c(0,0,0), order_r
 #' #Scale the cube non-uniformly
 #' scaled_cube = color_lines(scale_lines(cube_outline,scale=c(0.8,2,0.4)),color="red")
 #' rasterize_lines(add_lines(cube_outline,scaled_cube),fov=60,lookfrom=c(3,3,3))
+#' }
 scale_lines = function(lines, scale = 1) {
   if(length(scale) == 1) {
     scale = rep(scale,3)
@@ -156,6 +166,7 @@ scale_lines = function(lines, scale = 1) {
 #'@return Translated line matrix.
 #'@export
 #'@examples
+#' \donttest{
 #' #Generate a cube out of lines
 #' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) %>%
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) %>%
@@ -179,6 +190,7 @@ scale_lines = function(lines, scale = 1) {
 #'   add_lines(translated_cube) %>% 
 #'   add_lines(translated_cube2) %>% 
 #'   rasterize_lines(fov=40,lookfrom=c(1,2,10),lookat=c(0,0,0))
+#'   }
 translate_lines = function(lines, position = 1) {
   lines[,1]  = lines[,1] + position[1]
   lines[,2]  = lines[,2] + position[2]
@@ -198,6 +210,7 @@ translate_lines = function(lines, position = 1) {
 #'@export
 #'@examples
 #' #Generate a cube out of lines
+#' \donttest{
 #' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) %>%
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) %>%
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) %>%
@@ -214,6 +227,7 @@ translate_lines = function(lines, position = 1) {
 #' cube_outline %>% 
 #'   color_lines(color="red") %>% 
 #'   rasterize_lines()
+#'   }
 color_lines = function(lines, color = "white") {
   color = convert_color(color)
   lines[,7]  = color[1]
@@ -232,6 +246,7 @@ color_lines = function(lines, color = "white") {
 #'@export
 #'@examples
 #' #Generate a cube out of lines
+#' \donttest{
 #' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) %>%
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) %>%
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) %>%
@@ -246,6 +261,7 @@ color_lines = function(lines, color = "white") {
 #'   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1)))
 #'   
 #' rasterize_lines(cube_outline,fov=90,lookfrom=c(0,0,3))
+#' }
 add_lines = function(lines, line) {
   if(nrow(lines) == 0) {
     return(line)

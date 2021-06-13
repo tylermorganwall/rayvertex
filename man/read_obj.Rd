@@ -12,7 +12,4 @@ Rasterized image.
 \description{
 Load an OBJ file
 }
-\examples{
-#Here we produce a ambient occlusion map of the `montereybay` elevation map.
-}
 \keyword{internal}

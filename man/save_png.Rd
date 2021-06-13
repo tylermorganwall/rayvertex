@@ -16,7 +16,4 @@ save_png(hillshade, filename, rotate = 0)
 \description{
 Writes the hillshaded map to file.
 }
-\examples{
-#internal
-}
 \keyword{internal}

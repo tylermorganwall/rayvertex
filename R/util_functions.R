@@ -5,9 +5,6 @@
 #'
 #' @return Color vector
 #' @keywords internal
-#'
-#' @examples
-#' #none
 convert_color = function(color, as_hex = FALSE) {
   if(inherits(color,"character")) {
     color = as.vector(grDevices::col2rgb(color))/255
@@ -26,9 +23,6 @@ convert_color = function(color, as_hex = FALSE) {
 #'
 #' @return Color vector
 #' @keywords internal
-#'
-#' @examples
-#' #none
 rescale = function(vals, to=c(0,1)) {
   range_vals = range(vals[!is.infinite(vals)],na.rm=TRUE)
   vals = (vals-range_vals[1])/(range_vals[2]-range_vals[1])
@@ -40,9 +34,6 @@ rescale = function(vals, to=c(0,1)) {
 #' @param file Filename to be checked
 #' @return Flipped matrix
 #' @keywords internal
-#'
-#' @examples
-#' #Fake example
 get_file_type = function(file) {
   if(is.character(file)) {
     if(tools::file_ext(file) == "png") {
@@ -66,9 +57,6 @@ get_file_type = function(file) {
 #'
 #' @return Flipped matrix
 #' @keywords internal
-#'
-#' @examples
-#' #Fake example
 fliplr = function(x) {
   if(length(dim(x)) == 2) {
     x[,ncol(x):1]
@@ -84,9 +72,6 @@ fliplr = function(x) {
 #'
 #' @return Flipped matrix
 #' @keywords internal
-#'
-#' @examples
-#' #Fake example
 flipud = function(x) {
   if(length(dim(x)) == 2) {
     x[nrow(x):1,]

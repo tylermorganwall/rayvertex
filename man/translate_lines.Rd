@@ -18,6 +18,7 @@ Translated line matrix.
 Translate Lines
 }
 \examples{
+\donttest{
 #Generate a cube out of lines
 cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) \%>\%
   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) \%>\%
@@ -41,4 +42,5 @@ cube_outline \%>\%
   add_lines(translated_cube) \%>\% 
   add_lines(translated_cube2) \%>\% 
   rasterize_lines(fov=40,lookfrom=c(1,2,10),lookat=c(0,0,0))
+  }
 }

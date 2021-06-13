@@ -23,9 +23,11 @@ options("cores"=1)
 }
 #Translate a mesh in the Cornell box
 robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
+\donttest{
 generate_cornell_mesh() \%>\% 
  add_shape(translate_mesh(robj,c(400,0,155))) \%>\% 
  add_shape(translate_mesh(robj,c(555/2,100,555/2))) \%>\% 
  add_shape(translate_mesh(robj,c(155,200,400))) \%>\% 
  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
+ }
 }

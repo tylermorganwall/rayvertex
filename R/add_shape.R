@@ -66,16 +66,12 @@ add_shape = function(scene, shape) {
   return(scene)
 }
 
-#'@title Add Shape
+#'@title Remove Duplicate
 #'
-#'Add shape to the scene
-#'
-#'@param scene The scene to add the shape.
-
+#'@param scene The scene
 #'@return Scene with shape added.
 #'
 #'@keywords internal
-#'#Generate several spheres in the cornell box
 remove_duplicate_materials = function(scene) {
   if(length(scene$materials) == 1 || length(scene$materials) == 0) {
     return(scene)
@@ -156,11 +152,13 @@ merge_shapes = function(scene) {
 #' }
 #'#Translate a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
+#' \donttest{
 #'generate_cornell_mesh() %>% 
 #'  add_shape(translate_mesh(robj,c(400,0,155))) %>% 
 #'  add_shape(translate_mesh(robj,c(555/2,100,555/2))) %>% 
 #'  add_shape(translate_mesh(robj,c(155,200,400))) %>% 
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
+#'  }
 translate_mesh = function(mesh, position = c(0,0,0)) {
   mesh$vertices[,1]  = mesh$vertices[,1] + position[1]
   mesh$vertices[,2]  = mesh$vertices[,2] + position[2]
@@ -182,12 +180,14 @@ translate_mesh = function(mesh, position = c(0,0,0)) {
 #' }
 #'#Scale a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
+#' \donttest{
 #'
 #'generate_cornell_mesh() %>% 
 #' add_shape(scale_mesh(translate_mesh(robj,c(400,0,155)),0.5, center=c(400,0,155))) %>% 
 #' add_shape(scale_mesh(translate_mesh(robj,c(555/2,100,555/2)),1.5, center=c(555/2,100,555/2))) %>% 
 #' add_shape(scale_mesh(translate_mesh(robj,c(155,200,400)),c(0.5,2,0.5), center=c(155,200,400))) %>% 
 #' rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
+#' }
 scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
   if(length(scale) == 1) {
     scale = rep(scale,3)
@@ -240,7 +240,6 @@ center_mesh = function(mesh) {
 #'@param order_rotation Default `c(1,2,3)`. 
 #'@return Matrix
 #'@keywords internal
-#'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
 generate_rot_matrix = function(angle, order_rotation) {
   rots = list()
   rots[[1]] = matrix(c(1,0,0,0,cos(angle[1]),sin(angle[1]),0,-sin(angle[1]),cos(angle[1])),3,3)
@@ -520,7 +519,6 @@ set_material = function(mesh, material = NULL, id = NULL,
 
 #'@return Matrix
 #'@keywords internal
-#'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
 generate_rot_matrix = function(angle, order_rotation) {
   rots = list()
   rots[[1]] = matrix(c(1,0,0,0,cos(angle[1]),sin(angle[1]),0,-sin(angle[1]),cos(angle[1])),3,3)

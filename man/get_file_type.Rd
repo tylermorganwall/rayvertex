@@ -15,7 +15,4 @@ Flipped matrix
 \description{
 Check Filename
 }
-\examples{
-#Fake example
-}
 \keyword{internal}
