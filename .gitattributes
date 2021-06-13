@@ -4,5 +4,7 @@ src/glm/detail/* linguist-vendored
 src/glm/gtc/* linguist-vendored
 src/glm/gtx/* linguist-vendored
 src/glm/simd/* linguist-vendored
+src/miniply.h linguist-vendored
+src/miniply.cpp linguist-vendored
 src/stb_image.h linguist-vendored
 src/stb_image_resize.h linguist-vendored
