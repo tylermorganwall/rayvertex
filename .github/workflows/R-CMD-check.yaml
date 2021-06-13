@@ -62,6 +62,7 @@ jobs:
           do
             eval sudo $cmd
           done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
+          sudo apt-get install -y gsfonts
 
       - name: Install dependencies
         run: |
