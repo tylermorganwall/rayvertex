@@ -1,0 +1,11 @@
+File: src/tiny_obj_loader.h
+Copyright: 2012-2019 Syoyo Fujita
+URL: https://github.com/syoyo/tinyobjloader/
+
+File: src/miniply.h src/miniply.cpp
+Copyright: 2019 Vilya Harvey
+URL: https://github.com/vilya/miniply/
+
+File: src/glm/*
+Copyright: 2005 G-Truc Creation
+URL: https://github.com/g-truc/glm/
