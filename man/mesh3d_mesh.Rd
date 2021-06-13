@@ -47,6 +47,7 @@ Mesh3d 3D Model
 options("cores"=1)
 }
 #Read in a mesh3d object and rasterize it
+\donttest{
 if("Rvcg" \%in\% rownames(utils::installed.packages())) {
   library(Rvcg)
   data(humface)
@@ -55,5 +56,6 @@ if("Rvcg" \%in\% rownames(utils::installed.packages())) {
               material=material_list(diffuse="dodgerblue4", type="phong", shininess=20,
               ambient = "dodgerblue4", ambient_intensity=0.3)) \%>\%
     rasterize_scene(lookat = c(0,0.5,1), light_info = directional_light(c(1,0.5,1)))
+}
 }
 }

@@ -16,6 +16,7 @@
 #'scene = generate_cornell_mesh()
 #'set.seed(1)
 #'
+#'\donttest{
 #'for(i in 1:30) {
 #'  col = hsv(runif(1))
 #'  scene = add_shape(scene, sphere_mesh(position=runif(3)*400+155/2,
@@ -23,7 +24,6 @@
 #'                                                              ambient=col,ambient_intensity=0.2), 
 #'                                       radius=30))
 #'}
-#'\donttest{
 #'rasterize_scene(scene, light_info=directional_light(direction=c(0.1,0.6,-1)))
 #'}
 add_shape = function(scene, shape) {
@@ -221,11 +221,13 @@ scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
 #' options("cores"=1)
 #' }
 #' #Center the Cornell box and the R OBJ at the origin
+#' \donttest{
 #' center_mesh(generate_cornell_mesh()) %>% 
 #'   add_shape(center_mesh(obj_mesh(r_obj(),scale=100,angle=c(0,180,0)))) %>% 
 #'   rasterize_scene(lookfrom=c(0,0,-1100),fov=40,lookat=c(0,0,0),
 #'                   light_info = directional_light(c(0.4,0.4,-1)) %>%
 #'       add_light(point_light(c(0,450,0),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)))
+#' }
 center_mesh = function(mesh) {
   center = apply(apply(mesh$vertices,2,range),2,mean)
   mesh = translate_mesh(mesh, -center)
@@ -267,6 +269,7 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'#Rotate a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 #'
+#'\donttest{
 #'generate_cornell_mesh() %>% 
 #' add_shape(rotate_mesh(translate_mesh(robj,c(400,0,155)),c(0,30,0), 
 #'                       pivot_point=c(400,0,155))) %>% 
@@ -275,6 +278,7 @@ generate_rot_matrix = function(angle, order_rotation) {
 #' add_shape(rotate_mesh(translate_mesh(robj,c(155,200,400)),c(-30,60,30), 
 #'                       pivot_point=c(155,200,400), order_rotation=c(3,2,1))) %>% 
 #' rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
+#' }
 rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3)) {
   angle = angle*pi/180
   mesh$vertices[,1]  = mesh$vertices[,1]-pivot_point[1]
@@ -340,6 +344,7 @@ rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rot
 #' options("cores"=1)
 #' }
 #'#Set the material of an object
+#'\donttest{
 #'generate_cornell_mesh() %>% 
 #'  add_shape(set_material(sphere_mesh(position=c(400,555/2,555/2),radius=40), 
 #'                         diffuse="purple", type="phong")) %>% 
@@ -349,6 +354,7 @@ rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rot
 #'                         material = material_list(diffuse="gold", type="phong", 
 #'                                                  ambient="gold", ambient_intensity=0.4))) %>% 
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
+#'  }
 set_material = function(mesh, material = NULL, id = NULL,
                         diffuse                   = c(0.5,0.5,0.5),
                         ambient                   = c(0,0,0),
@@ -822,8 +828,6 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
 #'@param order_rotation Default `c(1,2,3)`. 
 #'@return Matrix
 #'@keywords internal
-#'#Here we produce a ambient occlusion map of the `montereybay` elevation map.
-#' 
 generate_toon_outline = function(single_obj, material, scale = 1) {
   if((material$type == "toon" || material$type == "toon_phong") && material$toon_outline_width != 0.0) {
     bbox = apply(single_obj$vertices,2,range)

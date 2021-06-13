@@ -36,13 +36,13 @@ text3d_mesh(
 \item{scale}{Default `c(1,1,1)`. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.}
 }
 \value{
-Single row of a tibble describing the text in the scene.
+List describing the mesh.
 }
 \description{
 Text Object
 }
 \examples{
-#Generate a label in the cornell box.
+#Generate a label in the Cornell box.
 \donttest{
 generate_cornell_mesh() \%>\% 
   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),angle=c(0,180,0),

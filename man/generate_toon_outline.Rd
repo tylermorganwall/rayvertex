@@ -17,16 +17,4 @@ Matrix
 \description{
 Add Outline
 }
-\keyword{#Here}
-\keyword{`montereybay`}
-\keyword{a}
-\keyword{ambient}
-\keyword{elevation}
 \keyword{internal}
-\keyword{map}
-\keyword{map.}
-\keyword{occlusion}
-\keyword{of}
-\keyword{produce}
-\keyword{the}
-\keyword{we}

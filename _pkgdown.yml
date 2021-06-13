@@ -58,6 +58,8 @@ reference:
       - starts_with("scale")
       - starts_with("rotate")
       - starts_with("translate")
+      - starts_with("center")
+
   - title: "Lines"
     desc: "Functions to generate lines for the scene"
     contents:

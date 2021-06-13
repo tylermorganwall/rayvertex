@@ -328,7 +328,9 @@ rasterize_scene  = function(scene,
     }
   }
   environment_map_hdr = FALSE
+  has_environment_map = FALSE
   if(environment_map != "") {
+    has_environment_map = TRUE
     environment_map = path.expand(environment_map)
     if(tools::file_ext(environment_map) == "hdr") {
       environment_map_hdr = TRUE
@@ -386,7 +388,7 @@ rasterize_scene  = function(scene,
                         antialias_lines,
                         has_vertex_tex,has_vertex_normals,
                         has_reflection_map, environment_map, background_sharpness, has_refraction,
-                        environment_map_hdr)
+                        environment_map_hdr, has_environment_map)
   if(ssao) {
     imagelist$amb = (imagelist$amb)^ssao_intensity
     imagelist$r = imagelist$r * imagelist$amb

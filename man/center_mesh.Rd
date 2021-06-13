@@ -24,9 +24,11 @@ Centers the mesh at the origin.
 options("cores"=1)
 }
 #Center the Cornell box and the R OBJ at the origin
+\donttest{
 center_mesh(generate_cornell_mesh()) \%>\% 
   add_shape(center_mesh(obj_mesh(r_obj(),scale=100,angle=c(0,180,0)))) \%>\% 
   rasterize_scene(lookfrom=c(0,0,-1100),fov=40,lookat=c(0,0,0),
                   light_info = directional_light(c(0.4,0.4,-1)) \%>\%
       add_light(point_light(c(0,450,0),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)))
+}
 }

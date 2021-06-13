@@ -29,6 +29,7 @@ options("cores"=1)
 scene = generate_cornell_mesh()
 set.seed(1)
 
+\donttest{
 for(i in 1:30) {
  col = hsv(runif(1))
  scene = add_shape(scene, sphere_mesh(position=runif(3)*400+155/2,
@@ -36,7 +37,6 @@ for(i in 1:30) {
                                                              ambient=col,ambient_intensity=0.2), 
                                       radius=30))
 }
-\donttest{
 rasterize_scene(scene, light_info=directional_light(direction=c(0.1,0.6,-1)))
 }
 }

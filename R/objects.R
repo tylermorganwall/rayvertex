@@ -767,9 +767,11 @@ generate_cornell_mesh = function(leftcolor = "#1f7326",
 #' options("cores"=1)
 #' }
 #' #Read in the provided 3D R mesh
+#' \donttest{
 #' generate_cornell_mesh(ceiling=FALSE) %>% 
 #'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) %>% 
 #'   rasterize_scene(light_info = directional_light(direction=c(0.2,0.5,-1)))
+#'   }
 obj_mesh = function(filename, center = FALSE, position = c(0,0,0), scale = c(1,1,1), 
                     angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3), materialspath = NULL,
                     material = NULL) {
@@ -815,6 +817,7 @@ obj_mesh = function(filename, center = FALSE, position = c(0,0,0), scale = c(1,1
 #' options("cores"=1)
 #' }
 #'#Plot a group of tori in the cornell box
+#'\donttest{
 #'generate_cornell_mesh(ceiling = FALSE) %>% 
 #'  add_shape(torus_mesh(position=c(555/2,555/3,555/2), angle=c(20,0,45),
 #'                       radius=120, ring_radius = 40,
@@ -826,6 +829,7 @@ obj_mesh = function(filename, center = FALSE, position = c(0,0,0), scale = c(1,1
 #'  add_shape(torus_mesh(position=c(150,450,555/2), angle=c(60,180,0),radius=40, ring_radius = 20,
 #'                       material=material_list(diffuse="red",type="phong"))) %>%
 #'  rasterize_scene(light_info = directional_light(c(0,1,-2)))
+#'  }
 torus_mesh = function(position = c(0,0,0), scale = c(1,1,1), 
                       angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3),
                       radius = 0.5, ring_radius = 0.2, sides = 36, rings=36,
@@ -933,6 +937,7 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #' options("cores"=1)
 #' }
 #' #Read in a mesh3d object and rasterize it
+#' \donttest{
 #' if("Rvcg" %in% rownames(utils::installed.packages())) {
 #'   library(Rvcg)
 #'   data(humface)
@@ -941,6 +946,7 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #'               material=material_list(diffuse="dodgerblue4", type="phong", shininess=20,
 #'               ambient = "dodgerblue4", ambient_intensity=0.3)) %>%
 #'     rasterize_scene(lookat = c(0,0.5,1), light_info = directional_light(c(1,0.5,1)))
+#' }
 #' }
 mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,1), 
                        angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3), materialspath = NULL,
@@ -1010,11 +1016,11 @@ mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,
 #' @param order_rotation Default `c(1,2,3)`. Order to rotate the axes.
 #' @importFrom  grDevices col2rgb
 #'
-#' @return Single row of a tibble describing the text in the scene.
+#' @return List describing the mesh.
 #' @export
 #'
 #' @examples
-#' #Generate a label in the cornell box.
+#' #Generate a label in the Cornell box.
 #' \donttest{
 #' generate_cornell_mesh() %>% 
 #'   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),angle=c(0,180,0),

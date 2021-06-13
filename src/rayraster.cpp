@@ -148,7 +148,8 @@ List rasterize(List mesh,
                bool aa_lines, LogicalVector &has_vertex_tex, LogicalVector &has_vertex_normals,
                LogicalVector has_reflection_map, Rcpp::String reflection_map_file, 
                double background_sharpness,
-               LogicalVector has_refraction, bool environment_map_hdr) {
+               LogicalVector has_refraction, bool environment_map_hdr,
+               bool has_environment_map) {
   List materials = as<List>(mesh["materials"]);
   int number_materials = materials.size();
   
@@ -161,29 +162,27 @@ List rasterize(List mesh,
   std::vector<reflection_map_info> reflection_maps;
   reflection_map_info main_reflection_map;
   std::vector<float* > reflection_data;
-  bool loaded_reflection_map = false;
+  if(has_environment_map) {
+    reflection_map_data = stbi_loadf(reflection_map_file.get_cstring(), &nx_r, &ny_r, &nn_r, 0);
+    if(nx_r == 0 || ny_r == 0 || nn_r == 0) {
+      throw std::runtime_error("Reflection map loading failed");
+    }
+    if(environment_map_hdr) {
+      float gamma_exp = 1.0/2.2f;
+      for(int j = 0; j < nx_r * ny_r * nn_r; j++) {
+        reflection_map_data[j] = powf(reflection_map_data[j],gamma_exp);
+      }
+    }
+    main_reflection_map.reflection = reflection_map_data;
+    main_reflection_map.nx = nx_r;
+    main_reflection_map.ny = ny_r;
+    main_reflection_map.nn = nn_r;
+  }
   
   for(unsigned int i = 0; i < has_reflection_map.size(); i++) {
     if(has_reflection_map(i) || has_refraction(i)) {
       List single_material = as<List>(materials(i));
       double reflection_sharpness = as<double>(single_material["reflection_sharpness"]);
-      if(!loaded_reflection_map) {
-        reflection_map_data = stbi_loadf(reflection_map_file.get_cstring(), &nx_r, &ny_r, &nn_r, 0);
-        if(nx_r == 0 || ny_r == 0 || nn_r == 0) {
-          throw std::runtime_error("Reflection map loading failed");
-        }
-        if(environment_map_hdr) {
-          float gamma_exp = 1.0/2.2f;
-          for(int j = 0; j < nx_r * ny_r * nn_r; j++) {
-            reflection_map_data[j] = powf(reflection_map_data[j],gamma_exp);
-          }
-        }
-        loaded_reflection_map = true;
-        main_reflection_map.reflection = reflection_map_data;
-        main_reflection_map.nx = nx_r;
-        main_reflection_map.ny = ny_r;
-        main_reflection_map.nn = nn_r;
-      }
       
       int nx_r_resize = (double)nx_r * reflection_sharpness;
       int ny_r_resize = (double)ny_r * reflection_sharpness;
@@ -1164,7 +1163,7 @@ List rasterize(List mesh,
   }
   
   //Load/blur environment image
-  if(loaded_reflection_map) {
+  if(has_environment_map) {
     if(background_sharpness != 1.0) {
       int nx_r_resize = (double)nx_r * background_sharpness;
       int ny_r_resize = (double)ny_r * background_sharpness;
@@ -1207,7 +1206,7 @@ List rasterize(List mesh,
     }
   }
   
-  if(loaded_reflection_map) {
+  if(has_environment_map) {
     stbi_image_free(main_reflection_map.reflection);
   }
   
