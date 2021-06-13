@@ -2,7 +2,7 @@ pandoc: 2.7.3
 pkgdown: 1.6.1
 pkgdown_sha: ~
 articles: {}
-last_built: 2021-06-13T16:55Z
+last_built: 2021-06-13T17:13Z
 urls:
   reference: https://www.rayvertex.com/reference
   article: https://www.rayvertex.com/articles
