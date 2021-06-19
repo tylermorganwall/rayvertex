@@ -50,7 +50,7 @@ void wu_line(float x0, float y0, float x1, float y1,
   auto fpart = [](float x) -> float {return x - std::floor(x);};
   auto rfpart = [=](float x) -> float {return 1 - fpart(x);};
   
-  const bool steep = abs(y1 - y0) > abs(x1 - x0);
+  const bool steep = std::fabs(y1 - y0) > std::fabs(x1 - x0);
   if (steep) {
     std::swap(x0,y0);
     std::swap(x1,y1);

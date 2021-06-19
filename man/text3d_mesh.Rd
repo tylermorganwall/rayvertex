@@ -42,6 +42,9 @@ List describing the mesh.
 Text Object
 }
 \examples{
+\dontshow{
+options("cores"=1)
+}
 #Generate a label in the Cornell box.
 \donttest{
 generate_cornell_mesh() \%>\% 

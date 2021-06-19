@@ -938,7 +938,7 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #' }
 #' #Read in a mesh3d object and rasterize it
 #' \donttest{
-#' if("Rvcg" %in% rownames(utils::installed.packages())) {
+#' if(length(find.package("Rvcg", quiet=TRUE)) > 0) {
 #'   library(Rvcg)
 #'   data(humface)
 #'   
@@ -1020,6 +1020,9 @@ mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,
 #' @export
 #'
 #' @examples
+#' \dontshow{
+#' options("cores"=1)
+#' }
 #' #Generate a label in the Cornell box.
 #' \donttest{
 #' generate_cornell_mesh() %>% 
