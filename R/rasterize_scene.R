@@ -395,14 +395,17 @@ rasterize_scene  = function(scene,
     imagelist$g = imagelist$g * imagelist$amb
     imagelist$b = imagelist$b * imagelist$amb
   }
-  # browser()
   if(debug == "normals") {
     norm_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
     norm_array[,,1] = (imagelist$normalx+1)/2
     norm_array[,,2] = (imagelist$normaly+1)/2
     norm_array[,,3] = (imagelist$normalz+1)/2
     norm_array = rayimage::render_reorient(norm_array,transpose = TRUE, flipx = TRUE)
-    rayimage::plot_image(norm_array)
+    if(is.na(filename)) {
+      rayimage::plot_image(norm_array)
+    }  else {
+      save_png(norm_array, filename = filename)
+    }
     return(invisible(norm_array))
   }
   if(debug == "depth") {
@@ -410,11 +413,15 @@ rasterize_scene  = function(scene,
     depth_array[,,1] = (imagelist$depth)
     depth_array[,,2] = (imagelist$depth)
     depth_array[,,3] = (imagelist$depth)
-    depth_array = rayimage::render_reorient(depth_array,transpose = TRUE, flipx = TRUE)
-    depth_array[is.infinite(depth_array)] = 1.2
-    scale_factor = max(depth_array) - min(depth_array)
+    depth_array[is.infinite(depth_array)] = 1
+    scale_factor = max(depth_array, na.rm = TRUE) - min(depth_array, na.rm = TRUE)
     depth_array = (depth_array - min(depth_array))/scale_factor
-    rayimage::plot_image(depth_array)
+    if(is.na(filename)) {
+      depth_array = rayimage::render_reorient(depth_array,transpose = TRUE, flipx = TRUE)
+      rayimage::plot_image(depth_array)
+    }  else {
+      save_png(depth_array, filename = filename)
+    }
     return(invisible(depth_array))
   }
   if(debug == "position") {
@@ -428,7 +435,11 @@ rasterize_scene  = function(scene,
     pos_array[,,3] = (imagelist$positionz)
     pos_array = rayimage::render_reorient(pos_array,transpose = TRUE, flipx = TRUE)
     pos_array[is.infinite(pos_array)] = 1
-    rayimage::plot_image(pos_array)
+    if(is.na(filename)) {
+      rayimage::plot_image(pos_array)
+    }  else {
+      save_png(pos_array, filename = filename)
+    }
     return(invisible(pos_array))
   }
   if(debug == "uv") {
@@ -437,7 +448,11 @@ rasterize_scene  = function(scene,
     uv_array[,,2] = (imagelist$uvy)
     uv_array[,,3] = (imagelist$uvz)
     uv_array = rayimage::render_reorient(uv_array,transpose = TRUE, flipx = TRUE)
-    rayimage::plot_image(uv_array)
+    if(is.na(filename)) {
+      rayimage::plot_image(uv_array)
+    }  else {
+      save_png(uv_array, filename = filename)
+    }
     return(invisible(uv_array))
   }
   

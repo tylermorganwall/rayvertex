@@ -5,6 +5,7 @@
 #'@return Rasterized image.
 read_obj = function(filename, materialspath = NULL) {
   filename = path.expand(filename)
+  sepval = ""
   if(!file.exists(filename)) {
     stop(sprintf("file `%s` does not exist", filename))
   }
@@ -25,6 +26,28 @@ read_obj = function(filename, materialspath = NULL) {
     }
     if(nrow(obj_loaded$shapes[[i]]$indices) == length(obj_loaded$shapes[[i]]$has_vertex_normals)) {
       obj_loaded$shapes[[i]]$has_vertex_normals[apply(obj_loaded$shapes[[i]]$norm_indices,1,(function(x) any(x == -1)))] = FALSE
+    }
+  }
+  for(i in seq_len(length(obj_loaded$materials))) {
+    if(!file.exists(obj_loaded$materials[[i]]$diffuse_texname) && nchar(obj_loaded$materials[[i]]$diffuse_texname) > 0 &&
+       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$diffuse_texname))) {
+      obj_loaded$materials[[i]]$diffuse_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$diffuse_texname)
+    }
+    if(!file.exists(obj_loaded$materials[[i]]$ambient_texname) && nchar(obj_loaded$materials[[i]]$ambient_texname) > 0 &&
+       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$ambient_texname))) {
+      obj_loaded$materials[[i]]$ambient_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$ambient_texname)
+    }
+    if(!file.exists(obj_loaded$materials[[i]]$emissive_texname) &&  nchar(obj_loaded$materials[[i]]$emissive_texname) > 0 &&
+       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$emissive_texname))) {
+      obj_loaded$materials[[i]]$emissive_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$emissive_texname)
+    }
+    if(!file.exists(obj_loaded$materials[[i]]$specular_texname) &&  nchar(obj_loaded$materials[[i]]$specular_texname) > 0 &&
+       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$specular_texname))) {
+      obj_loaded$materials[[i]]$specular_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$specular_texname)
+    }
+    if(!file.exists(obj_loaded$materials[[i]]$normal_texname) &&  nchar(obj_loaded$materials[[i]]$normal_texname) > 0 &&
+       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$normal_texname))) {
+      obj_loaded$materials[[i]]$normal_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$normal_texname)
     }
   }
   hashes = rep("",length(obj_loaded$materials))
