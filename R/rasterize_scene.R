@@ -410,9 +410,9 @@ rasterize_scene  = function(scene,
   }
   if(debug == "depth") {
     depth_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
-    depth_array[,,1] = (imagelist$depth)
-    depth_array[,,2] = (imagelist$depth)
-    depth_array[,,3] = (imagelist$depth)
+    depth_array[,,1] = (imagelist$linear_depth)
+    depth_array[,,2] = (imagelist$linear_depth)
+    depth_array[,,3] = (imagelist$linear_depth)
     depth_array[is.infinite(depth_array)] = 1
     scale_factor = max(depth_array, na.rm = TRUE) - min(depth_array, na.rm = TRUE)
     depth_array = (depth_array - min(depth_array))/scale_factor
@@ -423,6 +423,9 @@ rasterize_scene  = function(scene,
       save_png(depth_array, filename = filename)
     }
     return(invisible(depth_array))
+  }
+  if(debug == "raw_depth") {
+    return(imagelist$linear_depth)
   }
   if(debug == "position") {
     pos_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
@@ -455,11 +458,10 @@ rasterize_scene  = function(scene,
     }
     return(invisible(uv_array))
   }
-  
   if(environment_map == "") {
-    imagelist$r[is.infinite(imagelist$depth)] = bg_color[1]
-    imagelist$g[is.infinite(imagelist$depth)] = bg_color[2]
-    imagelist$b[is.infinite(imagelist$depth)] = bg_color[3]
+    imagelist$r[imagelist$depth == 1] = bg_color[1]
+    imagelist$g[imagelist$depth == 1] = bg_color[2]
+    imagelist$b[imagelist$depth == 1] = bg_color[3]
   }
 
   retmat = array(0,dim=c(dim(imagelist$r)[2:1],3))
@@ -478,6 +480,9 @@ rasterize_scene  = function(scene,
     rayimage::plot_image(retmat)
   } else {
     save_png(retmat, filename = filename)
+  }
+  if(debug == "all") {
+    return(imagelist)
   }
   return(invisible(retmat))
 }

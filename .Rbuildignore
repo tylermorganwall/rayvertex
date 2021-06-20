@@ -19,5 +19,4 @@
 ^.+\.gif$
 ^.+\.jpg$
 ^_pkgdown\.yml$
-
 ^cran-comments\.md$

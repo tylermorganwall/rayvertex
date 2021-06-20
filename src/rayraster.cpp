@@ -245,7 +245,7 @@ List rasterize(List mesh,
   Mat Projection = fov != 0.0 ? glm::perspective(glm::radians((Float)fov), 
                                     (Float)nx / (Float)ny, 
                                     (Float)near_clip, 
-                                    (Float) scene_diag + dist_to_focus) :
+                                    (Float)far_clip) :
     glm::ortho(-(Float)ortho_dims(0)/2, (Float)ortho_dims(0)/2, -(Float)ortho_dims(1)/2, (Float)ortho_dims(1)/2);
   vec4 viewport(0.0f, 0.0f, (Float)nx-1, (Float)ny-1);
   vec4 viewport_depth(0.0f, 0.0f, (Float)shadowdims(0)-1, (Float)shadowdims(1)-1);
@@ -1224,9 +1224,20 @@ List rasterize(List mesh,
       delete[] reflection_maps[i].reflection;
     }
   }
+  
+  NumericMatrix linear_depth = zbuffer;
+  for(unsigned int i = 0; i < linear_depth.nrow(); i++) {
+    for(unsigned int j= 0; j < linear_depth.ncol(); j++) {
+      if(std::isinf(linear_depth(i,j))) {
+        linear_depth(i,j) = 1;
+      }
+      linear_depth(i,j) = 2*linear_depth(i,j) - 1;
+    }
+  }
+  linear_depth = 2*near_clip*far_clip/(far_clip + near_clip - linear_depth * (far_clip-near_clip));
 
   return(List::create(_["r"] = r, _["g"] = g, _["b"] = b,
-                      _["amb"] = abuffer, _["depth"] = zbuffer,
+                      _["amb"] = abuffer, _["depth"] = zbuffer, _["linear_depth"] = linear_depth,
                       _["normalx"] = nxbuffer, _["normaly"] = nybuffer, _["normalz"] = nzbuffer,
                       _["positionx"] = xxbuffer, _["positiony"] = yybuffer, _["positionz"] = zzbuffer,
                       _["uvx"] = uvxbuffer, _["uvy"] = uvybuffer, _["uvz"] = uvzbuffer));
