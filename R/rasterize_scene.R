@@ -491,6 +491,8 @@ rasterize_scene  = function(scene,
   if(is.na(filename)) {
     rayimage::plot_image(retmat)
   } else {
+    retmat[retmat > 1] = 1
+    retmat[retmat < 0] = 0
     save_png(retmat, filename = filename)
   }
   if(debug == "all") {
