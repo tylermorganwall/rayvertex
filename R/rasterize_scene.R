@@ -12,6 +12,8 @@
 #'@param fov Default `20`. Width of the rendered image.
 #'@param lookfrom Default `c(0,0,10)`. Camera location.
 #'@param lookat Default `NULL`. Camera focal position, defaults to the center of the model.
+#'@param fsaa Default `2`. Full screen anti-aliasing multiplier. Must be positive integer, higher numbers
+#'will improve anti-aliasing quality but will vastly increase memory usage.
 #'@param camera_up Default `c(0,1,0)`. Camera up vector.
 #'@param light_info Default `directional_light()`. Description of scene lights, generated with the `point_light()` and
 #'`directional_light()` functions.
@@ -131,8 +133,9 @@
 rasterize_scene  = function(scene, 
                            filename = NA, width=800, height=800, 
                            line_info = NULL, alpha_line = 1.0,
-                           parallel = TRUE,
-                           fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0), #Sanitize lookfrom and lookat inputs
+                           parallel = TRUE, 
+                           fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0),
+                           fsaa = 2,
                            light_info = directional_light(), color="red",
                            type = "diffuse", background = "black", 
                            tangent_space_normals = TRUE,
@@ -175,6 +178,11 @@ rasterize_scene  = function(scene,
     if(attr(scene,"cornell_light")) {
       light_info = add_light(light_info,point_light(c(555/2,450,555/2),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
     }
+  }
+  fsaa = as.integer(fsaa)
+  if(fsaa > 1) {
+    width = width * fsaa
+    height = height * fsaa
   }
   obj = merge_shapes(scene)
   
@@ -476,6 +484,10 @@ rasterize_scene  = function(scene,
   }
 
   retmat[retmat > 1] = 1
+  if(fsaa > 1) {
+    retmat = rayimage::render_resized(retmat,mag = 1/fsaa, method="mitchell")
+    retmat = abs(retmat)
+  }
   if(is.na(filename)) {
     rayimage::plot_image(retmat)
   } else {

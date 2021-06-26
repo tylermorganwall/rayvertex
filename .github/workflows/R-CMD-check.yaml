@@ -44,6 +44,9 @@ jobs:
       - name: Query dependencies
         run: |
           install.packages('remotes')
+          remotes::install_github('tylermorganwall/rayimage')
+          remotes::install_github('tylermorganwall/rayvertex')
+          remotes::install_github('tylermorganwall/rayrender')
           saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
           writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
         shell: Rscript {0}

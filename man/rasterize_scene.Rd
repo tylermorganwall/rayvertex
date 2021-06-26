@@ -16,6 +16,7 @@ rasterize_scene(
   lookfrom = c(0, 0, 10),
   lookat = NULL,
   camera_up = c(0, 1, 0),
+  fsaa = 2,
   light_info = directional_light(),
   color = "red",
   type = "diffuse",
@@ -65,6 +66,9 @@ rasterize_scene(
 \item{lookat}{Default `NULL`. Camera focal position, defaults to the center of the model.}
 
 \item{camera_up}{Default `c(0,1,0)`. Camera up vector.}
+
+\item{fsaa}{Default `2`. Full screen anti-aliasing multiplier. Must be positive integer, higher numbers
+will improve anti-aliasing quality but will vastly increase memory usage.}
 
 \item{light_info}{Default `directional_light()`. Description of scene lights, generated with the `point_light()` and
 `directional_light()` functions.}
