@@ -85,7 +85,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa-home"></span>
+    <span class="fa fa-home"></span>
      
   </a>
 </li>
@@ -93,14 +93,14 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="../reference/index.html">
-    <span class="fas fa-file-code-o"></span>
+    <span class="fa fa-file-code-o"></span>
      
     functions
   </a>
 </li>
 <li>
   <a href="https://github.com/tylermorganwall/rayvertex">
-    <span class="fas fa-github fa-lg"></span>
+    <span class="fa fa-github fa-lg"></span>
      
     GitHub
   </a>
@@ -340,7 +340,7 @@ of the background image.</p></td>
 <span class='co'># \donttest{</span>
 <span class='fu'>rasterize_scene</span><span class='op'>(</span><span class='fu'><a href='cube_mesh.html'>cube_mesh</a></span><span class='op'>(</span><span class='op'>)</span>,lookfrom<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>,<span class='fl'>4</span>,<span class='fl'>10</span><span class='op'>)</span>, 
               light_info <span class='op'>=</span> <span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span>direction<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.5</span>,<span class='fl'>1</span>,<span class='fl'>0.7</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.00, 0.00)</span></div><div class='output co'>#&gt; <span class='error'>Error in rayimage::render_resized(retmat, mag = 1/fsaa, method = "mitchell"): unused argument (method = "mitchell")</span></div><div class='input'><span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.00, 0.00)</span></div><div class='img'><img src='rasterize_scene-1.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
 <span class='co'>#Flatten the cube, translate downwards, and set to grey</span>
 <span class='va'>base_model</span> <span class='op'>=</span> <span class='fu'><a href='cube_mesh.html'>cube_mesh</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
  <span class='fu'><a href='scale_mesh.html'>scale_mesh</a></span><span class='op'>(</span>scale<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>5</span>,<span class='fl'>0.2</span>,<span class='fl'>5</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
@@ -350,7 +350,7 @@ of the background image.</p></td>
 <span class='co'># \donttest{</span>
 <span class='fu'>rasterize_scene</span><span class='op'>(</span><span class='va'>base_model</span>, lookfrom<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>,<span class='fl'>4</span>,<span class='fl'>10</span><span class='op'>)</span>, 
               light_info <span class='op'>=</span> <span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span>direction<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.5</span>,<span class='fl'>1</span>,<span class='fl'>0.7</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, -0.10, 0.00)</span></div><div class='output co'>#&gt; <span class='error'>Error in rayimage::render_resized(retmat, mag = 1/fsaa, method = "mitchell"): unused argument (method = "mitchell")</span></div><div class='input'><span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, -0.10, 0.00)</span></div><div class='img'><img src='rasterize_scene-2.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
 
 <span class='co'>#load the R OBJ file, scale it down, color it blue, and add it to the grey base</span>
 <span class='va'>r_model</span> <span class='op'>=</span> <span class='fu'><a href='obj_mesh.html'>obj_mesh</a></span><span class='op'>(</span><span class='fu'><a href='r_obj.html'>r_obj</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
@@ -361,12 +361,12 @@ of the background image.</p></td>
 <span class='co'># \donttest{</span>
 <span class='fu'>rasterize_scene</span><span class='op'>(</span><span class='va'>r_model</span>, lookfrom<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>,<span class='fl'>4</span>,<span class='fl'>10</span><span class='op'>)</span>, 
               light_info <span class='op'>=</span> <span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span>direction<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.5</span>,<span class='fl'>1</span>,<span class='fl'>0.7</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.34, 0.00)</span></div><div class='output co'>#&gt; <span class='error'>Error in rayimage::render_resized(retmat, mag = 1/fsaa, method = "mitchell"): unused argument (method = "mitchell")</span></div><div class='input'><span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.34, 0.00)</span></div><div class='img'><img src='rasterize_scene-3.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
 <span class='co'>#Zoom in and reduce the shadow mapping intensity</span>
 <span class='co'># \donttest{</span>
 <span class='fu'>rasterize_scene</span><span class='op'>(</span><span class='va'>r_model</span>, lookfrom<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>,<span class='fl'>4</span>,<span class='fl'>10</span><span class='op'>)</span>, fov<span class='op'>=</span><span class='fl'>10</span>,shadow_map <span class='op'>=</span> <span class='cn'>TRUE</span>, shadow_map_intensity<span class='op'>=</span><span class='fl'>0.3</span>,
               light_info <span class='op'>=</span> <span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span>direction<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.5</span>,<span class='fl'>1</span>,<span class='fl'>0.7</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.34, 0.00)</span></div><div class='output co'>#&gt; <span class='error'>Error in rayimage::render_resized(retmat, mag = 1/fsaa, method = "mitchell"): unused argument (method = "mitchell")</span></div><div class='input'><span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.34, 0.00)</span></div><div class='img'><img src='rasterize_scene-4.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
 
 <span class='co'>#Include the resolution (4x) of the shadow map for less pixellation around the edges</span>
 <span class='co'>#Also decrease the shadow_map_bias slightly to remove the "peter panning" floating shadow effect</span>
@@ -374,7 +374,7 @@ of the background image.</p></td>
 <span class='fu'>rasterize_scene</span><span class='op'>(</span><span class='va'>r_model</span>, lookfrom<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>,<span class='fl'>4</span>,<span class='fl'>10</span><span class='op'>)</span>, fov<span class='op'>=</span><span class='fl'>10</span>,
               shadow_map_dims<span class='op'>=</span><span class='fl'>4</span>, 
               light_info <span class='op'>=</span> <span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span>direction<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.5</span>,<span class='fl'>1</span>,<span class='fl'>0.7</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.34, 0.00)</span></div><div class='output co'>#&gt; <span class='error'>Error in rayimage::render_resized(retmat, mag = 1/fsaa, method = "mitchell"): unused argument (method = "mitchell")</span></div><div class='input'><span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.34, 0.00)</span></div><div class='img'><img src='rasterize_scene-5.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
 
 <span class='co'>#Add some more directional lights and change their color</span>
 <span class='va'>lights</span> <span class='op'>=</span> <span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.7</span>,<span class='fl'>1.1</span>,<span class='op'>-</span><span class='fl'>0.9</span><span class='op'>)</span>,color <span class='op'>=</span> <span class='st'>"orange"</span>,intensity <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
@@ -383,7 +383,7 @@ of the background image.</p></td>
 <span class='co'># \donttest{</span>
 <span class='fu'>rasterize_scene</span><span class='op'>(</span><span class='va'>r_model</span>, lookfrom<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>,<span class='fl'>4</span>,<span class='fl'>10</span><span class='op'>)</span>, fov<span class='op'>=</span><span class='fl'>10</span>,
               light_info <span class='op'>=</span> <span class='va'>lights</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.34, 0.00)</span></div><div class='output co'>#&gt; <span class='error'>Error in rayimage::render_resized(retmat, mag = 1/fsaa, method = "mitchell"): unused argument (method = "mitchell")</span></div><div class='input'><span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.34, 0.00)</span></div><div class='img'><img src='rasterize_scene-6.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
 <span class='co'>#Add some point lights</span>
 <span class='va'>lights_p</span> <span class='op'>=</span> <span class='va'>lights</span> <span class='op'>%&gt;%</span> 
  <span class='fu'><a href='add_light.html'>add_light</a></span><span class='op'>(</span><span class='fu'><a href='point_light.html'>point_light</a></span><span class='op'>(</span>position<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>-</span><span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>0</span><span class='op'>)</span>,color<span class='op'>=</span><span class='st'>"red"</span>, intensity<span class='op'>=</span><span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
@@ -391,12 +391,12 @@ of the background image.</p></td>
 <span class='co'># \donttest{</span>
 <span class='fu'>rasterize_scene</span><span class='op'>(</span><span class='va'>r_model</span>, lookfrom<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>,<span class='fl'>4</span>,<span class='fl'>10</span><span class='op'>)</span>, fov<span class='op'>=</span><span class='fl'>10</span>,
               light_info <span class='op'>=</span> <span class='va'>lights_p</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.34, 0.00)</span></div><div class='output co'>#&gt; <span class='error'>Error in rayimage::render_resized(retmat, mag = 1/fsaa, method = "mitchell"): unused argument (method = "mitchell")</span></div><div class='input'><span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.34, 0.00)</span></div><div class='img'><img src='rasterize_scene-7.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
 <span class='co'>#change the camera position</span>
 <span class='co'># \donttest{</span>
 <span class='fu'>rasterize_scene</span><span class='op'>(</span><span class='va'>r_model</span>, lookfrom<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>-</span><span class='fl'>2</span>,<span class='fl'>2</span>,<span class='op'>-</span><span class='fl'>10</span><span class='op'>)</span>, fov<span class='op'>=</span><span class='fl'>10</span>,
               light_info <span class='op'>=</span> <span class='va'>lights_p</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.34, 0.00)</span></div><div class='output co'>#&gt; <span class='error'>Error in rayimage::render_resized(retmat, mag = 1/fsaa, method = "mitchell"): unused argument (method = "mitchell")</span></div><div class='input'><span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.34, 0.00)</span></div><div class='img'><img src='rasterize_scene-8.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
               
 <span class='co'># \donttest{        </span>
 <span class='co'>#Add a spiral of lines around the model by generating a matrix of line segments</span>
@@ -411,7 +411,7 @@ of the background image.</p></td>
 
 <span class='fu'>rasterize_scene</span><span class='op'>(</span><span class='va'>r_model</span>, lookfrom<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>2</span>,<span class='fl'>4</span>,<span class='fl'>10</span><span class='op'>)</span>, fov<span class='op'>=</span><span class='fl'>10</span>, line_info <span class='op'>=</span> <span class='va'>line_mat</span>,
               light_info <span class='op'>=</span> <span class='va'>lights</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.34, 0.00)</span></div><div class='output co'>#&gt; <span class='error'>Error in rayimage::render_resized(retmat, mag = 1/fsaa, method = "mitchell"): unused argument (method = "mitchell")</span></div><div class='input'><span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='message'>Setting `lookat` to: c(0.00, 0.34, 0.00)</span></div><div class='img'><img src='rasterize_scene-9.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

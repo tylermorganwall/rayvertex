@@ -85,7 +85,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa-home"></span>
+    <span class="fa fa-home"></span>
      
   </a>
 </li>
@@ -93,14 +93,14 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="../reference/index.html">
-    <span class="fas fa-file-code-o"></span>
+    <span class="fa fa-file-code-o"></span>
      
     functions
   </a>
 </li>
 <li>
   <a href="https://github.com/tylermorganwall/rayvertex">
-    <span class="fas fa-github fa-lg"></span>
+    <span class="fa fa-github fa-lg"></span>
      
     GitHub
   </a>
@@ -184,7 +184,7 @@
   <span class='fu'><a href='add_shape.html'>add_shape</a></span><span class='op'>(</span><span class='fu'>cylinder_mesh</span><span class='op'>(</span>position<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>150</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span><span class='op'>)</span>,
                           radius <span class='op'>=</span> <span class='fl'>50</span>, length<span class='op'>=</span><span class='fl'>300</span>, material <span class='op'>=</span> <span class='fu'><a href='material_list.html'>material_list</a></span><span class='op'>(</span>diffuse<span class='op'>=</span><span class='st'>"purple"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='fu'><a href='rasterize_scene.html'>rasterize_scene</a></span><span class='op'>(</span>light_info <span class='op'>=</span> <span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.5</span>,<span class='fl'>0.5</span>,<span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='output co'>#&gt; <span class='error'>Error in rayimage::render_resized(retmat, mag = 1/fsaa, method = "mitchell"): unused argument (method = "mitchell")</span></div><div class='input'><span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='img'><img src='cylinder_mesh-1.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
 
 <span class='co'>#Generate a wide, thin disk</span>
 <span class='co'># \donttest{</span>
@@ -192,7 +192,7 @@
   <span class='fu'><a href='add_shape.html'>add_shape</a></span><span class='op'>(</span><span class='fu'>cylinder_mesh</span><span class='op'>(</span>position<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>20</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span><span class='op'>)</span>,
                           radius <span class='op'>=</span> <span class='fl'>200</span>, length<span class='op'>=</span><span class='fl'>5</span>, material <span class='op'>=</span> <span class='fu'><a href='material_list.html'>material_list</a></span><span class='op'>(</span>diffuse<span class='op'>=</span><span class='st'>"purple"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='fu'><a href='rasterize_scene.html'>rasterize_scene</a></span><span class='op'>(</span>light_info <span class='op'>=</span> <span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.5</span>,<span class='fl'>0.5</span>,<span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='output co'>#&gt; <span class='error'>Error in rayimage::render_resized(retmat, mag = 1/fsaa, method = "mitchell"): unused argument (method = "mitchell")</span></div><div class='input'><span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='img'><img src='cylinder_mesh-2.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
 
 <span class='co'>#Generate a narrow cylinder</span>
 <span class='co'># \donttest{</span>
@@ -200,7 +200,7 @@
   <span class='fu'><a href='add_shape.html'>add_shape</a></span><span class='op'>(</span><span class='fu'>cylinder_mesh</span><span class='op'>(</span>position<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span>,<span class='fl'>555</span><span class='op'>/</span><span class='fl'>2</span><span class='op'>)</span>,angle<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>45</span>,<span class='op'>-</span><span class='fl'>45</span>,<span class='fl'>0</span><span class='op'>)</span>,
                           radius <span class='op'>=</span> <span class='fl'>10</span>, length<span class='op'>=</span><span class='fl'>500</span>, material <span class='op'>=</span> <span class='fu'><a href='material_list.html'>material_list</a></span><span class='op'>(</span>diffuse<span class='op'>=</span><span class='st'>"purple"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='fu'><a href='rasterize_scene.html'>rasterize_scene</a></span><span class='op'>(</span>light_info <span class='op'>=</span> <span class='fu'><a href='directional_light.html'>directional_light</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.5</span>,<span class='fl'>0.5</span>,<span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='output co'>#&gt; <span class='error'>Error in rayimage::render_resized(retmat, mag = 1/fsaa, method = "mitchell"): unused argument (method = "mitchell")</span></div><div class='input'><span class='co'># }</span>
+</div><div class='output co'>#&gt; <span class='message'>Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></div><div class='img'><img src='cylinder_mesh-3.png' alt='' width='800' height='800' /></div><div class='input'><span class='co'># }</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
