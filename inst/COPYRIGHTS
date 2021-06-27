@@ -10,6 +10,6 @@ File: src/glm/*
 Copyright: 2005 G-Truc Creation
 URL: https://github.com/g-truc/glm/
 
-File: src/stb_image_resize.h src/stb_image.h
+File: src/stb_image.h
 Copyright: 2017 Sean Barrett
 URL: https://github.com/nothings/stb/
