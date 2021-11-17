@@ -16,7 +16,7 @@ Copyright: file inst/COPYRIGHTS
 Imports: magrittr,
          Rcpp (>= 1.0.6),
          grDevices,
-         rayimage,
+         rayimage (>= 0.6.2),
          png,
          digest
 Suggests: Rvcg, magick, raster
