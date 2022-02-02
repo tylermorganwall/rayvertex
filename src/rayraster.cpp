@@ -149,7 +149,7 @@ List rasterize(List mesh,
                LogicalVector has_reflection_map, Rcpp::String reflection_map_file, 
                double background_sharpness,
                LogicalVector has_refraction, bool environment_map_hdr,
-               bool has_environment_map) {
+               bool has_environment_map, NumericVector bg_color) {
   List materials = as<List>(mesh["materials"]);
   int number_materials = materials.size();
   
@@ -264,6 +264,12 @@ List rasterize(List mesh,
   NumericMatrix r(nx,ny);
   NumericMatrix g(nx,ny);
   NumericMatrix b(nx,ny);
+  
+  //Fill bg color
+  std::fill(r.begin(), r.end(), bg_color[0]) ;
+  std::fill(g.begin(), g.end(), bg_color[1] ) ;
+  std::fill(b.begin(), b.end(), bg_color[2] ) ;
+  
   
   //Create buffers
   rayimage image(r,g,b,nx,ny);

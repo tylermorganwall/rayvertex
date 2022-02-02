@@ -396,7 +396,7 @@ rasterize_scene  = function(scene,
                         antialias_lines,
                         has_vertex_tex,has_vertex_normals,
                         has_reflection_map, environment_map, background_sharpness, has_refraction,
-                        environment_map_hdr, has_environment_map)
+                        environment_map_hdr, has_environment_map, bg_color)
   if(ssao) {
     imagelist$amb = (imagelist$amb)^ssao_intensity
     imagelist$r = imagelist$r * imagelist$amb
