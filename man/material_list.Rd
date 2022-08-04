@@ -2,9 +2,7 @@
 % Please edit documentation in R/add_shape.R
 \name{material_list}
 \alias{material_list}
-\title{Material List
-
-Generate a material properties list.}
+\title{Material List}
 \usage{
 material_list(
   diffuse = c(0.8, 0.8, 0.8),
@@ -92,8 +90,6 @@ material_list(
 List of material properties.
 }
 \description{
-Material List
-
 Generate a material properties list.
 }
 \examples{

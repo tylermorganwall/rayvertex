@@ -47,43 +47,43 @@ options("cores"=1)
 }
 #Generate an arrow
 \donttest{
-generate_cornell_mesh() \%>\%
+generate_cornell_mesh() |>
   add_shape(arrow_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2), radius_tail=50,
                        radius_top = 100,
-                      material = material_list(diffuse="dodgerblue"))) \%>\%
+                      material = material_list(diffuse="dodgerblue"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
 
 #Generate a blue arrow with a wide tail
 \donttest{
-generate_cornell_mesh() \%>\%
+generate_cornell_mesh() |>
   add_shape(arrow_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2), radius_tail=100,
                        radius_top = 150,
-                      material = material_list(diffuse="dodgerblue"))) \%>\%
+                      material = material_list(diffuse="dodgerblue"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
 
 #Generate a long, thin arrow and change the proportions
 \donttest{
-generate_cornell_mesh() \%>\%
+generate_cornell_mesh() |>
   add_shape(arrow_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 400, 555/2), radius_top=30,
                        radius_tail = 10, tail_proportion = 0.8,
-                      material = material_list(diffuse="dodgerblue"))) \%>\%
+                      material = material_list(diffuse="dodgerblue"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
 
 #Change the start and end points
 \donttest{
-generate_cornell_mesh() \%>\%
+generate_cornell_mesh() |>
   add_shape(arrow_mesh(start = c(500, 20, 555/2), end = c(50, 500, 555/2), radius_top=30,
                        radius_tail = 10, tail_proportion = 0.8,
-                      material = material_list(diffuse="dodgerblue"))) \%>\%
+                      material = material_list(diffuse="dodgerblue"))) |>
   add_shape(arrow_mesh(start = c(500, 500, 500), end = c(50, 50, 50), radius_top=30,
                        radius_tail = 10, tail_proportion = 0.8,
-                      material = material_list(diffuse="red"))) \%>\%
+                      material = material_list(diffuse="red"))) |>
   add_shape(arrow_mesh(start = c(555/2, 50, 500), end = c(555/2, 50, 50), radius_top=30,
                        radius_tail = 10, tail_proportion = 0.8,
-                      material = material_list(diffuse="green"))) \%>\%
+                      material = material_list(diffuse="green"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
 }

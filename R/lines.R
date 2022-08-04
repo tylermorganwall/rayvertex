@@ -37,7 +37,7 @@
 #' 
 #' \donttest{
 #' #Use in a scene with a mesh
-#' obj_mesh(r_obj(),material=material_list(diffuse="dodgerblue")) %>%
+#' obj_mesh(r_obj(),material=material_list(diffuse="dodgerblue")) |>
 #'  rasterize_scene(line_info = line_mat, light_info = directional_light(c(0,1,1)),
 #'                  lookfrom=c(0,5,10),lookat=c(0,0.8,0),fov=15)
 #'  }
@@ -63,17 +63,17 @@ generate_line = function(start = c(0,0,0), end = c(0,1,0), color = "white") {
 #'@examples
 #' #Generate a cube out of lines
 #' \donttest{
-#' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) %>%
-#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(-1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(1, -1, 1))) %>%
-#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(-1, 1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, -1, -1))) %>%
-#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, -1, -1), end = c(1, -1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) %>%
+#' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
+#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(-1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(1, -1, 1))) |>
+#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(-1, 1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, -1, -1))) |>
+#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(1, -1, -1), end = c(1, -1, 1))) |>
+#'   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) |>
 #'   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1)))
 #' rasterize_lines(cube_outline,lookfrom=c(0,6,10))
 #' 
@@ -123,17 +123,17 @@ rotate_lines = function(lines, angle = c(0,0,0), pivot_point = c(0,0,0), order_r
 #'@examples
 #' #Generate a cube out of lines
 #' \donttest{
-#' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) %>%
-#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(-1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(1, -1, 1))) %>%
-#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(-1, 1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, -1, -1))) %>%
-#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, -1, -1), end = c(1, -1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) %>%
+#' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
+#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(-1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(1, -1, 1))) |>
+#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(-1, 1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, -1, -1))) |>
+#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(1, -1, -1), end = c(1, -1, 1))) |>
+#'   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) |>
 #'   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1)))
 #' rasterize_lines(cube_outline,fov=90,lookfrom=c(0,0,3))
 #' 
@@ -168,17 +168,17 @@ scale_lines = function(lines, scale = 1) {
 #'@examples
 #' \donttest{
 #' #Generate a cube out of lines
-#' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) %>%
-#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(-1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(1, -1, 1))) %>%
-#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(-1, 1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, -1, -1))) %>%
-#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, -1, -1), end = c(1, -1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) %>%
+#' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
+#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(-1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(1, -1, 1))) |>
+#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(-1, 1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, -1, -1))) |>
+#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(1, -1, -1), end = c(1, -1, 1))) |>
+#'   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) |>
 #'   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1))) 
 #' rasterize_lines(cube_outline,fov=40,lookfrom=c(1,2,10),lookat=c(0,0,0))
 #' 
@@ -186,9 +186,9 @@ scale_lines = function(lines, scale = 1) {
 #' translated_cube = color_lines(translate_lines(cube_outline,c(1,1,1)),"red")
 #' translated_cube2 = color_lines(translate_lines(cube_outline,c(-1,-1,-1)),"green")
 #' 
-#' cube_outline %>% 
-#'   add_lines(translated_cube) %>% 
-#'   add_lines(translated_cube2) %>% 
+#' cube_outline |>
+#'   add_lines(translated_cube) |>
+#'   add_lines(translated_cube2) |>
 #'   rasterize_lines(fov=40,lookfrom=c(1,2,10),lookat=c(0,0,0))
 #'   }
 translate_lines = function(lines, position = 1) {
@@ -211,21 +211,21 @@ translate_lines = function(lines, position = 1) {
 #'@examples
 #' #Generate a cube out of lines
 #' \donttest{
-#' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) %>%
-#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(-1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(1, -1, 1))) %>%
-#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(-1, 1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, -1, -1))) %>%
-#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, -1, -1), end = c(1, -1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) %>%
+#' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
+#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(-1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(1, -1, 1))) |>
+#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(-1, 1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, -1, -1))) |>
+#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(1, -1, -1), end = c(1, -1, 1))) |>
+#'   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) |>
 #'   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1)))
 #'   
-#' cube_outline %>% 
-#'   color_lines(color="red") %>% 
+#' cube_outline |>
+#'   color_lines(color="red") |>
 #'   rasterize_lines()
 #'   }
 color_lines = function(lines, color = "white") {
@@ -247,17 +247,17 @@ color_lines = function(lines, color = "white") {
 #'@examples
 #' #Generate a cube out of lines
 #' \donttest{
-#' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) %>%
-#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(-1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(1, -1, 1))) %>%
-#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(-1, 1, -1))) %>%
-#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, -1, -1))) %>%
-#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, 1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, -1, -1), end = c(1, -1, 1))) %>%
-#'   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) %>%
+#' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
+#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(-1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(-1, -1, 1), end = c(1, -1, 1))) |>
+#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(-1, 1, -1))) |>
+#'   add_lines(generate_line(start = c(-1, 1, 1), end = c(1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, -1, -1))) |>
+#'   add_lines(generate_line(start = c(1, 1, -1), end = c(1, 1, 1))) |>
+#'   add_lines(generate_line(start = c(1, -1, -1), end = c(1, -1, 1))) |>
+#'   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) |>
 #'   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1)))
 #'   
 #' rasterize_lines(cube_outline,fov=90,lookfrom=c(0,0,3))

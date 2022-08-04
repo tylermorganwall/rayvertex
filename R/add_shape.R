@@ -1,6 +1,6 @@
 #'@title Add Shape
 #'
-#'Add shape to the scene
+#'@description Add shape to the scene.
 #'
 #'@param scene The scene to add the shape.
 #'@param shape The mesh to add to the scene.
@@ -27,46 +27,104 @@
 #'rasterize_scene(scene, light_info=directional_light(direction=c(0.1,0.6,-1)))
 #'}
 add_shape = function(scene, shape) {
-  if(length(scene) == 0) {
-    return(shape)
-  }
-  max_vertices = nrow(scene$vertices)
-  max_norms = nrow(scene$normals)
-  max_tex = nrow(scene$texcoords)
-  max_material = length(scene$materials)
+  scene$shapes    = c(scene$shapes   , shape$shapes)
+  scene$vertices  = c(scene$vertices , shape$vertices)
+  scene$normals   = c(scene$normals  , shape$normals)
+  scene$texcoords = c(scene$texcoords, shape$texcoords)
+  scene$materials = c(scene$materials, shape$materials)
+  # if(!is.null(attr(shape,"cornell")) || !is.null(attr(scene,"cornell"))) {
+  #   attr(scene,"cornell") = TRUE
+  #   if(!is.null(attr(shape,"cornell"))) {
+  #     attr(shape,"cornell_light") = attr(shape,"cornell_light")
+  #   } else {
+  #     attr(scene,"cornell_light") = attr(scene,"cornell_light")
+  #   }
+  # }
+  return(scene)
+  # scene_n = length(scene)
+  # shape_n = length(shape)
+  # 
+  # if(length(scene_n) == 0) {
+  #   return(shape)
+  # }
+  # if(length(shape_n) == 0) {
+  #   return(scene)
+  # }
   
-  
-  for(i in seq_len(length(shape$shapes))) {
-    shape$shapes[[i]]$indices      = shape$shapes[[i]]$indices      + max_vertices
-    shape$shapes[[i]]$tex_indices  = shape$shapes[[i]]$tex_indices  + max_tex
-    shape$shapes[[i]]$norm_indices = shape$shapes[[i]]$norm_indices + max_norms
-    shape$shapes[[i]]$material_ids = ifelse(shape$shapes[[i]]$material_ids != -1, 
-                                            shape$shapes[[i]]$material_ids + max_material,
-                                            -1)
-  }
-  scene$shapes = c(scene$shapes,shape$shapes)
+  # 
+  # max_vertices = nrow(scene$vertices)
+  # max_norms = nrow(scene$normals)
+  # max_tex = nrow(scene$texcoords)
+  # max_material = length(scene$materials)
+  # 
+  # 
+  # for(i in seq_len(length(shape$shapes))) {
+  #   shape$shapes[[i]]$indices      = shape$shapes[[i]]$indices      + max_vertices
+  #   shape$shapes[[i]]$tex_indices  = shape$shapes[[i]]$tex_indices  + max_tex
+  #   shape$shapes[[i]]$norm_indices = shape$shapes[[i]]$norm_indices + max_norms
+  #   shape$shapes[[i]]$material_ids = ifelse(shape$shapes[[i]]$material_ids != -1, 
+  #                                           shape$shapes[[i]]$material_ids + max_material,
+  #                                           -1)
+  # }
+  # scene$shapes = c(scene$shapes,shape$shapes)
+  # 
+  # scene$vertices  = rbind(scene$vertices,  shape$vertices)
+  # scene$normals   = rbind(scene$normals,   shape$normals)
+  # scene$texcoords = rbind(scene$texcoords, shape$texcoords)
+  # 
+  # scene$materials = c(scene$materials,shape$materials)
+  # scene$material_hashes = c(scene$material_hashes,shape$material_hashes)
+  # 
+  # if(!is.null(attr(shape,"cornell")) || !is.null(attr(scene,"cornell"))) {
+  #   attr(scene,"cornell") = TRUE
+  #   if(!is.null(attr(shape,"cornell"))) {
+  #     attr(shape,"cornell_light") = attr(shape,"cornell_light")
+  #   } else {
+  #     attr(scene,"cornell_light") = attr(scene,"cornell_light")
+  #   }
+  # }
+  # return(scene)
+}
 
-  scene$vertices  = rbind(scene$vertices,  shape$vertices)
-  scene$normals   = rbind(scene$normals,   shape$normals)
-  scene$texcoords = rbind(scene$texcoords, shape$texcoords)
+#'@title Preprocess Scene
+#'
+#'@description Preprocess the scene
+#'
+#'@param scene_list The scene list.
+#'@return Scene list converted to proper format.
+#'@keywords internal
+preprocess_scene = function(scene_list) {
+  scene_n = length(scene_list)
   
-  scene$materials = c(scene$materials,shape$materials)
-  scene$material_hashes = c(scene$material_hashes,shape$material_hashes)
-  
-  scene = remove_duplicate_materials(scene)
-  
-  if(!is.null(attr(shape,"cornell")) || !is.null(attr(scene,"cornell"))) {
-    attr(scene,"cornell") = TRUE
-    if(!is.null(attr(shape,"cornell"))) {
-      attr(shape,"cornell_light") = attr(shape,"cornell_light")
-    } else {
-      attr(scene,"cornell_light") = attr(scene,"cornell_light")
-    }
+  max_vertices = 0
+  max_norms = 0
+  max_tex = 0
+  max_material = 0
+
+  for(i in seq_len(length(scene_list$shapes))) {
+    scene_list$shapes[[i]]$indices      = scene_list$shapes[[i]]$indices      + max_vertices
+    scene_list$shapes[[i]]$tex_indices  = scene_list$shapes[[i]]$tex_indices  + max_tex
+    scene_list$shapes[[i]]$norm_indices = scene_list$shapes[[i]]$norm_indices + max_norms
+    scene_list$shapes[[i]]$material_ids = ifelse(scene_list$shapes[[i]]$material_ids != -1,
+                                                 scene_list$shapes[[i]]$material_ids + max_material,
+                                                 -1)
+    max_vertices = max(scene_list$shapes[[i]]$indices) + 1
+    max_tex = max(scene_list$shapes[[i]]$tex_indices) + 1
+    max_norms = max(scene_list$shapes[[i]]$norm_indices) + 1
+    max_material = max(scene_list$shapes[[i]]$material_ids) + 1
   }
+  
+  scene = list()
+  scene$shapes = scene_list$shapes
+  scene$vertices = do.call(rbind,scene_list$vertices)
+  scene$normals = do.call(rbind,scene_list$normals)
+  scene$texcoords = do.call(rbind,scene_list$texcoords)
+  scene$materials = scene_list$materials 
+  scene$material_hashes = unlist(lapply(scene_list$materials, digest::digest))
   return(scene)
 }
 
-#'@title Remove Duplicate
+#'@title Remove Duplicates
 #'
 #'@param scene The scene
 #'@return Scene with shape added.
@@ -77,23 +135,30 @@ remove_duplicate_materials = function(scene) {
     return(scene)
   }
   
+  #Generate unique set of materials in scene
   scene_material_hashes = scene$material_hashes
   unique_materials = unique(scene_material_hashes)
-  new_ids = rep(0,length(scene_material_hashes))
-  old_ids = seq_len(length(scene_material_hashes)) - 1
   
+  #Allocate new_id vector
+  new_ids = rep(0,length(scene_material_hashes))
+  
+  #Generate vector for all old non-unique IDs (zero indexed)
+  old_ids = seq_len(length(scene_material_hashes)) - 1
+  new_mat = list()
+  
+  #Go through each hash and determine which entry it is in the unique_material vector
   for(i in seq_len(length(scene_material_hashes))) {
     new_ids[i] = min(which(scene_material_hashes[i] == unique_materials)) - 1
   }
   
   for(i in seq_len(length(scene$shapes))) {
     tmp_ids = scene$shapes[[i]]$material_ids
-    scene$shapes[[i]]$material_ids[tmp_ids %in% old_ids] = new_ids[match(tmp_ids, old_ids, nomatch = 0)]
+    scene$shapes[[i]]$material_ids[tmp_ids %in% old_ids] = new_ids[match(tmp_ids, old_ids, nomatch = 10)]
   }
   unique_ids = unique(new_ids)
   new_mat = list()
   for(i in seq_len(length(unique_ids))) {
-    new_mat[[i]] = scene$materials[[unique_ids[i]+1]]
+    new_mat[[i]] = scene$materials[[min(which(new_ids == (i-1)))]]
   }
   scene$materials = new_mat
   scene$material_hashes = unique_materials
@@ -104,7 +169,7 @@ remove_duplicate_materials = function(scene) {
 
 #'@title Merge shapes
 #'
-#'Add shape to a mesh
+#'@description Merge the shapes to one
 #'
 #'@param scene  
 #'@keywords internal
@@ -153,16 +218,18 @@ merge_shapes = function(scene) {
 #'#Translate a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 #' \donttest{
-#'generate_cornell_mesh() %>% 
-#'  add_shape(translate_mesh(robj,c(400,0,155))) %>% 
-#'  add_shape(translate_mesh(robj,c(555/2,100,555/2))) %>% 
-#'  add_shape(translate_mesh(robj,c(155,200,400))) %>% 
+#'generate_cornell_mesh() |>
+#'  add_shape(translate_mesh(robj,c(400,0,155))) |>
+#'  add_shape(translate_mesh(robj,c(555/2,100,555/2))) |>
+#'  add_shape(translate_mesh(robj,c(155,200,400))) |>
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
 #'  }
 translate_mesh = function(mesh, position = c(0,0,0)) {
-  mesh$vertices[,1]  = mesh$vertices[,1] + position[1]
-  mesh$vertices[,2]  = mesh$vertices[,2] + position[2]
-  mesh$vertices[,3]  = mesh$vertices[,3] + position[3]
+  for(j in seq_len(length(mesh$shapes))) {
+    mesh$vertices[[j]][,1]  = mesh$vertices[[j]][,1] + position[1]
+    mesh$vertices[[j]][,2]  = mesh$vertices[[j]][,2] + position[2]
+    mesh$vertices[[j]][,3]  = mesh$vertices[[j]][,3] + position[3]
+  }
   return(mesh)
 }
 
@@ -182,27 +249,29 @@ translate_mesh = function(mesh, position = c(0,0,0)) {
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 #' \donttest{
 #'
-#'generate_cornell_mesh() %>% 
-#' add_shape(scale_mesh(translate_mesh(robj,c(400,0,155)),0.5, center=c(400,0,155))) %>% 
-#' add_shape(scale_mesh(translate_mesh(robj,c(555/2,100,555/2)),1.5, center=c(555/2,100,555/2))) %>% 
-#' add_shape(scale_mesh(translate_mesh(robj,c(155,200,400)),c(0.5,2,0.5), center=c(155,200,400))) %>% 
+#'generate_cornell_mesh() |>
+#' add_shape(scale_mesh(translate_mesh(robj,c(400,0,155)),0.5, center=c(400,0,155))) |>
+#' add_shape(scale_mesh(translate_mesh(robj,c(555/2,100,555/2)),1.5, center=c(555/2,100,555/2))) |>
+#' add_shape(scale_mesh(translate_mesh(robj,c(155,200,400)),c(0.5,2,0.5), center=c(155,200,400))) |>
 #' rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
 #' }
 scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
   if(length(scale) == 1) {
     scale = rep(scale,3)
   }
-  mesh$vertices[,1]  = (mesh$vertices[,1]-center[1])*scale[1] + center[1]
-  mesh$vertices[,2]  = (mesh$vertices[,2]-center[2])*scale[2] + center[2]
-  mesh$vertices[,3]  = (mesh$vertices[,3]-center[3])*scale[3] + center[3]
-  
-  if(!is.null(mesh$normals) && nrow(mesh$normals) > 0) {
-    mesh$normals[,1]  = mesh$normals[,1]*1/scale[1]
-    mesh$normals[,2]  = mesh$normals[,2]*1/scale[2]
-    mesh$normals[,3]  = mesh$normals[,3]*1/scale[3]
-    for(i in seq_len(nrow(mesh$normals))) {
-      length_single = sqrt(mesh$normals[i,1]^2 + mesh$normals[i,2]^2 + mesh$normals[i,3]^2)
-      mesh$normals[i,] = mesh$normals[i,]/length_single
+  for(j in seq_len(length(mesh$shapes))) {
+    mesh$vertices[[j]][,1]  = (mesh$vertices[[j]][,1]-center[1])*scale[1] + center[1]
+    mesh$vertices[[j]][,2]  = (mesh$vertices[[j]][,2]-center[2])*scale[2] + center[2]
+    mesh$vertices[[j]][,3]  = (mesh$vertices[[j]][,3]-center[3])*scale[3] + center[3]
+    
+    if(!is.null(mesh$normals[[j]]) && nrow(mesh$normals[[j]]) > 0) {
+      mesh$normals[[j]][,1]  = mesh$normals[[j]][,1]*1/scale[1]
+      mesh$normals[[j]][,2]  = mesh$normals[[j]][,2]*1/scale[2]
+      mesh$normals[[j]][,3]  = mesh$normals[[j]][,3]*1/scale[3]
+      for(i in seq_len(nrow(mesh$normals[[j]]))) {
+        length_single = sqrt(mesh$normals[[j]][i,1]^2 + mesh$normals[[j]][i,2]^2 + mesh$normals[[j]][i,3]^2)
+        mesh$normals[[j]][i,] = mesh$normals[[j]][i,]/length_single
+      }
     }
   }
   return(mesh)
@@ -210,9 +279,9 @@ scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
 
 #'@title Center Mesh
 #'
-#'Centers the mesh at the origin.
+#'@description Centers the mesh at the origin.
 #'
-#'@param mesh The mesh.
+#'@param mesh The mesh object.
 #'
 #'@return Centered mesh
 #'@export
@@ -222,10 +291,10 @@ scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
 #' }
 #' #Center the Cornell box and the R OBJ at the origin
 #' \donttest{
-#' center_mesh(generate_cornell_mesh()) %>% 
-#'   add_shape(center_mesh(obj_mesh(r_obj(),scale=100,angle=c(0,180,0)))) %>% 
+#' center_mesh(generate_cornell_mesh()) |>
+#'   add_shape(center_mesh(obj_mesh(r_obj(),scale=100,angle=c(0,180,0)))) |>
 #'   rasterize_scene(lookfrom=c(0,0,-1100),fov=40,lookat=c(0,0,0),
-#'                   light_info = directional_light(c(0.4,0.4,-1)) %>%
+#'                   light_info = directional_light(c(0.4,0.4,-1)) |>
 #'       add_light(point_light(c(0,450,0),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)))
 #' }
 center_mesh = function(mesh) {
@@ -269,32 +338,34 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 #'
 #'\donttest{
-#'generate_cornell_mesh() %>% 
+#'generate_cornell_mesh() |>
 #' add_shape(rotate_mesh(translate_mesh(robj,c(400,0,155)),c(0,30,0), 
-#'                       pivot_point=c(400,0,155))) %>% 
+#'                       pivot_point=c(400,0,155))) |>
 #' add_shape(rotate_mesh(translate_mesh(robj,c(555/2,100,555/2)),c(-30,60,30), 
-#'                       pivot_point=c(555/2,100,555/2))) %>% 
+#'                       pivot_point=c(555/2,100,555/2))) |>
 #' add_shape(rotate_mesh(translate_mesh(robj,c(155,200,400)),c(-30,60,30), 
-#'                       pivot_point=c(155,200,400), order_rotation=c(3,2,1))) %>% 
+#'                       pivot_point=c(155,200,400), order_rotation=c(3,2,1))) |>
 #' rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
 #' }
 rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3)) {
   angle = angle*pi/180
-  mesh$vertices[,1]  = mesh$vertices[,1]-pivot_point[1]
-  mesh$vertices[,2]  = mesh$vertices[,2]-pivot_point[2]
-  mesh$vertices[,3]  = mesh$vertices[,3]-pivot_point[3]
-  rot_mat = generate_rot_matrix(angle, order_rotation)
-  for(i in seq_len(nrow(mesh$vertices))) {
-    mesh$vertices[i,] = mesh$vertices[i,] %*% rot_mat
-  }
-  mesh$vertices[,1]  = mesh$vertices[,1]+pivot_point[1]
-  mesh$vertices[,2]  = mesh$vertices[,2]+pivot_point[2]
-  mesh$vertices[,3]  = mesh$vertices[,3]+pivot_point[3]
-
-  if(!is.null(mesh$normals) && nrow(mesh$normals) > 0) {
-    inv_t = t(solve(rot_mat))
-    for(i in seq_len(nrow(mesh$normals))) {
-      mesh$normals[i,] = mesh$normals[i,] %*% inv_t
+  for(j in seq_len(length(mesh$shapes))) {
+    mesh$vertices[[j]][,1]  = mesh$vertices[[j]][,1]-pivot_point[1]
+    mesh$vertices[[j]][,2]  = mesh$vertices[[j]][,2]-pivot_point[2]
+    mesh$vertices[[j]][,3]  = mesh$vertices[[j]][,3]-pivot_point[3]
+    rot_mat = generate_rot_matrix(angle, order_rotation)
+    for(i in seq_len(nrow(mesh$vertices[[j]]))) {
+      mesh$vertices[[j]][i,] = mesh$vertices[[j]][i,] %*% rot_mat
+    }
+    mesh$vertices[[j]][,1]  = mesh$vertices[[j]][,1]+pivot_point[1]
+    mesh$vertices[[j]][,2]  = mesh$vertices[[j]][,2]+pivot_point[2]
+    mesh$vertices[[j]][,3]  = mesh$vertices[[j]][,3]+pivot_point[3]
+  
+    if(!is.null(mesh$normals[[j]]) && nrow(mesh$normals[[j]]) > 0) {
+      inv_t = t(solve(rot_mat))
+      for(i in seq_len(nrow(mesh$normals[[j]]))) {
+        mesh$normals[[j]][i,] = mesh$normals[[j]][i,] %*% inv_t
+      }
     }
   }
   return(mesh)
@@ -302,7 +373,7 @@ rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rot
 
 #'@title Set Material
 #'
-#'Add shape to a mesh
+#'@description Set the material(s) of the mesh.
 #'
 #'@param mesh The target mesh. 
 #'@param material Default `NULL`. You can pass the output of the `material_list()` function
@@ -344,14 +415,14 @@ rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rot
 #' }
 #'#Set the material of an object
 #'\donttest{
-#'generate_cornell_mesh() %>% 
+#'generate_cornell_mesh() |>
 #'  add_shape(set_material(sphere_mesh(position=c(400,555/2,555/2),radius=40), 
-#'                         diffuse="purple", type="phong")) %>% 
+#'                         diffuse="purple", type="phong")) |>
 #'  add_shape(set_material(sphere_mesh(position=c(555/2,220,555/2),radius=40),
-#'                         dissolve=0.2,culling="none",diffuse="red")) %>% 
+#'                         dissolve=0.2,culling="none",diffuse="red")) |>
 #'  add_shape(set_material(sphere_mesh(position=c(155,300,555/2),radius=60), 
 #'                         material = material_list(diffuse="gold", type="phong", 
-#'                                                  ambient="gold", ambient_intensity=0.4))) %>% 
+#'                                                  ambient="gold", ambient_intensity=0.4))) |>
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
 #'  }
 set_material = function(mesh, material = NULL, id = NULL,
@@ -533,7 +604,7 @@ generate_rot_matrix = function(angle, order_rotation) {
 
 #'@title Change Material
 #'
-#'Change individual material properties, leaving others alone.
+#'@description Change individual material properties, leaving others alone.
 #'
 #'@param mesh Mesh to change.
 #'@param id Default `NULL`. Either a number specifying the material to change, or a character vector 
@@ -574,12 +645,12 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'p_sphere = sphere_mesh(position=c(555/2,555/2,555/2), 
 #'                       radius=40,material=material_list(diffuse="purple"))
 #'\donttest{            
-#'generate_cornell_mesh() %>% 
-#'  add_shape(p_sphere) %>% 
-#'  add_shape(change_material(translate_mesh(p_sphere,c(200,0,0)),diffuse="red")) %>% 
-#'  add_shape(change_material(translate_mesh(p_sphere,c(100,0,0)),dissolve=0.5)) %>% 
-#'  add_shape(change_material(translate_mesh(p_sphere,c(-100,0,0)),type="phong")) %>% 
-#'  add_shape(change_material(translate_mesh(p_sphere,c(-200,0,0)),type="phong",shininess=30)) %>% 
+#'generate_cornell_mesh() |>
+#'  add_shape(p_sphere) |>
+#'  add_shape(change_material(translate_mesh(p_sphere,c(200,0,0)),diffuse="red")) |>
+#'  add_shape(change_material(translate_mesh(p_sphere,c(100,0,0)),dissolve=0.5)) |>
+#'  add_shape(change_material(translate_mesh(p_sphere,c(-100,0,0)),type="phong")) |>
+#'  add_shape(change_material(translate_mesh(p_sphere,c(-200,0,0)),type="phong",shininess=30)) |>
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
 #'}
 change_material = function(mesh, id = NULL, 
@@ -720,7 +791,7 @@ change_material = function(mesh, id = NULL,
 
 #'@title Material List
 #'
-#'Generate a material properties list.
+#'@description Generate a material properties list.
 #'
 #'@param diffuse                   Default `c(0.5,0.5,0.5)`. The diffuse color.
 #'@param ambient                   Default `c(0,0,0)`. The ambient color.
@@ -831,8 +902,8 @@ generate_toon_outline = function(single_obj, material, scale = 1) {
     bbox = apply(single_obj$vertices,2,range)
     bbox_size = bbox[2,] - bbox[1,]
     scaleval = (bbox_size + material$toon_outline_width)/bbox_size
-    single_obj = single_obj %>% 
-      scale_mesh(scale = scaleval) %>% 
+    single_obj = single_obj |>
+      scale_mesh(scale = scaleval) |>
       set_material(diffuse=material$toon_outline_color , culling = "front", type="color")
   }
   return(single_obj)

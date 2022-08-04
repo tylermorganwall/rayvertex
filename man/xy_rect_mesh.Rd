@@ -37,17 +37,17 @@ XY Rectangle 3D Model
 options("cores"=1)
 }
 \donttest{
-generate_cornell_mesh() \%>\%
+generate_cornell_mesh() |>
   add_shape(xy_rect_mesh(position = c(555/2, 100, 555/2), scale=200,
-             material = material_list(diffuse = "purple"),angle=c(0,180,0))) \%>\%
+             material = material_list(diffuse = "purple"),angle=c(0,180,0))) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }
 
 #Rotate the plane and scale 
 \donttest{
-generate_cornell_mesh() \%>\%
+generate_cornell_mesh() |>
   add_shape(xy_rect_mesh(position = c(555/2, 100, 555/2), scale=c(200,100,1), angle=c(0,180,0),
-             material = material_list(diffuse = "purple"))) \%>\%
+             material = material_list(diffuse = "purple"))) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }
 }

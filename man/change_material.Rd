@@ -2,9 +2,7 @@
 % Please edit documentation in R/add_shape.R
 \name{change_material}
 \alias{change_material}
-\title{Change Material
-
-Change individual material properties, leaving others alone.}
+\title{Change Material}
 \usage{
 change_material(
   mesh,
@@ -99,8 +97,6 @@ matching the material name.}
 Shape with new material settings
 }
 \description{
-Change Material
-
 Change individual material properties, leaving others alone.
 }
 \examples{
@@ -110,12 +106,12 @@ options("cores"=1)
 p_sphere = sphere_mesh(position=c(555/2,555/2,555/2), 
                       radius=40,material=material_list(diffuse="purple"))
 \donttest{            
-generate_cornell_mesh() \%>\% 
- add_shape(p_sphere) \%>\% 
- add_shape(change_material(translate_mesh(p_sphere,c(200,0,0)),diffuse="red")) \%>\% 
- add_shape(change_material(translate_mesh(p_sphere,c(100,0,0)),dissolve=0.5)) \%>\% 
- add_shape(change_material(translate_mesh(p_sphere,c(-100,0,0)),type="phong")) \%>\% 
- add_shape(change_material(translate_mesh(p_sphere,c(-200,0,0)),type="phong",shininess=30)) \%>\% 
+generate_cornell_mesh() |>
+ add_shape(p_sphere) |>
+ add_shape(change_material(translate_mesh(p_sphere,c(200,0,0)),diffuse="red")) |>
+ add_shape(change_material(translate_mesh(p_sphere,c(100,0,0)),dissolve=0.5)) |>
+ add_shape(change_material(translate_mesh(p_sphere,c(-100,0,0)),type="phong")) |>
+ add_shape(change_material(translate_mesh(p_sphere,c(-200,0,0)),type="phong",shininess=30)) |>
  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
 }
 }

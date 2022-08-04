@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_shape.R
 \name{remove_duplicate_materials}
 \alias{remove_duplicate_materials}
-\title{Remove Duplicate}
+\title{Remove Duplicates}
 \usage{
 remove_duplicate_materials(scene)
 }
@@ -13,6 +13,6 @@ remove_duplicate_materials(scene)
 Scene with shape added.
 }
 \description{
-Remove Duplicate
+Remove Duplicates
 }
 \keyword{internal}

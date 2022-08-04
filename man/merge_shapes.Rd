@@ -2,9 +2,7 @@
 % Please edit documentation in R/add_shape.R
 \name{merge_shapes}
 \alias{merge_shapes}
-\title{Merge shapes
-
-Add shape to a mesh}
+\title{Merge shapes}
 \usage{
 merge_shapes(scene)
 }
@@ -15,8 +13,6 @@ merge_shapes(scene)
 Merged scene
 }
 \description{
-Merge shapes
-
-Add shape to a mesh
+Merge the shapes to one
 }
 \keyword{internal}

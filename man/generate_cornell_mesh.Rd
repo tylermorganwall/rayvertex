@@ -35,31 +35,31 @@ options("cores"=1)
 }
 #Generate and render the default Cornell box and add an object.
 \donttest{
-generate_cornell_mesh() \%>\% 
+generate_cornell_mesh() |> 
   rasterize_scene()
 }
 #Add an object to the scene
 \donttest{
-generate_cornell_mesh() \%>\% 
-  add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) \%>\% 
+generate_cornell_mesh() |> 
+  add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
   rasterize_scene()
 }
 #Turn off the ceiling so the default directional light reaches inside the box
 \donttest{
-generate_cornell_mesh(ceiling=FALSE) \%>\% 
-  add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) \%>\% 
+generate_cornell_mesh(ceiling=FALSE) |> 
+  add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
   rasterize_scene()
 }
 #Adjust the light to the front
 \donttest{
-generate_cornell_mesh(ceiling=FALSE) \%>\% 
-  add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) \%>\% 
+generate_cornell_mesh(ceiling=FALSE) |> 
+  add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
   rasterize_scene(light_info = directional_light(direction=c(0,1,-1)))
 }
 #Change the color palette
 \donttest{
-generate_cornell_mesh(ceiling=FALSE,leftcolor="purple", rightcolor="yellow") \%>\% 
-  add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) \%>\% 
+generate_cornell_mesh(ceiling=FALSE,leftcolor="purple", rightcolor="yellow") |> 
+  add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
   rasterize_scene(light_info = directional_light(direction=c(0,1,-1)))
 }
 }

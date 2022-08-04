@@ -53,7 +53,7 @@
 #' #Rasterize the scene
 #' \donttest{
 #' rasterize_scene(volc_mesh, lookfrom=c(-50,230,100),fov=60,width=1200,height=1200,
-#'                 light_info = directional_light(c(0,1,1)) %>% 
+#'                 light_info = directional_light(c(0,1,1)) |>
 #'                   add_light(directional_light(c(1,1,-1))))
 #' }
 construct_mesh  = function(vertices, indices, 

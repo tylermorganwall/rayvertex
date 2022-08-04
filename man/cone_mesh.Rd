@@ -41,25 +41,25 @@ options("cores"=1)
 }
 #Generate a cone
 \donttest{
-generate_cornell_mesh() \%>\%
+generate_cornell_mesh() |>
   add_shape(cone_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2),
-                      radius = 100)) \%>\%
+                      radius = 100)) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
 
 #Generate a blue cone with a wide base
 \donttest{
-generate_cornell_mesh() \%>\%
+generate_cornell_mesh() |>
   add_shape(cone_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2), radius=200,
-                      material = material_list(diffuse="dodgerblue"))) \%>\%
+                      material = material_list(diffuse="dodgerblue"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
 
 #Generate a long, thin cone
 \donttest{
-generate_cornell_mesh() \%>\%
+generate_cornell_mesh() |>
   add_shape(cone_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 400, 555/2), radius=50,
-                      material = material_list(diffuse="dodgerblue"))) \%>\%
+                      material = material_list(diffuse="dodgerblue"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
 }

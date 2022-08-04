@@ -114,7 +114,7 @@ mesh to begin.
 ``` r
 library(rayvertex)
 
-generate_cornell_mesh() %>% 
+generate_cornell_mesh() |>
   rasterize_scene()
 #> Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
 ```
@@ -126,8 +126,8 @@ Let’s add a purple sphere to the center:
 ``` r
 mat = material_list(diffuse="purple", type = "phong", ambient="purple", ambient_intensity = 0.2)
 
-generate_cornell_mesh() %>% 
-  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) %>% 
+generate_cornell_mesh() |>
+  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) |>
   rasterize_scene()
 #> Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
 ```
@@ -138,8 +138,8 @@ Now, the ceiling of the Cornell Box is blocking the directional light.
 Let’s remove it.
 
 ``` r
-generate_cornell_mesh(ceiling=FALSE) %>% 
-  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) %>% 
+generate_cornell_mesh(ceiling=FALSE) |>
+  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) |>
   rasterize_scene()
 #> Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
 ```
@@ -151,12 +151,12 @@ Let’s add a cylinder and a platform to the bottom of our sphere.
 ``` r
 mat2 = material_list(diffuse="grey80", ambient="grey80", ambient_intensity = 0.2)
 
-generate_cornell_mesh(ceiling=FALSE) %>% 
-  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) %>% 
+generate_cornell_mesh(ceiling=FALSE) |>
+  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) |>
   add_shape(segment_mesh(start=c(555/2,0,555/2),end=c(555/2,196,555/2), 
-                         radius=30, material=mat2)) %>% 
+                         radius=30, material=mat2)) |>
   add_shape(cube_mesh(position=c(555/2,555/2-90,555/2), 
-                      scale=c(160,20,160),material=mat2)) %>% 
+                      scale=c(160,20,160),material=mat2)) |>
   rasterize_scene()
 #> Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
 ```
@@ -167,12 +167,12 @@ Now let’s change the angle of the directional light so it’s angled from
 the front :
 
 ``` r
-generate_cornell_mesh(ceiling=FALSE) %>% 
-  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) %>% 
+generate_cornell_mesh(ceiling=FALSE) |>
+  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) |>
   add_shape(segment_mesh(start=c(555/2,0,555/2),end=c(555/2,196,555/2), 
-                         radius=30, material=mat2)) %>% 
+                         radius=30, material=mat2)) |>
   add_shape(cube_mesh(position=c(555/2,555/2-90,555/2), 
-                      scale=c(160,20,160),material=mat2)) %>% 
+                      scale=c(160,20,160),material=mat2)) |>
   rasterize_scene(light_info = directional_light(c(0.4,0.2,-1)))
 #> Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
 ```
@@ -212,7 +212,7 @@ generate_cornell_mesh(ceiling=FALSE) %>%
   add_shape(obj_mesh(r_obj(), position=c(100,200,555/2), angle=c(-10,200,0),
                      scale=80,material=mats[[4]])) %>%
   add_shape(mesh3d_mesh(humface, position = c(555-80,220,555/2),scale = 1,
-                        material=mats[[5]],angle=c(0,180,-30))) %>% 
+                        material=mats[[5]],angle=c(0,180,-30))) |>
   rasterize_scene(light_info = directional_light(c(0.4,0.2,-1)))
 #> Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
 ```
@@ -257,16 +257,16 @@ download.file("https://www.tylermw.com/data/venice_sunset_2k.hdr",tempfilehdr)
 scene = torus_mesh(position=c(0.4,0,0),angle=c(-30,20,-30),
                    material=material_list(diffuse=c(1,1,1), type="color", 
                                            reflection_intensity = 1.0, reflection_sharpness = 0.2),
-                   ring_radius=0.05,radius=0.2) %>% 
+                   ring_radius=0.05,radius=0.2) |>
   add_shape(torus_mesh(position=c(0.4,0.5,0),angle=c(-30,20,-130),
                    material=material_list(diffuse="green", ambient="green", type="phong", 
                                           ambient_intensity = 0.2, diffuse_intensity=0.8,
                                           reflection_intensity = 0.5, reflection_sharpness = 0.05),
-                   ring_radius=0.05,radius=0.2)) %>% 
+                   ring_radius=0.05,radius=0.2)) |>
   add_shape(sphere_mesh(position=c(-0.4,0,0),
-                   material=material_list(diffuse="white", type="color",ior=1.6),radius=0.2)) %>% 
+                   material=material_list(diffuse="white", type="color",ior=1.6),radius=0.2)) |>
   add_shape(obj_mesh(r_obj(),position=c(-0.4,0.35,0),scale=0.2, angle=c(0,-30,0),
-                   material=material_list(diffuse="purple", type="color",ior=1.6))) %>% 
+                   material=material_list(diffuse="purple", type="color",ior=1.6))) |>
   add_shape(sphere_mesh(position=c(0,0.25,0),
                    material=material_list(diffuse="white", type="color",reflection_intensity = 1.0),
                    radius=0.2)) 
@@ -366,7 +366,7 @@ r_model_t = obj_mesh(r_obj(),c(-2,0,0.3)) %>%
   add_shape(r_model_t)
 
 rasterize_scene(r_model_t, lookfrom=c(2,4,10),fov=15,lookat=c(-0.5,0,0),
-                light_info = directional_light(direction=c(0.8,1,0.7), intensity = 0.5) %>% 
+                light_info = directional_light(direction=c(0.8,1,0.7), intensity = 0.5) |>
                    add_light(directional_light(direction=c(-0.8,1,0.7),intensity = 0.5)))
 ```
 

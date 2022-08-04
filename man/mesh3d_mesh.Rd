@@ -54,7 +54,7 @@ if(length(find.package("Rvcg", quiet=TRUE)) > 0) {
   
   mesh3d_mesh(humface,position = c(0,-0.3,0),scale = 1/70,
               material=material_list(diffuse="dodgerblue4", type="phong", shininess=20,
-              ambient = "dodgerblue4", ambient_intensity=0.3)) \%>\%
+              ambient = "dodgerblue4", ambient_intensity=0.3)) |>
     rasterize_scene(lookat = c(0,0.5,1), light_info = directional_light(c(1,0.5,1)))
 }
 }

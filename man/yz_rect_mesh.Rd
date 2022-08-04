@@ -38,16 +38,16 @@ options("cores"=1)
 }
 
 \donttest{
-generate_cornell_mesh() \%>\%
+generate_cornell_mesh() |>
   add_shape(yz_rect_mesh(position = c(100, 100, 555/2), scale=c(1,200,200), angle=c(0,0,0),
-             material = material_list(diffuse = "purple"))) \%>\%
+             material = material_list(diffuse = "purple"))) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }
 #Need to flip it around to see the other side
 \donttest{
-generate_cornell_mesh() \%>\%
+generate_cornell_mesh() |>
   add_shape(yz_rect_mesh(position = c(500, 100, 555/2), scale=200, angle=c(0,180,0),
-             material = material_list(diffuse = "purple"))) \%>\%
+             material = material_list(diffuse = "purple"))) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }
 }

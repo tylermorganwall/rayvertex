@@ -41,7 +41,8 @@ rasterize_scene(
   bloom = FALSE,
   antialias_lines = TRUE,
   environment_map = "",
-  background_sharpness = 1
+  background_sharpness = 1,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -125,6 +126,8 @@ materials in the scene, along with the background.}
 
 \item{background_sharpness}{Default `1.0`. A number greater than zero but less than one indicating the sharpness
 of the background image.}
+
+\item{verbose}{Default `FALSE`. Prints out timing information.}
 }
 \value{
 Rasterized image.
@@ -143,9 +146,9 @@ rasterize_scene(cube_mesh(),lookfrom=c(2,4,10),
               light_info = directional_light(direction=c(0.5,1,0.7)))
 }
 #Flatten the cube, translate downwards, and set to grey
-base_model = cube_mesh() \%>\% 
- scale_mesh(scale=c(5,0.2,5)) \%>\%
- translate_mesh(c(0,-0.1,0)) \%>\% 
+base_model = cube_mesh() |>
+ scale_mesh(scale=c(5,0.2,5)) |>
+ translate_mesh(c(0,-0.1,0)) |>
  set_material(diffuse="grey80") 
 
 \donttest{
@@ -154,9 +157,9 @@ rasterize_scene(base_model, lookfrom=c(2,4,10),
 }
 
 #load the R OBJ file, scale it down, color it blue, and add it to the grey base
-r_model = obj_mesh(r_obj()) \%>\% 
- scale_mesh(scale=0.5) \%>\% 
- set_material(diffuse="dodgerblue") \%>\% 
+r_model = obj_mesh(r_obj()) |>
+ scale_mesh(scale=0.5) |>
+ set_material(diffuse="dodgerblue") |>
  add_shape(base_model)
  
 \donttest{
@@ -178,16 +181,16 @@ rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 }
 
 #Add some more directional lights and change their color
-lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 1) \%>\% 
-           add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 1)) \%>\% 
+lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 1) |>
+           add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 1)) |>
            add_light(directional_light(c(2,4,10),color = "white",intensity = 0.5))
 \donttest{
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
               light_info = lights)
 }
 #Add some point lights
-lights_p = lights \%>\% 
- add_light(point_light(position=c(-1,1,0),color="red", intensity=2)) \%>\% 
+lights_p = lights |>
+ add_light(point_light(position=c(-1,1,0),color="red", intensity=2)) |>
  add_light(point_light(position=c(1,1,0),color="purple", intensity=2)) 
 \donttest{
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,

@@ -44,8 +44,8 @@ options("cores"=1)
 }
 #Generate a segment in the cornell box. 
 \donttest{
-generate_cornell_mesh() \%>\%
-  add_shape(segment_mesh(start = c(100, 100, 100), end = c(455, 455, 455), radius = 50)) \%>\%
+generate_cornell_mesh() |>
+  add_shape(segment_mesh(start = c(100, 100, 100), end = c(455, 455, 455), radius = 50)) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }
 
@@ -62,39 +62,39 @@ for(i in 1:(length(xvals) - 1)) {
                             material = material_list(diffuse="purple", type="phong")))
 }
 \donttest{
-generate_cornell_mesh() \%>\% 
-  add_shape(scene_list) \%>\%
+generate_cornell_mesh() |> 
+  add_shape(scene_list) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }
 
 #Draw the outline of a cube:
 
-cube_outline = segment_mesh(start = c(100, 100, 100), end = c(100, 100, 455), radius = 10) \%>\%
-  add_shape(segment_mesh(start = c(100, 100, 100), end = c(100, 455, 100), radius = 10)) \%>\%
-  add_shape(segment_mesh(start = c(100, 100, 100), end = c(455, 100, 100), radius = 10)) \%>\%
-  add_shape(segment_mesh(start = c(100, 100, 455), end = c(100, 455, 455), radius = 10)) \%>\%
-  add_shape(segment_mesh(start = c(100, 100, 455), end = c(455, 100, 455), radius = 10)) \%>\%
-  add_shape(segment_mesh(start = c(100, 455, 455), end = c(100, 455, 100), radius = 10)) \%>\%
-  add_shape(segment_mesh(start = c(100, 455, 455), end = c(455, 455, 455), radius = 10)) \%>\%
-  add_shape(segment_mesh(start = c(455, 455, 100), end = c(455, 100, 100), radius = 10)) \%>\%
-  add_shape(segment_mesh(start = c(455, 455, 100), end = c(455, 455, 455), radius = 10)) \%>\%
-  add_shape(segment_mesh(start = c(455, 100, 100), end = c(455, 100, 455), radius = 10)) \%>\%
-  add_shape(segment_mesh(start = c(455, 100, 455), end = c(455, 455, 455), radius = 10)) \%>\%
+cube_outline = segment_mesh(start = c(100, 100, 100), end = c(100, 100, 455), radius = 10) |>
+  add_shape(segment_mesh(start = c(100, 100, 100), end = c(100, 455, 100), radius = 10)) |>
+  add_shape(segment_mesh(start = c(100, 100, 100), end = c(455, 100, 100), radius = 10)) |>
+  add_shape(segment_mesh(start = c(100, 100, 455), end = c(100, 455, 455), radius = 10)) |>
+  add_shape(segment_mesh(start = c(100, 100, 455), end = c(455, 100, 455), radius = 10)) |>
+  add_shape(segment_mesh(start = c(100, 455, 455), end = c(100, 455, 100), radius = 10)) |>
+  add_shape(segment_mesh(start = c(100, 455, 455), end = c(455, 455, 455), radius = 10)) |>
+  add_shape(segment_mesh(start = c(455, 455, 100), end = c(455, 100, 100), radius = 10)) |>
+  add_shape(segment_mesh(start = c(455, 455, 100), end = c(455, 455, 455), radius = 10)) |>
+  add_shape(segment_mesh(start = c(455, 100, 100), end = c(455, 100, 455), radius = 10)) |>
+  add_shape(segment_mesh(start = c(455, 100, 455), end = c(455, 455, 455), radius = 10)) |>
   add_shape(segment_mesh(start = c(100, 455, 100), end = c(455, 455, 100), radius = 10))
 
 \donttest{
-generate_cornell_mesh() \%>\%
-  add_shape(set_material(cube_outline,diffuse="dodgerblue",type="phong")) \%>\%
+generate_cornell_mesh() |>
+  add_shape(set_material(cube_outline,diffuse="dodgerblue",type="phong")) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }
 
 #Shrink and rotate the cube
 \donttest{
-generate_cornell_mesh() \%>\%
+generate_cornell_mesh() |>
   add_shape(
     scale_mesh(rotate_mesh(set_material(cube_outline,diffuse="dodgerblue",type="phong"),
                 angle=c(45,45,45), pivot_point=c(555/2,555/2,555/2)),0.5,
-                center=c(555/2,555/2,555/2))) \%>\%
+                center=c(555/2,555/2,555/2))) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }
 }

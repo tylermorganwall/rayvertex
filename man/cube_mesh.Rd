@@ -38,25 +38,25 @@ options("cores"=1)
 }
 #Generate a cube
 \donttest{
-generate_cornell_mesh() \%>\%
-  add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100)) \%>\%
+generate_cornell_mesh() |>
+  add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100)) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
 
 #Generate a blue rotated cube 
 \donttest{
-generate_cornell_mesh() \%>\%
+generate_cornell_mesh() |>
   add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100, angle=c(0,45,0),
-                      material = material_list(diffuse="dodgerblue"))) \%>\%
+                      material = material_list(diffuse="dodgerblue"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
 
 #Generate a scaled, blue rotated cube 
 \donttest{
-generate_cornell_mesh() \%>\%
+generate_cornell_mesh() |>
   add_shape(cube_mesh(position = c(555/2, 100, 555/2), angle=c(0,45,0),
                       scale = c(2,0.5,0.8)*100,
-                      material = material_list(diffuse="dodgerblue"))) \%>\%
+                      material = material_list(diffuse="dodgerblue"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
 }

@@ -2,9 +2,7 @@
 % Please edit documentation in R/add_shape.R
 \name{add_shape}
 \alias{add_shape}
-\title{Add Shape
-
-Add shape to the scene}
+\title{Add Shape}
 \usage{
 add_shape(scene, shape)
 }
@@ -17,9 +15,7 @@ add_shape(scene, shape)
 Scene with shape added.
 }
 \description{
-Add Shape
-
-Add shape to the scene
+Add shape to the scene.
 }
 \examples{
 #Generate several spheres in the cornell box

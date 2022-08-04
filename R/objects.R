@@ -18,25 +18,25 @@
 #' }
 #' #Generate a cube
 #' \donttest{
-#' generate_cornell_mesh() %>%
-#'   add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100)) %>%
+#' generate_cornell_mesh() |>
+#'   add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100)) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 #' 
 #' #Generate a blue rotated cube 
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100, angle=c(0,45,0),
-#'                       material = material_list(diffuse="dodgerblue"))) %>%
+#'                       material = material_list(diffuse="dodgerblue"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 #' 
 #' #Generate a scaled, blue rotated cube 
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(cube_mesh(position = c(555/2, 100, 555/2), angle=c(0,45,0),
 #'                       scale = c(2,0.5,0.8)*100,
-#'                       material = material_list(diffuse="dodgerblue"))) %>%
+#'                       material = material_list(diffuse="dodgerblue"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 cube_mesh = function(position = c(0,0,0), 
@@ -45,7 +45,7 @@ cube_mesh = function(position = c(0,0,0),
                      pivot_point = c(0,0,0), 
                      order_rotation = c(1,2,3),
                      material = material_list()) {
-  obj = read_obj(system.file("extdata", "cube.txt", package="rayvertex"))
+  obj = get("cube", envir = ray_environment)
   obj = set_material(obj, material = material)
   if(any(scale != 1)) {
     obj = scale_mesh(obj, scale=scale)
@@ -82,25 +82,25 @@ cube_mesh = function(position = c(0,0,0),
 #' }
 #' #Generate a sphere in the cornell box.
 #' \donttest{
-#' generate_cornell_mesh() %>%
-#'   add_shape(sphere_mesh(position = c(555/2, 555/2, 555/2), radius = 100)) %>%
+#' generate_cornell_mesh() |>
+#'   add_shape(sphere_mesh(position = c(555/2, 555/2, 555/2), radius = 100)) |>
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
 #' 
 #' #Generate a shiny sphere in the cornell box
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(sphere_mesh(position = c(555/2, 100, 555/2), radius = 100, 
-#'                     material = material_list(diffuse = "gold",type="phong"))) %>%
+#'                     material = material_list(diffuse = "gold",type="phong"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 #' 
 #' #Generate an ellipsoid in the cornell box
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(sphere_mesh(position = c(555/2, 210, 555/2), radius = 100, 
 #'                         angle=c(0,30,0), scale = c(0.5,2,0.5),
-#'                         material = material_list(diffuse = "dodgerblue",type="phong"))) %>%
+#'                         material = material_list(diffuse = "dodgerblue",type="phong"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 sphere_mesh = function(position = c(0,0,0), 
@@ -112,11 +112,11 @@ sphere_mesh = function(position = c(0,0,0),
                        low_poly = FALSE,
                        material = material_list()) {
   if(!low_poly) {
-    obj = read_obj(system.file("extdata", "sphere.txt", package="rayvertex"))
+    obj = get("sphere", envir = ray_environment)
   } else {
-    obj = read_obj(system.file("extdata", "low_poly_sphere.txt", package="rayvertex"))
+    obj = get("low_poly_sphere", envir = ray_environment)
   }
-  obj$vertices = obj$vertices * radius
+  obj$vertices[[1]] = obj$vertices[[1]] * radius
   if(any(scale != 1)) {
     obj = scale_mesh(obj, scale=scale)
   }
@@ -157,31 +157,31 @@ sphere_mesh = function(position = c(0,0,0),
 #' }
 #' #Generate a cone
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(cone_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2),
-#'                       radius = 100)) %>%
+#'                       radius = 100)) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 #' 
 #' #Generate a blue cone with a wide base
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(cone_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2), radius=200,
-#'                       material = material_list(diffuse="dodgerblue"))) %>%
+#'                       material = material_list(diffuse="dodgerblue"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 #' 
 #' #Generate a long, thin cone
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(cone_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 400, 555/2), radius=50,
-#'                       material = material_list(diffuse="dodgerblue"))) %>%
+#'                       material = material_list(diffuse="dodgerblue"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 cone_mesh = function(start = c(0,0,0), end=c(0,1,0), 
                      radius = 0.5, direction = NA, from_center = FALSE,
                      material = material_list()) {
-  obj = read_obj(system.file("extdata", "cone.txt", package="rayvertex"))
+  obj = get("cone", envir = ray_environment)
   obj = set_material(obj, material = material)
   
   if(all(!is.na(direction)) && length(direction) == 3) {
@@ -249,43 +249,43 @@ cone_mesh = function(start = c(0,0,0), end=c(0,1,0),
 #' }
 #' #Generate an arrow
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(arrow_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2), radius_tail=50,
 #'                        radius_top = 100,
-#'                       material = material_list(diffuse="dodgerblue"))) %>%
+#'                       material = material_list(diffuse="dodgerblue"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 #' 
 #' #Generate a blue arrow with a wide tail
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(arrow_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2), radius_tail=100,
 #'                        radius_top = 150,
-#'                       material = material_list(diffuse="dodgerblue"))) %>%
+#'                       material = material_list(diffuse="dodgerblue"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 #' 
 #' #Generate a long, thin arrow and change the proportions
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(arrow_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 400, 555/2), radius_top=30,
 #'                        radius_tail = 10, tail_proportion = 0.8,
-#'                       material = material_list(diffuse="dodgerblue"))) %>%
+#'                       material = material_list(diffuse="dodgerblue"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 #' 
 #' #Change the start and end points
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(arrow_mesh(start = c(500, 20, 555/2), end = c(50, 500, 555/2), radius_top=30,
 #'                        radius_tail = 10, tail_proportion = 0.8,
-#'                       material = material_list(diffuse="dodgerblue"))) %>%
+#'                       material = material_list(diffuse="dodgerblue"))) |>
 #'   add_shape(arrow_mesh(start = c(500, 500, 500), end = c(50, 50, 50), radius_top=30,
 #'                        radius_tail = 10, tail_proportion = 0.8,
-#'                       material = material_list(diffuse="red"))) %>%
+#'                       material = material_list(diffuse="red"))) |>
 #'   add_shape(arrow_mesh(start = c(555/2, 50, 500), end = c(555/2, 50, 50), radius_top=30,
 #'                        radius_tail = 10, tail_proportion = 0.8,
-#'                       material = material_list(diffuse="green"))) %>%
+#'                       material = material_list(diffuse="green"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 arrow_mesh = function(start = c(0,0,0), end = c(0,1,0), radius_top = 0.5, radius_tail=0.25,
@@ -324,7 +324,7 @@ arrow_mesh = function(start = c(0,0,0), end = c(0,1,0), radius_top = 0.5, radius
   fulllength = sqrt(sum((end-start)^2))
   angle = c(0, -phi, theta)
   
-  obj = read_obj(system.file("extdata", "arrow.txt", package="rayvertex"))
+  obj = get("arrow", envir = ray_environment)
   obj = set_material(obj, material = material)
   if(material$type == "toon" || material$type == "toon_phong") {
     obj2 = generate_toon_outline(obj, material)
@@ -374,32 +374,32 @@ arrow_mesh = function(start = c(0,0,0), end = c(0,1,0), radius_top = 0.5, radius
 #' }
 #' #Generate a cylinder
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(cylinder_mesh(position=c(555/2,150,555/2),
-#'                           radius = 50, length=300, material = material_list(diffuse="purple"))) %>%
+#'                           radius = 50, length=300, material = material_list(diffuse="purple"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 #' 
 #' #Generate a wide, thin disk
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(cylinder_mesh(position=c(555/2,20,555/2),
-#'                           radius = 200, length=5, material = material_list(diffuse="purple"))) %>%
+#'                           radius = 200, length=5, material = material_list(diffuse="purple"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 #' 
 #' #Generate a narrow cylinder
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(cylinder_mesh(position=c(555/2,555/2,555/2),angle=c(45,-45,0),
-#'                           radius = 10, length=500, material = material_list(diffuse="purple"))) %>%
+#'                           radius = 10, length=500, material = material_list(diffuse="purple"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 #' }
 cylinder_mesh = function(position = c(0,0,0), radius = 0.5, length=1,
                          angle = c(0,0,0), 
                          pivot_point = c(0,0,0), order_rotation = c(1,2,3),
                          material = material_list()) {
-  obj = read_obj(system.file("extdata", "cylinder.txt", package="rayvertex"))
+  obj = get("cylinder", envir = ray_environment)
   obj = set_material(obj, material = material)
   obj = scale_mesh(obj, scale=c(radius,length,radius))
 
@@ -436,8 +436,8 @@ cylinder_mesh = function(position = c(0,0,0), radius = 0.5, length=1,
 #' }
 #' #Generate a segment in the cornell box. 
 #' \donttest{
-#' generate_cornell_mesh() %>%
-#'   add_shape(segment_mesh(start = c(100, 100, 100), end = c(455, 455, 455), radius = 50)) %>%
+#' generate_cornell_mesh() |>
+#'   add_shape(segment_mesh(start = c(100, 100, 100), end = c(455, 455, 455), radius = 50)) |>
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
 #'
@@ -454,39 +454,39 @@ cylinder_mesh = function(position = c(0,0,0), radius = 0.5, length=1,
 #'                             material = material_list(diffuse="purple", type="phong")))
 #' }
 #' \donttest{
-#' generate_cornell_mesh() %>% 
-#'   add_shape(scene_list) %>%
+#' generate_cornell_mesh() |> 
+#'   add_shape(scene_list) |>
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
 #'
 #' #Draw the outline of a cube:
 #' 
-#' cube_outline = segment_mesh(start = c(100, 100, 100), end = c(100, 100, 455), radius = 10) %>%
-#'   add_shape(segment_mesh(start = c(100, 100, 100), end = c(100, 455, 100), radius = 10)) %>%
-#'   add_shape(segment_mesh(start = c(100, 100, 100), end = c(455, 100, 100), radius = 10)) %>%
-#'   add_shape(segment_mesh(start = c(100, 100, 455), end = c(100, 455, 455), radius = 10)) %>%
-#'   add_shape(segment_mesh(start = c(100, 100, 455), end = c(455, 100, 455), radius = 10)) %>%
-#'   add_shape(segment_mesh(start = c(100, 455, 455), end = c(100, 455, 100), radius = 10)) %>%
-#'   add_shape(segment_mesh(start = c(100, 455, 455), end = c(455, 455, 455), radius = 10)) %>%
-#'   add_shape(segment_mesh(start = c(455, 455, 100), end = c(455, 100, 100), radius = 10)) %>%
-#'   add_shape(segment_mesh(start = c(455, 455, 100), end = c(455, 455, 455), radius = 10)) %>%
-#'   add_shape(segment_mesh(start = c(455, 100, 100), end = c(455, 100, 455), radius = 10)) %>%
-#'   add_shape(segment_mesh(start = c(455, 100, 455), end = c(455, 455, 455), radius = 10)) %>%
+#' cube_outline = segment_mesh(start = c(100, 100, 100), end = c(100, 100, 455), radius = 10) |>
+#'   add_shape(segment_mesh(start = c(100, 100, 100), end = c(100, 455, 100), radius = 10)) |>
+#'   add_shape(segment_mesh(start = c(100, 100, 100), end = c(455, 100, 100), radius = 10)) |>
+#'   add_shape(segment_mesh(start = c(100, 100, 455), end = c(100, 455, 455), radius = 10)) |>
+#'   add_shape(segment_mesh(start = c(100, 100, 455), end = c(455, 100, 455), radius = 10)) |>
+#'   add_shape(segment_mesh(start = c(100, 455, 455), end = c(100, 455, 100), radius = 10)) |>
+#'   add_shape(segment_mesh(start = c(100, 455, 455), end = c(455, 455, 455), radius = 10)) |>
+#'   add_shape(segment_mesh(start = c(455, 455, 100), end = c(455, 100, 100), radius = 10)) |>
+#'   add_shape(segment_mesh(start = c(455, 455, 100), end = c(455, 455, 455), radius = 10)) |>
+#'   add_shape(segment_mesh(start = c(455, 100, 100), end = c(455, 100, 455), radius = 10)) |>
+#'   add_shape(segment_mesh(start = c(455, 100, 455), end = c(455, 455, 455), radius = 10)) |>
 #'   add_shape(segment_mesh(start = c(100, 455, 100), end = c(455, 455, 100), radius = 10))
 #' 
 #' \donttest{
-#' generate_cornell_mesh() %>%
-#'   add_shape(set_material(cube_outline,diffuse="dodgerblue",type="phong")) %>%
+#' generate_cornell_mesh() |>
+#'   add_shape(set_material(cube_outline,diffuse="dodgerblue",type="phong")) |>
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
 #' 
 #' #Shrink and rotate the cube
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(
 #'     scale_mesh(rotate_mesh(set_material(cube_outline,diffuse="dodgerblue",type="phong"),
 #'                 angle=c(45,45,45), pivot_point=c(555/2,555/2,555/2)),0.5,
-#'                 center=c(555/2,555/2,555/2))) %>%
+#'                 center=c(555/2,555/2,555/2))) |>
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
 segment_mesh = function(start = c(0,-1,0), end = c(0,1,0), radius = 0.5,
@@ -547,17 +547,17 @@ segment_mesh = function(start = c(0,-1,0), end = c(0,1,0), radius = 0.5,
 #' options("cores"=1)
 #' }
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(xy_rect_mesh(position = c(555/2, 100, 555/2), scale=200,
-#'              material = material_list(diffuse = "purple"),angle=c(0,180,0))) %>%
+#'              material = material_list(diffuse = "purple"),angle=c(0,180,0))) |>
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
 #' 
 #' #Rotate the plane and scale 
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(xy_rect_mesh(position = c(555/2, 100, 555/2), scale=c(200,100,1), angle=c(0,180,0),
-#'              material = material_list(diffuse = "purple"))) %>%
+#'              material = material_list(diffuse = "purple"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
 xy_rect_mesh = function(position = c(0,0,0), 
@@ -566,7 +566,7 @@ xy_rect_mesh = function(position = c(0,0,0),
                         pivot_point = c(0,0,0), 
                         order_rotation = c(1,2,3),
                         material = material_list()) {
-  obj = read_obj(system.file("extdata", "xy_plane.txt", package="rayvertex"))
+  obj = get("xy_plane", envir = ray_environment)
   obj = set_material(obj, material = material)
   
   if(any(scale != 1)) {
@@ -599,23 +599,23 @@ xy_rect_mesh = function(position = c(0,0,0),
 #' options("cores"=1)
 #' }
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(xz_rect_mesh(position = c(555/2, 100, 555/2), scale=200,
-#'              material = material_list(diffuse = "purple"))) %>%
+#'              material = material_list(diffuse = "purple"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
 #' 
 #' #Rotate the plane and scale 
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(xz_rect_mesh(position = c(555/2, 100, 555/2), scale=c(200,1,100), angle=c(0,30,0),
-#'              material = material_list(diffuse = "purple"))) %>%
+#'              material = material_list(diffuse = "purple"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
 xz_rect_mesh = function(position = c(0,0,0), scale = c(1,1,1), 
                          angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3),
                         material = material_list()) {
-  obj = read_obj(system.file("extdata", "xz_plane.txt", package="rayvertex"))
+  obj = get("xz_plane", envir = ray_environment)
   if(any(scale != 1)) {
     obj = scale_mesh(obj, scale=scale)
   }
@@ -644,23 +644,23 @@ xz_rect_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #' }
 #' 
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(yz_rect_mesh(position = c(100, 100, 555/2), scale=c(1,200,200), angle=c(0,0,0),
-#'              material = material_list(diffuse = "purple"))) %>%
+#'              material = material_list(diffuse = "purple"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
 #' #Need to flip it around to see the other side
 #' \donttest{
-#' generate_cornell_mesh() %>%
+#' generate_cornell_mesh() |>
 #'   add_shape(yz_rect_mesh(position = c(500, 100, 555/2), scale=200, angle=c(0,180,0),
-#'              material = material_list(diffuse = "purple"))) %>%
+#'              material = material_list(diffuse = "purple"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #' }
 yz_rect_mesh = function(position = c(0,0,0), scale = c(1,1,1), 
                         angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3),
                         material = material_list()) {
-  obj = read_obj(system.file("extdata", "yz_plane.txt", package="rayvertex"))
-
+  obj = get("yz_plane", envir = ray_environment)
+  
   if(any(scale != 1)) {
     obj = scale_mesh(obj, scale=scale)
   }
@@ -691,31 +691,31 @@ yz_rect_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #' }
 #' #Generate and render the default Cornell box and add an object.
 #' \donttest{
-#' generate_cornell_mesh() %>% 
+#' generate_cornell_mesh() |> 
 #'   rasterize_scene()
 #' }
 #' #Add an object to the scene
 #'\donttest{
-#' generate_cornell_mesh() %>% 
-#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) %>% 
+#' generate_cornell_mesh() |> 
+#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
 #'   rasterize_scene()
 #'}
 #' #Turn off the ceiling so the default directional light reaches inside the box
 #'\donttest{
-#' generate_cornell_mesh(ceiling=FALSE) %>% 
-#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) %>% 
+#' generate_cornell_mesh(ceiling=FALSE) |> 
+#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
 #'   rasterize_scene()
 #'}
 #' #Adjust the light to the front
 #' \donttest{
-#' generate_cornell_mesh(ceiling=FALSE) %>% 
-#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) %>% 
+#' generate_cornell_mesh(ceiling=FALSE) |> 
+#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
 #'   rasterize_scene(light_info = directional_light(direction=c(0,1,-1)))
 #' }
 #' #Change the color palette
 #'\donttest{
-#' generate_cornell_mesh(ceiling=FALSE,leftcolor="purple", rightcolor="yellow") %>% 
-#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) %>% 
+#' generate_cornell_mesh(ceiling=FALSE,leftcolor="purple", rightcolor="yellow") |> 
+#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
 #'   rasterize_scene(light_info = directional_light(direction=c(0,1,-1)))
 #'}
 generate_cornell_mesh = function(leftcolor = "#1f7326", 
@@ -724,22 +724,22 @@ generate_cornell_mesh = function(leftcolor = "#1f7326",
   ambient_intensity = 0.25
   if(ceiling) {
     scene = set_material(cube_mesh(position=c(555,555/2+2.5,555/2),scale=c(10,550,555)),
-                         diffuse=leftcolor,ambient = leftcolor, ambient_intensity=ambient_intensity) %>%
+                         diffuse=leftcolor,ambient = leftcolor, ambient_intensity=ambient_intensity) |>
       add_shape(set_material(cube_mesh(position=c(0,555/2+2.5,555/2),angle=c(0,180,0),scale=c(10,555,555)),
-                             diffuse=rightcolor,ambient = rightcolor, ambient_intensity=ambient_intensity)) %>%
+                             diffuse=rightcolor,ambient = rightcolor, ambient_intensity=ambient_intensity)) |>
       add_shape(set_material(cube_mesh(position=c(555/2,555+5,555/2),scale=c(560,10,560),angle=c(0,0,180)),
-                             diffuse=roomcolor,ambient = roomcolor, ambient_intensity=ambient_intensity)) %>%
+                             diffuse=roomcolor,ambient = roomcolor, ambient_intensity=ambient_intensity)) |>
       add_shape(set_material(cube_mesh(position=c(555/2,0,555/2),scale=c(560,10,560)),
-                             diffuse=roomcolor,ambient = roomcolor, ambient_intensity=ambient_intensity)) %>% 
+                             diffuse=roomcolor,ambient = roomcolor, ambient_intensity=ambient_intensity)) |> 
       add_shape(set_material(cube_mesh(position=c(555/2,555/2,555),scale=c(560,555,10)),
                              diffuse=roomcolor,ambient = roomcolor, ambient_intensity=ambient_intensity))
   } else {
     scene = set_material(cube_mesh(position=c(555,555/2+2.5,555/2),scale=c(10,550,555)),
-                         diffuse=leftcolor,ambient = leftcolor, ambient_intensity=ambient_intensity) %>%
+                         diffuse=leftcolor,ambient = leftcolor, ambient_intensity=ambient_intensity) |>
       add_shape(set_material(cube_mesh(position=c(0,555/2+2.5,555/2),angle=c(0,180,0),scale=c(10,550,555)),
-                             diffuse=rightcolor,ambient = rightcolor, ambient_intensity=ambient_intensity)) %>%
+                             diffuse=rightcolor,ambient = rightcolor, ambient_intensity=ambient_intensity)) |>
       add_shape(set_material(cube_mesh(position=c(555/2,0,555/2),scale=c(560,10,560)),
-                             diffuse=roomcolor,ambient = roomcolor, ambient_intensity=ambient_intensity)) %>% 
+                             diffuse=roomcolor,ambient = roomcolor, ambient_intensity=ambient_intensity)) |> 
       add_shape(set_material(cube_mesh(position=c(555/2,555/2,555),scale=c(560,555,10)),
                              diffuse=roomcolor,ambient = roomcolor, ambient_intensity=ambient_intensity))
   }
@@ -768,8 +768,8 @@ generate_cornell_mesh = function(leftcolor = "#1f7326",
 #' }
 #' #Read in the provided 3D R mesh
 #' \donttest{
-#' generate_cornell_mesh(ceiling=FALSE) %>% 
-#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) %>% 
+#' generate_cornell_mesh(ceiling=FALSE) |> 
+#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
 #'   rasterize_scene(light_info = directional_light(direction=c(0.2,0.5,-1)))
 #'   }
 obj_mesh = function(filename, center = FALSE, position = c(0,0,0), scale = c(1,1,1), 
@@ -818,16 +818,16 @@ obj_mesh = function(filename, center = FALSE, position = c(0,0,0), scale = c(1,1
 #' }
 #'#Plot a group of tori in the cornell box
 #'\donttest{
-#'generate_cornell_mesh(ceiling = FALSE) %>% 
+#'generate_cornell_mesh(ceiling = FALSE) |> 
 #'  add_shape(torus_mesh(position=c(555/2,555/3,555/2), angle=c(20,0,45),
 #'                       radius=120, ring_radius = 40,
 #'                       material = material_list(diffuse="dodgerblue4",type="phong",
-#'                                                ambient="dodgerblue4",ambient_intensity=0.2))) %>%
+#'                                                ambient="dodgerblue4",ambient_intensity=0.2))) |>
 #'  add_shape(torus_mesh(position=c(400,400,555/2), angle=c(20,200,45),radius=80, ring_radius = 30,
 #'                       material=material_list(diffuse="orange",type="phong",
-#'                                              ambient="orange",ambient_intensity=0.2))) %>%
+#'                                              ambient="orange",ambient_intensity=0.2))) |>
 #'  add_shape(torus_mesh(position=c(150,450,555/2), angle=c(60,180,0),radius=40, ring_radius = 20,
-#'                       material=material_list(diffuse="red",type="phong"))) %>%
+#'                       material=material_list(diffuse="red",type="phong"))) |>
 #'  rasterize_scene(light_info = directional_light(c(0,1,-2)))
 #'  }
 torus_mesh = function(position = c(0,0,0), scale = c(1,1,1), 
@@ -944,7 +944,7 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #'   
 #'   mesh3d_mesh(humface,position = c(0,-0.3,0),scale = 1/70,
 #'               material=material_list(diffuse="dodgerblue4", type="phong", shininess=20,
-#'               ambient = "dodgerblue4", ambient_intensity=0.3)) %>%
+#'               ambient = "dodgerblue4", ambient_intensity=0.3)) |>
 #'     rasterize_scene(lookat = c(0,0.5,1), light_info = directional_light(c(1,0.5,1)))
 #' }
 #' }
@@ -1025,29 +1025,29 @@ mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,
 #' }
 #' #Generate a label in the Cornell box.
 #' \donttest{
-#' generate_cornell_mesh() %>% 
+#' generate_cornell_mesh() |> 
 #'   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),angle=c(0,180,0),
-#'   text_height=60)) %>% 
+#'   text_height=60)) |> 
 #'   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
 #'   
 #' #Change the orientation
-#' generate_cornell_mesh() %>% 
+#' generate_cornell_mesh() |> 
 #'   add_shape(text3d_mesh(label="YZ Plane", position=c(540,555/2,555/2),text_height=100,
-#'                     orientation = "yz",angle=c(0,180,0))) %>% 
+#'                     orientation = "yz",angle=c(0,180,0))) |> 
 #'   add_shape(text3d_mesh(label="XY Plane", position=c(555/2,555/2,540),text_height=100,
-#'                     orientation = "xy", angle=c(0,180,0))) %>% 
+#'                     orientation = "xy", angle=c(0,180,0))) |> 
 #'   add_shape(text3d_mesh(label="XZ Plane", position=c(555/2,15,555/2),text_height=100,
-#'                     orientation = "xz", angle=c(0,0,0))) %>% 
+#'                     orientation = "xz", angle=c(0,0,0))) |> 
 #'   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
 #'   
 #' #Add an label in front of a sphere
-#' generate_cornell_mesh() %>% 
+#' generate_cornell_mesh() |> 
 #'   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),text_height=60,
-#'                     color="grey20",angle=c(0,180,0))) %>% 
+#'                     color="grey20",angle=c(0,180,0))) |> 
 #'   add_shape(text3d_mesh(label="Sphere", position=c(555/2,100,100),text_height=30,
-#'                     color="white",angle=c(0,180,0))) %>% 
+#'                     color="white",angle=c(0,180,0))) |> 
 #'   add_shape(sphere_mesh(radius=100,position=c(555/2,100,555/2),
-#'                     material=material_list(diffuse="purple",type="phong"))) %>%                  
+#'                     material=material_list(diffuse="purple",type="phong"))) |>                  
 #'   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
 #'   
 #'   
@@ -1058,8 +1058,8 @@ mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,
 #'                                              color="yellow", text_height = 50,
 #'                                              angle=c(0,180,0)))
 #' }
-#' generate_cornell_mesh() %>% 
-#'   add_shape(bee_scene) %>%                   
+#' generate_cornell_mesh() |> 
+#'   add_shape(bee_scene) |>                   
 #'   rasterize_scene(light=directional_light(c(0,1,-1)))
 #' }
 text3d_mesh = function(label, position = c(0,0,0), text_height = 1, orientation = "xy",
