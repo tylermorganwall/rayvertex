@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://www.rayvertex.com/404.html</loc>
+  </url>
+  <url>
+    <loc>https://www.rayvertex.com/CODE_OF_CONDUCT.html</loc>
+  </url>
+  <url>
+    <loc>https://www.rayvertex.com/CONTRIBUTING.html</loc>
+  </url>
+  <url>
+    <loc>https://www.rayvertex.com/authors.html</loc>
+  </url>
+  <url>
     <loc>https://www.rayvertex.com/index.html</loc>
   </url>
   <url>
@@ -64,6 +76,15 @@
     <loc>https://www.rayvertex.com/reference/get_file_type.html</loc>
   </url>
   <url>
+    <loc>https://www.rayvertex.com/reference/get_time.html</loc>
+  </url>
+  <url>
+    <loc>https://www.rayvertex.com/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://www.rayvertex.com/reference/init_time.html</loc>
+  </url>
+  <url>
     <loc>https://www.rayvertex.com/reference/material_list.html</loc>
   </url>
   <url>
@@ -76,13 +97,16 @@
     <loc>https://www.rayvertex.com/reference/obj_mesh.html</loc>
   </url>
   <url>
-    <loc>https://www.rayvertex.com/reference/pipe.html</loc>
-  </url>
-  <url>
     <loc>https://www.rayvertex.com/reference/ply_mesh.html</loc>
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/point_light.html</loc>
+  </url>
+  <url>
+    <loc>https://www.rayvertex.com/reference/preprocess_scene.html</loc>
+  </url>
+  <url>
+    <loc>https://www.rayvertex.com/reference/print_time.html</loc>
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/r_obj.html</loc>
@@ -92,9 +116,6 @@
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/rasterize_scene.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/raysterizer-package.html</loc>
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/read_obj.html</loc>
@@ -113,6 +134,9 @@
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/rotate_mesh.html</loc>
+  </url>
+  <url>
+    <loc>https://www.rayvertex.com/reference/run_documentation.html</loc>
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/save_png.html</loc>
