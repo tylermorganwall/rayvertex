@@ -100,12 +100,9 @@ Shape with new material settings
 Change individual material properties, leaving others alone.
 }
 \examples{
-\dontshow{
-options("cores"=1)
-}
+if(rayvertex:::run_documentation()) {
 p_sphere = sphere_mesh(position=c(555/2,555/2,555/2), 
                       radius=40,material=material_list(diffuse="purple"))
-\donttest{            
 generate_cornell_mesh() |>
  add_shape(p_sphere) |>
  add_shape(change_material(translate_mesh(p_sphere,c(200,0,0)),diffuse="red")) |>

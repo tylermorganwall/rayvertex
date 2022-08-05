@@ -16,11 +16,8 @@ Centered mesh
 Centers the mesh at the origin.
 }
 \examples{
-\dontshow{
-options("cores"=1)
-}
+if(rayvertex:::run_documentation()) {
 #Center the Cornell box and the R OBJ at the origin
-\donttest{
 center_mesh(generate_cornell_mesh()) |>
   add_shape(center_mesh(obj_mesh(r_obj(),scale=100,angle=c(0,180,0)))) |>
   rasterize_scene(lookfrom=c(0,0,-1100),fov=40,lookat=c(0,0,0),

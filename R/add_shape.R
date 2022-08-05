@@ -9,14 +9,11 @@
 #'@export
 #'
 #'@examples
+#'if(rayvertex:::run_documentation()) {
 #'#Generate several spheres in the cornell box
-#'\dontshow{
-#' options("cores"=1)
-#' }
 #'scene = generate_cornell_mesh()
 #'set.seed(1)
 #'
-#'\donttest{
 #'for(i in 1:30) {
 #'  col = hsv(runif(1))
 #'  scene = add_shape(scene, sphere_mesh(position=runif(3)*400+155/2,
@@ -32,58 +29,15 @@ add_shape = function(scene, shape) {
   scene$normals   = c(scene$normals  , shape$normals)
   scene$texcoords = c(scene$texcoords, shape$texcoords)
   scene$materials = c(scene$materials, shape$materials)
-  # if(!is.null(attr(shape,"cornell")) || !is.null(attr(scene,"cornell"))) {
-  #   attr(scene,"cornell") = TRUE
-  #   if(!is.null(attr(shape,"cornell"))) {
-  #     attr(shape,"cornell_light") = attr(shape,"cornell_light")
-  #   } else {
-  #     attr(scene,"cornell_light") = attr(scene,"cornell_light")
-  #   }
-  # }
+  if(!is.null(attr(shape,"cornell")) || !is.null(attr(scene,"cornell"))) {
+    attr(scene,"cornell") = TRUE
+    if(!is.null(attr(shape,"cornell"))) {
+      attr(scene,"cornell_light") = attr(shape,"cornell_light")
+    } else {
+      attr(scene,"cornell_light") = attr(scene,"cornell_light")
+    }
+  }
   return(scene)
-  # scene_n = length(scene)
-  # shape_n = length(shape)
-  # 
-  # if(length(scene_n) == 0) {
-  #   return(shape)
-  # }
-  # if(length(shape_n) == 0) {
-  #   return(scene)
-  # }
-  
-  # 
-  # max_vertices = nrow(scene$vertices)
-  # max_norms = nrow(scene$normals)
-  # max_tex = nrow(scene$texcoords)
-  # max_material = length(scene$materials)
-  # 
-  # 
-  # for(i in seq_len(length(shape$shapes))) {
-  #   shape$shapes[[i]]$indices      = shape$shapes[[i]]$indices      + max_vertices
-  #   shape$shapes[[i]]$tex_indices  = shape$shapes[[i]]$tex_indices  + max_tex
-  #   shape$shapes[[i]]$norm_indices = shape$shapes[[i]]$norm_indices + max_norms
-  #   shape$shapes[[i]]$material_ids = ifelse(shape$shapes[[i]]$material_ids != -1, 
-  #                                           shape$shapes[[i]]$material_ids + max_material,
-  #                                           -1)
-  # }
-  # scene$shapes = c(scene$shapes,shape$shapes)
-  # 
-  # scene$vertices  = rbind(scene$vertices,  shape$vertices)
-  # scene$normals   = rbind(scene$normals,   shape$normals)
-  # scene$texcoords = rbind(scene$texcoords, shape$texcoords)
-  # 
-  # scene$materials = c(scene$materials,shape$materials)
-  # scene$material_hashes = c(scene$material_hashes,shape$material_hashes)
-  # 
-  # if(!is.null(attr(shape,"cornell")) || !is.null(attr(scene,"cornell"))) {
-  #   attr(scene,"cornell") = TRUE
-  #   if(!is.null(attr(shape,"cornell"))) {
-  #     attr(shape,"cornell_light") = attr(shape,"cornell_light")
-  #   } else {
-  #     attr(scene,"cornell_light") = attr(scene,"cornell_light")
-  #   }
-  # }
-  # return(scene)
 }
 
 #'@title Preprocess Scene
@@ -212,18 +166,15 @@ merge_shapes = function(scene) {
 #'@return Translated mesh
 #'@export
 #'@examples
-#'\dontshow{
-#' options("cores"=1)
-#' }
+#'if(rayvertex:::run_documentation()) {
 #'#Translate a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
-#' \donttest{
 #'generate_cornell_mesh() |>
 #'  add_shape(translate_mesh(robj,c(400,0,155))) |>
 #'  add_shape(translate_mesh(robj,c(555/2,100,555/2))) |>
 #'  add_shape(translate_mesh(robj,c(155,200,400))) |>
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
-#'  }
+#'}
 translate_mesh = function(mesh, position = c(0,0,0)) {
   for(j in seq_len(length(mesh$shapes))) {
     mesh$vertices[[j]][,1]  = mesh$vertices[[j]][,1] + position[1]
@@ -242,12 +193,9 @@ translate_mesh = function(mesh, position = c(0,0,0)) {
 #'@return Scaled mesh
 #'@export
 #'@examples
-#' \dontshow{
-#' options("cores"=1)
-#' }
+#'if(rayvertex:::run_documentation()) {
 #'#Scale a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
-#' \donttest{
 #'
 #'generate_cornell_mesh() |>
 #' add_shape(scale_mesh(translate_mesh(robj,c(400,0,155)),0.5, center=c(400,0,155))) |>
@@ -286,11 +234,8 @@ scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
 #'@return Centered mesh
 #'@export
 #'@examples
-#' \dontshow{
-#' options("cores"=1)
-#' }
+#'if(rayvertex:::run_documentation()) {
 #' #Center the Cornell box and the R OBJ at the origin
-#' \donttest{
 #' center_mesh(generate_cornell_mesh()) |>
 #'   add_shape(center_mesh(obj_mesh(r_obj(),scale=100,angle=c(0,180,0)))) |>
 #'   rasterize_scene(lookfrom=c(0,0,-1100),fov=40,lookat=c(0,0,0),
@@ -298,8 +243,16 @@ scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
 #'       add_light(point_light(c(0,450,0),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)))
 #' }
 center_mesh = function(mesh) {
-  center = apply(apply(mesh$vertices,2,range),2,mean)
+  center_mat = matrix(c(Inf,-Inf),nrow=2,ncol=3)
+  for(j in seq_len(length(mesh$vertices))) {
+    center_tmp = apply(mesh$vertices[[j]],2,range)
+    center_mat[1,] = pmin(center_tmp[1,],center_mat[1,])
+    center_mat[2,] = pmax(center_tmp[2,],center_mat[2,])
+  }
+  center = apply(center_mat,2,mean)
+  
   mesh = translate_mesh(mesh, -center)
+  
   return(mesh)
 }
 
@@ -331,13 +284,10 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'@return Rotated Mesh
 #'@export
 #'@examples
-#' \dontshow{
-#' options("cores"=1)
-#' }
+#'if(rayvertex:::run_documentation()) {
 #'#Rotate a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 #'
-#'\donttest{
 #'generate_cornell_mesh() |>
 #' add_shape(rotate_mesh(translate_mesh(robj,c(400,0,155)),c(0,30,0), 
 #'                       pivot_point=c(400,0,155))) |>
@@ -410,11 +360,8 @@ rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rot
 #'@return Shape with new material
 #'@export
 #'@examples
-#' \dontshow{
-#' options("cores"=1)
-#' }
+#'if(rayvertex:::run_documentation()) {
 #'#Set the material of an object
-#'\donttest{
 #'generate_cornell_mesh() |>
 #'  add_shape(set_material(sphere_mesh(position=c(400,555/2,555/2),radius=40), 
 #'                         diffuse="purple", type="phong")) |>
@@ -639,12 +586,9 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'@return Shape with new material settings
 #'@export
 #'@examples
-#' \dontshow{
-#' options("cores"=1)
-#' }
+#'if(rayvertex:::run_documentation()) {
 #'p_sphere = sphere_mesh(position=c(555/2,555/2,555/2), 
 #'                       radius=40,material=material_list(diffuse="purple"))
-#'\donttest{            
 #'generate_cornell_mesh() |>
 #'  add_shape(p_sphere) |>
 #'  add_shape(change_material(translate_mesh(p_sphere,c(200,0,0)),diffuse="red")) |>
@@ -823,16 +767,14 @@ change_material = function(mesh, id = NULL,
 #'@return List of material properties.
 #'@export
 #'@examples
-#' \dontshow{
-#' options("cores"=1)
-#' }
+#'if(rayvertex:::run_documentation()) {
 #'mat_prop = material_list(diffuse="purple", type="phong", shininess=20,
 #'                         ambient="purple", ambient_intensity=0.3,
 #'                         specular = "red", specular_intensity=2)
 #'                         
 #'p_sphere = sphere_mesh(position=c(555/2,555/2,555/2), 
 #'                       radius=40,material=mat_prop)
-#'\donttest{
+#'                       
 #'rasterize_scene(p_sphere, light_info=directional_light(direction=c(0.1,0.6,-1)))
 #'}
 material_list = function(diffuse                   = c(0.8,0.8,0.8),

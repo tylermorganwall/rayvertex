@@ -18,14 +18,11 @@ Scene with shape added.
 Add shape to the scene.
 }
 \examples{
+if(rayvertex:::run_documentation()) {
 #Generate several spheres in the cornell box
-\dontshow{
-options("cores"=1)
-}
 scene = generate_cornell_mesh()
 set.seed(1)
 
-\donttest{
 for(i in 1:30) {
  col = hsv(runif(1))
  scene = add_shape(scene, sphere_mesh(position=runif(3)*400+155/2,

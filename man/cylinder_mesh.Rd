@@ -36,27 +36,22 @@ List describing the mesh.
 Cylinder 3D Model
 }
 \examples{
-\dontshow{
-options("cores"=1)
-}
+if(rayvertex:::run_documentation()) {
 #Generate a cylinder
-\donttest{
 generate_cornell_mesh() |>
   add_shape(cylinder_mesh(position=c(555/2,150,555/2),
                           radius = 50, length=300, material = material_list(diffuse="purple"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
-
+if(rayvertex:::run_documentation()) {
 #Generate a wide, thin disk
-\donttest{
 generate_cornell_mesh() |>
   add_shape(cylinder_mesh(position=c(555/2,20,555/2),
                           radius = 200, length=5, material = material_list(diffuse="purple"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
-
+if(rayvertex:::run_documentation()) {
 #Generate a narrow cylinder
-\donttest{
 generate_cornell_mesh() |>
   add_shape(cylinder_mesh(position=c(555/2,555/2,555/2),angle=c(45,-45,0),
                           radius = 10, length=500, material = material_list(diffuse="purple"))) |>

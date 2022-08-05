@@ -43,11 +43,8 @@ List describing the mesh.
 Mesh3d 3D Model
 }
 \examples{
-\dontshow{
-options("cores"=1)
-}
+if(rayvertex:::run_documentation()) {
 #Read in a mesh3d object and rasterize it
-\donttest{
 if(length(find.package("Rvcg", quiet=TRUE)) > 0) {
   library(Rvcg)
   data(humface)

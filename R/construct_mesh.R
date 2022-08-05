@@ -16,9 +16,7 @@
 #'@return List containing mesh info.
 #'@export
 #'@examples
-#' \dontshow{
-#' options("cores"=1)
-#' }
+#'if(rayvertex:::run_documentation()) {
 #'#Let's construct a mesh from the volcano dataset
 #' #Build the vertex matrix
 #' vertex_list = list()
@@ -51,11 +49,10 @@
 #'                                                     ambient = "darkred", ambient_intensity=0.2))
 #' 
 #' #Rasterize the scene
-#' \donttest{
 #' rasterize_scene(volc_mesh, lookfrom=c(-50,230,100),fov=60,width=1200,height=1200,
 #'                 light_info = directional_light(c(0,1,1)) |>
 #'                   add_light(directional_light(c(1,1,-1))))
-#' }
+#'}
 construct_mesh  = function(vertices, indices, 
                            normals = NULL, norm_indices = NULL, 
                            texcoords = NULL, tex_indices = NULL,
@@ -75,9 +72,9 @@ construct_mesh  = function(vertices, indices,
   if(is.null(tex_indices)) {
     tex_indices = matrix(-1,nrow=nrow(indices),ncol=3)
   }
-  mesh$vertices = vertices
-  mesh$texcoords = texcoords
-  mesh$normals = normals
+  mesh$vertices = list(vertices)
+  mesh$texcoords = list(texcoords)
+  mesh$normals = list(normals)
   mesh$shapes[[1]] = list()
   mesh$shapes[[1]]$indices = indices
   mesh$shapes[[1]]$norm_indices = norm_indices

@@ -45,11 +45,8 @@ List describing the mesh.
 Torus 3D Model
 }
 \examples{
-\dontshow{
-options("cores"=1)
-}
+if(rayvertex:::run_documentation()) {
 #Plot a group of tori in the cornell box
-\donttest{
 generate_cornell_mesh(ceiling = FALSE) |> 
  add_shape(torus_mesh(position=c(555/2,555/3,555/2), angle=c(20,0,45),
                       radius=120, ring_radius = 40,
@@ -61,5 +58,5 @@ generate_cornell_mesh(ceiling = FALSE) |>
  add_shape(torus_mesh(position=c(150,450,555/2), angle=c(60,180,0),radius=40, ring_radius = 20,
                       material=material_list(diffuse="red",type="phong"))) |>
  rasterize_scene(light_info = directional_light(c(0,1,-2)))
- }
+}
 }

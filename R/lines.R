@@ -6,9 +6,7 @@
 #'@return Line matrix
 #'@export
 #'@examples
-#'\dontshow{
-#'options("cores"=1)
-#'}
+#'if(rayvertex:::run_documentation()) {
 #' # Make a spiral of lines
 #' t = seq(0,8*pi,length.out=361)
 #' line_mat = matrix(nrow=0,ncol=9)
@@ -18,10 +16,9 @@
 #'                       generate_line(start = c(0.5*sin(t[i]), t[i]/(8*pi), 0.5*cos(t[i])),
 #'                                     end  = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))))
 #' }
-#' \donttest{
 #' rasterize_lines(line_mat)
 #' }
-#' 
+#' if(rayvertex:::run_documentation()) {
 #' #Change the line color
 #' line_mat = matrix(nrow=0,ncol=9)
 #' cols = hsv(seq(0,1,length.out=360))
@@ -31,16 +28,14 @@
 #'                                    end  = c(sin(t[i+1]), 2*t[i+1]/(8*pi), cos(t[i+1])),
 #'                                    color = cols[i]))
 #' }
-#' \donttest{
 #' rasterize_lines(line_mat,lookfrom=c(0,10,10),fov=15)
 #' }
-#' 
-#' \donttest{
+#' if(rayvertex:::run_documentation()) {
 #' #Use in a scene with a mesh
 #' obj_mesh(r_obj(),material=material_list(diffuse="dodgerblue")) |>
 #'  rasterize_scene(line_info = line_mat, light_info = directional_light(c(0,1,1)),
 #'                  lookfrom=c(0,5,10),lookat=c(0,0.8,0),fov=15)
-#'  }
+#' }
 generate_line = function(start = c(0,0,0), end = c(0,1,0), color = "white") {
   color = convert_color(color)
   start = as.numeric(start)
@@ -61,8 +56,8 @@ generate_line = function(start = c(0,0,0), end = c(0,1,0), color = "white") {
 #'
 #'@export
 #'@examples
+#'if(rayvertex:::run_documentation()) {
 #' #Generate a cube out of lines
-#' \donttest{
 #' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) |>
@@ -76,15 +71,18 @@ generate_line = function(start = c(0,0,0), end = c(0,1,0), color = "white") {
 #'   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) |>
 #'   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1)))
 #' rasterize_lines(cube_outline,lookfrom=c(0,6,10))
-#' 
+#' }
+#' if(rayvertex:::run_documentation()) {
 #' #Rotate the cube 30 degrees around the y-axis
 #' rotated_cube = color_lines(rotate_lines(cube_outline,angle=c(0,30,0)),color="red")
 #' rasterize_lines(add_lines(cube_outline,rotated_cube),lookfrom=c(0,6,10))
-#' 
+#' }
+#' if(rayvertex:::run_documentation()) {
 #' #Rotate the cube 30 degrees around each axis, in this order: x,y,z
 #' rotated_cube = color_lines(rotate_lines(cube_outline,angle=c(30,30,30)),color="red")
 #' rasterize_lines(add_lines(cube_outline,rotated_cube),lookfrom=c(0,6,10))
-#' 
+#' }
+#' if(rayvertex:::run_documentation()) {
 #' #Rotate the cube 30 degrees around each axis, in this order: z,y,x
 #' rotated_cube = color_lines(rotate_lines(cube_outline,angle=c(30,30,30), 
 #'                            order_rotation = c(3,2,1)),color="red")
@@ -121,8 +119,8 @@ rotate_lines = function(lines, angle = c(0,0,0), pivot_point = c(0,0,0), order_r
 #'@return Scaled line matrix.
 #'@export
 #'@examples
+#'if(rayvertex:::run_documentation()) {
 #' #Generate a cube out of lines
-#' \donttest{
 #' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) |>
@@ -136,11 +134,13 @@ rotate_lines = function(lines, angle = c(0,0,0), pivot_point = c(0,0,0), order_r
 #'   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) |>
 #'   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1)))
 #' rasterize_lines(cube_outline,fov=90,lookfrom=c(0,0,3))
-#' 
+#' }
+#' if(rayvertex:::run_documentation()) {
 #' #Scale the cube uniformly
 #' scaled_cube = color_lines(scale_lines(cube_outline,scale=0.5),color="red")
 #' rasterize_lines(add_lines(cube_outline,scaled_cube),fov=90,lookfrom=c(0,0,3))
-#' 
+#' }
+#' if(rayvertex:::run_documentation()) {
 #' #Scale the cube non-uniformly
 #' scaled_cube = color_lines(scale_lines(cube_outline,scale=c(0.8,2,0.4)),color="red")
 #' rasterize_lines(add_lines(cube_outline,scaled_cube),fov=60,lookfrom=c(3,3,3))
@@ -166,7 +166,7 @@ scale_lines = function(lines, scale = 1) {
 #'@return Translated line matrix.
 #'@export
 #'@examples
-#' \donttest{
+#'if(rayvertex:::run_documentation()) {
 #' #Generate a cube out of lines
 #' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
@@ -181,7 +181,8 @@ scale_lines = function(lines, scale = 1) {
 #'   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) |>
 #'   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1))) 
 #' rasterize_lines(cube_outline,fov=40,lookfrom=c(1,2,10),lookat=c(0,0,0))
-#' 
+#' }
+#' if(rayvertex:::run_documentation()) {
 #' #Scale the cube uniformly
 #' translated_cube = color_lines(translate_lines(cube_outline,c(1,1,1)),"red")
 #' translated_cube2 = color_lines(translate_lines(cube_outline,c(-1,-1,-1)),"green")
@@ -190,7 +191,7 @@ scale_lines = function(lines, scale = 1) {
 #'   add_lines(translated_cube) |>
 #'   add_lines(translated_cube2) |>
 #'   rasterize_lines(fov=40,lookfrom=c(1,2,10),lookat=c(0,0,0))
-#'   }
+#'}
 translate_lines = function(lines, position = 1) {
   lines[,1]  = lines[,1] + position[1]
   lines[,2]  = lines[,2] + position[2]
@@ -209,8 +210,8 @@ translate_lines = function(lines, position = 1) {
 #'@return Colored line matrix.
 #'@export
 #'@examples
+#'if(rayvertex:::run_documentation()) {
 #' #Generate a cube out of lines
-#' \donttest{
 #' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) |>
@@ -227,7 +228,7 @@ translate_lines = function(lines, position = 1) {
 #' cube_outline |>
 #'   color_lines(color="red") |>
 #'   rasterize_lines()
-#'   }
+#'}
 color_lines = function(lines, color = "white") {
   color = convert_color(color)
   lines[,7]  = color[1]
@@ -245,8 +246,8 @@ color_lines = function(lines, color = "white") {
 #'@return New line matrix.
 #'@export
 #'@examples
+#'if(rayvertex:::run_documentation()) {
 #' #Generate a cube out of lines
-#' \donttest{
 #' cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
 #'   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) |>

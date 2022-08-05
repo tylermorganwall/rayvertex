@@ -27,13 +27,10 @@ Rotated Mesh
 Rotate Mesh
 }
 \examples{
-\dontshow{
-options("cores"=1)
-}
+if(rayvertex:::run_documentation()) {
 #Rotate a mesh in the Cornell box
 robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 
-\donttest{
 generate_cornell_mesh() |>
 add_shape(rotate_mesh(translate_mesh(robj,c(400,0,155)),c(0,30,0), 
                       pivot_point=c(400,0,155))) |>

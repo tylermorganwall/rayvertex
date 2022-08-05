@@ -39,16 +39,13 @@ List describing the mesh.
 Segment 3D Model
 }
 \examples{
-\dontshow{
-options("cores"=1)
-}
+if(rayvertex:::run_documentation()) {
 #Generate a segment in the cornell box. 
-\donttest{
 generate_cornell_mesh() |>
   add_shape(segment_mesh(start = c(100, 100, 100), end = c(455, 455, 455), radius = 50)) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }
-
+if(rayvertex:::run_documentation()) {
 # Draw a line graph representing a normal distribution, but with metal:
 xvals = seq(-3, 3, length.out = 30)
 yvals = dnorm(xvals)
@@ -61,12 +58,12 @@ for(i in 1:(length(xvals) - 1)) {
                             radius = 10,
                             material = material_list(diffuse="purple", type="phong")))
 }
-\donttest{
+
 generate_cornell_mesh() |> 
   add_shape(scene_list) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }
-
+if(rayvertex:::run_documentation()) {
 #Draw the outline of a cube:
 
 cube_outline = segment_mesh(start = c(100, 100, 100), end = c(100, 100, 455), radius = 10) |>
@@ -82,14 +79,12 @@ cube_outline = segment_mesh(start = c(100, 100, 100), end = c(100, 100, 455), ra
   add_shape(segment_mesh(start = c(455, 100, 455), end = c(455, 455, 455), radius = 10)) |>
   add_shape(segment_mesh(start = c(100, 455, 100), end = c(455, 455, 100), radius = 10))
 
-\donttest{
 generate_cornell_mesh() |>
   add_shape(set_material(cube_outline,diffuse="dodgerblue",type="phong")) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
-}
-
+  }
+if(rayvertex:::run_documentation()) {
 #Shrink and rotate the cube
-\donttest{
 generate_cornell_mesh() |>
   add_shape(
     scale_mesh(rotate_mesh(set_material(cube_outline,diffuse="dodgerblue",type="phong"),

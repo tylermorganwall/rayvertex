@@ -33,18 +33,14 @@ List describing the mesh.
 XZ Rectangle 3D Model
 }
 \examples{
-\dontshow{
-options("cores"=1)
-}
-\donttest{
+if(rayvertex:::run_documentation()) {
 generate_cornell_mesh() |>
   add_shape(xz_rect_mesh(position = c(555/2, 100, 555/2), scale=200,
              material = material_list(diffuse = "purple"))) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }
-
+if(rayvertex:::run_documentation()) {
 #Rotate the plane and scale 
-\donttest{
 generate_cornell_mesh() |>
   add_shape(xz_rect_mesh(position = c(555/2, 100, 555/2), scale=c(200,1,100), angle=c(0,30,0),
              material = material_list(diffuse = "purple"))) |>

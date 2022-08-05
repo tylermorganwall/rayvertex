@@ -51,73 +51,67 @@
 #'@return Rasterized image.
 #'@export
 #'@examples
-#'\dontshow{
-#'options("cores"=1)
-#'}
+#'if(rayvertex:::run_documentation()) {
 #'#Let's load the cube OBJ file included with the package
 #'
-#'\donttest{
 #'rasterize_scene(cube_mesh(),lookfrom=c(2,4,10), 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#'}
+#' }
+#' if(rayvertex:::run_documentation()) {
 #'#Flatten the cube, translate downwards, and set to grey
 #'base_model = cube_mesh() |>
 #'  scale_mesh(scale=c(5,0.2,5)) |>
 #'  translate_mesh(c(0,-0.1,0)) |>
 #'  set_material(diffuse="grey80") 
-#'
-#'\donttest{
+#'  
 #'rasterize_scene(base_model, lookfrom=c(2,4,10), 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#'}
-#'
+#' }
+#' if(rayvertex:::run_documentation()) {           
 #'#load the R OBJ file, scale it down, color it blue, and add it to the grey base
 #'r_model = obj_mesh(r_obj()) |>
 #'  scale_mesh(scale=0.5) |>
 #'  set_material(diffuse="dodgerblue") |>
 #'  add_shape(base_model)
 #'  
-#'\donttest{
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
 #' }
+#' if(rayvertex:::run_documentation()) {
 #'#Zoom in and reduce the shadow mapping intensity
-#'\donttest{
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,shadow_map = TRUE, shadow_map_intensity=0.3,
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
 #'}
-#'
+#' if(rayvertex:::run_documentation()) {
 #'#Include the resolution (4x) of the shadow map for less pixellation around the edges
 #'#Also decrease the shadow_map_bias slightly to remove the "peter panning" floating shadow effect
-#'\donttest{
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 #'               shadow_map_dims=4, 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
 #'}
-#'
+#' if(rayvertex:::run_documentation()) {
 #'#Add some more directional lights and change their color
 #' lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 1) |>
 #'            add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 1)) |>
 #'            add_light(directional_light(c(2,4,10),color = "white",intensity = 0.5))
-#'\donttest{
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 #'               light_info = lights)
 #'}
+#' if(rayvertex:::run_documentation()) {
 #'#Add some point lights
 #'lights_p = lights |>
 #'  add_light(point_light(position=c(-1,1,0),color="red", intensity=2)) |>
 #'  add_light(point_light(position=c(1,1,0),color="purple", intensity=2)) 
-#'\donttest{
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 #'               light_info = lights_p)
 #'}
+#' if(rayvertex:::run_documentation()) {
 #'#change the camera position
-#'\donttest{
 #'rasterize_scene(r_model, lookfrom=c(-2,2,-10), fov=10,
 #'               light_info = lights_p)
 #'}
+#' if(rayvertex:::run_documentation()) {
 #'               
-#'\donttest{        
 #'#Add a spiral of lines around the model by generating a matrix of line segments
 #' t = seq(0,8*pi,length.out=361)
 #' line_mat = matrix(nrow=0,ncol=9)
@@ -150,11 +144,6 @@ rasterize_scene  = function(scene,
                            ortho_dimensions = c(1,1), bloom = FALSE, antialias_lines = TRUE,
                            environment_map= "", background_sharpness = 1.0, verbose=FALSE) {
   init_time()
-  scene = preprocess_scene(scene)
-  print_time(verbose, "Processed scene")
-  scene = remove_duplicate_materials(scene)
-  print_time(verbose, "Removed duplicate materials")
-  
   if(!is.null(attr(scene,"cornell"))) {
     corn_message = "Setting default values for Cornell box: "
     missing_corn = FALSE
@@ -186,6 +175,12 @@ rasterize_scene  = function(scene,
       light_info = add_light(light_info,point_light(c(555/2,450,555/2),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
     }
   }
+  scene = preprocess_scene(scene)
+  print_time(verbose, "Processed scene")
+  scene = remove_duplicate_materials(scene)
+  print_time(verbose, "Removed duplicate materials")
+  
+  
   fsaa = as.integer(fsaa)
   if(fsaa > 1) {
     width = width * fsaa
@@ -520,6 +515,5 @@ rasterize_scene  = function(scene,
     return(imagelist)
   }
   print_time(verbose, "Display/save image")
-  
   return(invisible(retmat))
 }

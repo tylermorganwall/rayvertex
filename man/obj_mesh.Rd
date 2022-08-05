@@ -43,13 +43,10 @@ List describing the mesh.
 OBJ Mesh 3D Model
 }
 \examples{
-\dontshow{
-options("cores"=1)
-}
+if(rayvertex:::run_documentation()) {
 #Read in the provided 3D R mesh
-\donttest{
 generate_cornell_mesh(ceiling=FALSE) |> 
   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
   rasterize_scene(light_info = directional_light(direction=c(0.2,0.5,-1)))
-  }
+}
 }

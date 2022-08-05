@@ -20,9 +20,7 @@ Line matrix
 Generate Lines
 }
 \examples{
-\dontshow{
-options("cores"=1)
-}
+if(rayvertex:::run_documentation()) {
 # Make a spiral of lines
 t = seq(0,8*pi,length.out=361)
 line_mat = matrix(nrow=0,ncol=9)
@@ -32,10 +30,9 @@ for(i in 1:360) {
                       generate_line(start = c(0.5*sin(t[i]), t[i]/(8*pi), 0.5*cos(t[i])),
                                     end  = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))))
 }
-\donttest{
 rasterize_lines(line_mat)
 }
-
+if(rayvertex:::run_documentation()) {
 #Change the line color
 line_mat = matrix(nrow=0,ncol=9)
 cols = hsv(seq(0,1,length.out=360))
@@ -45,14 +42,12 @@ for(i in 1:360) {
                                    end  = c(sin(t[i+1]), 2*t[i+1]/(8*pi), cos(t[i+1])),
                                    color = cols[i]))
 }
-\donttest{
 rasterize_lines(line_mat,lookfrom=c(0,10,10),fov=15)
 }
-
-\donttest{
+if(rayvertex:::run_documentation()) {
 #Use in a scene with a mesh
 obj_mesh(r_obj(),material=material_list(diffuse="dodgerblue")) |>
  rasterize_scene(line_info = line_mat, light_info = directional_light(c(0,1,1)),
                  lookfrom=c(0,5,10),lookat=c(0,0.8,0),fov=15)
- }
+}
 }

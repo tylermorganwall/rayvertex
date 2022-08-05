@@ -35,9 +35,7 @@ The falloff of the point light intensity is given by the following equation (ref
 Intensity = intensity / (constant + falloff * distance + falloff_quad * (distance * distance));
 }
 \examples{
-\dontshow{
-options("cores"=1)
-}
+if(rayvertex:::run_documentation()) {
 #Add point lights and vary the intensity
 lights_int = point_light(position=c(100,100,400), color="white", intensity=0.125,
                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.005) |>
@@ -48,10 +46,9 @@ lights_int = point_light(position=c(100,100,400), color="white", intensity=0.125
  add_light(point_light(position=c(455,455,400), color="white", intensity=1,
                        falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
                        
-\donttest{
 generate_cornell_mesh(light=FALSE) |>
  rasterize_scene(light_info = lights_int)
-}
+ 
 #Add point lights and vary the color
 lights_c = point_light(position=c(100,100,500), color="red", 
                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.005) |>
@@ -62,10 +59,9 @@ lights_c = point_light(position=c(100,100,500), color="red",
  add_light(point_light(position=c(455,455,500), color="yellow", 
                        falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
                        
-\donttest{
 generate_cornell_mesh(light=FALSE) |>
  rasterize_scene(light_info = lights_c)
-}
+ 
 #Add point lights and vary the falloff term
 lights_fo = point_light(position=c(100,100,500), color="white", 
                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.005) |>
@@ -75,11 +71,10 @@ lights_fo = point_light(position=c(100,100,500), color="white",
                        falloff_quad = 0.0, constant = 0.0002, falloff = 0.02)) |>
  add_light(point_light(position=c(455,455,500), color="white", 
                        falloff_quad = 0.0, constant = 0.0002, falloff = 0.04))
-\donttest{
+                       
 generate_cornell_mesh(light=FALSE) |>
  rasterize_scene(light_info = lights_fo)
-}
-
+ 
 #Add point lights and vary the quadradic falloff term
 lights_quad = point_light(position=c(100,100,500), color="white", 
                       falloff_quad = 0.0001, constant = 0.0002, falloff = 0.005) |>
@@ -89,7 +84,7 @@ lights_quad = point_light(position=c(100,100,500), color="white",
                        falloff_quad = 0.0004, constant = 0.0002, falloff = 0.005)) |>
  add_light(point_light(position=c(455,455,500), color="white", 
                        falloff_quad = 0.0008, constant = 0.0002, falloff = 0.005))
-\donttest{
+                       
 generate_cornell_mesh(light=FALSE) |>
  rasterize_scene(light_info = lights_quad)
 }

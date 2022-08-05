@@ -18,8 +18,8 @@ New line matrix.
 Add Line
 }
 \examples{
+if(rayvertex:::run_documentation()) {
 #Generate a cube out of lines
-\donttest{
 cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
   add_lines(generate_line(start = c(-1, -1, -1), end = c(1, -1, -1))) |>

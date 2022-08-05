@@ -42,38 +42,32 @@ List describing the mesh.
 Arrow 3D Model
 }
 \examples{
-\dontshow{
-options("cores"=1)
-}
+if(rayvertex:::run_documentation()) {
 #Generate an arrow
-\donttest{
 generate_cornell_mesh() |>
   add_shape(arrow_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2), radius_tail=50,
                        radius_top = 100,
                       material = material_list(diffuse="dodgerblue"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
-
+if(rayvertex:::run_documentation()) {
 #Generate a blue arrow with a wide tail
-\donttest{
 generate_cornell_mesh() |>
   add_shape(arrow_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2), radius_tail=100,
                        radius_top = 150,
                       material = material_list(diffuse="dodgerblue"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
-}
-
+  }
+if(rayvertex:::run_documentation()) {
 #Generate a long, thin arrow and change the proportions
-\donttest{
 generate_cornell_mesh() |>
   add_shape(arrow_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 400, 555/2), radius_top=30,
                        radius_tail = 10, tail_proportion = 0.8,
                       material = material_list(diffuse="dodgerblue"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
-
+if(rayvertex:::run_documentation()) {
 #Change the start and end points
-\donttest{
 generate_cornell_mesh() |>
   add_shape(arrow_mesh(start = c(500, 20, 555/2), end = c(50, 500, 555/2), radius_top=30,
                        radius_tail = 10, tail_proportion = 0.8,

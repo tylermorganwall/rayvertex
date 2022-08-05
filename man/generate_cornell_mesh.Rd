@@ -30,34 +30,31 @@ List describing the mesh.
 Cornell Box 3D Model
 }
 \examples{
-\dontshow{
-options("cores"=1)
-}
+if(rayvertex:::run_documentation()) {
 #Generate and render the default Cornell box and add an object.
-\donttest{
 generate_cornell_mesh() |> 
   rasterize_scene()
 }
+if(rayvertex:::run_documentation()) {
 #Add an object to the scene
-\donttest{
 generate_cornell_mesh() |> 
   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
   rasterize_scene()
 }
+if(rayvertex:::run_documentation()) {
 #Turn off the ceiling so the default directional light reaches inside the box
-\donttest{
 generate_cornell_mesh(ceiling=FALSE) |> 
   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
   rasterize_scene()
 }
+if(rayvertex:::run_documentation()) {
 #Adjust the light to the front
-\donttest{
 generate_cornell_mesh(ceiling=FALSE) |> 
   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
   rasterize_scene(light_info = directional_light(direction=c(0,1,-1)))
-}
+  }
+if(rayvertex:::run_documentation()) {
 #Change the color palette
-\donttest{
 generate_cornell_mesh(ceiling=FALSE,leftcolor="purple", rightcolor="yellow") |> 
   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
   rasterize_scene(light_info = directional_light(direction=c(0,1,-1)))
