@@ -149,9 +149,14 @@ List rasterize(List mesh,
                LogicalVector has_reflection_map, Rcpp::String reflection_map_file, 
                double background_sharpness,
                LogicalVector has_refraction, bool environment_map_hdr,
-               bool has_environment_map, NumericVector bg_color) {
+               bool has_environment_map, NumericVector bg_color,
+               bool verbose) {
   List materials = as<List>(mesh["materials"]);
   int number_materials = materials.size();
+  
+  Environment pkg = Environment::namespace_env("rayvertex");
+  
+  Function print_time = pkg["print_time"];
   
   //Turn off gamma correction or get seams in textures/normal maps
   stbi_ldr_to_hdr_gamma(1.0f);
@@ -162,6 +167,8 @@ List rasterize(List mesh,
   std::vector<reflection_map_info> reflection_maps;
   reflection_map_info main_reflection_map;
   std::vector<float* > reflection_data;
+  
+  
   if(has_environment_map) {
     reflection_map_data = stbi_loadf(reflection_map_file.get_cstring(), &nx_r, &ny_r, &nn_r, 0);
     if(nx_r == 0 || ny_r == 0 || nn_r == 0) {
@@ -218,6 +225,7 @@ List rasterize(List mesh,
       reflection_maps.push_back(reflection_map);
     }
   }
+  print_time(verbose, "Loaded environment maps" );
   
   //Convert R vectors to vec3
   vec3 eye(lookfrom(0),lookfrom(1),lookfrom(2)); //lookfrom
@@ -310,6 +318,7 @@ List rasterize(List mesh,
   //Initialize zbuffer
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<Float>::infinity() ) ;
   std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<Float>::infinity() ) ;
+  print_time(verbose, "Initialized buffers" );
   
   //Initialize Shadow Map bounds and orientation
   //If changed to 0.1-100.0 doesn't work anymore
@@ -356,6 +365,8 @@ List rasterize(List mesh,
                                                     lightinfo(i,9)));
     }
   }
+  print_time(verbose, "Initialized shadowmaps" );
+  
   
   std::vector<rayimage > transparency_buffers;
   std::vector<Rcpp::NumericMatrix> transparency_buffer_mats_r;
@@ -384,6 +395,8 @@ List rasterize(List mesh,
       transparency_buffers.push_back(trans_buffer_temp);
     }
   }
+  print_time(verbose, "Initialized alpha buffers" );
+  
   
   ///
   //Parse mesh3d
@@ -614,6 +627,7 @@ List rasterize(List mesh,
     }
     shaders.push_back(shader);
   }
+
   reflection_map_info reflection_map_default {
     nullptr,
     1,
@@ -727,6 +741,7 @@ List rasterize(List mesh,
                                  vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
                                  reflection_map_default, false, false));
   }
+  print_time(verbose, "Initialized shaders" );
   
   
   //Initialize Model vectors
@@ -772,6 +787,8 @@ List rasterize(List mesh,
                     has_normals_vec(i), has_tex_vec(i), tbn);
     models.push_back(model);
   }
+  print_time(verbose, "Initialized 3D models" );
+  
   
   //For alpha transparency
   std::vector<std::map<Float, alpha_info> > alpha_depths(nx*ny);
@@ -966,6 +983,8 @@ List rasterize(List mesh,
       std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<Float>::infinity() ) ;
     }
   }
+  print_time(verbose, "Calculated depth buffer(s)" );
+  
   
   //Calculate Image
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<Float>::infinity() ) ;
@@ -1045,6 +1064,8 @@ List rasterize(List mesh,
     pool.push(task, i);
   }
   pool.join();
+  print_time(verbose, "Executed pixel shaders" );
+  
 
   //Ambient occlusion
   if(calc_ambient) {
@@ -1124,7 +1145,10 @@ List rasterize(List mesh,
         }
       }
     }
+    print_time(verbose, "Calculated AO" );
+    
   }
+  
   
   std::vector<vec3> ndc_line_verts_start;
   std::vector<vec3> ndc_line_verts_end;
@@ -1210,6 +1234,7 @@ List rasterize(List mesh,
         }
       }
     }
+    print_time(verbose, "Blurred environment map" );
   }
   
   if(has_environment_map) {
@@ -1241,7 +1266,8 @@ List rasterize(List mesh,
     }
   }
   linear_depth = 2*near_clip*far_clip/(far_clip + near_clip - linear_depth * (far_clip-near_clip));
-
+  print_time(verbose, "Calculated linear depth" );
+  
   return(List::create(_["r"] = r, _["g"] = g, _["b"] = b,
                       _["amb"] = abuffer, _["depth"] = zbuffer, _["linear_depth"] = linear_depth,
                       _["normalx"] = nxbuffer, _["normaly"] = nybuffer, _["normalz"] = nzbuffer,

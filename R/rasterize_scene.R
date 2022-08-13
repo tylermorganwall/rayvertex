@@ -175,8 +175,9 @@ rasterize_scene  = function(scene,
       light_info = add_light(light_info,point_light(c(555/2,450,555/2),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
     }
   }
+  print_time(verbose, "Pre-processing scene")
   scene = preprocess_scene(scene)
-  print_time(verbose, "Processed scene")
+  print_time(verbose, "Pre-processed  scene")
   scene = remove_duplicate_materials(scene)
   print_time(verbose, "Removed duplicate materials")
   
@@ -371,7 +372,6 @@ rasterize_scene  = function(scene,
     }
   }
   print_time(verbose, "Processed materials")
-  
   imagelist = rasterize(obj,
                         lightinfo,
                         line_mat = line_info,
@@ -405,7 +405,8 @@ rasterize_scene  = function(scene,
                         antialias_lines,
                         has_vertex_tex,has_vertex_normals,
                         has_reflection_map, environment_map, background_sharpness, has_refraction,
-                        environment_map_hdr, has_environment_map, bg_color)
+                        environment_map_hdr, has_environment_map, bg_color,
+                        verbose)
   print_time(verbose, "Rasterized image")
   
   if(ssao) {
@@ -492,6 +493,7 @@ rasterize_scene  = function(scene,
   retmat[,,1] = rayimage::render_reorient(imagelist$r,transpose = TRUE, flipx = TRUE)
   retmat[,,2] = rayimage::render_reorient(imagelist$g,transpose = TRUE, flipx = TRUE)
   retmat[,,3] = rayimage::render_reorient(imagelist$b,transpose = TRUE, flipx = TRUE)
+
   if(bloom) {
     retmat = rayimage::render_convolution(retmat, min_value = 1)
     print_time(verbose, "Rendered bloom")
@@ -503,6 +505,8 @@ rasterize_scene  = function(scene,
   if(fsaa > 1) {
     retmat = rayimage::render_resized(retmat,mag = 1/fsaa, method="mitchell")
     retmat = abs(retmat)
+    print_time(verbose, "Applied FSAA")
+    
   }
   if(is.na(filename)) {
     rayimage::plot_image(retmat)

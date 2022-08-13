@@ -104,10 +104,8 @@ remove_duplicate_materials = function(scene) {
   for(i in seq_len(length(scene_material_hashes))) {
     new_ids[i] = min(which(scene_material_hashes[i] == unique_materials)) - 1
   }
-  
   for(i in seq_len(length(scene$shapes))) {
-    tmp_ids = scene$shapes[[i]]$material_ids
-    scene$shapes[[i]]$material_ids[tmp_ids %in% old_ids] = new_ids[match(tmp_ids, old_ids, nomatch = 10)]
+    scene$shapes[[i]]$material_ids = new_ids[scene$shapes[[i]]$material_ids + 1]
   }
   unique_ids = unique(new_ids)
   new_mat = list()
@@ -401,136 +399,56 @@ set_material = function(mesh, material = NULL, id = NULL,
                         reflection_sharpness      = 0.0) {
   culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   
-  if(!is.null(material)) {
-    diffuse                   = material$diffuse                   
-    ambient                   = material$ambient                   
-    specular                  = material$specular                  
-    transmittance             = material$transmittance             
-    emission                  = material$emission                  
-    shininess                 = material$shininess                 
-    ior                       = material$ior                       
-    dissolve                  = material$dissolve                  
-    illum                     = material$illum                     
-    texture_location          = material$texture_location          
-    normal_texture_location   = material$normal_texture_location   
-    specular_texture_location = material$specular_texture_location 
-    ambient_texture_location  = material$ambient_texture_location  
-    emissive_texture_location = material$emissive_texture_location 
-    diffuse_intensity         = material$diffuse_intensity         
-    specular_intensity        = material$specular_intensity        
-    emission_intensity        = material$emission_intensity        
-    ambient_intensity         = material$ambient_intensity        
-    culling                   = material$culling                   
-    type                      = material$type     
-    translucent               = material$translucent
-    toon_levels               = material$toon_levels      
-    toon_outline_width        = material$toon_outline_width       
-    toon_outline_color        = material$toon_outline_color   
-    reflection_intensity      = material$reflection_intensity        
-    reflection_sharpness      = material$reflection_sharpness   
+  if(is.null(material)) {
+    material = list()
+    material$diffuse                    = diffuse                   
+    material$ambient                    = ambient                   
+    material$specular                   = specular                  
+    material$transmittance              = transmittance             
+    material$emission                   = emission                  
+    material$shininess                  = shininess                 
+    material$ior                        = ior                       
+    material$dissolve                   = dissolve                  
+    material$illum                      = illum                     
+    material$texture_location           = texture_location          
+    material$normal_texture_location    = normal_texture_location   
+    material$specular_texture_location  = specular_texture_location 
+    material$ambient_texture_location   = ambient_texture_location  
+    material$emissive_texture_location  = emissive_texture_location 
+    material$diffuse_intensity          = diffuse_intensity         
+    material$specular_intensity         = specular_intensity        
+    material$emission_intensity         = emission_intensity        
+    material$ambient_intensity         = ambient_intensity         
+    material$culling                    = culling                   
+    material$type      = type                      
+    material$translucent = translucent               
+    material$toon_levels       = toon_levels               
+    material$toon_outline_width        = toon_outline_width        
+    material$toon_outline_color    = toon_outline_color        
+    material$reflection_intensity        = reflection_intensity        
+    material$reflection_sharpness    = reflection_sharpness      
     
   }
+  material_hash = digest::digest(material)
   
   if(!is.null(mesh$materials) && length(mesh$materials) > 0) {
     if(is.null(id)) {
       for(i in seq_len(length(mesh$materials))) {
-        mesh$materials[[i]] = list()
-        mesh$materials[[i]]$ambient              = convert_color(ambient)
-        mesh$materials[[i]]$diffuse              = convert_color(diffuse)
-        mesh$materials[[i]]$specular             = convert_color(specular) 
-        mesh$materials[[i]]$transmittance        = convert_color(transmittance)
-        mesh$materials[[i]]$emission             = convert_color(emission) 
-        mesh$materials[[i]]$shininess            = shininess
-        mesh$materials[[i]]$ior                  = ior              
-        mesh$materials[[i]]$dissolve             = dissolve         
-        mesh$materials[[i]]$illum                = illum            
-        mesh$materials[[i]]$ambient_texname      = ambient_texture_location  
-        mesh$materials[[i]]$diffuse_texname      = texture_location  
-        mesh$materials[[i]]$emissive_texname     = emissive_texture_location 
-        mesh$materials[[i]]$specular_texname     = specular_texture_location 
-        mesh$materials[[i]]$normal_texname       = normal_texture_location   
-        mesh$materials[[i]]$diffuse_intensity    = diffuse_intensity 
-        mesh$materials[[i]]$specular_intensity   = specular_intensity   
-        mesh$materials[[i]]$emission_intensity   = emission_intensity  
-        mesh$materials[[i]]$ambient_intensity    = ambient_intensity  
-        mesh$materials[[i]]$culling              = culling   
-        mesh$materials[[i]]$type                 = type   
-        mesh$materials[[i]]$translucent          = translucent
-        mesh$materials[[i]]$toon_levels          = toon_levels   
-        mesh$materials[[i]]$toon_outline_width   = toon_outline_width   
-        mesh$materials[[i]]$toon_outline_color   = convert_color(toon_outline_color)
-        mesh$materials[[i]]$reflection_intensity = reflection_intensity
-        mesh$materials[[i]]$reflection_sharpness = reflection_sharpness
-        
-        
+        mesh$materials[[i]] = material
       }
-      mesh$material_hashes[i] = digest::digest(mesh$materials[[i]])
+      mesh$material_hashes[i] = material_hash
       for(i in seq_len(length(mesh$shapes))) {
         mesh$shapes[[i]]$material_ids = rep(0,nrow(mesh$shapes[[i]]$indices))
       }
     } else {
-      mesh$materials[[id]] = list()
-      mesh$materials[[id]]$ambient              = convert_color(ambient)
-      mesh$materials[[id]]$diffuse              = convert_color(diffuse)
-      mesh$materials[[id]]$specular             = convert_color(specular) 
-      mesh$materials[[id]]$transmittance        = convert_color(transmittance)
-      mesh$materials[[id]]$emission             = convert_color(emission) 
-      mesh$materials[[id]]$shininess            = shininess
-      mesh$materials[[id]]$ior                  = ior              
-      mesh$materials[[id]]$dissolve             = dissolve         
-      mesh$materials[[id]]$illum                = illum            
-      mesh$materials[[id]]$ambient_texname      = ambient_texture_location  
-      mesh$materials[[id]]$diffuse_texname      = texture_location  
-      mesh$materials[[id]]$emissive_texname     = emissive_texture_location 
-      mesh$materials[[id]]$specular_texname     = specular_texture_location 
-      mesh$materials[[id]]$normal_texname       = normal_texture_location   
-      mesh$materials[[id]]$diffuse_intensity    = diffuse_intensity 
-      mesh$materials[[id]]$specular_intensity   = specular_intensity   
-      mesh$materials[[id]]$emission_intensity   = emission_intensity  
-      mesh$materials[[id]]$ambient_intensity    = ambient_intensity  
-      mesh$materials[[id]]$culling              = culling   
-      mesh$materials[[id]]$type                 = type   
-      mesh$materials[[id]]$translucent          = translucent
-      mesh$materials[[id]]$toon_levels          = toon_levels   
-      mesh$materials[[id]]$toon_outline_width   = toon_outline_width   
-      mesh$materials[[id]]$toon_outline_color   = convert_color(toon_outline_color)
-      mesh$materials[[id]]$reflection_intensity = reflection_intensity
-      mesh$materials[[id]]$reflection_sharpness = reflection_sharpness
-      
-      
+      mesh$materials[[id]] = material
     }
   } else {
     mesh$shapes[[1]]$material_ids = rep(0,nrow(mesh$shapes[[1]]$indices))
     
-    mesh$materials[[1]] = list()
-    mesh$materials[[1]]$ambient              = convert_color(ambient)
-    mesh$materials[[1]]$diffuse              = convert_color(diffuse) 
-    mesh$materials[[1]]$specular             = convert_color(specular) 
-    mesh$materials[[1]]$transmittance        = convert_color(transmittance)
-    mesh$materials[[1]]$emission             = convert_color(emission) 
-    mesh$materials[[1]]$shininess            = shininess
-    mesh$materials[[1]]$ior                  = ior              
-    mesh$materials[[1]]$dissolve             = dissolve         
-    mesh$materials[[1]]$illum                = illum            
-    mesh$materials[[1]]$ambient_texname      = ambient_texture_location  
-    mesh$materials[[1]]$diffuse_texname      = texture_location  
-    mesh$materials[[1]]$emissive_texname     = emissive_texture_location 
-    mesh$materials[[1]]$specular_texname     = specular_texture_location 
-    mesh$materials[[1]]$normal_texname       = normal_texture_location   
-    mesh$materials[[1]]$diffuse_intensity    = diffuse_intensity 
-    mesh$materials[[1]]$specular_intensity   = specular_intensity   
-    mesh$materials[[1]]$emission_intensity   = emission_intensity  
-    mesh$materials[[1]]$ambient_intensity    = ambient_intensity  
-    mesh$materials[[1]]$culling              = culling    
-    mesh$materials[[1]]$type                 = type    
-    mesh$materials[[1]]$translucent          = translucent   
-    mesh$materials[[1]]$toon_levels          = toon_levels   
-    mesh$materials[[1]]$toon_outline_width   = toon_outline_width   
-    mesh$materials[[1]]$toon_outline_color   = convert_color(toon_outline_color)
-    mesh$materials[[1]]$reflection_intensity = reflection_intensity
-    mesh$materials[[1]]$reflection_sharpness = reflection_sharpness
+    mesh$materials[[1]] = material
     
-    mesh$material_hashes[1] = digest::digest(mesh$materials[[1]])
+    mesh$material_hashes[1] = material_hash
   }
   return(mesh)
 }
@@ -804,20 +722,20 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
                          reflection_intensity      = 0.0,
                          reflection_sharpness      = 0.0) {
   material_props = 
-  list(diffuse                   = diffuse                   ,
-       ambient                   = ambient                   ,
-       specular                  = specular                  ,
-       transmittance             = transmittance             ,
-       emission                  = emission                  ,
+  list(diffuse                   = convert_color(diffuse)                   ,
+       ambient                   = convert_color(ambient)                   ,
+       specular                  = convert_color(specular)                  ,
+       transmittance             = convert_color(transmittance)             ,
+       emission                  = convert_color(emission)                  ,
        shininess                 = shininess                 ,
        ior                       = ior                       ,
        dissolve                  = dissolve                  ,
        illum                     = illum                     ,
-       texture_location          = texture_location          ,
-       normal_texture_location   = normal_texture_location   ,
-       specular_texture_location = specular_texture_location ,
-       ambient_texture_location  = ambient_texture_location  ,
-       emissive_texture_location = emissive_texture_location ,
+       ambient_texname           = texture_location          ,
+       diffuse_texname           = normal_texture_location   ,
+       emissive_texname          = specular_texture_location ,
+       specular_texname          = ambient_texture_location  ,
+       normal_texname            = emissive_texture_location ,
        diffuse_intensity         = diffuse_intensity         ,
        specular_intensity        = specular_intensity        ,
        emission_intensity        = emission_intensity        ,
@@ -827,9 +745,17 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
        translucent               = translucent               ,
        toon_levels               = toon_levels               ,
        toon_outline_width        = toon_outline_width        ,
-       toon_outline_color        = toon_outline_color        ,
+       toon_outline_color        = convert_color(toon_outline_color)        ,
        reflection_intensity      = reflection_intensity      ,
        reflection_sharpness      = reflection_sharpness)
+  stopifnot(length(material_props$diffuse) == 3)
+  stopifnot(length(material_props$ambient) == 3)
+  stopifnot(length(material_props$specular) == 3)
+  stopifnot(length(material_props$transmittance) == 3)
+  stopifnot(length(material_props$emission) == 3)
+  stopifnot(length(material_props$toon_outline_color) == 3)
+  
+  
   return(material_props)
 }
 
