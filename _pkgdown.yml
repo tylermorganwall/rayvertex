@@ -75,6 +75,7 @@ reference:
     desc: "Function for adding meshes, lines, and lights together to form a scene."
     contents:
       - starts_with("add")
+      - starts_with("scene_from")
   - title: "Render Rasterized Scene"
     desc: "Functions to render the current scene."
     contents:
