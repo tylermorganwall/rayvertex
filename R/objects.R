@@ -730,6 +730,9 @@ obj_mesh = function(filename, center = FALSE, position = c(0,0,0), scale = c(1,1
   if(any(scale != 1)) {
     obj_loaded = scale_mesh(obj_loaded, scale=scale)
   }
+  if(length(obj_loaded$materials) == 0 && is.null(material)) {
+    material = material_list()
+  }
   if(!is.null(material)) {
     obj_loaded = set_material(obj_loaded,material = material)
     if(material$type == "toon" || material$type == "toon_phong") {
