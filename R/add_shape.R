@@ -401,20 +401,20 @@ set_material = function(mesh, material = NULL, id = NULL,
   
   if(is.null(material)) {
     material = list()
-    material$diffuse                    = diffuse                   
-    material$ambient                    = ambient                   
-    material$specular                   = specular                  
-    material$transmittance              = transmittance             
-    material$emission                   = emission                  
+    material$diffuse                    = convert_color(diffuse)              
+    material$ambient                    = convert_color(ambient)
+    material$specular                   = convert_color(specular)
+    material$transmittance              = convert_color(transmittance)
+    material$emission                   = convert_color(emission)
     material$shininess                  = shininess                 
     material$ior                        = ior                       
     material$dissolve                   = dissolve                  
     material$illum                      = illum                     
-    material$texture_location           = texture_location          
-    material$normal_texture_location    = normal_texture_location   
-    material$specular_texture_location  = specular_texture_location 
-    material$ambient_texture_location   = ambient_texture_location  
-    material$emissive_texture_location  = emissive_texture_location 
+    material$diffuse_texname           = texture_location          
+    material$normal_texname    = normal_texture_location   
+    material$specular_texname  = specular_texture_location 
+    material$ambient_texname   = ambient_texture_location  
+    material$emissive_texname  = emissive_texture_location 
     material$diffuse_intensity          = diffuse_intensity         
     material$specular_intensity         = specular_intensity        
     material$emission_intensity         = emission_intensity        
@@ -424,10 +424,9 @@ set_material = function(mesh, material = NULL, id = NULL,
     material$translucent = translucent               
     material$toon_levels       = toon_levels               
     material$toon_outline_width        = toon_outline_width        
-    material$toon_outline_color    = toon_outline_color        
+    material$toon_outline_color    = convert_color(toon_outline_color)   
     material$reflection_intensity        = reflection_intensity        
     material$reflection_sharpness    = reflection_sharpness      
-    
   }
   material_hash = digest::digest(material)
   
