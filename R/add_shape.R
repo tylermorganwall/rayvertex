@@ -174,7 +174,7 @@ merge_shapes = function(scene) {
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
 #'}
 translate_mesh = function(mesh, position = c(0,0,0)) {
-  for(j in seq_len(length(mesh$shapes))) {
+  for(j in seq_len(length(mesh$vertices))) {
     mesh$vertices[[j]][,1]  = mesh$vertices[[j]][,1] + position[1]
     mesh$vertices[[j]][,2]  = mesh$vertices[[j]][,2] + position[2]
     mesh$vertices[[j]][,3]  = mesh$vertices[[j]][,3] + position[3]
@@ -205,7 +205,7 @@ scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
   if(length(scale) == 1) {
     scale = rep(scale,3)
   }
-  for(j in seq_len(length(mesh$shapes))) {
+  for(j in seq_len(length(mesh$vertices))) {
     mesh$vertices[[j]][,1]  = (mesh$vertices[[j]][,1]-center[1])*scale[1] + center[1]
     mesh$vertices[[j]][,2]  = (mesh$vertices[[j]][,2]-center[2])*scale[2] + center[2]
     mesh$vertices[[j]][,3]  = (mesh$vertices[[j]][,3]-center[3])*scale[3] + center[3]
@@ -297,7 +297,7 @@ generate_rot_matrix = function(angle, order_rotation) {
 #' }
 rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3)) {
   angle = angle*pi/180
-  for(j in seq_len(length(mesh$shapes))) {
+  for(j in seq_len(length(mesh$vertices))) {
     mesh$vertices[[j]][,1]  = mesh$vertices[[j]][,1]-pivot_point[1]
     mesh$vertices[[j]][,2]  = mesh$vertices[[j]][,2]-pivot_point[2]
     mesh$vertices[[j]][,3]  = mesh$vertices[[j]][,3]-pivot_point[3]

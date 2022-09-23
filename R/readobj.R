@@ -28,6 +28,29 @@ read_obj = function(filename, materialspath = NULL) {
       obj_loaded$shapes[[i]]$has_vertex_normals[apply(obj_loaded$shapes[[i]]$norm_indices,1,(function(x) any(x == -1)))] = FALSE
     }
   }
+  single_indices            = list()
+  single_tex_indices        = list()
+  single_norm_indices       = list()
+  single_material_ids       = list()
+  single_has_vertex_tex     = list()
+  single_has_vertex_normals = list()
+  
+  for(i in seq_len(length(obj_loaded$shapes))) {
+    single_indices[[i]]            = obj_loaded$shapes[[i]]$indices
+    single_tex_indices[[i]]        = obj_loaded$shapes[[i]]$tex_indices
+    single_norm_indices[[i]]       = obj_loaded$shapes[[i]]$norm_indices
+    single_material_ids[[i]]       = obj_loaded$shapes[[i]]$material_ids
+    single_has_vertex_tex[[i]]     = obj_loaded$shapes[[i]]$has_vertex_tex
+    single_has_vertex_normals[[i]] = obj_loaded$shapes[[i]]$has_vertex_normals
+  }
+  
+  obj_loaded$shapes = list(list(indices = do.call(rbind,single_indices),
+                           tex_indices = do.call(rbind,single_tex_indices),
+                           norm_indices = do.call(rbind,single_norm_indices),
+                           material_ids = do.call(rbind,single_material_ids),
+                           has_vertex_tex = do.call(c,single_has_vertex_tex),
+                           has_vertex_normals = do.call(c,single_has_vertex_normals)))
+  
   for(i in seq_len(length(obj_loaded$materials))) {
     if(!file.exists(obj_loaded$materials[[i]]$diffuse_texname) && nchar(obj_loaded$materials[[i]]$diffuse_texname) > 0 &&
        file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$diffuse_texname))) {

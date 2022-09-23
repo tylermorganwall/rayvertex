@@ -81,8 +81,7 @@ List load_obj(std::string inputfile, std::string basedir) {
     single_shape["material_ids"]       = Rcpp::transpose(NumericMatrix(1L, mats.size(), mats.begin()));
     single_shape["has_vertex_tex"]     = LogicalVector(inds.size()/nv_face,inds.size() == tex_inds.size());
     single_shape["has_vertex_normals"] = LogicalVector(inds.size()/nv_face,inds.size() == norm_inds.size());
-    
-    single_shape["name"]         = shapes[s].name;
+
     shape_list[s]                = single_shape;
   }
   for(unsigned int i=0; i < materials.size(); i++) {
