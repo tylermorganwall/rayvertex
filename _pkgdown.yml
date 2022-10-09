@@ -48,6 +48,7 @@ reference:
       - starts_with("text")
       - starts_with("ply")
       - starts_with("r_obj")
+      - starts_with("read")
   - title: "Materials"
     desc: "Functions to specify the visual properties of objects"
     contents:
