@@ -35,7 +35,7 @@ Required to be the same number of rows as `indices`.}
 \item{material}{Default `material_list()` (default values). Specify the material of the object.}
 }
 \value{
-List containing mesh info.
+List  containing mesh info.
 }
 \description{
 Manually construct a mesh

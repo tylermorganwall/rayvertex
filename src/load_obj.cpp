@@ -105,9 +105,9 @@ List load_obj(std::string inputfile, std::string basedir) {
     set_item( out, 12, _["specular_texname"]   = m.specular_texname,  names) ;
     set_item( out, 13, _["normal_texname"]     = m.normal_texname  ,  names) ;
     set_item( out, 14, _["diffuse_intensity"]  = 1.0  , names) ;
-    set_item( out, 15, _["emission_intensity"] = 1.0, names) ;
-    set_item( out, 16, _["specular_intensity"] = 1.0, names) ;
-    set_item( out, 17, _["ambient_intensity"] = 1.0, names) ;
+    set_item( out, 15, _["emission_intensity"] = 0.0, names) ;
+    set_item( out, 16, _["specular_intensity"] = 0.0, names) ;
+    set_item( out, 17, _["ambient_intensity"] = 0.0, names) ;
     set_item( out, 18, _["culling"] = culltype, names) ;
     set_item( out, 19, _["type"] = "diffuse", names) ;
     set_item( out, 20, _["translucent"] = true, names) ;

@@ -29,6 +29,7 @@ THE SOFTWARE.
 //                 * Support multiple search path for .mtl(v1 API).
 //                 * Support vertex weight `vw`(as an tinyobj extension)
 //                 * Support escaped whitespece in mtllib
+//                 * Add robust triangulation using Mapbox earcut(TINYOBJLOADER_USE_MAPBOX_EARCUT).
 // version 1.4.0 : Modifed ParseTextureNameAndOption API
 // version 1.3.1 : Make ParseTextureNameAndOption API public
 // version 1.3.0 : Separate warning and error message(breaking API of LoadObj)
@@ -71,6 +72,7 @@ namespace tinyobj {
 #else
 #define TINYOBJ_OVERRIDE
 #endif
+
 
 // https://en.wikipedia.org/wiki/Wavefront_.obj_file says ...
 //
@@ -128,10 +130,8 @@ namespace tinyobj {
 //
 
 #ifdef TINYOBJLOADER_USE_DOUBLE
-//#pragma message "using double"
 typedef double real_t;
 #else
-//#pragma message "using float"
 typedef float real_t;
 #endif
 
@@ -492,6 +492,11 @@ class MaterialStreamReader : public MaterialReader {
 struct ObjReaderConfig {
   bool triangulate;  // triangulate polygon?
 
+  // Currently not used.
+  // "simple" or empty: Create triangle fan
+  // "earcut": Use the algorithm based on Ear clipping
+  std::string triangulation_method;
+
   /// Parse vertex color.
   /// If vertex color is not present, its filled with default value.
   /// false = no vertex color
@@ -505,7 +510,8 @@ struct ObjReaderConfig {
   ///
   std::string mtl_search_path;
 
-  ObjReaderConfig() : triangulate(true), vertex_color(true) {}
+  ObjReaderConfig()
+      : triangulate(true), triangulation_method("simple"), vertex_color(true) {}
 };
 
 ///
@@ -514,7 +520,6 @@ struct ObjReaderConfig {
 class ObjReader {
  public:
   ObjReader() : valid_(false) {}
-  ~ObjReader() {}
 
   ///
   /// Load .obj and .mtl from a file.
@@ -544,9 +549,9 @@ class ObjReader {
 
   const attrib_t &GetAttrib() const { return attrib_; }
 
-  const std::vector<shape_t> &GetShapes() const { return shapes_; }
+  std::vector<shape_t> &GetShapes() { return shapes_; }
 
-  const std::vector<material_t> &GetMaterials() const { return materials_; }
+  std::vector<material_t> &GetMaterials() { return materials_; }
 
   ///
   /// Warning message(may be filled after `Load` or `Parse`)
@@ -641,8 +646,22 @@ bool ParseTextureNameAndOption(std::string *texname, texture_option_t *texopt,
 #include <cstring>
 #include <fstream>
 #include <limits>
+#include <set>
 #include <sstream>
 #include <utility>
+
+#ifdef TINYOBJLOADER_USE_MAPBOX_EARCUT
+
+#ifdef TINYOBJLOADER_DONOT_INCLUDE_MAPBOX_EARCUT
+// Assume earcut.hpp is included outside of tiny_obj_loader.h
+#else
+
+#include <array>
+#include "earcut.hpp"
+
+#endif
+
+#endif  // TINYOBJLOADER_USE_MAPBOX_EARCUT
 
 namespace tinyobj {
 
@@ -931,6 +950,12 @@ static bool tryParseDouble(const char *s, const char *s_end, double *result) {
     read = 0;
     end_not_reached = (curr != s_end);
     while (end_not_reached && IS_DIGIT(*curr)) {
+      // To avoid annoying MSVC's min/max macro definiton,
+      // Use hardcoded int max value
+      if (exponent > (2147483647/10)) { // 2147483647 = std::numeric_limits<int>::max()
+        // Integer overflow
+        goto fail;
+      }
       exponent *= 10;
       exponent += static_cast<int>(*curr - 0x30);
       curr++;
@@ -1352,6 +1377,41 @@ static int pnpoly(int nvert, T *vertx, T *verty, T testx, T testy) {
   return c;
 }
 
+struct TinyObjPoint {
+  real_t x, y, z;
+  TinyObjPoint() : x(0), y(0), z(0) {}
+  TinyObjPoint(real_t x_, real_t y_, real_t z_) :
+    x(x_), y(y_), z(z_) {}
+};
+
+inline TinyObjPoint cross(const TinyObjPoint &v1, const TinyObjPoint &v2) {
+  return TinyObjPoint(v1.y * v2.z - v1.z * v2.y,
+                      v1.z * v2.x - v1.x * v2.z,
+                      v1.x * v2.y - v1.y * v2.x);
+}
+
+inline real_t dot(const TinyObjPoint &v1, const TinyObjPoint &v2) {
+  return (v1.x * v2.x + v1.y * v2.y + v1.z * v2.z);
+}
+
+inline real_t GetLength(TinyObjPoint &e) {
+	return std::sqrt(e.x*e.x + e.y*e.y + e.z*e.z);
+}
+
+inline TinyObjPoint Normalize(TinyObjPoint e) {
+	real_t inv_length = 1.0 / GetLength(e);
+	return TinyObjPoint(e.x * inv_length, e.y * inv_length, e.z * inv_length );
+}
+
+
+inline TinyObjPoint WorldToLocal(const TinyObjPoint& a,
+										  const TinyObjPoint& u,
+										  const TinyObjPoint& v,
+										  const TinyObjPoint& w) {
+  return TinyObjPoint(dot(a,u),dot(a,v),dot(a,w));
+}
+
+
 // TODO(syoyo): refactor function.
 static bool exportGroupsToShape(shape_t *shape, const PrimGroup &prim_group,
                                 const std::vector<tag_t> &tags,
@@ -1380,7 +1440,7 @@ static bool exportGroupsToShape(shape_t *shape, const PrimGroup &prim_group,
         continue;
       }
 
-      if (triangulate) {
+      if (triangulate && npolys != 3) {
         if (npolys == 4) {
           vertex_index_t i0 = face.vertex_indices[0];
           vertex_index_t i1 = face.vertex_indices[1];
@@ -1489,6 +1549,125 @@ static bool exportGroupsToShape(shape_t *shape, const PrimGroup &prim_group,
           shape->mesh.smoothing_group_ids.push_back(face.smoothing_group_id);
 
         } else {
+#ifdef TINYOBJLOADER_USE_MAPBOX_EARCUT
+          vertex_index_t i0 = face.vertex_indices[0];
+          vertex_index_t i0_2 = i0;
+
+          // TMW change: Find the normal axis of the polygon using Newell's method
+          TinyObjPoint n;
+          for (size_t k = 0; k < npolys; ++k) {
+            i0 = face.vertex_indices[k % npolys];
+            size_t vi0 = size_t(i0.v_idx);
+
+            size_t j = (k + 1) % npolys;
+            i0_2 = face.vertex_indices[j];
+            size_t vi0_2 = size_t(i0_2.v_idx);
+
+            real_t v0x = v[vi0 * 3 + 0];
+            real_t v0y = v[vi0 * 3 + 1];
+            real_t v0z = v[vi0 * 3 + 2];
+
+            real_t v0x_2 = v[vi0_2 * 3 + 0];
+            real_t v0y_2 = v[vi0_2 * 3 + 1];
+            real_t v0z_2 = v[vi0_2 * 3 + 2];
+
+            const TinyObjPoint point1(v0x,v0y,v0z);
+            const TinyObjPoint point2(v0x_2,v0y_2,v0z_2);
+
+            TinyObjPoint a(point1.x - point2.x, point1.y - point2.y, point1.z - point2.z);
+            TinyObjPoint b(point1.x + point2.x, point1.y + point2.y, point1.z + point2.z);
+
+            n.x += (a.x * b.z);
+            n.y += (a.z * b.x);
+            n.z += (a.x * b.y);
+          }
+          real_t length_n = GetLength(n);
+          //Check if zero length normal
+          if(length_n <= 0) {
+            continue;
+          }
+          //Negative is to flip the normal to the correct direction
+          real_t inv_length = -1.0f / length_n;
+          n.x *= inv_length;
+          n.y *= inv_length;
+          n.z *= inv_length;
+
+          TinyObjPoint axis_w, axis_v, axis_u;
+          axis_w = n;
+          TinyObjPoint a;
+          if(abs(axis_w.x) > 0.9999999) {
+            a = TinyObjPoint(0,1,0);
+          } else {
+            a = TinyObjPoint(1,0,0);
+          }
+          axis_v = Normalize(cross(axis_w, a));
+          axis_u = cross(axis_w, axis_v);
+          using Point = std::array<real_t, 2>;
+
+          // first polyline define the main polygon.
+          // following polylines define holes(not used in tinyobj).
+          std::vector<std::vector<Point> > polygon;
+
+          std::vector<Point> polyline;
+
+          //TMW change: Find best normal and project v0x and v0y to those coordinates, instead of
+          //picking a plane aligned with an axis (which can flip polygons).
+
+          // Fill polygon data(facevarying vertices).
+          for (size_t k = 0; k < npolys; k++) {
+            i0 = face.vertex_indices[k];
+            size_t vi0 = size_t(i0.v_idx);
+
+            assert(((3 * vi0 + 2) < v.size()));
+
+            real_t v0x = v[vi0 * 3 + 0];
+            real_t v0y = v[vi0 * 3 + 1];
+            real_t v0z = v[vi0 * 3 + 2];
+
+            TinyObjPoint polypoint(v0x,v0y,v0z);
+            TinyObjPoint loc = WorldToLocal(polypoint, axis_u, axis_v, axis_w);
+
+            polyline.push_back({loc.x, loc.y});
+          }
+
+          polygon.push_back(polyline);
+          std::vector<uint32_t> indices = mapbox::earcut<uint32_t>(polygon);
+          // => result = 3 * faces, clockwise
+
+          assert(indices.size() % 3 == 0);
+
+          // Reconstruct vertex_index_t
+          for (size_t k = 0; k < indices.size() / 3; k++) {
+            {
+              index_t idx0, idx1, idx2;
+              idx0.vertex_index = face.vertex_indices[indices[3 * k + 0]].v_idx;
+              idx0.normal_index =
+                face.vertex_indices[indices[3 * k + 0]].vn_idx;
+              idx0.texcoord_index =
+                face.vertex_indices[indices[3 * k + 0]].vt_idx;
+              idx1.vertex_index = face.vertex_indices[indices[3 * k + 1]].v_idx;
+              idx1.normal_index =
+                face.vertex_indices[indices[3 * k + 1]].vn_idx;
+              idx1.texcoord_index =
+                face.vertex_indices[indices[3 * k + 1]].vt_idx;
+              idx2.vertex_index = face.vertex_indices[indices[3 * k + 2]].v_idx;
+              idx2.normal_index =
+                face.vertex_indices[indices[3 * k + 2]].vn_idx;
+              idx2.texcoord_index =
+                face.vertex_indices[indices[3 * k + 2]].vt_idx;
+
+              shape->mesh.indices.push_back(idx0);
+              shape->mesh.indices.push_back(idx1);
+              shape->mesh.indices.push_back(idx2);
+
+              shape->mesh.num_face_vertices.push_back(3);
+              shape->mesh.material_ids.push_back(material_id);
+              shape->mesh.smoothing_group_ids.push_back(
+                  face.smoothing_group_id);
+            }
+          }
+
+#else  // Built-in ear clipping triangulation
           vertex_index_t i0 = face.vertex_indices[0];
           vertex_index_t i1(-1);
           vertex_index_t i2 = face.vertex_indices[1];
@@ -1528,35 +1707,23 @@ static bool exportGroupsToShape(shape_t *shape, const PrimGroup &prim_group,
             real_t cy = std::fabs(e0z * e1x - e0x * e1z);
             real_t cz = std::fabs(e0x * e1y - e0y * e1x);
             const real_t epsilon = std::numeric_limits<real_t>::epsilon();
+            // std::cout << "cx " << cx << ", cy " << cy << ", cz " << cz <<
+            // "\n";
             if (cx > epsilon || cy > epsilon || cz > epsilon) {
+              // std::cout << "corner\n";
               // found a corner
               if (cx > cy && cx > cz) {
+                // std::cout << "pattern0\n";
               } else {
+                // std::cout << "axes[0] = 0\n";
                 axes[0] = 0;
-                if (cz > cx && cz > cy) axes[1] = 1;
+                if (cz > cx && cz > cy) {
+                  // std::cout << "axes[1] = 1\n";
+                  axes[1] = 1;
+                }
               }
               break;
             }
-          }
-
-          real_t area = 0;
-          for (size_t k = 0; k < npolys; ++k) {
-            i0 = face.vertex_indices[(k + 0) % npolys];
-            i1 = face.vertex_indices[(k + 1) % npolys];
-            size_t vi0 = size_t(i0.v_idx);
-            size_t vi1 = size_t(i1.v_idx);
-            if (((vi0 * 3 + axes[0]) >= v.size()) ||
-                ((vi0 * 3 + axes[1]) >= v.size()) ||
-                ((vi1 * 3 + axes[0]) >= v.size()) ||
-                ((vi1 * 3 + axes[1]) >= v.size())) {
-              // Invalid index.
-              continue;
-            }
-            real_t v0x = v[vi0 * 3 + axes[0]];
-            real_t v0y = v[vi0 * 3 + axes[1]];
-            real_t v1x = v[vi1 * 3 + axes[0]];
-            real_t v1y = v[vi1 * 3 + axes[1]];
-            area += (v0x * v1y - v0y * v1x) * static_cast<real_t>(0.5);
           }
 
           face_t remainingFace = face;  // copy
@@ -1573,6 +1740,9 @@ static bool exportGroupsToShape(shape_t *shape, const PrimGroup &prim_group,
 
           while (remainingFace.vertex_indices.size() > 3 &&
                  remainingIterations > 0) {
+            // std::cout << "remainingIterations " << remainingIterations <<
+            // "\n";
+
             npolys = remainingFace.vertex_indices.size();
             if (guess_vert >= npolys) {
               guess_vert -= npolys;
@@ -1601,14 +1771,26 @@ static bool exportGroupsToShape(shape_t *shape, const PrimGroup &prim_group,
                 vy[k] = v[vi * 3 + axes[1]];
               }
             }
+
+            //
+            // area is calculated per face
+            //
             real_t e0x = vx[1] - vx[0];
             real_t e0y = vy[1] - vy[0];
             real_t e1x = vx[2] - vx[1];
             real_t e1y = vy[2] - vy[1];
             real_t cross = e0x * e1y - e0y * e1x;
+            // std::cout << "axes = " << axes[0] << ", " << axes[1] << "\n";
+            // std::cout << "e0x, e0y, e1x, e1y " << e0x << ", " << e0y << ", "
+            // << e1x << ", " << e1y << "\n";
+
+            real_t area = (vx[0] * vy[1] - vy[0] * vx[1]) * static_cast<real_t>(0.5);
+            // std::cout << "cross " << cross << ", area " << area << "\n";
             // if an internal angle
             if (cross * area < static_cast<real_t>(0.0)) {
+              // std::cout << "internal \n";
               guess_vert += 1;
+              // std::cout << "guess vert : " << guess_vert << "\n";
               continue;
             }
 
@@ -1618,6 +1800,7 @@ static bool exportGroupsToShape(shape_t *shape, const PrimGroup &prim_group,
               size_t idx = (guess_vert + otherVert) % npolys;
 
               if (idx >= remainingFace.vertex_indices.size()) {
+                // std::cout << "???0\n";
                 // ???
                 continue;
               }
@@ -1626,18 +1809,21 @@ static bool exportGroupsToShape(shape_t *shape, const PrimGroup &prim_group,
 
               if (((ovi * 3 + axes[0]) >= v.size()) ||
                   ((ovi * 3 + axes[1]) >= v.size())) {
+                // std::cout << "???1\n";
                 // ???
                 continue;
               }
               real_t tx = v[ovi * 3 + axes[0]];
               real_t ty = v[ovi * 3 + axes[1]];
               if (pnpoly(3, vx, vy, tx, ty)) {
+                // std::cout << "overlap\n";
                 overlap = true;
                 break;
               }
             }
 
             if (overlap) {
+              // std::cout << "overlap2\n";
               guess_vert += 1;
               continue;
             }
@@ -1675,6 +1861,8 @@ static bool exportGroupsToShape(shape_t *shape, const PrimGroup &prim_group,
             remainingFace.vertex_indices.pop_back();
           }
 
+          // std::cout << "remainingFace.vi.size = " <<
+          // remainingFace.vertex_indices.size() << "\n";
           if (remainingFace.vertex_indices.size() == 3) {
             i0 = remainingFace.vertex_indices[0];
             i1 = remainingFace.vertex_indices[1];
@@ -1701,6 +1889,7 @@ static bool exportGroupsToShape(shape_t *shape, const PrimGroup &prim_group,
                   face.smoothing_group_id);
             }
           }
+#endif
         }  // npolys
       } else {
         for (size_t k = 0; k < npolys; k++) {
@@ -1972,7 +2161,7 @@ void LoadMtl(std::map<std::string, int> *material_map,
         warn_ss << "Both `d` and `Tr` parameters defined for \""
                 << material.name
                 << "\". Use the value of `d` for dissolve (line " << line_no
-                << " in .mtl.)" << std::endl;
+                << " in .mtl.)\n";
       }
       has_d = true;
       continue;
@@ -1984,7 +2173,7 @@ void LoadMtl(std::map<std::string, int> *material_map,
         warn_ss << "Both `d` and `Tr` parameters defined for \""
                 << material.name
                 << "\". Use the value of `d` for dissolve (line " << line_no
-                << " in .mtl.)" << std::endl;
+                << " in .mtl.)\n";
       } else {
         // We invert value of Tr(assume Tr is in range [0, 1])
         // NOTE: Interpretation of Tr is application(exporter) dependent. For
@@ -2086,15 +2275,9 @@ void LoadMtl(std::map<std::string, int> *material_map,
     }
 
     // bump texture
-    if ((0 == strncmp(token, "map_bump", 8)) && IS_SPACE(token[8])) {
-      token += 9;
-      ParseTextureNameAndOption(&(material.bump_texname),
-                                &(material.bump_texopt), token);
-      continue;
-    }
-
-    // bump texture
-    if ((0 == strncmp(token, "map_Bump", 8)) && IS_SPACE(token[8])) {
+    if (((0 == strncmp(token, "map_bump", 8)) ||
+         (0 == strncmp(token, "map_Bump", 8))) &&
+        IS_SPACE(token[8])) {
       token += 9;
       ParseTextureNameAndOption(&(material.bump_texname),
                                 &(material.bump_texopt), token);
@@ -2115,6 +2298,16 @@ void LoadMtl(std::map<std::string, int> *material_map,
       material.alpha_texname = token;
       ParseTextureNameAndOption(&(material.alpha_texname),
                                 &(material.alpha_texopt), token);
+      continue;
+    }
+
+    // displacement texture
+    if (((0 == strncmp(token, "map_disp", 8)) ||
+         (0 == strncmp(token, "map_Disp", 8))) &&
+        IS_SPACE(token[8])) {
+      token += 9;
+      ParseTextureNameAndOption(&(material.displacement_texname),
+                                &(material.displacement_texopt), token);
       continue;
     }
 
@@ -2230,7 +2423,7 @@ bool MaterialFileReader::operator()(const std::string &matId,
 
     std::stringstream ss;
     ss << "Material file [ " << matId
-       << " ] not found in a path : " << m_mtlBaseDir << std::endl;
+       << " ] not found in a path : " << m_mtlBaseDir << "\n";
     if (warn) {
       (*warn) += ss.str();
     }
@@ -2247,7 +2440,7 @@ bool MaterialFileReader::operator()(const std::string &matId,
 
     std::stringstream ss;
     ss << "Material file [ " << filepath
-       << " ] not found in a path : " << m_mtlBaseDir << std::endl;
+       << " ] not found in a path : " << m_mtlBaseDir << "\n";
     if (warn) {
       (*warn) += ss.str();
     }
@@ -2264,7 +2457,7 @@ bool MaterialStreamReader::operator()(const std::string &matId,
   (void)matId;
   if (!m_inStream) {
     std::stringstream ss;
-    ss << "Material stream in error state. " << std::endl;
+    ss << "Material stream in error state. \n";
     if (warn) {
       (*warn) += ss.str();
     }
@@ -2290,7 +2483,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
 
   std::ifstream ifs(filename);
   if (!ifs) {
-    errss << "Cannot open file [" << filename << "]" << std::endl;
+    errss << "Cannot open file [" << filename << "]\n";
     if (err) {
       (*err) = errss.str();
     }
@@ -2329,6 +2522,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
   std::string name;
 
   // material
+  std::set<std::string> material_filenames;
   std::map<std::string, int> material_map;
   int material = -1;
 
@@ -2439,7 +2633,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
         // TODO(syoyo): # of elements check
         parseReal2(&j, &w, &token, -1.0);
 
-        if (j < 0.0) {
+        if (j < static_cast<real_t>(0)) {
           if (err) {
             std::stringstream ss;
             ss << "Failed parse `vw' line. joint_id is negative. "
@@ -2619,6 +2813,11 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
         } else {
           bool found = false;
           for (size_t s = 0; s < filenames.size(); s++) {
+            if (material_filenames.count(filenames[s]) > 0) {
+              found = true;
+              continue;
+            }
+
             std::string warn_mtl;
             std::string err_mtl;
             bool ok = (*readMatFn)(filenames[s].c_str(), materials,
@@ -2633,6 +2832,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
 
             if (ok) {
               found = true;
+              material_filenames.insert(filenames[s]);
               break;
             }
           }
@@ -2823,24 +3023,21 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
   if (greatest_v_idx >= static_cast<int>(v.size() / 3)) {
     if (warn) {
       std::stringstream ss;
-      ss << "Vertex indices out of bounds (line " << line_num << ".)\n"
-         << std::endl;
+      ss << "Vertex indices out of bounds (line " << line_num << ".)\n\n";
       (*warn) += ss.str();
     }
   }
   if (greatest_vn_idx >= static_cast<int>(vn.size() / 3)) {
     if (warn) {
       std::stringstream ss;
-      ss << "Vertex normal indices out of bounds (line " << line_num << ".)\n"
-         << std::endl;
+      ss << "Vertex normal indices out of bounds (line " << line_num << ".)\n\n";
       (*warn) += ss.str();
     }
   }
   if (greatest_vt_idx >= static_cast<int>(vt.size() / 2)) {
     if (warn) {
       std::stringstream ss;
-      ss << "Vertex texcoord indices out of bounds (line " << line_num << ".)\n"
-         << std::endl;
+      ss << "Vertex texcoord indices out of bounds (line " << line_num << ".)\n\n";
       (*warn) += ss.str();
     }
   }
@@ -2880,6 +3077,7 @@ bool LoadObjWithCallback(std::istream &inStream, const callback_t &callback,
   std::stringstream errss;
 
   // material
+  std::set<std::string> material_filenames;
   std::map<std::string, int> material_map;
   int material_id = -1;  // -1 = invalid
 
@@ -3025,6 +3223,11 @@ bool LoadObjWithCallback(std::istream &inStream, const callback_t &callback,
         } else {
           bool found = false;
           for (size_t s = 0; s < filenames.size(); s++) {
+            if (material_filenames.count(filenames[s]) > 0) {
+              found = true;
+              continue;
+            }
+
             std::string warn_mtl;
             std::string err_mtl;
             bool ok = (*readMatFn)(filenames[s].c_str(), &materials,
@@ -3040,6 +3243,7 @@ bool LoadObjWithCallback(std::istream &inStream, const callback_t &callback,
 
             if (ok) {
               found = true;
+              material_filenames.insert(filenames[s]);
               break;
             }
           }

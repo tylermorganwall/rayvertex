@@ -52,5 +52,6 @@ scene_from_list = function(scene_list) {
     new_scene$normals[[i]] = scene_list[[i]]$normals[[1]]
     new_scene$material_hashes[[i]] = scene_list[[i]]$material_hashes
   }
+  class(new_scene) = c("ray_mesh", "list")
   return(new_scene)
 }

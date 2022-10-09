@@ -37,6 +37,7 @@ add_shape = function(scene, shape) {
       attr(scene,"cornell_light") = attr(scene,"cornell_light")
     }
   }
+  class(scene) = c("ray_mesh", "list")
   return(scene)
 }
 
@@ -75,6 +76,7 @@ preprocess_scene = function(scene_list) {
   scene$texcoords = do.call(rbind,scene_list$texcoords)
   scene$materials = scene_list$materials 
   scene$material_hashes = unlist(lapply(scene_list$materials, digest::digest))
+  class(scene) = c("ray_mesh", "list")
   return(scene)
 }
 
@@ -114,6 +116,7 @@ remove_duplicate_materials = function(scene) {
   }
   scene$materials = new_mat
   scene$material_hashes = unique_materials
+  class(scene) = c("ray_mesh", "list")
   
   return(scene)
 }
@@ -152,6 +155,7 @@ merge_shapes = function(scene) {
   scene$shapes[[1]]$material_ids = unlist(material_ids)
   scene$shapes[[1]]$has_vertex_tex = unlist(has_vertex_tex)
   scene$shapes[[1]]$has_vertex_normals = unlist(has_vertex_normals)
+  class(scene) = c("ray_mesh", "list")
   
   return(scene)
 }
@@ -179,6 +183,8 @@ translate_mesh = function(mesh, position = c(0,0,0)) {
     mesh$vertices[[j]][,2]  = mesh$vertices[[j]][,2] + position[2]
     mesh$vertices[[j]][,3]  = mesh$vertices[[j]][,3] + position[3]
   }
+  class(mesh) = c("ray_mesh", "list")
+  
   return(mesh)
 }
 
@@ -220,6 +226,8 @@ scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
       }
     }
   }
+  class(mesh) = c("ray_mesh", "list")
+  
   return(mesh)
 }
 
@@ -250,6 +258,7 @@ center_mesh = function(mesh) {
   center = apply(center_mat,2,mean)
   
   mesh = translate_mesh(mesh, -center)
+  class(mesh) = c("ray_mesh", "list")
   
   return(mesh)
 }
@@ -316,6 +325,8 @@ rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rot
       }
     }
   }
+  class(mesh) = c("ray_mesh", "list")
+  
   return(mesh)
 }
 
@@ -449,6 +460,7 @@ set_material = function(mesh, material = NULL, id = NULL,
     
     mesh$material_hashes[1] = material_hash
   }
+  class(mesh) = c("ray_mesh", "list")
   return(mesh)
 }
 
@@ -647,6 +659,8 @@ change_material = function(mesh, id = NULL,
   } else {
    stop("No materials detected")
   }
+  class(mesh) = c("ray_mesh", "list")
+  
   return(mesh)
 }
 
@@ -773,5 +787,7 @@ generate_toon_outline = function(single_obj, material, scale = 1) {
       scale_mesh(scale = scaleval) |>
       set_material(diffuse=material$toon_outline_color , culling = "front", type="color")
   }
+  class(single_obj) = c("ray_mesh", "list")
+  
   return(single_obj)
 }
