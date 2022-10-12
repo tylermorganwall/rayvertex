@@ -780,7 +780,7 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
 #'@keywords internal
 generate_toon_outline = function(single_obj, material, scale = 1) {
   if((material$type == "toon" || material$type == "toon_phong") && material$toon_outline_width != 0.0) {
-    bbox = apply(single_obj$vertices,2,range)
+    bbox = apply(single_obj$vertices[[1]],2,range)
     bbox_size = bbox[2,] - bbox[1,]
     scaleval = (bbox_size + material$toon_outline_width)/bbox_size
     single_obj = single_obj |>
