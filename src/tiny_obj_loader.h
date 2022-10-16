@@ -657,7 +657,7 @@ bool ParseTextureNameAndOption(std::string *texname, texture_option_t *texopt,
 #else
 
 #include <array>
-#include "earcut.hpp"
+#include "earcut.h"
 
 #endif
 

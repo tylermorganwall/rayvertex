@@ -8,6 +8,7 @@
 ^.+\.mp4$
 ^.+\.tga$
 ^.+\.obj$
+^.+\.mtl$
 ^README\.Rmd$
 ^README\.md$
 ^.*yml$

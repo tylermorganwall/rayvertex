@@ -20,14 +20,14 @@ save_png = function(hillshade,filename ,rotate=0) {
   if(substring(filename, nchar(filename)-3,nchar(filename)) != ".png") {
     filename = paste0(filename,".png")
   }
-  if(class(hillshade) == "matrix") {
+  if(length(dim(hillshade)) == 2) {
     if(number_of_rots != 0) {
       for(j in 1:number_of_rots) {
         hillshade = rotatef(hillshade)
       }
     }
     final = array(t(hillshade[,ncol(hillshade):1]),dim=c(ncol(hillshade),nrow(hillshade),3))
-    png::writePNG(final,filename)
+    png::writePNG(final,filename, text=c("source"="rayvertex"))
   } else {
     if(number_of_rots != 0) {
       newarray = hillshade
@@ -47,6 +47,6 @@ save_png = function(hillshade,filename ,rotate=0) {
         hillshade = newarrayt
       }
     }
-    png::writePNG(hillshade,filename)
+    png::writePNG(hillshade,filename, text=c("source"="rayvertex"))
   }
 }
