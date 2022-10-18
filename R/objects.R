@@ -726,7 +726,11 @@ generate_cornell_mesh = function(leftcolor = "#1f7326",
 obj_mesh = function(filename, center = FALSE, position = c(0,0,0), scale = c(1,1,1), 
                     angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3), materialspath = NULL,
                     material = NULL) {
+  if(!file.exists(filename) || dir.exists(filename)) {
+    stop(sprintf("OBJ `%s` not found or not an OBJ file", filename ))
+  }
   obj_loaded = read_obj(filename, materialspath)
+
   if(any(scale != 1)) {
     obj_loaded = scale_mesh(obj_loaded, scale=scale)
   }

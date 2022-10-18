@@ -175,12 +175,12 @@ rasterize_scene  = function(scene,
       light_info = add_light(light_info,point_light(c(555/2,450,555/2),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
     }
   }
+  
   print_time(verbose, "Pre-processing scene")
   scene = preprocess_scene(scene)
   print_time(verbose, "Pre-processed  scene")
   scene = remove_duplicate_materials(scene)
   print_time(verbose, "Removed duplicate materials")
-  
   
   fsaa = as.integer(fsaa)
   if(fsaa > 1) {
@@ -215,15 +215,12 @@ rasterize_scene  = function(scene,
 
   bounds = c(Inf,Inf,Inf,-Inf,-Inf,-Inf)
   for(i in seq_len(length(obj$shapes))) {
-    obj$shapes[[i]]$indices = (obj$shapes[[i]]$indices)
-    obj$shapes[[i]]$tex_indices = (obj$shapes[[i]]$tex_indices)
-    obj$shapes[[i]]$norm_indices = (obj$shapes[[i]]$norm_indices)
-    has_vertex_tex[[i]] = (obj$shapes[[i]]$has_vertex_tex)
-    has_vertex_normals[[i]] = (obj$shapes[[i]]$has_vertex_normals)
+    has_vertex_tex[[i]] = obj$shapes[[i]]$has_vertex_tex
+    has_vertex_normals[[i]] = obj$shapes[[i]]$has_vertex_normals
     
     max_indices = max(c(max_indices,nrow(obj$shapes[[i]]$indices)))
     has_norms[i] = nrow(obj$shapes[[i]]$indices) == nrow(obj$shapes[[i]]$norm_indices)
-    has_tex[i] = nrow(obj$shapes[[i]]$indices) == nrow(obj$shapes[[i]]$tex_indices) && all(obj$shapes[[i]]$tex_indices != -1)
+    has_tex[i] = nrow(obj$shapes[[i]]$indices) == nrow(obj$shapes[[i]]$tex_indices) && all(obj$shapes[[i]]$tex_indices != -1) 
   }
   print_time(verbose, "Processed scene bounds")
   
@@ -372,6 +369,7 @@ rasterize_scene  = function(scene,
     }
   }
   print_time(verbose, "Processed materials")
+  
   imagelist = rasterize(obj,
                         lightinfo,
                         line_mat = line_info,
@@ -390,7 +388,7 @@ rasterize_scene  = function(scene,
                         numbercores = numbercores,
                         max_indices = max_indices,
                         has_normals_vec = has_norms,
-                        has_tex_vec = has_tex,
+                        has_tex_vec = has_tex, #This just determines whether to include tex indices
                         has_texture,
                         has_ambient_texture,
                         has_normal_texture,

@@ -43,7 +43,9 @@ add_shape = function(scene, shape) {
 
 #'@title Preprocess Scene
 #'
-#'@description Preprocess the scene
+#'@description This function takes a ray_mesh object (which is a list that has multiple vertex/
+#'normal/tex matrices and materials for each, as well as shapes that refer to each one) and combines them into a single set
+#'of vertex/normal/tex matrices and materials by adjusting the index arguments in each shape. 
 #'
 #'@param scene_list The scene list.
 #'@return Scene list converted to proper format.
@@ -51,30 +53,37 @@ add_shape = function(scene, shape) {
 preprocess_scene = function(scene_list) {
   scene_n = length(scene_list)
   
-  max_vertices = 0
-  max_norms = 0
-  max_tex = 0
-  max_material = 0
+  max_vertices = 0L
+  max_norms = 0L
+  max_tex = 0L
+  max_material = 0L
 
+  #Adjust shape indices to match combined matrix/materials
   for(i in seq_len(length(scene_list$shapes))) {
     scene_list$shapes[[i]]$indices      = scene_list$shapes[[i]]$indices      + max_vertices
     scene_list$shapes[[i]]$tex_indices  = scene_list$shapes[[i]]$tex_indices  + max_tex
     scene_list$shapes[[i]]$norm_indices = scene_list$shapes[[i]]$norm_indices + max_norms
-    scene_list$shapes[[i]]$material_ids = ifelse(scene_list$shapes[[i]]$material_ids != -1,
+    scene_list$shapes[[i]]$material_ids = ifelse(scene_list$shapes[[i]]$material_ids != -1L,
                                                  scene_list$shapes[[i]]$material_ids + max_material,
-                                                 -1)
-    max_vertices = max(scene_list$shapes[[i]]$indices) + 1
-    max_tex = max(scene_list$shapes[[i]]$tex_indices) + 1
-    max_norms = max(scene_list$shapes[[i]]$norm_indices) + 1
-    max_material = max(scene_list$shapes[[i]]$material_ids) + 1
+                                                 -1L)
+    max_vertices = max(scene_list$shapes[[i]]$indices) + 1L
+    max_tex = max(scene_list$shapes[[i]]$tex_indices) + 1L
+    max_norms = max(scene_list$shapes[[i]]$norm_indices) + 1L
+    max_material = max(scene_list$shapes[[i]]$material_ids) + 1L
   }
   
   scene = list()
   scene$shapes = scene_list$shapes
+  
+  #Combine all matrices into one
   scene$vertices = do.call(rbind,scene_list$vertices)
   scene$normals = do.call(rbind,scene_list$normals)
   scene$texcoords = do.call(rbind,scene_list$texcoords)
+  
+  #Combine materials into one
   scene$materials = scene_list$materials 
+  
+  #Compute hashes
   scene$material_hashes = unlist(lapply(scene_list$materials, digest::digest))
   class(scene) = c("ray_mesh", "list")
   return(scene)
@@ -87,7 +96,7 @@ preprocess_scene = function(scene_list) {
 #'
 #'@keywords internal
 remove_duplicate_materials = function(scene) {
-  if(length(scene$materials) == 1 || length(scene$materials) == 0) {
+  if(length(scene$materials) == 1L || length(scene$materials) == 0L) {
     return(scene)
   }
   
@@ -96,23 +105,23 @@ remove_duplicate_materials = function(scene) {
   unique_materials = unique(scene_material_hashes)
   
   #Allocate new_id vector
-  new_ids = rep(0,length(scene_material_hashes))
+  new_ids = rep(0L,length(scene_material_hashes))
   
   #Generate vector for all old non-unique IDs (zero indexed)
-  old_ids = seq_len(length(scene_material_hashes)) - 1
+  old_ids = seq_len(length(scene_material_hashes)) - 1L
   new_mat = list()
   
   #Go through each hash and determine which entry it is in the unique_material vector
   for(i in seq_len(length(scene_material_hashes))) {
-    new_ids[i] = min(which(scene_material_hashes[i] == unique_materials)) - 1
+    new_ids[i] = min(which(scene_material_hashes[i] == unique_materials)) - 1L
   }
   for(i in seq_len(length(scene$shapes))) {
-    scene$shapes[[i]]$material_ids = new_ids[scene$shapes[[i]]$material_ids + 1]
+    scene$shapes[[i]]$material_ids = new_ids[scene$shapes[[i]]$material_ids + 1L]
   }
   unique_ids = unique(new_ids)
   new_mat = list()
   for(i in seq_len(length(unique_ids))) {
-    new_mat[[i]] = scene$materials[[min(which(new_ids == (i-1)))]]
+    new_mat[[i]] = scene$materials[[min(which(new_ids == (i-1L)))]]
   }
   scene$materials = new_mat
   scene$material_hashes = unique_materials

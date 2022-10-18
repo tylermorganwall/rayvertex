@@ -78,7 +78,7 @@ List load_obj(std::string inputfile, std::string basedir) {
     single_shape["indices"]            = Rcpp::transpose(IntegerMatrix(nv_face, inds.size()/nv_face,      inds.begin()      ));
     single_shape["tex_indices"]        = Rcpp::transpose(IntegerMatrix(nv_face, tex_inds.size()/nv_face,  tex_inds.begin()  ));
     single_shape["norm_indices"]       = Rcpp::transpose(IntegerMatrix(nv_face, norm_inds.size()/nv_face, norm_inds.begin() ));
-    single_shape["material_ids"]       = Rcpp::transpose(NumericMatrix(1L, mats.size(), mats.begin()));
+    single_shape["material_ids"]       = Rcpp::transpose(IntegerMatrix(1L, mats.size(), mats.begin()));
     single_shape["has_vertex_tex"]     = LogicalVector(inds.size()/nv_face,inds.size() == tex_inds.size());
     single_shape["has_vertex_normals"] = LogicalVector(inds.size()/nv_face,inds.size() == norm_inds.size());
 
