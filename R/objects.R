@@ -45,7 +45,7 @@ cube_mesh = function(position = c(0,0,0),
   if(any(scale != 1)) {
     obj = scale_mesh(obj, scale=scale)
   }
-  if(material[[1]]$type == "toon" || material[[1]]$type == "toon_phong") {
+  if(material$type == "toon" || material$type == "toon_phong") {
     obj2 = generate_toon_outline(obj, material)
     obj = add_shape(obj,obj2)
   }
@@ -113,14 +113,14 @@ sphere_mesh = function(position = c(0,0,0),
   if(any(angle != 0)) {
     obj = rotate_mesh(obj, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
   }
-  if(material[[1]]$type == "toon" || material[[1]]$type == "toon_phong") {
+  if(material$type == "toon" || material$type == "toon_phong") {
     obj2 = generate_toon_outline(obj, material)
     obj2 = rotate_mesh(obj2, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
     obj2 = translate_mesh(obj2,position)
   }
   obj = translate_mesh(obj,position)
   obj = set_material(obj, material = material)
-  if(material[[1]]$type == "toon" || material[[1]]$type == "toon_phong") {
+  if(material$type == "toon" || material$type == "toon_phong") {
     obj = add_shape(obj,obj2)
   }
   obj
@@ -201,7 +201,7 @@ cone_mesh = function(start = c(0,0,0), end=c(0,1,0),
   
   obj = scale_mesh(obj, scale = c(radius/0.5,fulllength,radius/0.5))
   
-  if(material[[1]]$type == "toon" || material[[1]]$type == "toon_phong") {
+  if(material$type == "toon" || material$type == "toon_phong") {
     obj2 = generate_toon_outline(obj, material)
     obj = add_shape(obj,obj2)
   }
@@ -305,7 +305,7 @@ arrow_mesh = function(start = c(0,0,0), end = c(0,1,0), radius_top = 0.5, radius
   
   obj = get("arrow", envir = ray_environment)
   obj = set_material(obj, material = material)
-  if(material[[1]]$type == "toon" || material[[1]]$type == "toon_phong") {
+  if(material$type == "toon" || material$type == "toon_phong") {
     obj2 = generate_toon_outline(obj, material)
     
     new_radius = (2*radius_top) / (fulllength * (1-tail_proportion)) * (fulllength * (1-tail_proportion) + material$toon_outline_width)
@@ -377,7 +377,7 @@ cylinder_mesh = function(position = c(0,0,0), radius = 0.5, length=1,
   obj = set_material(obj, material = material)
   obj = scale_mesh(obj, scale=c(radius,length,radius))
 
-  if(material[[1]]$type == "toon" || material[[1]]$type == "toon_phong") {
+  if(material$type == "toon" || material$type == "toon_phong") {
     obj2 = generate_toon_outline(obj, material)
     obj = add_shape(obj,obj2)
   }
@@ -537,7 +537,7 @@ xy_rect_mesh = function(position = c(0,0,0),
   if(any(scale != 1)) {
     obj = scale_mesh(obj, scale=scale)
   }
-  if(material[[1]]$type == "toon" || material[[1]]$type == "toon_phong") {
+  if(material$type == "toon" || material$type == "toon_phong") {
     obj2 = generate_toon_outline(obj, material)
     obj = add_shape(obj,obj2)
   }
@@ -621,7 +621,7 @@ yz_rect_mesh = function(position = c(0,0,0), scale = c(1,1,1),
   if(any(scale != 1)) {
     obj = scale_mesh(obj, scale=scale)
   }
-  if(material[[1]]$type == "toon" || material[[1]]$type == "toon_phong") {
+  if(material$type == "toon" || material$type == "toon_phong") {
     obj2 = generate_toon_outline(obj, material)
     obj = add_shape(obj,obj2)
   }
@@ -739,7 +739,7 @@ obj_mesh = function(filename, center = FALSE, position = c(0,0,0), scale = c(1,1
   }
   if(!is.null(material)) {
     obj_loaded = set_material(obj_loaded,material = material)
-    if(material[[1]]$type == "toon" || material[[1]]$type == "toon_phong") {
+    if(material$type == "toon" || material$type == "toon_phong") {
       obj2 = generate_toon_outline(obj_loaded, material)
       obj_loaded = add_shape(obj_loaded,obj2)
     }
@@ -859,7 +859,7 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
   if(any(scale != 1)) {
     obj = scale_mesh(obj, scale=scale)
   }
-  if(material[[1]]$type == "toon" || material[[1]]$type == "toon_phong") {
+  if(material$type == "toon" || material$type == "toon_phong") {
     obj2 = torus_mesh(position = c(0,0,0), scale = scale, 
                       radius = radius, 
                       ring_radius = ring_radius + material$toon_outline_width/2 , sides = sides, rings=rings,
@@ -941,7 +941,7 @@ mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,
   if(any(scale != 1)) {
     mesh = scale_mesh(mesh, scale=scale)
   }
-  if(material[[1]]$type == "toon" || material[[1]]$type == "toon_phong") {
+  if(material$type == "toon" || material$type == "toon_phong") {
     obj2 = generate_toon_outline(mesh, material)
     mesh = add_shape(mesh,obj2)
   }
@@ -1082,7 +1082,7 @@ ply_mesh = function(filename, center = FALSE, position = c(0,0,0), scale = c(1,1
     ply_loaded = scale_mesh(ply_loaded, scale=scale)
   }
   ply_loaded = set_material(ply_loaded,material = material)
-  if(material[[1]]$type == "toon" || material[[1]]$type == "toon_phong") {
+  if(material$type == "toon" || material$type == "toon_phong") {
     ply2 = generate_toon_outline(ply_loaded, material)
     ply_loaded = add_shape(ply_loaded,ply2)
   }

@@ -28,7 +28,7 @@ add_shape = function(scene, shape) {
   scene$vertices  = c(scene$vertices , shape$vertices)
   scene$normals   = c(scene$normals  , shape$normals)
   scene$texcoords = c(scene$texcoords, shape$texcoords)
-  scene$materials = c(scene$materials, shape$materials)
+  scene$materials = c(scene$materials, list(shape$materials))
   scene$material_hashes = c(scene$material_hashes, shape$material_hashes)
   if(!is.null(attr(shape,"cornell")) || !is.null(attr(scene,"cornell"))) {
     attr(scene,"cornell") = TRUE
@@ -38,54 +38,6 @@ add_shape = function(scene, shape) {
       attr(scene,"cornell_light") = attr(scene,"cornell_light")
     }
   }
-  class(scene) = c("ray_mesh", "list")
-  return(scene)
-}
-
-#'@title Preprocess Scene
-#'
-#'@description This function takes a ray_mesh object (which is a list that has multiple vertex/
-#'normal/tex matrices and materials for each, as well as shapes that refer to each one) and combines them into a single set
-#'of vertex/normal/tex matrices and materials by adjusting the index arguments in each shape. 
-#'
-#'@param scene_list The scene list.
-#'@return Scene list converted to proper format.
-#'@keywords internal
-preprocess_scene = function(scene_list) {
-  scene_n = length(scene_list)
-  
-  max_vertices = 0L
-  max_norms = 0L
-  max_tex = 0L
-  max_material = 0L
-
-  #Adjust shape indices to match combined matrix/materials
-  for(i in seq_len(length(scene_list$shapes))) {
-    scene_list$shapes[[i]]$indices      = scene_list$shapes[[i]]$indices      + max_vertices
-    scene_list$shapes[[i]]$tex_indices  = scene_list$shapes[[i]]$tex_indices  + max_tex
-    scene_list$shapes[[i]]$norm_indices = scene_list$shapes[[i]]$norm_indices + max_norms
-    scene_list$shapes[[i]]$material_ids = ifelse(scene_list$shapes[[i]]$material_ids != -1L,
-                                                 scene_list$shapes[[i]]$material_ids + max_material,
-                                                 -1L)
-    max_vertices = max_vertices + nrow(scene_list$vertices[[i]])
-    max_tex = max_tex + nrow(scene_list$texcoords[[i]])
-    max_norms = max_norms + nrow(scene_list$normals[[i]]) 
-    max_material = max_material + length(scene_list$shapes[[i]]$material_ids)
-  }
-  
-  scene = list()
-  scene$shapes = scene_list$shapes
-  
-  #Combine all matrices into one
-  scene$vertices = do.call(rbind,scene_list$vertices)
-  scene$normals = do.call(rbind,scene_list$normals)
-  scene$texcoords = do.call(rbind,scene_list$texcoords)
-  
-  #Combine materials into one
-  scene$materials = scene_list$materials 
-  
-  #Compute hashes
-  scene$material_hashes = unlist(lapply(scene_list$materials, digest::digest))
   class(scene) = c("ray_mesh", "list")
   return(scene)
 }
@@ -193,15 +145,15 @@ merge_scene = function(old_scene) {
   #Flatten materials
   num_materials = 0
   for(i in seq_len(length(old_scene$materials))) {
-    num_materials = num_materials + length(old_scene$materials[i]) #[[i]] causes torus bug
+    num_materials = num_materials + length(old_scene$materials[[i]]) 
   }
   scene$materials = vector(mode="list", length = num_materials)
   counter = 1
   
   for(i in seq_len(length(old_scene$materials))) {
-    n_mats = length(old_scene$materials[i])  #[[i]] causes torus bug
+    n_mats = length(old_scene$materials[[i]])  
     for(j in seq_len(n_mats)) {
-      scene$materials[[counter]] = old_scene$materials[i][[j]]
+      scene$materials[[counter]] = old_scene$materials[[i]][[j]][[1]]
       counter = counter + 1
     }
   }
@@ -531,21 +483,22 @@ set_material = function(mesh, material = NULL, id = NULL,
   material_hash = digest::digest(material)
   if(length(mesh$materials) > 0 && !is.null(mesh$materials[[1]]) && length(mesh$materials[[1]]) > 0) {
     if(is.null(id)) {
-      for(i in seq_len(length(mesh$materials))) {
-        mesh$materials[[i]] = material
-      }
+      mesh$materials = list()
+      mesh$materials[[1]] = list(material)
       mesh$material_hashes = material_hash
       for(i in seq_len(length(mesh$shapes))) {
         mesh$shapes[[i]]$material_ids = rep(0,nrow(mesh$shapes[[i]]$indices))
       }
     } else {
-      mesh$materials[[1]][[id]] = material
+      len_mat = length(mesh$materials[[id]])
+      for(i in seq_len(len_mat)) {
+        mesh$materials[[id]][[i]] = material
+      }
+      mesh$shapes[[id]]$material_ids = rep(0,nrow(mesh$shapes[[id]]$indices))
     }
   } else {
     mesh$shapes[[1]]$material_ids = rep(0,nrow(mesh$shapes[[1]]$indices))
-    
-    mesh$materials = material
-    
+    mesh$materials[[1]] = list(material)
     mesh$material_hashes[1] = material_hash
   }
   class(mesh) = c("ray_mesh", "list")
@@ -857,7 +810,7 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
   stopifnot(length(material_props$toon_outline_color) == 3)
   
   
-  return(list(material_props))
+  return(material_props)
 }
 
 #' Add Outline
@@ -867,7 +820,7 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
 #'@return Matrix
 #'@keywords internal
 generate_toon_outline = function(single_obj, material, scale = 1) {
-  if((material[[1]]$type == "toon" || material[[1]]$type == "toon_phong") && material$toon_outline_width != 0.0) {
+  if((material$type == "toon" || material$type == "toon_phong") && material$toon_outline_width != 0.0) {
     bbox = apply(single_obj$vertices[[1]],2,range)
     bbox_size = bbox[2,] - bbox[1,]
     scaleval = (bbox_size + material$toon_outline_width)/bbox_size
