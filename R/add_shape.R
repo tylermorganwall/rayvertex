@@ -29,6 +29,7 @@ add_shape = function(scene, shape) {
   scene$normals   = c(scene$normals  , shape$normals)
   scene$texcoords = c(scene$texcoords, shape$texcoords)
   scene$materials = c(scene$materials, shape$materials)
+  scene$material_hashes = c(scene$material_hashes, shape$material_hashes)
   if(!is.null(attr(shape,"cornell")) || !is.null(attr(scene,"cornell"))) {
     attr(scene,"cornell") = TRUE
     if(!is.null(attr(shape,"cornell"))) {
@@ -66,10 +67,10 @@ preprocess_scene = function(scene_list) {
     scene_list$shapes[[i]]$material_ids = ifelse(scene_list$shapes[[i]]$material_ids != -1L,
                                                  scene_list$shapes[[i]]$material_ids + max_material,
                                                  -1L)
-    max_vertices = max(scene_list$shapes[[i]]$indices) + 1L
-    max_tex = max(scene_list$shapes[[i]]$tex_indices) + 1L
-    max_norms = max(scene_list$shapes[[i]]$norm_indices) + 1L
-    max_material = max(scene_list$shapes[[i]]$material_ids) + 1L
+    max_vertices = max_vertices + nrow(scene_list$vertices[[i]])
+    max_tex = max_tex + nrow(scene_list$texcoords[[i]])
+    max_norms = max_norms + nrow(scene_list$normals[[i]]) 
+    max_material = max_material + length(scene_list$shapes[[i]]$material_ids)
   }
   
   scene = list()
@@ -96,7 +97,7 @@ preprocess_scene = function(scene_list) {
 #'
 #'@keywords internal
 remove_duplicate_materials = function(scene) {
-  if(length(scene$materials) == 1L || length(scene$materials) == 0L) {
+  if(length(scene$materials[[1]]) == 1L || length(scene$materials[[1]]) == 0L) {
     return(scene)
   }
   
@@ -130,6 +131,86 @@ remove_duplicate_materials = function(scene) {
   return(scene)
 }
 
+
+#'@title Merge scene
+#'
+#'@description Merge the shapes to one
+#'
+#'@param scene  
+#'@keywords internal
+#'@return Merged scene
+merge_scene = function(old_scene) {
+  if(length(old_scene$shapes) == 1) {
+    old_scene$vertices = old_scene$vertices[[1]]
+    old_scene$texcoords = old_scene$texcoords[[1]]
+    old_scene$normals = old_scene$normals[[1]]
+    old_scene$materials = old_scene$materials
+    
+    return(old_scene)
+  }
+  indices = list()
+  tex_indices = list()
+  norm_indices = list()
+  material_ids = list()
+  has_vertex_tex = list()
+  has_vertex_normals = list()
+  materials = list()
+  
+  max_vertices = 0L
+  max_texcoords = 0L
+  max_normals = 0L
+  max_materials = 0L
+  for(i in seq_len(length(old_scene$shapes))) {
+    indices[[i]]      = old_scene$shapes[[i]]$indices      + max_vertices
+    tex_indices[[i]]  = old_scene$shapes[[i]]$tex_indices  + max_texcoords
+    norm_indices[[i]] = old_scene$shapes[[i]]$norm_indices + max_normals
+    material_ids[[i]] = ifelse(old_scene$shapes[[i]]$material_ids != -1L,
+                               old_scene$shapes[[i]]$material_ids + max_materials,
+                               -1L)
+    has_vertex_tex[[i]] = old_scene$shapes[[i]]$has_vertex_tex
+    has_vertex_normals[[i]] = old_scene$shapes[[i]]$has_vertex_normals
+    
+    max_vertices = max_vertices + nrow(old_scene$vertices[[i]]) 
+    max_texcoords = max_texcoords + nrow(old_scene$texcoords[[i]]) 
+    max_normals = max_normals + nrow(old_scene$normals[[i]])
+    max_materials = max_materials + length(old_scene$materials[i])
+  }
+  
+  scene = list()
+  scene$shapes = list()
+  scene$shapes[[1]] = list()
+  
+  scene$shapes[[1]]$indices = do.call(rbind,indices)
+  scene$shapes[[1]]$tex_indices = do.call(rbind,tex_indices)
+  scene$shapes[[1]]$norm_indices = do.call(rbind,norm_indices)
+  scene$shapes[[1]]$material_ids = unlist(material_ids)
+  scene$shapes[[1]]$has_vertex_tex = unlist(has_vertex_tex)
+  scene$shapes[[1]]$has_vertex_normals = unlist(has_vertex_normals)
+  scene$vertices = unlist(do.call(rbind, old_scene$vertices), recursive = FALSE)
+  scene$texcoords = unlist(do.call(rbind, old_scene$texcoords), recursive = FALSE)
+  scene$normals = unlist(do.call(rbind, old_scene$normals), recursive = FALSE)
+  
+  #Flatten materials
+  num_materials = 0
+  for(i in seq_len(length(old_scene$materials))) {
+    num_materials = num_materials + length(old_scene$materials[i]) #[[i]] causes torus bug
+  }
+  scene$materials = vector(mode="list", length = num_materials)
+  counter = 1
+  
+  for(i in seq_len(length(old_scene$materials))) {
+    n_mats = length(old_scene$materials[i])  #[[i]] causes torus bug
+    for(j in seq_len(n_mats)) {
+      scene$materials[[counter]] = old_scene$materials[i][[j]]
+      counter = counter + 1
+    }
+  }
+  scene$material_hashes = old_scene$material_hashes
+
+  class(scene) = c("ray_mesh", "list")
+  
+  return(scene)
+}
 
 #'@title Merge shapes
 #'
@@ -418,7 +499,6 @@ set_material = function(mesh, material = NULL, id = NULL,
                         reflection_intensity      = 0.0,
                         reflection_sharpness      = 0.0) {
   culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
-  
   if(is.null(material)) {
     material = list()
     material$diffuse                    = convert_color(diffuse)              
@@ -449,23 +529,22 @@ set_material = function(mesh, material = NULL, id = NULL,
     material$reflection_sharpness    = reflection_sharpness      
   }
   material_hash = digest::digest(material)
-  
-  if(!is.null(mesh$materials) && length(mesh$materials) > 0) {
+  if(length(mesh$materials) > 0 && !is.null(mesh$materials[[1]]) && length(mesh$materials[[1]]) > 0) {
     if(is.null(id)) {
       for(i in seq_len(length(mesh$materials))) {
         mesh$materials[[i]] = material
       }
-      mesh$material_hashes[i] = material_hash
+      mesh$material_hashes = material_hash
       for(i in seq_len(length(mesh$shapes))) {
         mesh$shapes[[i]]$material_ids = rep(0,nrow(mesh$shapes[[i]]$indices))
       }
     } else {
-      mesh$materials[[id]] = material
+      mesh$materials[[1]][[id]] = material
     }
   } else {
     mesh$shapes[[1]]$material_ids = rep(0,nrow(mesh$shapes[[1]]$indices))
     
-    mesh$materials[[1]] = material
+    mesh$materials = material
     
     mesh$material_hashes[1] = material_hash
   }
@@ -778,7 +857,7 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
   stopifnot(length(material_props$toon_outline_color) == 3)
   
   
-  return(material_props)
+  return(list(material_props))
 }
 
 #' Add Outline
@@ -788,7 +867,7 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
 #'@return Matrix
 #'@keywords internal
 generate_toon_outline = function(single_obj, material, scale = 1) {
-  if((material$type == "toon" || material$type == "toon_phong") && material$toon_outline_width != 0.0) {
+  if((material[[1]]$type == "toon" || material[[1]]$type == "toon_phong") && material$toon_outline_width != 0.0) {
     bbox = apply(single_obj$vertices[[1]],2,range)
     bbox_size = bbox[2,] - bbox[1,]
     scaleval = (bbox_size + material$toon_outline_width)/bbox_size

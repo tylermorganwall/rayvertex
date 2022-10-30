@@ -175,11 +175,12 @@ rasterize_scene  = function(scene,
       light_info = add_light(light_info,point_light(c(555/2,450,555/2),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
     }
   }
-  
+  #Get the scene down to one vertex/texcoord/normal matrix, and adjust indices to match
   print_time(verbose, "Pre-processing scene")
-  scene = preprocess_scene(scene)
+  scene = merge_scene(scene)
+  #Remove duplicate materials
   print_time(verbose, "Pre-processed  scene")
-  scene = remove_duplicate_materials(scene)
+  obj = remove_duplicate_materials(scene)
   print_time(verbose, "Removed duplicate materials")
   
   fsaa = as.integer(fsaa)
@@ -187,8 +188,6 @@ rasterize_scene  = function(scene,
     width = width * fsaa
     height = height * fsaa
   }
-  
-  obj = merge_shapes(scene)
   
   max_indices = 0
   has_norms = rep(FALSE,length(obj$shapes))
@@ -227,7 +226,6 @@ rasterize_scene  = function(scene,
   has_vertex_tex = unlist(has_vertex_tex)
   has_vertex_normals = unlist(has_vertex_normals)
   
-  obj$vertices = obj$vertices
   tempboundsmin = apply(obj$vertices,2,min)
   tempboundsmax = apply(obj$vertices,2,max)
   bounds[1:3] = c(min(c(bounds[1],tempboundsmin[1])),
@@ -257,8 +255,6 @@ rasterize_scene  = function(scene,
     has_specular_texture = FALSE
     has_emissive_texture = FALSE
   }
-  
-
   for(i in seq_len(length(obj$materials))) {
     if(!is.null(obj$materials[[i]]$diffuse_texname) && obj$materials[[i]]$diffuse_texname != "") {
       has_texture[i] = TRUE
@@ -281,9 +277,7 @@ rasterize_scene  = function(scene,
       has_emissive_texture[i] = TRUE
 
       obj$materials[[i]]$emissive_texname = path.expand(obj$materials[[i]]$emissive_texname)
-    } else if (is.null(obj$materials[[i]]$emissive_texname) ) {
-      obj$materials[[i]]$emissive_texname = ""
-    }
+    } 
   }
   print_time(verbose, "Processed texture filenames")
   
@@ -299,7 +293,7 @@ rasterize_scene  = function(scene,
 
   color = convert_color(color)
   bg_color = convert_color(background)
-
+  
   typevals = rep(2,max(c(length(obj$materials),1)))
   if(!use_default_material) {
     for(i in seq_len(length(obj$materials))) {
@@ -368,8 +362,8 @@ rasterize_scene  = function(scene,
       is_dir_light[i] = FALSE
     }
   }
-  print_time(verbose, "Processed materials")
   
+  print_time(verbose, "Processed materials")
   imagelist = rasterize(obj,
                         lightinfo,
                         line_mat = line_info,
