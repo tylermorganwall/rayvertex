@@ -83,12 +83,7 @@ scene_from_list = function(scene_list) {
     new_scene$vertices[[i]] = unlist(temp_scene$vertices)
     new_scene$texcoords[[i]] = unlist(temp_scene$texcoords)
     new_scene$normals[[i]] = unlist(temp_scene$normals)
-    new_scene$materials[[i]] = scene_list[[i]]$materials
-    
-    # for(j in seq_len(length(scene_list[[i]]$materials))) {
-    #   new_scene$materials[[num_materials + 1L]] = scene_list[[i]]$materials[[j]]
-    #   num_materials = num_materials + 1L
-    # }
+    new_scene$materials[[i]] = temp_scene$materials
     new_scene$material_hashes = c(new_scene$material_hashes, scene_list[[i]]$material_hashes)
   }
   

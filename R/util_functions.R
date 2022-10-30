@@ -177,9 +177,9 @@ validate_scene = function(scene) {
     }
   }
   for(i in seq_len(length(scene$materials))) {
-    mat_len = length(scene$materials[[i]])
+    mat_len = length(scene$materials[[i]][[1]])
     for(j in seq_len(mat_len)) {
-      if(length(scene$materials[[i]][[j]]) != 26) {
+      if(length(scene$materials[[i]][[1]][[j]]) != 26) {
         stop(sprintf("Material %d (sub-material %d) does not have the right number of entries", i, j))
       }
     }
