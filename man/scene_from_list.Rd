@@ -10,11 +10,12 @@ scene_from_list(scene_list)
 \item{scene_list}{List containing rayvertex mesh objects.}
 }
 \value{
-List containing mesh info.
+`ray_scene` containing mesh info.
 }
 \description{
 Fast generation of rayvertex scenes from a list of objects (much faster than calling 
-`add_shape()` on each object individually to build the scene).
+`add_shape()` on each object individually to build the scene). This returns a `ray_scene` object
+that cdoes
 }
 \examples{
 if(rayvertex:::run_documentation()) {
