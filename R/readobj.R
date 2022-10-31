@@ -57,32 +57,31 @@ read_obj = function(filename, materialspath = NULL) {
                            material_ids = do.call(rbind,single_material_ids),
                            has_vertex_tex = do.call(c,single_has_vertex_tex),
                            has_vertex_normals = do.call(c,single_has_vertex_normals)))
-
-  for(i in seq_len(length(obj_loaded$materials))) {
-    if(!file.exists(obj_loaded$materials[[i]]$diffuse_texname) && nchar(obj_loaded$materials[[i]]$diffuse_texname) > 0 &&
-       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$diffuse_texname))) {
-      obj_loaded$materials[[i]]$diffuse_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$diffuse_texname)
+  for(i in seq_len(length(obj_loaded$materials[[1]]))) {
+    if(!file.exists(obj_loaded$materials[[1]][[i]]$diffuse_texname) && nchar(obj_loaded$materials[[1]][[i]]$diffuse_texname) > 0 &&
+       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[1]][[i]]$diffuse_texname))) {
+      obj_loaded$materials[[1]][[i]]$diffuse_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[1]][[i]]$diffuse_texname)
     }
-    if(!file.exists(obj_loaded$materials[[i]]$ambient_texname) && nchar(obj_loaded$materials[[i]]$ambient_texname) > 0 &&
-       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$ambient_texname))) {
-      obj_loaded$materials[[i]]$ambient_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$ambient_texname)
+    if(!file.exists(obj_loaded$materials[[1]][[i]]$ambient_texname) && nchar(obj_loaded$materials[[1]][[i]]$ambient_texname) > 0 &&
+       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[1]][[i]]$ambient_texname))) {
+      obj_loaded$materials[[1]][[i]]$ambient_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[1]][[i]]$ambient_texname)
     }
-    if(!file.exists(obj_loaded$materials[[i]]$emissive_texname) &&  nchar(obj_loaded$materials[[i]]$emissive_texname) > 0 &&
-       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$emissive_texname))) {
-      obj_loaded$materials[[i]]$emissive_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$emissive_texname)
+    if(!file.exists(obj_loaded$materials[[1]][[i]]$emissive_texname) &&  nchar(obj_loaded$materials[[1]][[i]]$emissive_texname) > 0 &&
+       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[1]][[i]]$emissive_texname))) {
+      obj_loaded$materials[[1]][[i]]$emissive_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[1]][[i]]$emissive_texname)
     }
-    if(!file.exists(obj_loaded$materials[[i]]$specular_texname) &&  nchar(obj_loaded$materials[[i]]$specular_texname) > 0 &&
-       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$specular_texname))) {
-      obj_loaded$materials[[i]]$specular_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$specular_texname)
+    if(!file.exists(obj_loaded$materials[[1]][[i]]$specular_texname) &&  nchar(obj_loaded$materials[[1]][[i]]$specular_texname) > 0 &&
+       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[1]][[i]]$specular_texname))) {
+      obj_loaded$materials[[1]][[i]]$specular_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[1]][[i]]$specular_texname)
     }
-    if(!file.exists(obj_loaded$materials[[i]]$normal_texname) &&  nchar(obj_loaded$materials[[i]]$normal_texname) > 0 &&
-       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$normal_texname))) {
-      obj_loaded$materials[[i]]$normal_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[i]]$normal_texname)
+    if(!file.exists(obj_loaded$materials[[1]][[i]]$normal_texname) &&  nchar(obj_loaded$materials[[1]][[i]]$normal_texname) > 0 &&
+       file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[1]][[i]]$normal_texname))) {
+      obj_loaded$materials[[1]][[i]]$normal_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[1]][[i]]$normal_texname)
     }
   }
-  hashes = rep("",length(obj_loaded$materials))
-  for(i in seq_len(length(obj_loaded$materials))) {
-    hashes[i] = digest::digest(obj_loaded$materials[[i]])
+  hashes = rep("",length(obj_loaded$materials[[1]]))
+  for(i in seq_len(length(obj_loaded$materials[[1]]))) {
+    hashes[i] = digest::digest(obj_loaded$materials[[1]][[i]])
   }
   obj_loaded$material_hashes = hashes
   class(obj_loaded) = c("ray_mesh", "list")

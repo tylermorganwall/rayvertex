@@ -14,5 +14,5 @@ ray_environment = new.env(parent = emptyenv())
   assign("yz_plane", read_obj(system.file("extdata", "xz_plane.txt", package="rayvertex")), envir = ray_environment)
   assign("init_time", 0, envir = ray_environment)
   assign("prev_time", 0, envir = ray_environment)
-  
+  assign("pkg_loaded", TRUE, envir = ray_environment)
 }

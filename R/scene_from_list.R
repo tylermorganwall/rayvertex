@@ -69,7 +69,7 @@ scene_from_list = function(scene_list) {
   num_norms = 0L
   for(i in seq_len(n)) {
     #Assign the shapes in the nth list entry
-    temp_scene = merge_scene(scene_list[[i]])
+    temp_scene = merge_scene(scene_list[[i]], TRUE)
     new_scene$shapes[[shape_counter]] = temp_scene$shapes[[1]]
     new_scene$shapes[[shape_counter]]$indices = new_scene$shapes[[shape_counter]]$indices
     new_scene$shapes[[shape_counter]]$tex_indices = new_scene$shapes[[shape_counter]]$tex_indices

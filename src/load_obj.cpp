@@ -118,11 +118,11 @@ List load_obj(std::string inputfile, std::string basedir) {
     set_item( out, 25, _["reflection_sharpness"] = 1.0, names) ;
     
     out.names() = names ;
-    material_list[m.name] = out;
+    material_list.push_back(out);
   }
   List return_val;
   return_val["shapes"]    = shape_list;
-  return_val["materials"] = material_list;
+  return_val["materials"] = List::create(material_list);
   return_val["vertices"]  = List::create(Rcpp::transpose(NumericMatrix(3L, attrib.vertices.size()/3L, attrib.vertices.begin())));
   return_val["texcoords"] = List::create(Rcpp::transpose(NumericMatrix(2L, attrib.texcoords.size()/2L, attrib.texcoords.begin())));
   return_val["normals"]   = List::create(Rcpp::transpose(NumericMatrix(3L, attrib.normals.size()/3L, attrib.normals.begin())));

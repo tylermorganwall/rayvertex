@@ -177,7 +177,7 @@ rasterize_scene  = function(scene,
   }
   #Get the scene down to one vertex/texcoord/normal matrix, and adjust indices to match
   print_time(verbose, "Pre-processing scene")
-  scene = merge_scene(scene)
+  scene = merge_scene(scene, flatten_materials = TRUE)
   #Remove duplicate materials
   print_time(verbose, "Pre-processed  scene")
   obj = remove_duplicate_materials(scene)
@@ -362,7 +362,6 @@ rasterize_scene  = function(scene,
       is_dir_light[i] = FALSE
     }
   }
-  
   print_time(verbose, "Processed materials")
   imagelist = rasterize(obj,
                         lightinfo,

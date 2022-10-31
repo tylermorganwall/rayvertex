@@ -5,7 +5,7 @@
 #'@param scene  
 #'@keywords internal
 #'@return Merged scene
-merge_scene = function(old_scene) {
+merge_scene = function(old_scene, flatten_materials = TRUE) {
   if(length(old_scene$shapes) == 1) {
     old_scene$vertices = old_scene$vertices[[1]]
     old_scene$texcoords = old_scene$texcoords[[1]]
@@ -39,7 +39,7 @@ merge_scene = function(old_scene) {
     max_vertices = max_vertices + nrow(old_scene$vertices[[i]]) 
     max_texcoords = max_texcoords + nrow(old_scene$texcoords[[i]]) 
     max_normals = max_normals + nrow(old_scene$normals[[i]])
-    max_materials = max_materials + length(old_scene$materials[i])
+    max_materials = max_materials + length(old_scene$materials[[i]])
   }
   
   scene = list()
@@ -61,16 +61,22 @@ merge_scene = function(old_scene) {
   for(i in seq_len(length(old_scene$materials))) {
     num_materials = num_materials + length(old_scene$materials[[i]]) 
   }
-  scene$materials = vector(mode="list", length = num_materials)
-  counter = 1
+  if(flatten_materials) {
+    scene$materials = vector(mode="list", length = num_materials)
+  } else {
+    scene$materials = list(list(vector(mode="list", length = num_materials)))
+  }
   
+  counter = 1
   for(i in seq_len(length(old_scene$materials))) {
     n_mats = length(old_scene$materials[[i]])  
     for(j in seq_len(n_mats)) {
-      # scene$materials[[counter]] = old_scene$materials[[i]][[j]][[1]] #Working torus
-      scene$materials[[counter]] = old_scene$materials[[i]][[1]][[j]] #Working cornell mesh
-      
-      counter = counter + 1
+      if(flatten_materials) {
+        scene$materials[[counter]] = old_scene$materials[[i]][[j]] 
+        counter = counter + 1
+      } else {
+        scene$materials[[1]][[j]] = old_scene$materials[[i]][[j]] 
+      }
     }
   }
   scene$material_hashes = old_scene$material_hashes
