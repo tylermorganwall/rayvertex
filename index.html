@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">rayvertex</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.11</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.12</span>
       </span>
     </div>
 
@@ -82,6 +82,7 @@
 <div class="page-header"><h1 id="rayvertex">rayvertex<a class="anchor" aria-label="anchor" href="#rayvertex"></a>
 </h1></div>
 <!-- badges: start -->
+
 <p><img src="reference/figures/cubey.gif"></p>
 <p>Rayvertex is a 3D software renderer that allows you to generate 3D visualizations without worrying about hardware requirements or dependencies. It uses rasterization: a method that transforms meshes of triangles into an image. These meshes are specified entirely in R, and can be built either by importing external files, building scenes out of the included objects, or by constructing the mesh yourself. Rayvertex also allows the user to add any number of point lights and directional lights to a scene, and support anti-aliased lines, shadow mapping, transparent (and translucent) objects.</p>
 <div class="section level2">
@@ -92,7 +93,8 @@
 <ul>
 <li>Multicore tiled rendering</li>
 <li>User-specified render resolution</li>
-<li>Multiple material shader types:<ul>
+<li>Multiple material shader types:
+<ul>
 <li>Diffuse</li>
 <li>Phong</li>
 <li>Vertex</li>
@@ -100,14 +102,18 @@
 <li>Flat shading</li>
 </ul>
 </li>
-<li>Built in shapes:<ul>
+<li>Built in shapes:
+<ul>
 <li>Sphere, cube, cylinder, segment, cone, arrow, torus, and plane</li>
 <li>OBJ file support</li>
 <li>
 <code>mesh3d</code> support</li>
 </ul>
 </li>
-<li>Built-in mesh transformations:<ul><li>Rotation, translation, and scale</li></ul>
+<li>Built-in mesh transformations:
+<ul>
+<li>Rotation, translation, and scale</li>
+</ul>
 </li>
 <li>Support for normal maps, emission maps, ambient maps, and textures</li>
 <li>Support for multiple point lights and directional lights with shadow mapping</li>
@@ -125,7 +131,8 @@
 </ul>
 <p>Meshes and scenes are specified via list structure that contains the following:</p>
 <ul>
-<li>A list of shapes that each include:<ul>
+<li>A list of shapes that each include:
+<ul>
 <li>An integer matrix of indices</li>
 <li>(optional) An integer matrix of indices for normal values</li>
 <li>(optional) An integer matrix of indices for texture coordinates</li>
@@ -134,7 +141,8 @@
 <li>A logical vector, indicating whether each vertex has texture coordinates</li>
 </ul>
 </li>
-<li>A list of material properties. Rayvertex looks for the following:<ul>
+<li>A list of material properties. Rayvertex looks for the following:
+<ul>
 <li>Diffuse color</li>
 <li>Ambient color</li>
 <li>Specular color</li>
