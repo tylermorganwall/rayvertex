@@ -23,7 +23,13 @@
 #'}
 #'rasterize_scene(scene, light_info=directional_light(direction=c(0.1,0.6,-1)))
 #'}
-add_shape = function(scene, shape) {
+add_shape = function(scene, shape = NULL) {
+  if(is.null(shape)) {
+    return(scene)
+  } 
+  if(is.null(scene)) {
+    return(shape)
+  } 
   scene$shapes    = c(scene$shapes   , shape$shapes)
   scene$vertices  = c(scene$vertices , shape$vertices)
   scene$normals   = c(scene$normals  , shape$normals)

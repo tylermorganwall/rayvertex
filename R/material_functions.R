@@ -143,7 +143,7 @@ set_material = function(mesh, material = NULL, id = NULL,
 #'@param mesh Mesh to change.
 #'@param id Default `NULL`. Either a number specifying the material to change, or a character vector 
 #'matching the material name.
-#'@param sub_id Default `NULL`. A number specifying which material to change (within an id).
+#'@param sub_id Default `1`. A number specifying which material to change (within an id).
 #'@param diffuse                   Default `NULL`. The diffuse color.
 #'@param ambient                   Default `NULL`. The ambient color.
 #'@param specular                  Default `NULL`. The specular color.
@@ -185,7 +185,7 @@ set_material = function(mesh, material = NULL, id = NULL,
 #'  add_shape(change_material(translate_mesh(p_sphere,c(-200,0,0)),type="phong",shininess=30)) |>
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
 #'}
-change_material = function(mesh, id = NULL, sub_id = NULL,
+change_material = function(mesh, id = NULL, sub_id = 1,
                            diffuse                   = NULL,
                            ambient                   = NULL,
                            specular                  = NULL,
@@ -314,7 +314,7 @@ change_material = function(mesh, id = NULL, sub_id = NULL,
         }
       }
     }
-    counter = 1
+    counter = 0
     for(i in seq_len(length(mesh$materials))) {
       for(j in seq_len(length(mesh$materials[[i]]))) {
         counter = counter + 1
@@ -325,6 +325,7 @@ change_material = function(mesh, id = NULL, sub_id = NULL,
     for(i in seq_len(length(mesh$materials))) {
       for(j in seq_len(length(mesh$materials[[i]]))) {
         mesh$material_hashes[counter] = digest::digest(mesh$materials[[i]][[j]])
+        counter = counter + 1
       }
     }
   } else {
