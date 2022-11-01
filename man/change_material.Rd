@@ -7,7 +7,7 @@
 change_material(
   mesh,
   id = NULL,
-  sub_id = NULL,
+  sub_id = 1,
   diffuse = NULL,
   ambient = NULL,
   specular = NULL,
@@ -42,7 +42,7 @@ change_material(
 \item{id}{Default `NULL`. Either a number specifying the material to change, or a character vector 
 matching the material name.}
 
-\item{sub_id}{Default `NULL`. A number specifying which material to change (within an id).}
+\item{sub_id}{Default `1`. A number specifying which material to change (within an id).}
 
 \item{diffuse}{Default `NULL`. The diffuse color.}
 

@@ -4,7 +4,7 @@
 \alias{add_shape}
 \title{Add Shape}
 \usage{
-add_shape(scene, shape)
+add_shape(scene, shape = NULL)
 }
 \arguments{
 \item{scene}{The scene to add the shape.}
