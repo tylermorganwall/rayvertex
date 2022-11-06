@@ -36,6 +36,7 @@
 #'                    light_info = directional_light(c(-0.6,1,0.6)))
 #'}
 scene_from_list = function(scene_list) {
+  scene_list = Filter(Negate(is.null), scene_list)
   n = length(scene_list)
   n_shapes = 0L
   
