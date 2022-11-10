@@ -5,9 +5,6 @@
 #'
 #'@keywords internal
 remove_duplicate_materials = function(scene) {
-  if(length(scene$materials) == 1L || length(scene$materials) == 0L) {
-    return(scene)
-  }
   
   #Generate unique set of materials in scene
   scene_material_hashes = scene$material_hashes
@@ -25,6 +22,7 @@ remove_duplicate_materials = function(scene) {
     new_ids[i] = min(which(scene_material_hashes[i] == unique_materials)) - 1L
   }
   for(i in seq_len(length(scene$shapes))) {
+    scene$shapes[[i]]$material_ids[scene$shapes[[i]]$material_ids == -1] = 0
     scene$shapes[[i]]$material_ids = new_ids[scene$shapes[[i]]$material_ids + 1L]
   }
   unique_ids = unique(new_ids)
