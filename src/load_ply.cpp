@@ -235,10 +235,10 @@ List load_ply(std::string inputfile, std::string basedir) {
   material_list[0] = out;
   List return_val;
   return_val["shapes"]    = shape_list;
-  return_val["materials"] = material_list;
-  return_val["vertices"]  = Rcpp::transpose(NumericMatrix(3L, verts.size()/3L, verts.begin()));
-  return_val["texcoords"] = Rcpp::transpose(NumericMatrix(2L, texs.size()/2L, texs.begin()));
-  return_val["normals"]   = Rcpp::transpose(NumericMatrix(3L, norms.size()/3L, norms.begin()));
+  return_val["materials"] = List::create(material_list);
+  return_val["vertices"]  = List::create(Rcpp::transpose(NumericMatrix(3L, verts.size()/3L, verts.begin())));
+  return_val["texcoords"] = List::create(Rcpp::transpose(NumericMatrix(2L, texs.size()/2L, texs.begin())));
+  return_val["normals"]   = List::create(Rcpp::transpose(NumericMatrix(3L, norms.size()/3L, norms.begin())));
   delete tri;
   return return_val;
 };
