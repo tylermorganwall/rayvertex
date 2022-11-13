@@ -13,7 +13,8 @@ Maintainer: Tyler Morgan-Wall <tylermw@gmail.com>
 Description: Rasterize images using a 3D software renderer. 3D scenes are created either by importing external files, building scenes out of the included objects, or by constructing meshes manually. Supports point and directional lights, anti-aliased lines, shadow mapping, transparent objects, translucent objects, multiple materials types, reflection, refraction, environment maps, multicore rendering, bloom, tone-mapping, and screen-space ambient occlusion.
 License: GPL (>= 3)
 Copyright: file inst/COPYRIGHTS 
-Imports: Rcpp (>= 4.1.0),
+Depends: R (>= 4.1)
+Imports: Rcpp (>= 1.0.6),
          grDevices,
          rayimage (>= 0.6.2),
          png,
