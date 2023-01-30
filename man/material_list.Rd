@@ -30,7 +30,8 @@ material_list(
   toon_outline_width = 0.05,
   toon_outline_color = "black",
   reflection_intensity = 0,
-  reflection_sharpness = 0
+  reflection_sharpness = 0,
+  two_sided = FALSE
 )
 }
 \arguments{
@@ -85,6 +86,8 @@ material_list(
 \item{reflection_intensity}{Default `0.0`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.}
 
 \item{reflection_sharpness}{Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.}
+
+\item{two_sided}{Default `FALSE`. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).}
 }
 \value{
 List of material properties.

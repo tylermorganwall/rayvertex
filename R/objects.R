@@ -904,6 +904,13 @@ mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,
                        angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3), materialspath = NULL,
                        material = material_list()) {
   mat_vals = mesh$material
+  if(!is.null(mesh$texcoords)) {
+    texcoords = t(mesh$texcoords)
+    tex_indices = t(mesh$it)-1
+  } else {
+    texcoords = NULL
+    tex_indices = NULL
+  }
   if(!is.null(mat_vals)) {
     if(!is.null(mat_vals$color)) {
       diffuse_val = mat_vals$color
@@ -927,6 +934,8 @@ mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,
     }
     mesh = construct_mesh(vertices = t(mesh$vb)[,1:3], 
                           indices = t(mesh$it)-1,
+                          texcoords = texcoords,
+                          tex_indices = tex_indices,
                           material = material_list(
                             diffuse = diffuse_val,
                             dissolve = dissolve_val,
@@ -935,6 +944,8 @@ mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,
   } else {
     mesh = construct_mesh(vertices = t(mesh$vb)[,1:3], 
                           indices = t(mesh$it)-1,
+                          tex_indices = tex_indices,
+                          texcoords = texcoords,
                           material = material)
   }
 

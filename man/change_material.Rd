@@ -33,7 +33,8 @@ change_material(
   toon_outline_width = NULL,
   toon_outline_color = NULL,
   reflection_intensity = NULL,
-  reflection_sharpness = NULL
+  reflection_sharpness = NULL,
+  two_sided = NULL
 )
 }
 \arguments{
@@ -95,6 +96,8 @@ matching the material name.}
 \item{reflection_intensity}{Default `NULL`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.}
 
 \item{reflection_sharpness}{Default `NULL`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.}
+
+\item{two_sided}{Default `NULL`. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).}
 }
 \value{
 Shape with new material settings

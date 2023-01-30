@@ -229,7 +229,8 @@ class DiffuseShader : public IShader {
            std::vector<std::vector<vec3> >& vec_varying_world_nrm,
            std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
            std::vector<std::vector<vec3> >& vec_varying_nrm,
-           reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
+           reflection_map_info reflection_map, bool has_reflection, bool has_refraction,
+           bool two_sided);
     ~DiffuseShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -311,7 +312,7 @@ class DiffuseShader : public IShader {
     reflection_map_info reflection_map;
     bool has_reflection;   
     bool has_refraction;  
-      
+    bool two_sided;
 };
 
 class DiffuseNormalShader : public IShader {

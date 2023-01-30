@@ -78,7 +78,7 @@ read_obj = function(filename, materialspath = NULL) {
        file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[1]][[i]]$normal_texname))) {
       obj_loaded$materials[[1]][[i]]$normal_texname = sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[1]][[i]]$normal_texname)
     }
-    if(obj_loaded$materials[[1]][[i]]$illum == 0) {
+    if(obj_loaded$materials[[1]][[i]]$illum == 0 || obj_loaded$materials[[1]][[i]]$illum == 5) {
       obj_loaded$materials[[1]][[i]]$type = "color"
     } else {
       obj_loaded$materials[[1]][[i]]$type = "diffuse"

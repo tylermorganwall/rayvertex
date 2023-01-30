@@ -170,6 +170,7 @@ set_material = function(mesh, material = NULL, id = NULL,
 #'@param toon_outline_color        Default `NULL`. Toon outline color.Note: setting this property via this function currently does not color outlines. Specify it during object creation.
 #'@param reflection_intensity      Default `NULL`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.
 #'@param reflection_sharpness      Default `NULL`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.
+#'@param two_sided                 Default `NULL`. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).
 #'
 #'@return Shape with new material settings
 #'@export
@@ -211,7 +212,8 @@ change_material = function(mesh, id = NULL, sub_id = 1,
                            toon_outline_width        = NULL,
                            toon_outline_color        = NULL,
                            reflection_intensity      = NULL,
-                           reflection_sharpness      = NULL) {
+                           reflection_sharpness      = NULL,
+                           two_sided                 = NULL) {
   if(!is.null(culling)) {
     culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   }
@@ -246,6 +248,7 @@ change_material = function(mesh, id = NULL, sub_id = 1,
           if(!is.null(toon_outline_color))        mesh$materials[[j]][[i]]$toon_outline_color   = convert_color(toon_outline_color)
           if(!is.null(reflection_intensity))      mesh$materials[[j]][[i]]$reflection_intensity = reflection_intensity
           if(!is.null(reflection_sharpness))      mesh$materials[[j]][[i]]$reflection_sharpness = reflection_sharpness
+          if(!is.null(two_sided))                 mesh$materials[[j]][[i]]$two_sided            = two_sided
           
           
         }
@@ -278,6 +281,7 @@ change_material = function(mesh, id = NULL, sub_id = 1,
         if(!is.null(toon_outline_color))        mesh$materials[[id]][[sub_id]]$toon_outline_color   = convert_color(toon_outline_color) 
         if(!is.null(reflection_intensity))      mesh$materials[[id]][[sub_id]]$reflection_intensity = reflection_intensity
         if(!is.null(reflection_sharpness))      mesh$materials[[id]][[sub_id]]$reflection_sharpness = reflection_sharpness
+        if(!is.null(two_sided))                 mesh$materials[[id]][[sub_id]]$two_sided            = two_sided
         
       }
       if(is.character(id)) {
@@ -309,6 +313,7 @@ change_material = function(mesh, id = NULL, sub_id = 1,
             if(!is.null(toon_outline_color))        mesh$materials[[i]][[sub_id]]$toon_outline_color   = convert_color(toon_outline_color)
             if(!is.null(reflection_intensity))      mesh$materials[[i]][[sub_id]]$reflection_intensity = reflection_intensity
             if(!is.null(reflection_sharpness))      mesh$materials[[i]][[sub_id]]$reflection_sharpness = reflection_sharpness
+            if(!is.null(two_sided))                 mesh$materials[[i]][[sub_id]]$two_sided            = two_sided
             
           }
         }
@@ -366,6 +371,7 @@ change_material = function(mesh, id = NULL, sub_id = 1,
 #'@param toon_outline_color        Default `black`. Toon outline color.
 #'@param reflection_intensity      Default `0.0`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.
 #'@param reflection_sharpness      Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.
+#'@param two_sided                 Default `FALSE`. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).
 #'
 #'@return List of material properties.
 #'@export
@@ -405,7 +411,8 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
                          toon_outline_width        = 0.05,
                          toon_outline_color        = "black",
                          reflection_intensity      = 0.0,
-                         reflection_sharpness      = 0.0) {
+                         reflection_sharpness      = 0.0,
+                         two_sided                 = FALSE) {
   material_props = 
     list(diffuse                   = convert_color(diffuse)                   ,
          ambient                   = convert_color(ambient)                   ,
@@ -432,7 +439,8 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
          toon_outline_width        = toon_outline_width        ,
          toon_outline_color        = convert_color(toon_outline_color)        ,
          reflection_intensity      = reflection_intensity      ,
-         reflection_sharpness      = reflection_sharpness)
+         reflection_sharpness      = reflection_sharpness,
+         two_sided                 = two_sided)
   stopifnot(length(material_props$diffuse) == 3)
   stopifnot(length(material_props$ambient) == 3)
   stopifnot(length(material_props$specular) == 3)

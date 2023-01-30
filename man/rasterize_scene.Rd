@@ -42,7 +42,8 @@ rasterize_scene(
   antialias_lines = TRUE,
   environment_map = "",
   background_sharpness = 1,
-  verbose = FALSE
+  verbose = FALSE,
+  vertex_transform = NULL
 )
 }
 \arguments{
@@ -128,6 +129,9 @@ materials in the scene, along with the background.}
 of the background image.}
 
 \item{verbose}{Default `FALSE`. Prints out timing information.}
+
+\item{vertex_transform}{Default `NULL`. A function that transforms the vertex locations, based on their location.
+Function should takes a length-3 numeric vector and returns another length-3 numeric vector as the output.}
 }
 \value{
 Rasterized image.

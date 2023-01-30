@@ -352,14 +352,16 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
               std::vector<std::vector<vec3> >& vec_varying_world_nrm,
               std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
               std::vector<std::vector<vec3> >& vec_varying_nrm,
-              reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
+              reflection_map_info reflection_map, bool has_reflection, bool has_refraction,
+              bool two_sided) :
     Projection(Projection), View(View), viewport(viewport),
     has_shadow_map(has_shadow_map),
     shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
     directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
     vec_varying_intensity(vec_varying_intensity), vec_varying_uv(vec_varying_uv),
     vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
-    reflection_map(reflection_map), has_reflection(has_reflection), has_refraction(has_refraction)    {
+    reflection_map(reflection_map), has_reflection(has_reflection), has_refraction(has_refraction),
+    two_sided(two_sided) {
   vp = glm::scale(glm::translate(Mat(1.0f),
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f)), 
                                  vec3(viewport[2]/2.0f,viewport[3]/2.0f,1.0f/2.0f));
@@ -435,7 +437,9 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
   for(unsigned int ii = 0; ii < directional_lights.size(); ii++) {
     vec4 trans_color(0.0,0.0,0.0,0.0);
     Float shadow = 1.0f;
-    Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0))),0.0);
+    Float dot_prod = dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0)));
+    dot_prod *= two_sided && dot_prod < 0 ? -1 : 1;
+    Float intensity = std::fmax(dot_prod,0.0);
     if(has_shadow_map && intensity != 0.0) {
       shadow = 0.0f;
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
