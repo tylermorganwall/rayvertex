@@ -194,7 +194,7 @@ cone_mesh = function(start = c(0,0,0), end=c(0,1,0),
       theta = 0
     }
   } else {
-    theta = atan2(-length_xy, (end[2]-start[2]))/pi*180
+    theta = atan2(as.numeric(-length_xy), as.numeric(end[2]-start[2]))/pi*180
   }
   fulllength = sqrt(sum((end-start)^2))
   angle = c(0, -phi, theta)
@@ -298,7 +298,7 @@ arrow_mesh = function(start = c(0,0,0), end = c(0,1,0), radius_top = 0.5, radius
       theta = 0
     }
   } else {
-    theta = atan2(-length_xy, (end[2]-start[2]))/pi*180
+    theta = atan2(as.numeric(-length_xy), as.numeric(end[2]-start[2]))/pi*180
   }
   fulllength = sqrt(sum((end-start)^2))
   angle = c(0, -phi, theta)
@@ -476,7 +476,7 @@ segment_mesh = function(start = c(0,-1,0), end = c(0,1,0), radius = 0.5,
   y = (start[2] + end[2])/2
   z = (start[3] + end[3])/2
   order_rotation = c(3, 2, 1)
-  phi =  atan2( as.numeric(end[1]-start[1]), as.numeric(end[3]-start[3]))/pi*180+90
+  phi =  atan2( as.numeric(end[1]-start[1]), as.numeric(end[3]-start[3]))/pi*180 + 90
   
   length_xy = sqrt((end[1]-start[1])^2 + (end[3]-start[3])^2)
   if(end[1] == start[1] && end[3] == start[3]) {
@@ -486,7 +486,7 @@ segment_mesh = function(start = c(0,-1,0), end = c(0,1,0), radius = 0.5,
       theta = 0
     }
   } else {
-    theta = atan2(-length_xy, (end[2]-start[2]))/pi*180
+    theta = atan2(as.numeric(-length_xy), as.numeric((end[2]-start[2])))/pi*180
   }
   fulllength = sqrt(sum((end-start)^2))
   angle = c(0, -phi, theta)
