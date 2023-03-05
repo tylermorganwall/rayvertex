@@ -69,6 +69,39 @@ scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
   return(mesh)
 }
 
+#'@title Scale Mesh to Unit Bounding Box
+#'
+#'@param mesh The mesh.
+#'@param center_mesh Default `FALSE`. Whether to center the mesh at the origin after scaling.
+#'
+#'@return Scaled mesh
+#'@export
+#'@examples
+#'if(rayvertex:::run_documentation()) {
+#'#Scale a mesh in the Cornell box
+#'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
+#'
+#'generate_cornell_mesh() |>
+#' add_shape(scale_mesh(translate_mesh(robj,c(400,0,155)),0.5, center=c(400,0,155))) |>
+#' add_shape(scale_mesh(translate_mesh(robj,c(555/2,100,555/2)),1.5, center=c(555/2,100,555/2))) |>
+#' add_shape(scale_mesh(translate_mesh(robj,c(155,200,400)),c(0.5,2,0.5), center=c(155,200,400))) |>
+#' scale_unit_mesh(center_mesh = TRUE) |> 
+#' rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)), 
+#'                 lookfrom = c(0,0,-2), lookat=c(0,0,0))
+#' }
+scale_unit_mesh = function(mesh, center_mesh = FALSE) {
+  center = get_mesh_center(mesh)
+  bbox = get_mesh_bbox(mesh)
+  scale_xyz = apply(bbox,2,sum)
+  scale_xyz[scale_xyz == 0] = 1
+  scale = 1 / scale_xyz
+  mesh = scale_mesh(mesh, scale = scale, center = center)
+  if(center_mesh) {
+    mesh = center_mesh(mesh)
+  }
+  return(mesh)
+}
+
 #'@title Center Mesh
 #'
 #'@description Centers the mesh at the origin.
@@ -97,8 +130,56 @@ center_mesh = function(mesh) {
   
   mesh = translate_mesh(mesh, -center)
   class(mesh) = c("ray_mesh", "list")
-  
   return(mesh)
+}
+
+#'@title Get Mesh Center
+#'
+#'@description Calculates the coordinates of the center of a mesh
+#'
+#'@param mesh The mesh object.
+#'
+#'@return Length-3 numeric vector 
+#'@export
+#'@examples
+#' if(rayvertex:::run_documentation()) {
+#' #Calculates the center of the mesh
+#' get_scene_center(generate_cornell_mesh())
+#' }
+get_mesh_center = function(mesh) {
+  center_mat = matrix(c(Inf,-Inf),nrow=2,ncol=3)
+  for(j in seq_len(length(mesh$vertices))) {
+    center_tmp = apply(mesh$vertices[[j]],2,range)
+    center_mat[1,] = pmin(center_tmp[1,],center_mat[1,])
+    center_mat[2,] = pmax(center_tmp[2,],center_mat[2,])
+  }
+  center = apply(center_mat,2,mean)
+  return(center)
+}
+
+#'@title Get Mesh Bounding Box
+#'
+#'@description Calculates the bounding box of a mesh
+#'
+#'@param mesh The mesh object.
+#'
+#'@return 2x3 numeric matrix
+#'@export
+#'@examples
+#' if(rayvertex:::run_documentation()) {
+#' #Calculates the center of the mesh
+#' get_mesh_bbox(generate_cornell_mesh())
+#' }
+get_mesh_bbox = function(mesh) {
+  center_mat = matrix(c(Inf,-Inf),nrow=2,ncol=3)
+  for(j in seq_len(length(mesh$vertices))) {
+    center_tmp = apply(mesh$vertices[[j]],2,range)
+    center_mat[1,] = pmin(center_tmp[1,],center_mat[1,])
+    center_mat[2,] = pmax(center_tmp[2,],center_mat[2,])
+  }
+  colnames(center_mat) = c("x","y","z")
+  rownames(center_mat) = c("min","max")
+  return(center_mat)
 }
 
 #'@title Generate Rotation Matrix

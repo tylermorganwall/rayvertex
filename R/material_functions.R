@@ -35,6 +35,7 @@
 #'@param toon_outline_color        Default `black`. Toon outline color. Note: setting this property via this function currently does not color outlines. Specify it during object creation.
 #'@param reflection_intensity      Default `0.0`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.
 #'@param reflection_sharpness      Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.
+#'@param two_sided                 Default `NULL`. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).
 #'
 #'@return Shape with new material
 #'@export
