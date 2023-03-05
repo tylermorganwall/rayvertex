@@ -117,7 +117,7 @@ List load_obj(std::string inputfile, std::string basedir) {
     set_item( out, 23, _["toon_outline_color"] = "black", names) ;
     set_item( out, 24, _["reflection_intensity"] = 1.0, names) ;
     set_item( out, 25, _["reflection_sharpness"] = 1.0, names) ;
-    set_item( out, 25, _["two_sided"] = false, names) ;
+    set_item( out, 26, _["two_sided"] = false, names) ;
     
     out.names() = names ;
     material_list.push_back(out);

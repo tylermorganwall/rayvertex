@@ -77,7 +77,8 @@ set_material = function(mesh, material = NULL, id = NULL,
                         toon_outline_width        = 0.05,
                         toon_outline_color        = "black",
                         reflection_intensity      = 0.0,
-                        reflection_sharpness      = 0.0) {
+                        reflection_sharpness      = 0.0,
+                        two_sided                 = FALSE) {
   culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   if(is.null(material)) {
     material = list()
@@ -107,6 +108,7 @@ set_material = function(mesh, material = NULL, id = NULL,
     material$toon_outline_color    = convert_color(toon_outline_color)   
     material$reflection_intensity        = reflection_intensity        
     material$reflection_sharpness    = reflection_sharpness      
+    material$two_sided              = two_sided      
   }
   material_hash = digest::digest(material)
   if(length(mesh$materials) > 0 && !is.null(mesh$materials[[1]]) && length(mesh$materials[[1]]) > 0) {
