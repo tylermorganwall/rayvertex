@@ -5,8 +5,9 @@
 #' @param scene A rayvertex scene.
 #' @param filename The filename for the OBJ file.
 #' @param materials Default `TRUE`. Whether to write an MTL file to specify the materials for the OBJ.
+#' @param fileext Default `".obj"`. The file extension to add to the filename.
 #' 
-#' @return Nothing.
+#' @return None
 #' @export
 #'
 #' @examples
@@ -14,11 +15,11 @@
 #' tmpfile = tempfile(fileext = ".obj")
 #' save_scene_obj(generate_cornell_mesh(), tmpfile)
 #' }
-save_scene_obj = function(scene, filename, materials = TRUE) {
+save_scene_obj = function(scene, filename, materials = TRUE, fileext = ".obj") {
   if(!inherits(scene, "ray_mesh")) {
     stop("`scene` must be of class `ray_mesh`")
   }
-  filename = sprintf("%s.obj",tools::file_path_sans_ext(filename))
+  filename = sprintf("%s%s",tools::file_path_sans_ext(filename),fileext)
   mtl_file = sprintf("%s.mtl",tools::file_path_sans_ext(filename))
   con = file(filename, open = "w")
   on.exit(close(con), add = TRUE)

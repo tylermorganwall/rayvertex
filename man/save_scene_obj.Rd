@@ -4,7 +4,7 @@
 \alias{save_scene_obj}
 \title{Save scene to OBJ file}
 \usage{
-save_scene_obj(scene, filename, materials = TRUE)
+save_scene_obj(scene, filename, materials = TRUE, fileext = ".obj")
 }
 \arguments{
 \item{scene}{A rayvertex scene.}
@@ -12,9 +12,11 @@ save_scene_obj(scene, filename, materials = TRUE)
 \item{filename}{The filename for the OBJ file.}
 
 \item{materials}{Default `TRUE`. Whether to write an MTL file to specify the materials for the OBJ.}
+
+\item{fileext}{Default `".obj"`. The file extension to add to the filename.}
 }
 \value{
-Nothing.
+None
 }
 \description{
 Writes the current scene to a Wavefront OBJ file, with or without materials
