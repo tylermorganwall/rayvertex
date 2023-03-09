@@ -1,4 +1,4 @@
-#' @title Save scene to OBJ file
+#' @title Write the scene to an OBJ file
 #' 
 #' @description Writes the current scene to a Wavefront OBJ file, with or without materials
 #' 
@@ -13,9 +13,9 @@
 #' @examples
 #' if(rayvertex:::run_documentation()) {
 #' tmpfile = tempfile(fileext = ".obj")
-#' save_scene_obj(generate_cornell_mesh(), tmpfile)
+#' write_scene_to_obj(generate_cornell_mesh(), tmpfile)
 #' }
-save_scene_obj = function(scene, filename, materials = TRUE, fileext = ".obj") {
+write_scene_to_obj = function(scene, filename, materials = TRUE, fileext = ".obj") {
   if(!inherits(scene, "ray_mesh")) {
     stop("`scene` must be of class `ray_mesh`")
   }
