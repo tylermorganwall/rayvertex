@@ -92,7 +92,7 @@ scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
 scale_unit_mesh = function(mesh, center_mesh = FALSE) {
   center = get_mesh_center(mesh)
   bbox = get_mesh_bbox(mesh)
-  scale_xyz = apply(bbox,2,sum)
+  scale_xyz = bbox["max",] - bbox["min",]
   scale_xyz[scale_xyz == 0] = 1
   scale = 1 / scale_xyz
   mesh = scale_mesh(mesh, scale = scale, center = center)
