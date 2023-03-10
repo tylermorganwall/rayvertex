@@ -1,7 +1,7 @@
 Package: rayvertex
 Type: Package
 Title: 3D Software Rasterizer
-Version: 0.7.5
+Version: 0.7.6
 Date: 2023-3-9
 Authors@R: c(person("Tyler", "Morgan-Wall", email = "tylermw@gmail.com", 
     role = c("aut", "cph", "cre"), comment = c(ORCID = "0000-0002-3131-3814")),

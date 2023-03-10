@@ -252,5 +252,6 @@ write_materials = function(con, materials) {
     if(nchar(tmp_mat$normal_texname) > 0) {
       writeLines(sprintf("norm %s",tmp_mat$normal_texname),con)
     }
+    writeLines("\n",con)
   }
 }
