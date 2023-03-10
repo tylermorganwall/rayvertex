@@ -29,7 +29,7 @@ write_scene_to_obj = function(scene, filename, materials = TRUE, fileext = ".obj
     con_mtl = file(mtl_file, open = "w")
     on.exit(close(con_mtl), add = TRUE)
     write_materials(con_mtl, scene$materials)
-    writeLines(sprintf("mtllib %s",mtl_file),
+    writeLines(sprintf("mtllib %s",basename(mtl_file)),
                con = con)
   }
   write_verts(con, scene$vertices)
