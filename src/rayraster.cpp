@@ -1098,6 +1098,7 @@ List rasterize(List mesh,
         vec3 origin(xxbuffer(x,y), yybuffer(x,y), zzbuffer(x,y));
         vec3 normal(nxbuffer(x,y), nybuffer(x,y), nzbuffer(x,y));
         normal = normalize(normal);
+        normal *= dot(normal, vec3(0,0,1)) < 0 ? -1 : 1;
         int noisex = x % 4;
         int noisey = y % 4;
         vec3 rvec = noise[noisex + 8*noisey];
