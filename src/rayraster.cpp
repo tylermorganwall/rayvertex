@@ -456,6 +456,8 @@ List rasterize(List mesh,
     Float toon_levels = as<Float>(single_material["toon_levels"]);
     Float reflection_intensity = as<Float>(single_material["reflection_intensity"]);
     bool two_sided = as<bool>(single_material["two_sided"]);
+    //Change cull type to none if two sided
+    cull_type = !two_sided ? cull_type : 3;
     
     bool has_texture_single          = has_texture(i);
     bool has_ambient_texture_single  = has_ambient_texture(i);
