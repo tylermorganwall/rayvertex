@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rayvertex</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.7.8</span>
       </span>
     </div>
 
@@ -90,7 +90,8 @@
 <span>  toon_outline_width <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  toon_outline_color <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  reflection_intensity <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  reflection_sharpness <span class="op">=</span> <span class="fl">0</span></span>
+<span>  reflection_sharpness <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  two_sided <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -212,6 +213,10 @@ matching the material name.</p></dd>
 
 <dt>reflection_sharpness</dt>
 <dd><p>Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.</p></dd>
+
+
+<dt>two_sided</dt>
+<dd><p>Default `NULL`. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).</p></dd>
 
 </dl></div>
     <div id="value">
