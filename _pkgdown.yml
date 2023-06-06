@@ -61,7 +61,10 @@ reference:
       - starts_with("rotate")
       - starts_with("translate")
       - starts_with("center")
-
+  - title: "Get Mesh Info"
+    desc: "Functions to get information about meshes "
+    contents:
+      - starts_with("get")
   - title: "Lines"
     desc: "Functions to generate lines for the scene"
     contents:
@@ -78,9 +81,10 @@ reference:
       - starts_with("add")
       - starts_with("scene_from")
   - title: "Render Rasterized Scene"
-    desc: "Functions to render the current scene."
+    desc: "Functions to render and write the current scene."
     contents:
       - starts_with("rasterize")
+      - starts_with("write")
 
      
 navbar: 
