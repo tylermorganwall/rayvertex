@@ -9,7 +9,7 @@ translate_lines(lines, position = 1)
 \arguments{
 \item{lines}{The line scene.}
 
-\item{position}{Default `c(0,0,0)`. The translation vector.}
+\item{position}{Default \code{c(0,0,0)}. The translation vector.}
 }
 \value{
 Translated line matrix.

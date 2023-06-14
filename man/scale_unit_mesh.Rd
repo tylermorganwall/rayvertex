@@ -9,7 +9,7 @@ scale_unit_mesh(mesh, center_mesh = FALSE)
 \arguments{
 \item{mesh}{The mesh.}
 
-\item{center_mesh}{Default `FALSE`. Whether to center the mesh at the origin after scaling.}
+\item{center_mesh}{Default \code{FALSE}. Whether to center the mesh at the origin after scaling.}
 }
 \value{
 Scaled mesh

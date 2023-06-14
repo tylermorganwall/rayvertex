@@ -35,59 +35,59 @@ material_list(
 )
 }
 \arguments{
-\item{diffuse}{Default `c(0.5,0.5,0.5)`. The diffuse color.}
+\item{diffuse}{Default \code{c(0.5,0.5,0.5)}. The diffuse color.}
 
-\item{ambient}{Default `c(0,0,0)`. The ambient color.}
+\item{ambient}{Default \code{c(0,0,0)}. The ambient color.}
 
-\item{specular}{Default `c(1,1,1)`. The specular color.}
+\item{specular}{Default \code{c(1,1,1)}. The specular color.}
 
-\item{transmittance}{Default `c(1,1,1)`. The transmittance}
+\item{transmittance}{Default \code{c(1,1,1)}. The transmittance}
 
-\item{emission}{Default `c(0,0,0)`. The emissive color.}
+\item{emission}{Default \code{c(0,0,0)}. The emissive color.}
 
-\item{shininess}{Default `10.0`. The shininess exponent.}
+\item{shininess}{Default \code{10.0}. The shininess exponent.}
 
-\item{ior}{Default `1.0`. The index of refraction. If this is not equal to `1.0`, the material will be refractive.}
+\item{ior}{Default \code{1.0}. The index of refraction. If this is not equal to \code{1.0}, the material will be refractive.}
 
-\item{dissolve}{Default `1.0`. The transparency.}
+\item{dissolve}{Default \code{1.0}. The transparency.}
 
-\item{illum}{Default `1.0`. The illumination.}
+\item{illum}{Default \code{1.0}. The illumination.}
 
-\item{texture_location}{Default `""`. The diffuse texture location.}
+\item{texture_location}{Default \code{""}. The diffuse texture location.}
 
-\item{normal_texture_location}{Default `""`. The normal texture location.}
+\item{normal_texture_location}{Default \code{""}. The normal texture location.}
 
-\item{specular_texture_location}{Default `""`. The specular texture location.}
+\item{specular_texture_location}{Default \code{""}. The specular texture location.}
 
-\item{ambient_texture_location}{Default `""`. The ambient texture location.}
+\item{ambient_texture_location}{Default \code{""}. The ambient texture location.}
 
-\item{emissive_texture_location}{Default `""`. The emissive texture location.}
+\item{emissive_texture_location}{Default \code{""}. The emissive texture location.}
 
-\item{diffuse_intensity}{Default `1`. The diffuse intensity.}
+\item{diffuse_intensity}{Default \code{1}. The diffuse intensity.}
 
-\item{specular_intensity}{Default `1`. The specular intensity.}
+\item{specular_intensity}{Default \code{1}. The specular intensity.}
 
-\item{emission_intensity}{Default `1`. The emission intensity.}
+\item{emission_intensity}{Default \code{1}. The emission intensity.}
 
-\item{ambient_intensity}{Default `1`. The ambient intensity.}
+\item{ambient_intensity}{Default \code{1}. The ambient intensity.}
 
-\item{culling}{Default `"back"`. The culling type. Options are `back`, `front`, and `none`.}
+\item{culling}{Default \code{"back"}. The culling type. Options are \code{back}, \code{front}, and \code{none}.}
 
-\item{type}{Default `"diffuse"`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.}
+\item{type}{Default \code{"diffuse"}. The shader type. Options include \code{diffuse},\code{phong},\code{vertex}, and \code{color}.}
 
-\item{translucent}{Default `FALSE`. Whether light should transmit through a semi-transparent material.}
+\item{translucent}{Default \code{FALSE}. Whether light should transmit through a semi-transparent material.}
 
-\item{toon_levels}{Default `5`. Number of color breaks in the toon shader.}
+\item{toon_levels}{Default \code{5}. Number of color breaks in the toon shader.}
 
-\item{toon_outline_width}{Default `0.05`. Expansion term for model to specify toon outline width.}
+\item{toon_outline_width}{Default \code{0.05}. Expansion term for model to specify toon outline width.}
 
-\item{toon_outline_color}{Default `black`. Toon outline color.}
+\item{toon_outline_color}{Default \code{black}. Toon outline color.}
 
-\item{reflection_intensity}{Default `0.0`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.}
+\item{reflection_intensity}{Default \code{0.0}. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.}
 
-\item{reflection_sharpness}{Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.}
+\item{reflection_sharpness}{Default \code{1.0}. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.}
 
-\item{two_sided}{Default `FALSE`. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).}
+\item{two_sided}{Default \code{FALSE}. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).}
 }
 \value{
 List of material properties.

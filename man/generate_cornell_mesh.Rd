@@ -13,15 +13,15 @@ generate_cornell_mesh(
 )
 }
 \arguments{
-\item{leftcolor}{Default `#1f7326` (green).}
+\item{leftcolor}{Default \verb{#1f7326} (green).}
 
-\item{rightcolor}{Default `#a60d0d` (red).}
+\item{rightcolor}{Default \verb{#a60d0d} (red).}
 
-\item{roomcolor}{Default `#bababa` (light grey).}
+\item{roomcolor}{Default \verb{#bababa} (light grey).}
 
-\item{ceiling}{Default `TRUE`. Whether to render the ceiling.}
+\item{ceiling}{Default \code{TRUE}. Whether to render the ceiling.}
 
-\item{light}{Default `TRUE`. Whether to render a point light near the ceiling.}
+\item{light}{Default \code{TRUE}. Whether to render a point light near the ceiling.}
 }
 \value{
 List describing the mesh.

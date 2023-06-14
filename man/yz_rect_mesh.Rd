@@ -14,17 +14,17 @@ yz_rect_mesh(
 )
 }
 \arguments{
-\item{position}{Default `c(0,0,0)`. Position of the mesh.}
+\item{position}{Default \code{c(0,0,0)}. Position of the mesh.}
 
-\item{scale}{Default `c(1,1,1)`. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.}
+\item{scale}{Default \code{c(1,1,1)}. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.}
 
-\item{angle}{Default `c(0,0,0)`. Angle to rotate the mesh.}
+\item{angle}{Default \code{c(0,0,0)}. Angle to rotate the mesh.}
 
-\item{pivot_point}{Default `c(0,0,0)`. Point around which to rotate the mesh.}
+\item{pivot_point}{Default \code{c(0,0,0)}. Point around which to rotate the mesh.}
 
-\item{order_rotation}{Default `c(1,2,3)`. Order to rotate the axes.}
+\item{order_rotation}{Default \code{c(1,2,3)}. Order to rotate the axes.}
 
-\item{material}{Default `material_list()` (default values). Specify the material of the object.}
+\item{material}{Default \code{material_list()} (default values). Specify the material of the object.}
 }
 \value{
 List describing the mesh.

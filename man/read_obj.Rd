@@ -9,14 +9,14 @@ read_obj(filename, materialspath = NULL)
 \arguments{
 \item{filename}{Filename of the OBJ file.}
 
-\item{materialspath}{Directory where the MTL file is located. Defaults to the directory of `filename`.}
+\item{materialspath}{Directory where the MTL file is located. Defaults to the directory of \code{filename}.}
 }
 \value{
-`ray_mesh` list object 
+\code{ray_mesh} list object
 #Load an arrow OBJ
 sphere = read_obj(system.file("extdata", "arrow.txt", package="rayvertex"))
 }
 \description{
-Loads an OBJ file and return a `ray_mesh` list structure. No processing is done on
-the object other than loading it (unlike `obj_model()`).
+Loads an OBJ file and return a \code{ray_mesh} list structure. No processing is done on
+the object other than loading it (unlike \code{obj_model()}).
 }

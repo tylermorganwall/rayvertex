@@ -49,6 +49,7 @@
 #'@param verbose Default `FALSE`. Prints out timing information.
 #'@param vertex_transform Default `NULL`. A function that transforms the vertex locations, based on their location.
 #'Function should takes a length-3 numeric vector and returns another length-3 numeric vector as the output.
+#'@param validate_scene Default `TRUE`. Whether to validate the scene input.
 #'
 #'@return Rasterized image.
 #'@export
@@ -145,7 +146,7 @@ rasterize_scene  = function(scene,
                            block_size = 4, shape = NULL, line_offset = 0.00001,
                            ortho_dimensions = c(1,1), bloom = FALSE, antialias_lines = TRUE,
                            environment_map= "", background_sharpness = 1.0, verbose=FALSE,
-                           vertex_transform = NULL) {
+                           vertex_transform = NULL, validate_scene = TRUE) {
   init_time()
   if(!is.null(attr(scene,"cornell"))) {
     corn_message = "Setting default values for Cornell box: "
@@ -177,6 +178,10 @@ rasterize_scene  = function(scene,
     if(attr(scene,"cornell_light")) {
       light_info = add_light(light_info,point_light(c(555/2,450,555/2),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
     }
+  }
+  print_time(verbose, "Validating Mesh")
+  if(validate_scene) {
+    validate_mesh(scene)
   }
   #Get the scene down to one vertex/texcoord/normal matrix, and adjust indices to match
   print_time(verbose, "Pre-processing scene")

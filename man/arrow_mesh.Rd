@@ -16,24 +16,24 @@ arrow_mesh(
 )
 }
 \arguments{
-\item{start}{Default `c(0, 0, 0)`. Base of the arrow, specifying `x`, `y`, `z`.}
+\item{start}{Default \code{c(0, 0, 0)}. Base of the arrow, specifying \code{x}, \code{y}, \code{z}.}
 
-\item{end}{Default `c(0, 1, 0)`. Tip of the arrow, specifying `x`, `y`, `z`.}
+\item{end}{Default \code{c(0, 1, 0)}. Tip of the arrow, specifying \code{x}, \code{y}, \code{z}.}
 
-\item{radius_top}{Default `0.5`. Radius of the top of the arrow.}
+\item{radius_top}{Default \code{0.5}. Radius of the top of the arrow.}
 
-\item{radius_tail}{Default `0.2`.  Radius of the tail of the arrow.}
+\item{radius_tail}{Default \code{0.2}.  Radius of the tail of the arrow.}
 
-\item{tail_proportion}{Default `0.5`. Proportion of the arrow that is the tail.}
+\item{tail_proportion}{Default \code{0.5}. Proportion of the arrow that is the tail.}
 
-\item{direction}{Default `NA`. Alternative to `start` and `end`, specify the direction (via 
-a length-3 vector) of the arrow. Arrow will be centered at `start`, and the length will be
+\item{direction}{Default \code{NA}. Alternative to \code{start} and \code{end}, specify the direction (via
+a length-3 vector) of the arrow. Arrow will be centered at \code{start}, and the length will be
 determined by the magnitude of the direction vector.}
 
-\item{from_center}{Default `TRUE`. If orientation specified via `direction`, setting this argument
-to `FALSE` will make `start` specify the bottom of the cone, instead of the middle.}
+\item{from_center}{Default \code{TRUE}. If orientation specified via \code{direction}, setting this argument
+to \code{FALSE} will make \code{start} specify the bottom of the cone, instead of the middle.}
 
-\item{material}{Default `material_list()` (default values). Specify the material of the object.}
+\item{material}{Default \code{material_list()} (default values). Specify the material of the object.}
 }
 \value{
 List describing the mesh.

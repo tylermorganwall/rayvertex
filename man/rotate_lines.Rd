@@ -14,11 +14,11 @@ rotate_lines(
 \arguments{
 \item{lines}{The existing line scene.}
 
-\item{angle}{Default `c(0,0,0)`. The rotation amount for the x/y/z axes, in degrees.}
+\item{angle}{Default \code{c(0,0,0)}. The rotation amount for the x/y/z axes, in degrees.}
 
-\item{pivot_point}{Default `c(0,0,0)`. The pivot point of the rotation.}
+\item{pivot_point}{Default \code{c(0,0,0)}. The pivot point of the rotation.}
 
-\item{order_rotation}{Default `c(1,2,3)`. The order in which to perform the rotations.#'}
+\item{order_rotation}{Default \code{c(1,2,3)}. The order in which to perform the rotations.#'}
 }
 \value{
 Rotated lines.

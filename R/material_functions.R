@@ -416,6 +416,7 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
                          reflection_intensity      = 0.0,
                          reflection_sharpness      = 0.0,
                          two_sided                 = FALSE) {
+  culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   material_props = 
     list(diffuse                   = convert_color(diffuse)                   ,
          ambient                   = convert_color(ambient)                   ,

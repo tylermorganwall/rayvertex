@@ -40,64 +40,64 @@ change_material(
 \arguments{
 \item{mesh}{Mesh to change.}
 
-\item{id}{Default `NULL`. Either a number specifying the material to change, or a character vector 
+\item{id}{Default \code{NULL}. Either a number specifying the material to change, or a character vector
 matching the material name.}
 
-\item{sub_id}{Default `1`. A number specifying which material to change (within an id).}
+\item{sub_id}{Default \code{1}. A number specifying which material to change (within an id).}
 
-\item{diffuse}{Default `NULL`. The diffuse color.}
+\item{diffuse}{Default \code{NULL}. The diffuse color.}
 
-\item{ambient}{Default `NULL`. The ambient color.}
+\item{ambient}{Default \code{NULL}. The ambient color.}
 
-\item{specular}{Default `NULL`. The specular color.}
+\item{specular}{Default \code{NULL}. The specular color.}
 
-\item{transmittance}{Default `NULL`. The transmittance}
+\item{transmittance}{Default \code{NULL}. The transmittance}
 
-\item{emission}{Default `NULL`. The emissive color.}
+\item{emission}{Default \code{NULL}. The emissive color.}
 
-\item{shininess}{Default `NULL`. The shininess exponent.}
+\item{shininess}{Default \code{NULL}. The shininess exponent.}
 
-\item{ior}{Default `NULL`. The index of refraction. If this is not equal to `1.0`, the material will be refractive.}
+\item{ior}{Default \code{NULL}. The index of refraction. If this is not equal to \code{1.0}, the material will be refractive.}
 
-\item{dissolve}{Default `NULL`. The transparency.}
+\item{dissolve}{Default \code{NULL}. The transparency.}
 
-\item{illum}{Default `NULL`. The illumination.}
+\item{illum}{Default \code{NULL}. The illumination.}
 
-\item{texture_location}{Default `NULL`. The diffuse texture location.}
+\item{texture_location}{Default \code{NULL}. The diffuse texture location.}
 
-\item{normal_texture_location}{Default `NULL`. The normal texture location.}
+\item{normal_texture_location}{Default \code{NULL}. The normal texture location.}
 
-\item{specular_texture_location}{Default `NULL`. The specular texture location.}
+\item{specular_texture_location}{Default \code{NULL}. The specular texture location.}
 
-\item{ambient_texture_location}{Default `NULL`. The ambient texture location.}
+\item{ambient_texture_location}{Default \code{NULL}. The ambient texture location.}
 
-\item{emissive_texture_location}{Default `NULL`. The emissive texture location.}
+\item{emissive_texture_location}{Default \code{NULL}. The emissive texture location.}
 
-\item{diffuse_intensity}{Default `NULL`. The diffuse intensity.}
+\item{diffuse_intensity}{Default \code{NULL}. The diffuse intensity.}
 
-\item{specular_intensity}{Default `NULL`. The specular intensity.}
+\item{specular_intensity}{Default \code{NULL}. The specular intensity.}
 
-\item{emission_intensity}{Default `NULL`. The emission intensity.}
+\item{emission_intensity}{Default \code{NULL}. The emission intensity.}
 
-\item{ambient_intensity}{Default `NULL`. The ambient intensity.}
+\item{ambient_intensity}{Default \code{NULL}. The ambient intensity.}
 
-\item{culling}{Default `NULL`. The culling type. Options are `back`, `front`, and `none`.}
+\item{culling}{Default \code{NULL}. The culling type. Options are \code{back}, \code{front}, and \code{none}.}
 
-\item{type}{Default `NULL`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.}
+\item{type}{Default \code{NULL}. The shader type. Options include \code{diffuse},\code{phong},\code{vertex}, and \code{color}.}
 
-\item{translucent}{Default `NULL`. Whether light should transmit through a semi-transparent material.}
+\item{translucent}{Default \code{NULL}. Whether light should transmit through a semi-transparent material.}
 
-\item{toon_levels}{Default `NULL`. Number of color breaks in the toon shader.}
+\item{toon_levels}{Default \code{NULL}. Number of color breaks in the toon shader.}
 
-\item{toon_outline_width}{Default `NULL`. Expansion term for model to specify toon outline width. Note: setting this property via this function currently does not generate outlines. Specify it during object creation.}
+\item{toon_outline_width}{Default \code{NULL}. Expansion term for model to specify toon outline width. Note: setting this property via this function currently does not generate outlines. Specify it during object creation.}
 
-\item{toon_outline_color}{Default `NULL`. Toon outline color.Note: setting this property via this function currently does not color outlines. Specify it during object creation.}
+\item{toon_outline_color}{Default \code{NULL}. Toon outline color.Note: setting this property via this function currently does not color outlines. Specify it during object creation.}
 
-\item{reflection_intensity}{Default `NULL`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.}
+\item{reflection_intensity}{Default \code{NULL}. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.}
 
-\item{reflection_sharpness}{Default `NULL`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.}
+\item{reflection_sharpness}{Default \code{NULL}. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.}
 
-\item{two_sided}{Default `NULL`. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).}
+\item{two_sided}{Default \code{NULL}. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).}
 }
 \value{
 Shape with new material settings

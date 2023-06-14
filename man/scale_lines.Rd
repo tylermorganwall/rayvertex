@@ -9,7 +9,7 @@ scale_lines(lines, scale = 1)
 \arguments{
 \item{lines}{The line scene.}
 
-\item{scale}{Default `c(1,1,1)`. The scale amount, per axis.}
+\item{scale}{Default \code{c(1,1,1)}. The scale amount, per axis.}
 }
 \value{
 Scaled line matrix.

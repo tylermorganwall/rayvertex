@@ -43,95 +43,98 @@ rasterize_scene(
   environment_map = "",
   background_sharpness = 1,
   verbose = FALSE,
-  vertex_transform = NULL
+  vertex_transform = NULL,
+  validate_scene = TRUE
 )
 }
 \arguments{
 \item{scene}{The scene object.}
 
-\item{filename}{Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.}
+\item{filename}{Default \code{NULL}. Filename to save the image. If \code{NULL}, the image will be plotted.}
 
-\item{width}{Default `400`. Width of the rendered image.}
+\item{width}{Default \code{400}. Width of the rendered image.}
 
-\item{height}{Default `400`. Width of the rendered image.}
+\item{height}{Default \code{400}. Width of the rendered image.}
 
-\item{line_info}{Default `NULL`. Matrix of line segments to add to the scene. Number of rows must be a multiple of 2.}
+\item{line_info}{Default \code{NULL}. Matrix of line segments to add to the scene. Number of rows must be a multiple of 2.}
 
-\item{alpha_line}{Default `1`. Line transparency.}
+\item{alpha_line}{Default \code{1}. Line transparency.}
 
-\item{parallel}{Default `TRUE`. Whether to use parallel processing.}
+\item{parallel}{Default \code{TRUE}. Whether to use parallel processing.}
 
-\item{fov}{Default `20`. Width of the rendered image.}
+\item{fov}{Default \code{20}. Width of the rendered image.}
 
-\item{lookfrom}{Default `c(0,0,10)`. Camera location.}
+\item{lookfrom}{Default \code{c(0,0,10)}. Camera location.}
 
-\item{lookat}{Default `NULL`. Camera focal position, defaults to the center of the model.}
+\item{lookat}{Default \code{NULL}. Camera focal position, defaults to the center of the model.}
 
-\item{camera_up}{Default `c(0,1,0)`. Camera up vector.}
+\item{camera_up}{Default \code{c(0,1,0)}. Camera up vector.}
 
-\item{fsaa}{Default `2`. Full screen anti-aliasing multiplier. Must be positive integer, higher numbers
+\item{fsaa}{Default \code{2}. Full screen anti-aliasing multiplier. Must be positive integer, higher numbers
 will improve anti-aliasing quality but will vastly increase memory usage.}
 
-\item{light_info}{Default `directional_light()`. Description of scene lights, generated with the `point_light()` and
-`directional_light()` functions.}
+\item{light_info}{Default \code{directional_light()}. Description of scene lights, generated with the \code{point_light()} and
+\code{directional_light()} functions.}
 
-\item{color}{Default `darkred`. Color of model if no material file present (or for faces using the default material).}
+\item{color}{Default \code{darkred}. Color of model if no material file present (or for faces using the default material).}
 
-\item{type}{Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).}
+\item{type}{Default \code{diffuse}. Shader type. Other options: \code{vertex} (Gouraud shading), \code{phong}, and \code{color} (no lighting).}
 
-\item{background}{Default `white`. Background color.}
+\item{background}{Default \code{white}. Background color.}
 
-\item{tangent_space_normals}{Default `TRUE`.}
+\item{tangent_space_normals}{Default \code{TRUE}.}
 
-\item{shadow_map}{Default `FALSE`.}
+\item{shadow_map}{Default \code{FALSE}.}
 
-\item{shadow_map_bias}{Default `0.005`.}
+\item{shadow_map_bias}{Default \code{0.005}.}
 
-\item{shadow_map_intensity}{Default `0.5`.}
+\item{shadow_map_intensity}{Default \code{0.5}.}
 
-\item{shadow_map_dims}{Default `NULL`.}
+\item{shadow_map_dims}{Default \code{NULL}.}
 
-\item{ssao}{Default `FALSE`. Whether to add screen-space ambient occlusion (SSAO) to the render.}
+\item{ssao}{Default \code{FALSE}. Whether to add screen-space ambient occlusion (SSAO) to the render.}
 
-\item{ssao_intensity}{Default `10`. Intensity of the shadow map.}
+\item{ssao_intensity}{Default \code{10}. Intensity of the shadow map.}
 
-\item{ssao_radius}{Default `0.1`. Radius to use when calculating the SSAO term.}
+\item{ssao_radius}{Default \code{0.1}. Radius to use when calculating the SSAO term.}
 
-\item{tonemap}{Default `"none"`.}
+\item{tonemap}{Default \code{"none"}.}
 
-\item{debug}{Default `"none"`.}
+\item{debug}{Default \code{"none"}.}
 
-\item{near_plane}{Default `0.1`.}
+\item{near_plane}{Default \code{0.1}.}
 
-\item{far_plane}{Default `100`.}
+\item{far_plane}{Default \code{100}.}
 
-\item{shader}{Default `"default"`.}
+\item{shader}{Default \code{"default"}.}
 
-\item{block_size}{Default `4`.}
+\item{block_size}{Default \code{4}.}
 
-\item{shape}{Default `NULL`. The shape to render in the OBJ mesh.}
+\item{shape}{Default \code{NULL}. The shape to render in the OBJ mesh.}
 
-\item{line_offset}{Default `0.0001`. Amount to offset lines towards camera to prevent z-fighting.}
+\item{line_offset}{Default \code{0.0001}. Amount to offset lines towards camera to prevent z-fighting.}
 
-\item{ortho_dimensions}{Default `c(1,1)`. Width and height of the orthographic camera. Will only be used if `fov = 0`.}
+\item{ortho_dimensions}{Default \code{c(1,1)}. Width and height of the orthographic camera. Will only be used if \code{fov = 0}.}
 
-\item{bloom}{Default `FALSE`. Whether to apply bloom to the image. If `TRUE`,
+\item{bloom}{Default \code{FALSE}. Whether to apply bloom to the image. If \code{TRUE},
 this performs a convolution of the HDR image of the scene with a sharp, long-tailed
 exponential kernel, which does not visibly affect dimly pixels, but does result in emitters light
 slightly bleeding into adjacent pixels.}
 
-\item{antialias_lines}{Default `TRUE`. Whether to anti-alias lines in the scene.}
+\item{antialias_lines}{Default \code{TRUE}. Whether to anti-alias lines in the scene.}
 
-\item{environment_map}{Default `""`. Image file to use as a texture for all reflective and refractive
+\item{environment_map}{Default \code{""}. Image file to use as a texture for all reflective and refractive
 materials in the scene, along with the background.}
 
-\item{background_sharpness}{Default `1.0`. A number greater than zero but less than one indicating the sharpness
+\item{background_sharpness}{Default \code{1.0}. A number greater than zero but less than one indicating the sharpness
 of the background image.}
 
-\item{verbose}{Default `FALSE`. Prints out timing information.}
+\item{verbose}{Default \code{FALSE}. Prints out timing information.}
 
-\item{vertex_transform}{Default `NULL`. A function that transforms the vertex locations, based on their location.
+\item{vertex_transform}{Default \code{NULL}. A function that transforms the vertex locations, based on their location.
 Function should takes a length-3 numeric vector and returns another length-3 numeric vector as the output.}
+
+\item{validate_scene}{Default \code{TRUE}. Whether to validate the scene input.}
 }
 \value{
 Rasterized image.

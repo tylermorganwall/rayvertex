@@ -17,25 +17,25 @@ construct_mesh(
 \arguments{
 \item{vertices}{Nx3 matrix of vertex coordinates..}
 
-\item{indices}{Nx3 integer matrix, where each row defines a triangle using the 
-vertices defined in `vertices`.}
+\item{indices}{Nx3 integer matrix, where each row defines a triangle using the
+vertices defined in \code{vertices}.}
 
-\item{normals}{Default `NULL`.  Nx3 matrix of normals.}
+\item{normals}{Default \code{NULL}.  Nx3 matrix of normals.}
 
-\item{norm_indices}{Nx3 integer matrix, where each row defines the normal for a vertex using the 
-normals defined in `normals` for the corresponding triangle in `indices`.
-Required to be the same number of rows as `indices`.}
+\item{norm_indices}{Nx3 integer matrix, where each row defines the normal for a vertex using the
+normals defined in \code{normals} for the corresponding triangle in \code{indices}.
+Required to be the same number of rows as \code{indices}.}
 
-\item{texcoords}{Default `NULL`. Nx2 matrix of texture coordinates.}
+\item{texcoords}{Default \code{NULL}. Nx2 matrix of texture coordinates.}
 
 \item{tex_indices}{Nx3 integer matrix, where each row defines the texture coordinates for a triangle
-using the tex coords defined in `texcoors` for the corresponding triangle in `indices`.
-Required to be the same number of rows as `indices`.}
+using the tex coords defined in \code{texcoors} for the corresponding triangle in \code{indices}.
+Required to be the same number of rows as \code{indices}.}
 
-\item{material}{Default `material_list()` (default values). Specify the material of the object.}
+\item{material}{Default \code{material_list()} (default values). Specify the material of the object.}
 }
 \value{
-List  containing mesh info.
+List containing mesh info.
 }
 \description{
 Manually construct a mesh

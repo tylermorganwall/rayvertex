@@ -29,44 +29,44 @@ rasterize_lines(
 \arguments{
 \item{line_info}{The mesh object.}
 
-\item{filename}{Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.}
+\item{filename}{Default \code{NULL}. Filename to save the image. If \code{NULL}, the image will be plotted.}
 
-\item{width}{Default `400`. Width of the rendered image.}
+\item{width}{Default \code{400}. Width of the rendered image.}
 
-\item{height}{Default `400`. Width of the rendered image.}
+\item{height}{Default \code{400}. Width of the rendered image.}
 
-\item{alpha_line}{Default `1`. Line transparency.}
+\item{alpha_line}{Default \code{1}. Line transparency.}
 
-\item{parallel}{Default `TRUE`. Whether to use parallel processing.}
+\item{parallel}{Default \code{TRUE}. Whether to use parallel processing.}
 
-\item{fov}{Default `20`. Width of the rendered image.}
+\item{fov}{Default \code{20}. Width of the rendered image.}
 
-\item{lookfrom}{Default `c(0,0,10)`. Camera location.}
+\item{lookfrom}{Default \code{c(0,0,10)}. Camera location.}
 
-\item{lookat}{Default `NULL`. Camera focal position, defaults to the center of the model.}
+\item{lookat}{Default \code{NULL}. Camera focal position, defaults to the center of the model.}
 
-\item{camera_up}{Default `c(0,1,0)`. Camera up vector.}
+\item{camera_up}{Default \code{c(0,1,0)}. Camera up vector.}
 
-\item{color}{Default `darkred`. Color of model if no material file present (or for faces using the default material).}
+\item{color}{Default \code{darkred}. Color of model if no material file present (or for faces using the default material).}
 
-\item{background}{Default `white`. Background color.}
+\item{background}{Default \code{white}. Background color.}
 
-\item{debug}{Default `"none"`.}
+\item{debug}{Default \code{"none"}.}
 
-\item{near_plane}{Default `0.1`.}
+\item{near_plane}{Default \code{0.1}.}
 
-\item{far_plane}{Default `100`.}
+\item{far_plane}{Default \code{100}.}
 
-\item{block_size}{Default `4`.}
+\item{block_size}{Default \code{4}.}
 
-\item{ortho_dimensions}{Default `c(1,1)`. Width and height of the orthographic camera. Will only be used if `fov = 0`.}
+\item{ortho_dimensions}{Default \code{c(1,1)}. Width and height of the orthographic camera. Will only be used if \code{fov = 0}.}
 
-\item{bloom}{Default `FALSE`. Whether to apply bloom to the image. If `TRUE`,
+\item{bloom}{Default \code{FALSE}. Whether to apply bloom to the image. If \code{TRUE},
 this performs a convolution of the HDR image of the scene with a sharp, long-tailed
 exponential kernel, which does not visibly affect dimly pixels, but does result in emitters light
 slightly bleeding into adjacent pixels.}
 
-\item{antialias_lines}{Default `TRUE`. Whether to anti-alias lines in the scene.}
+\item{antialias_lines}{Default \code{TRUE}. Whether to anti-alias lines in the scene.}
 }
 \value{
 Rasterized image.

@@ -19,21 +19,21 @@ text3d_mesh(
 \arguments{
 \item{label}{Text string.}
 
-\item{position}{Default `c(0,0,0)`. Position of the mesh.}
+\item{position}{Default \code{c(0,0,0)}. Position of the mesh.}
 
-\item{text_height}{Default `1`. Height of the text.}
+\item{text_height}{Default \code{1}. Height of the text.}
 
-\item{orientation}{Default `xy`. Orientation of the plane. Other options are `yz` and `xz`.}
+\item{orientation}{Default \code{xy}. Orientation of the plane. Other options are \code{yz} and \code{xz}.}
 
-\item{color}{Default `black`. Text color.}
+\item{color}{Default \code{black}. Text color.}
 
-\item{angle}{Default `c(0,0,0)`. Angle to rotate the mesh.}
+\item{angle}{Default \code{c(0,0,0)}. Angle to rotate the mesh.}
 
-\item{pivot_point}{Default `c(0,0,0)`. Point around which to rotate the mesh.}
+\item{pivot_point}{Default \code{c(0,0,0)}. Point around which to rotate the mesh.}
 
-\item{order_rotation}{Default `c(1,2,3)`. Order to rotate the axes.}
+\item{order_rotation}{Default \code{c(1,2,3)}. Order to rotate the axes.}
 
-\item{scale}{Default `c(1,1,1)`. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.}
+\item{scale}{Default \code{c(1,1,1)}. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.}
 }
 \value{
 List describing the mesh.

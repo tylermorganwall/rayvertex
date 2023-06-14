@@ -7,11 +7,11 @@
 generate_line(start = c(0, 0, 0), end = c(0, 1, 0), color = "white")
 }
 \arguments{
-\item{start}{Default `c(0,0,0)`. Start of the line segment.}
+\item{start}{Default \code{c(0,0,0)}. Start of the line segment.}
 
-\item{end}{Default `c(0,1,0)`. End of the line segment..}
+\item{end}{Default \code{c(0,1,0)}. End of the line segment..}
 
-\item{color}{Default `white`. Color of the line segment.}
+\item{color}{Default \code{white}. Color of the line segment.}
 }
 \value{
 Line matrix

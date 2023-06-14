@@ -9,7 +9,7 @@ generate_rot_matrix(angle, order_rotation)
 \arguments{
 \item{angle}{The angle}
 
-\item{order_rotation}{Default `c(1,2,3)`.}
+\item{order_rotation}{Default \code{c(1,2,3)}.}
 }
 \value{
 Matrix

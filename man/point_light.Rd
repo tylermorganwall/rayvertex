@@ -16,15 +16,15 @@ point_light(
 \arguments{
 \item{position}{A two-dimensional matrix, where each entry in the matrix is the elevation at that point. All points are assumed to be evenly spaced.}
 
-\item{color}{Default `400`. Width of the rendered image.}
+\item{color}{Default \code{400}. Width of the rendered image.}
 
-\item{intensity}{Default `1`. Intensity of the point light.}
+\item{intensity}{Default \code{1}. Intensity of the point light.}
 
-\item{constant}{Default `1`. Constant term. See description for details.}
+\item{constant}{Default \code{1}. Constant term. See description for details.}
 
-\item{falloff}{Default `1`. Linear falloff term. See description for details.}
+\item{falloff}{Default \code{1}. Linear falloff term. See description for details.}
 
-\item{falloff_quad}{Default `1`. Quadratic falloff term. See description for details.}
+\item{falloff_quad}{Default \code{1}. Quadratic falloff term. See description for details.}
 }
 \value{
 A matrix representing the light information.

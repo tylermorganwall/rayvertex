@@ -9,7 +9,7 @@ save_png(hillshade, filename, rotate = 0)
 \arguments{
 \item{hillshade}{Array (or matrix) of hillshade to be written.}
 
-\item{filename}{String with the filename. If `.png` is not at the end of the string, it will be appended automatically.}
+\item{filename}{String with the filename. If \code{.png} is not at the end of the string, it will be appended automatically.}
 
 \item{rotate}{Default 0. Rotates the output. Possible values: 0, 90, 180, 270.}
 }

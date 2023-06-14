@@ -9,9 +9,9 @@ scale_mesh(mesh, scale = 1, center = c(0, 0, 0))
 \arguments{
 \item{mesh}{The mesh.}
 
-\item{scale}{Default `c(1,1,1)`. The scale amount, per axis.}
+\item{scale}{Default \code{c(1,1,1)}. The scale amount, per axis.}
 
-\item{center}{Default `c(0,0,0)`. The center of the scale.}
+\item{center}{Default \code{c(0,0,0)}. The center of the scale.}
 }
 \value{
 Scaled mesh

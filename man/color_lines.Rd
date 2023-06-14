@@ -9,7 +9,7 @@ color_lines(lines, color = "white")
 \arguments{
 \item{lines}{The line scene.}
 
-\item{color}{Default `white`. The color to convert the lines to.}
+\item{color}{Default \code{white}. The color to convert the lines to.}
 }
 \value{
 Colored line matrix.
