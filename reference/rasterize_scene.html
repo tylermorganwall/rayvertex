@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rayvertex</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.7.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.8.0</span>
       </span>
     </div>
 
@@ -100,7 +100,8 @@
 <span>  environment_map <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  background_sharpness <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  vertex_transform <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  vertex_transform <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  validate_scene <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -111,163 +112,167 @@
 
 
 <dt>filename</dt>
-<dd><p>Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.</p></dd>
+<dd><p>Default <code>NULL</code>. Filename to save the image. If <code>NULL</code>, the image will be plotted.</p></dd>
 
 
 <dt>width</dt>
-<dd><p>Default `400`. Width of the rendered image.</p></dd>
+<dd><p>Default <code>400</code>. Width of the rendered image.</p></dd>
 
 
 <dt>height</dt>
-<dd><p>Default `400`. Width of the rendered image.</p></dd>
+<dd><p>Default <code>400</code>. Width of the rendered image.</p></dd>
 
 
 <dt>line_info</dt>
-<dd><p>Default `NULL`. Matrix of line segments to add to the scene. Number of rows must be a multiple of 2.</p></dd>
+<dd><p>Default <code>NULL</code>. Matrix of line segments to add to the scene. Number of rows must be a multiple of 2.</p></dd>
 
 
 <dt>alpha_line</dt>
-<dd><p>Default `1`. Line transparency.</p></dd>
+<dd><p>Default <code>1</code>. Line transparency.</p></dd>
 
 
 <dt>parallel</dt>
-<dd><p>Default `TRUE`. Whether to use parallel processing.</p></dd>
+<dd><p>Default <code>TRUE</code>. Whether to use parallel processing.</p></dd>
 
 
 <dt>fov</dt>
-<dd><p>Default `20`. Width of the rendered image.</p></dd>
+<dd><p>Default <code>20</code>. Width of the rendered image.</p></dd>
 
 
 <dt>lookfrom</dt>
-<dd><p>Default `c(0,0,10)`. Camera location.</p></dd>
+<dd><p>Default <code>c(0,0,10)</code>. Camera location.</p></dd>
 
 
 <dt>lookat</dt>
-<dd><p>Default `NULL`. Camera focal position, defaults to the center of the model.</p></dd>
+<dd><p>Default <code>NULL</code>. Camera focal position, defaults to the center of the model.</p></dd>
 
 
 <dt>camera_up</dt>
-<dd><p>Default `c(0,1,0)`. Camera up vector.</p></dd>
+<dd><p>Default <code>c(0,1,0)</code>. Camera up vector.</p></dd>
 
 
 <dt>fsaa</dt>
-<dd><p>Default `2`. Full screen anti-aliasing multiplier. Must be positive integer, higher numbers
+<dd><p>Default <code>2</code>. Full screen anti-aliasing multiplier. Must be positive integer, higher numbers
 will improve anti-aliasing quality but will vastly increase memory usage.</p></dd>
 
 
 <dt>light_info</dt>
-<dd><p>Default `directional_light()`. Description of scene lights, generated with the `point_light()` and
-`directional_light()` functions.</p></dd>
+<dd><p>Default <code><a href="directional_light.html">directional_light()</a></code>. Description of scene lights, generated with the <code><a href="point_light.html">point_light()</a></code> and
+<code><a href="directional_light.html">directional_light()</a></code> functions.</p></dd>
 
 
 <dt>color</dt>
-<dd><p>Default `darkred`. Color of model if no material file present (or for faces using the default material).</p></dd>
+<dd><p>Default <code>darkred</code>. Color of model if no material file present (or for faces using the default material).</p></dd>
 
 
 <dt>type</dt>
-<dd><p>Default `diffuse`. Shader type. Other options: `vertex` (Gouraud shading), `phong`, and `color` (no lighting).</p></dd>
+<dd><p>Default <code>diffuse</code>. Shader type. Other options: <code>vertex</code> (Gouraud shading), <code>phong</code>, and <code>color</code> (no lighting).</p></dd>
 
 
 <dt>background</dt>
-<dd><p>Default `white`. Background color.</p></dd>
+<dd><p>Default <code>white</code>. Background color.</p></dd>
 
 
 <dt>tangent_space_normals</dt>
-<dd><p>Default `TRUE`.</p></dd>
+<dd><p>Default <code>TRUE</code>.</p></dd>
 
 
 <dt>shadow_map</dt>
-<dd><p>Default `FALSE`.</p></dd>
+<dd><p>Default <code>FALSE</code>.</p></dd>
 
 
 <dt>shadow_map_bias</dt>
-<dd><p>Default `0.005`.</p></dd>
+<dd><p>Default <code>0.005</code>.</p></dd>
 
 
 <dt>shadow_map_intensity</dt>
-<dd><p>Default `0.5`.</p></dd>
+<dd><p>Default <code>0.5</code>.</p></dd>
 
 
 <dt>shadow_map_dims</dt>
-<dd><p>Default `NULL`.</p></dd>
+<dd><p>Default <code>NULL</code>.</p></dd>
 
 
 <dt>ssao</dt>
-<dd><p>Default `FALSE`. Whether to add screen-space ambient occlusion (SSAO) to the render.</p></dd>
+<dd><p>Default <code>FALSE</code>. Whether to add screen-space ambient occlusion (SSAO) to the render.</p></dd>
 
 
 <dt>ssao_intensity</dt>
-<dd><p>Default `10`. Intensity of the shadow map.</p></dd>
+<dd><p>Default <code>10</code>. Intensity of the shadow map.</p></dd>
 
 
 <dt>ssao_radius</dt>
-<dd><p>Default `0.1`. Radius to use when calculating the SSAO term.</p></dd>
+<dd><p>Default <code>0.1</code>. Radius to use when calculating the SSAO term.</p></dd>
 
 
 <dt>tonemap</dt>
-<dd><p>Default `"none"`.</p></dd>
+<dd><p>Default <code>"none"</code>.</p></dd>
 
 
 <dt>debug</dt>
-<dd><p>Default `"none"`.</p></dd>
+<dd><p>Default <code>"none"</code>.</p></dd>
 
 
 <dt>near_plane</dt>
-<dd><p>Default `0.1`.</p></dd>
+<dd><p>Default <code>0.1</code>.</p></dd>
 
 
 <dt>far_plane</dt>
-<dd><p>Default `100`.</p></dd>
+<dd><p>Default <code>100</code>.</p></dd>
 
 
 <dt>shader</dt>
-<dd><p>Default `"default"`.</p></dd>
+<dd><p>Default <code>"default"</code>.</p></dd>
 
 
 <dt>block_size</dt>
-<dd><p>Default `4`.</p></dd>
+<dd><p>Default <code>4</code>.</p></dd>
 
 
 <dt>shape</dt>
-<dd><p>Default `NULL`. The shape to render in the OBJ mesh.</p></dd>
+<dd><p>Default <code>NULL</code>. The shape to render in the OBJ mesh.</p></dd>
 
 
 <dt>line_offset</dt>
-<dd><p>Default `0.0001`. Amount to offset lines towards camera to prevent z-fighting.</p></dd>
+<dd><p>Default <code>0.0001</code>. Amount to offset lines towards camera to prevent z-fighting.</p></dd>
 
 
 <dt>ortho_dimensions</dt>
-<dd><p>Default `c(1,1)`. Width and height of the orthographic camera. Will only be used if `fov = 0`.</p></dd>
+<dd><p>Default <code>c(1,1)</code>. Width and height of the orthographic camera. Will only be used if <code>fov = 0</code>.</p></dd>
 
 
 <dt>bloom</dt>
-<dd><p>Default `FALSE`. Whether to apply bloom to the image. If `TRUE`,
+<dd><p>Default <code>FALSE</code>. Whether to apply bloom to the image. If <code>TRUE</code>,
 this performs a convolution of the HDR image of the scene with a sharp, long-tailed
 exponential kernel, which does not visibly affect dimly pixels, but does result in emitters light
 slightly bleeding into adjacent pixels.</p></dd>
 
 
 <dt>antialias_lines</dt>
-<dd><p>Default `TRUE`. Whether to anti-alias lines in the scene.</p></dd>
+<dd><p>Default <code>TRUE</code>. Whether to anti-alias lines in the scene.</p></dd>
 
 
 <dt>environment_map</dt>
-<dd><p>Default `""`. Image file to use as a texture for all reflective and refractive
+<dd><p>Default <code>""</code>. Image file to use as a texture for all reflective and refractive
 materials in the scene, along with the background.</p></dd>
 
 
 <dt>background_sharpness</dt>
-<dd><p>Default `1.0`. A number greater than zero but less than one indicating the sharpness
+<dd><p>Default <code>1.0</code>. A number greater than zero but less than one indicating the sharpness
 of the background image.</p></dd>
 
 
 <dt>verbose</dt>
-<dd><p>Default `FALSE`. Prints out timing information.</p></dd>
+<dd><p>Default <code>FALSE</code>. Prints out timing information.</p></dd>
 
 
 <dt>vertex_transform</dt>
-<dd><p>Default `NULL`. A function that transforms the vertex locations, based on their location.
+<dd><p>Default <code>NULL</code>. A function that transforms the vertex locations, based on their location.
 Function should takes a length-3 numeric vector and returns another length-3 numeric vector as the output.</p></dd>
+
+
+<dt>validate_scene</dt>
+<dd><p>Default <code>TRUE</code>. Whether to validate the scene input.</p></dd>
 
 </dl></div>
     <div id="value">

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rayvertex</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.7.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.8.0</span>
       </span>
     </div>
 
@@ -102,120 +102,120 @@
 
 
 <dt>id</dt>
-<dd><p>Default `NULL`. Either a number specifying the material to change, or a character vector 
+<dd><p>Default <code>NULL</code>. Either a number specifying the material to change, or a character vector
 matching the material name.</p></dd>
 
 
 <dt>sub_id</dt>
-<dd><p>Default `1`. A number specifying which material to change (within an id).</p></dd>
+<dd><p>Default <code>1</code>. A number specifying which material to change (within an id).</p></dd>
 
 
 <dt>diffuse</dt>
-<dd><p>Default `NULL`. The diffuse color.</p></dd>
+<dd><p>Default <code>NULL</code>. The diffuse color.</p></dd>
 
 
 <dt>ambient</dt>
-<dd><p>Default `NULL`. The ambient color.</p></dd>
+<dd><p>Default <code>NULL</code>. The ambient color.</p></dd>
 
 
 <dt>specular</dt>
-<dd><p>Default `NULL`. The specular color.</p></dd>
+<dd><p>Default <code>NULL</code>. The specular color.</p></dd>
 
 
 <dt>transmittance</dt>
-<dd><p>Default `NULL`. The transmittance</p></dd>
+<dd><p>Default <code>NULL</code>. The transmittance</p></dd>
 
 
 <dt>emission</dt>
-<dd><p>Default `NULL`. The emissive color.</p></dd>
+<dd><p>Default <code>NULL</code>. The emissive color.</p></dd>
 
 
 <dt>shininess</dt>
-<dd><p>Default `NULL`. The shininess exponent.</p></dd>
+<dd><p>Default <code>NULL</code>. The shininess exponent.</p></dd>
 
 
 <dt>ior</dt>
-<dd><p>Default `NULL`. The index of refraction. If this is not equal to `1.0`, the material will be refractive.</p></dd>
+<dd><p>Default <code>NULL</code>. The index of refraction. If this is not equal to <code>1.0</code>, the material will be refractive.</p></dd>
 
 
 <dt>dissolve</dt>
-<dd><p>Default `NULL`. The transparency.</p></dd>
+<dd><p>Default <code>NULL</code>. The transparency.</p></dd>
 
 
 <dt>illum</dt>
-<dd><p>Default `NULL`. The illumination.</p></dd>
+<dd><p>Default <code>NULL</code>. The illumination.</p></dd>
 
 
 <dt>texture_location</dt>
-<dd><p>Default `NULL`. The diffuse texture location.</p></dd>
+<dd><p>Default <code>NULL</code>. The diffuse texture location.</p></dd>
 
 
 <dt>normal_texture_location</dt>
-<dd><p>Default `NULL`. The normal texture location.</p></dd>
+<dd><p>Default <code>NULL</code>. The normal texture location.</p></dd>
 
 
 <dt>specular_texture_location</dt>
-<dd><p>Default `NULL`. The specular texture location.</p></dd>
+<dd><p>Default <code>NULL</code>. The specular texture location.</p></dd>
 
 
 <dt>ambient_texture_location</dt>
-<dd><p>Default `NULL`. The ambient texture location.</p></dd>
+<dd><p>Default <code>NULL</code>. The ambient texture location.</p></dd>
 
 
 <dt>emissive_texture_location</dt>
-<dd><p>Default `NULL`. The emissive texture location.</p></dd>
+<dd><p>Default <code>NULL</code>. The emissive texture location.</p></dd>
 
 
 <dt>diffuse_intensity</dt>
-<dd><p>Default `NULL`. The diffuse intensity.</p></dd>
+<dd><p>Default <code>NULL</code>. The diffuse intensity.</p></dd>
 
 
 <dt>specular_intensity</dt>
-<dd><p>Default `NULL`. The specular intensity.</p></dd>
+<dd><p>Default <code>NULL</code>. The specular intensity.</p></dd>
 
 
 <dt>emission_intensity</dt>
-<dd><p>Default `NULL`. The emission intensity.</p></dd>
+<dd><p>Default <code>NULL</code>. The emission intensity.</p></dd>
 
 
 <dt>ambient_intensity</dt>
-<dd><p>Default `NULL`. The ambient intensity.</p></dd>
+<dd><p>Default <code>NULL</code>. The ambient intensity.</p></dd>
 
 
 <dt>culling</dt>
-<dd><p>Default `NULL`. The culling type. Options are `back`, `front`, and `none`.</p></dd>
+<dd><p>Default <code>NULL</code>. The culling type. Options are <code>back</code>, <code>front</code>, and <code>none</code>.</p></dd>
 
 
 <dt>type</dt>
-<dd><p>Default `NULL`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.</p></dd>
+<dd><p>Default <code>NULL</code>. The shader type. Options include <code>diffuse</code>,<code>phong</code>,<code>vertex</code>, and <code>color</code>.</p></dd>
 
 
 <dt>translucent</dt>
-<dd><p>Default `NULL`. Whether light should transmit through a semi-transparent material.</p></dd>
+<dd><p>Default <code>NULL</code>. Whether light should transmit through a semi-transparent material.</p></dd>
 
 
 <dt>toon_levels</dt>
-<dd><p>Default `NULL`. Number of color breaks in the toon shader.</p></dd>
+<dd><p>Default <code>NULL</code>. Number of color breaks in the toon shader.</p></dd>
 
 
 <dt>toon_outline_width</dt>
-<dd><p>Default `NULL`. Expansion term for model to specify toon outline width. Note: setting this property via this function currently does not generate outlines. Specify it during object creation.</p></dd>
+<dd><p>Default <code>NULL</code>. Expansion term for model to specify toon outline width. Note: setting this property via this function currently does not generate outlines. Specify it during object creation.</p></dd>
 
 
 <dt>toon_outline_color</dt>
-<dd><p>Default `NULL`. Toon outline color.Note: setting this property via this function currently does not color outlines. Specify it during object creation.</p></dd>
+<dd><p>Default <code>NULL</code>. Toon outline color.Note: setting this property via this function currently does not color outlines. Specify it during object creation.</p></dd>
 
 
 <dt>reflection_intensity</dt>
-<dd><p>Default `NULL`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.</p></dd>
+<dd><p>Default <code>NULL</code>. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.</p></dd>
 
 
 <dt>reflection_sharpness</dt>
-<dd><p>Default `NULL`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.</p></dd>
+<dd><p>Default <code>NULL</code>. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.</p></dd>
 
 
 <dt>two_sided</dt>
-<dd><p>Default `NULL`. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).</p></dd>
+<dd><p>Default <code>NULL</code>. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).</p></dd>
 
 </dl></div>
     <div id="value">
