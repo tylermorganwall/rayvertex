@@ -65,6 +65,7 @@ reference:
     desc: "Functions to get information about meshes "
     contents:
       - starts_with("get")
+      - starts_with("validate_mesh")
   - title: "Lines"
     desc: "Functions to generate lines for the scene"
     contents:
