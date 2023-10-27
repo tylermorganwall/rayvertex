@@ -117,6 +117,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// smooth_normals_mesh_rcpp
+List smooth_normals_mesh_rcpp(List mesh_input, bool override_existing);
+RcppExport SEXP _rayvertex_smooth_normals_mesh_rcpp(SEXP mesh_inputSEXP, SEXP override_existingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type mesh_input(mesh_inputSEXP);
+    Rcpp::traits::input_parameter< bool >::type override_existing(override_existingSEXP);
+    rcpp_result_gen = Rcpp::wrap(smooth_normals_mesh_rcpp(mesh_input, override_existing));
+    return rcpp_result_gen;
+END_RCPP
+}
 // tonemap_image
 Rcpp::List tonemap_image(Rcpp::NumericMatrix routput, Rcpp::NumericMatrix goutput, Rcpp::NumericMatrix boutput, int toneval);
 RcppExport SEXP _rayvertex_tonemap_image(SEXP routputSEXP, SEXP goutputSEXP, SEXP boutputSEXP, SEXP tonevalSEXP) {
@@ -151,6 +163,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rayvertex_load_ply", (DL_FUNC) &_rayvertex_load_ply, 2},
     {"_rayvertex_rasterize_lines_rcpp", (DL_FUNC) &_rayvertex_rasterize_lines_rcpp, 15},
     {"_rayvertex_rasterize", (DL_FUNC) &_rayvertex_rasterize, 47},
+    {"_rayvertex_smooth_normals_mesh_rcpp", (DL_FUNC) &_rayvertex_smooth_normals_mesh_rcpp, 2},
     {"_rayvertex_tonemap_image", (DL_FUNC) &_rayvertex_tonemap_image, 4},
     {"_rayvertex_wireframe", (DL_FUNC) &_rayvertex_wireframe, 4},
     {NULL, NULL, 0}
