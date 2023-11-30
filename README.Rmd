@@ -188,21 +188,21 @@ for(i in 1:5) {
                             ambient_intensity = 0.2)
 }
 
-generate_cornell_mesh(ceiling=FALSE) %>%
-  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) %>%
+generate_cornell_mesh(ceiling=FALSE) |>
+  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) |>
   add_shape(segment_mesh(start=c(555/2,0,555/2),end=c(555/2,196,555/2),
-                         radius=30, material=mat2)) %>%
+                         radius=30, material=mat2)) |>
   add_shape(cube_mesh(position=c(555/2,555/2-90,555/2),
-                      scale=c(160,20,160),material=mat2)) %>%
+                      scale=c(160,20,160),material=mat2)) |>
   add_shape(torus_mesh(position=c(100,100,100), radius = 50, ring_radius = 20,
-                       angle=c(45,0,45),material=mats[[1]])) %>%
+                       angle=c(45,0,45),material=mats[[1]])) |>
   add_shape(cone_mesh(start=c(555-100,0,100), end=c(555-100,150,100), radius = 50,
-                      material=mats[[2]])) %>%
+                      material=mats[[2]])) |>
   add_shape(arrow_mesh(start=c(555-100,455,555-100), end=c(100,455,555-100),
                        radius_top = 50, radius_tail=10, tail_proportion = 0.8,
-                       material=mats[[3]])) %>%
+                       material=mats[[3]])) |>
   add_shape(obj_mesh(r_obj(), position=c(100,200,555/2), angle=c(-10,200,0),
-                     scale=80,material=mats[[4]])) %>%
+                     scale=80,material=mats[[4]])) |>
   add_shape(mesh3d_mesh(humface, position = c(555-80,220,555/2),scale = 1,
                         material=mats[[5]],angle=c(0,180,-30))) |>
   rasterize_scene(light_info = directional_light(c(0.4,0.2,-1)))
@@ -280,14 +280,14 @@ Now let's draw another example scene: we'll add the R OBJ to a flat surface.
 
 ```{r line1}
 
-base_model = cube_mesh() %>%
-  scale_mesh(scale=c(5,0.2,5)) %>%
-  translate_mesh(c(0,-0.1,0)) %>%
+base_model = cube_mesh() |>
+  scale_mesh(scale=c(5,0.2,5)) |>
+  translate_mesh(c(0,-0.1,0)) |>
   set_material(diffuse="white")
 
-r_model = obj_mesh(r_obj()) %>%
-  scale_mesh(scale=0.5) %>%
-  set_material(diffuse="red") %>%
+r_model = obj_mesh(r_obj()) |>
+  scale_mesh(scale=0.5) |>
+  set_material(diffuse="red") |>
   add_shape(base_model)
 
 rasterize_scene(r_model, lookfrom=c(2,4,10),fov=20,
@@ -315,8 +315,8 @@ rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 We can add multiple directional lights and change their color and intensity:
 
 ```{r line4}
-lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 0.7) %>%
-            add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 0.7)) %>%
+lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 0.7) |>
+            add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 0.7)) |>
             add_light(directional_light(c(2,4,10),color = "white",intensity = 0.3))
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
                light_info = lights)
@@ -327,14 +327,14 @@ We can change the transparency of the material, which allows for colored shadows
 
 ```{r trans1}
 
-r_model_t = obj_mesh(r_obj()) %>%
-  scale_mesh(scale=0.5) %>%
-  set_material(diffuse="red", dissolve=0.5, translucent = T) %>%
+r_model_t = obj_mesh(r_obj()) |>
+  scale_mesh(scale=0.5) |>
+  set_material(diffuse="red", dissolve=0.5, translucent = T) |>
   add_shape(base_model)
 
-r_model_t = obj_mesh(r_obj(),c(-2,0,0.3)) %>%
-  scale_mesh(scale=0.5) %>%
-  set_material(diffuse="dodgerblue", dissolve=0.5, translucent = T) %>%
+r_model_t = obj_mesh(r_obj(),position = c(-2,0,0.3)) |>
+  scale_mesh(scale=0.5) |>
+  set_material(diffuse="dodgerblue", dissolve=0.5, translucent = T) |>
   add_shape(r_model_t)
 
 rasterize_scene(r_model_t, lookfrom=c(2,4,10),fov=15,lookat=c(-0.5,0,0),
@@ -346,8 +346,8 @@ We can also add some point lights:
 
 ```{r line5}
 #Add some point lights
-lights_p = lights %>%
-  add_light(point_light(position=c(-1,1,0),color="red", intensity=2)) %>%
+lights_p = lights |>
+  add_light(point_light(position=c(-1,1,0),color="red", intensity=2)) |>
   add_light(point_light(position=c(1,1,0),color="purple", intensity=2))
 
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,

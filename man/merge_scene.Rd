@@ -6,9 +6,6 @@
 \usage{
 merge_scene(old_scene, flatten_materials = TRUE)
 }
-\arguments{
-\item{scene}{}
-}
 \value{
 Merged scene
 }

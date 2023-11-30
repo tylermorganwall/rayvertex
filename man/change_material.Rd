@@ -19,10 +19,12 @@ change_material(
   illum = NULL,
   texture_location = NULL,
   normal_texture_location = NULL,
+  bump_texture_location = NULL,
   specular_texture_location = NULL,
   ambient_texture_location = NULL,
   emissive_texture_location = NULL,
   diffuse_intensity = NULL,
+  bump_intensity = NULL,
   specular_intensity = NULL,
   emission_intensity = NULL,
   ambient_intensity = NULL,
@@ -67,6 +69,8 @@ matching the material name.}
 
 \item{normal_texture_location}{Default \code{NULL}. The normal texture location.}
 
+\item{bump_texture_location}{Default \code{NULL}. The bump texture location.}
+
 \item{specular_texture_location}{Default \code{NULL}. The specular texture location.}
 
 \item{ambient_texture_location}{Default \code{NULL}. The ambient texture location.}
@@ -74,6 +78,8 @@ matching the material name.}
 \item{emissive_texture_location}{Default \code{NULL}. The emissive texture location.}
 
 \item{diffuse_intensity}{Default \code{NULL}. The diffuse intensity.}
+
+\item{bump_intensity}{Default \code{NULL}. The bump intensity.}
 
 \item{specular_intensity}{Default \code{NULL}. The specular intensity.}
 

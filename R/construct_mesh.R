@@ -13,7 +13,7 @@
 #'Required to be the same number of rows as `indices`.
 #' @param material Default `material_list()` (default values). Specify the material of the object.
 #' 
-#'@return List  containing mesh info.
+#'@return List containing mesh info.
 #'@export
 #'@examples
 #'if(rayvertex:::run_documentation()) {

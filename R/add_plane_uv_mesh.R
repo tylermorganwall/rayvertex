@@ -1,0 +1,158 @@
+#' @title Add Plane UV Mapping to Mesh
+#'
+#' @description Applies a planar UV mapping to a mesh based on a given direction. 
+#' If `full_mesh_bbox` is true, the UV mapping is scaled based on the bounding box 
+#' of the entire mesh. If false, each shape's bounding box is used.
+#'
+#' @param mesh The mesh to which the UV mapping will be applied.
+#' @param direction Default `c(0, 1, 0)`. A vector specifying the direction for 
+#' UV mapping. The function normalizes this vector.
+#' @param up Default `c(0, 1, 0)`. A vector specifying the up direction.
+#' @param override_existing Default `FALSE`. Specifies whether existing UV 
+#' coordinates should be overridden.
+#' @param full_mesh_bbox Default `TRUE`. Specifies whether the full mesh's 
+#' bounding box is used for UV mapping.
+#'
+#' @return Modified mesh with added UV mapping.
+#' @export
+#' @examples
+#'if(rayvertex:::run_documentation()) {
+#'#Let's construct a mesh from the volcano dataset
+#' #Build the vertex matrix
+#' vertex_list = list()
+#' counter = 1
+#' for(i in 1:nrow(volcano)) {
+#'   for(j in 1:ncol(volcano)) {
+#'     vertex_list[[counter]] = matrix(c(j,volcano[i,j],i), ncol=3)
+#'     counter = counter + 1
+#'   }
+#' }
+#' vertices = do.call(rbind,vertex_list)
+#' 
+#' #Build the index matrix
+#' index_list = list()
+#' counter = 0
+#' for(i in 1:(nrow(volcano)-1)) {
+#'   for(j in 1:(ncol(volcano)-1)) {
+#'     index_list[[counter+1]] = matrix(c(counter,counter+ncol(volcano),counter+1,
+#'                                        counter+ncol(volcano),counter+ncol(volcano)+1,counter + 1), 
+#'                                      nrow=2, ncol=3, byrow=TRUE)
+#'     counter = counter + 1
+#'   }
+#'   counter = counter + 1
+#' }
+#' indices = do.call(rbind,index_list)
+#' 
+#' #Construct the mesh
+#' volc_mesh = construct_mesh(vertices = vertices, indices = indices,
+#'                            material = material_list(type="phong", diffuse="darkred", 
+#'                                                     ambient = "darkred", ambient_intensity=0.2))
+#' add_plane_uv_mesh(volc_mesh, direction=c(-50,230,100))->uv
+#' uv = set_material(uv, texture_location = "~/Desktop/diamondcali.png")
+#' #Rasterize the scene
+#' rasterize_scene(uv, lookfrom=c(-50,230,100),fov=0,width=1200,height=1200,
+#'                 light_info = directional_light(c(0,1,1)) |>
+#'                   add_light(directional_light(c(1,1,-1))),ortho_dimensions=c(200,200))
+#'}
+add_plane_uv_mesh = function(mesh, direction = c(0, 1, 0), up = c(0,1,0), 
+                             override_existing = FALSE, full_mesh_bbox = TRUE) {
+  # Normalize the direction vector
+  direction = direction / sqrt(sum(direction^2))
+  if(full_mesh_bbox) {
+    bbox_val = get_mesh_bbox(mesh)
+    xrange = range(bbox_val[,1])
+    zrange = range(bbox_val[,3])
+    stopifnot(xrange[1] != xrange[2] && zrange[1] != zrange[2])
+  }
+  # Iterate over shapes
+  for (i in seq_along(mesh$shapes)) {
+    shape = mesh$shapes[[i]]
+    
+    # Check if UV coords exist and whether they should be overridden
+    if (!override_existing && any(shape$has_vertex_tex)) next
+    
+    vertices_bbox = mesh$vertices[[i]]
+    if(!all(direction == up)) {
+      rot_mat = generate_rotation_matrix_from_direction(direction, up)
+      vertices_bbox = t(apply(vertices_bbox,1,\(x) x %*% rot_mat))
+    }
+    if(!full_mesh_bbox) {
+      xrange = range(vertices_bbox[,1])
+      zrange = range(vertices_bbox[,3])
+      stopifnot(xrange[1] != xrange[2] && zrange[1] != zrange[2])
+    }
+    
+
+    vertices_bbox[,1] = (vertices_bbox[,1] - xrange[1])/(xrange[2]- xrange[1])
+    vertices_bbox[,3] = (vertices_bbox[,3] - zrange[1])/(zrange[2]- zrange[1])
+    
+    # Initialize a matrix to store UV coordinates
+    uv_coords = vertices_bbox[,c(1,3)]
+    
+    # Assign the UV coords to the shape
+    mesh$texcoords[[i]] = uv_coords
+    mesh$shapes[[i]]$tex_indices = mesh$shapes[[i]]$indices
+    mesh$shapes[[i]]$has_vertex_tex = rep(TRUE, nrow(mesh$shapes[[i]]$indices))
+  }
+  
+  return(mesh)
+}
+
+#' @title Cross Product
+#'
+#' @description Computes the cross product of two 3-dimensional vectors.
+#'
+#' @param x A numeric vector representing the first 3D vector.
+#' @param y A numeric vector representing the second 3D vector.
+#'
+#' @return A numeric vector representing the cross product of `x` and `y`.
+#'
+#' @keywords internal
+cross_prod = function(x,y) {
+  return(c(x[2]*y[3]-x[3]*y[2],
+           -(x[1]*y[3]-x[3]*y[1]),
+           x[1]*y[2]-x[2]*y[1]))
+}
+
+#' @title Generate Rotation Matrix from Direction
+#'
+#' @description Internal function to generate a rotation matrix that aligns the 
+#' Y-axis with a given direction vector. It uses the Rodrigues' rotation formula.
+#'
+#' @param direction Default `c(0, 1, 0)`. A 3D vector representing the direction.
+#' The function normalizes this vector.
+#' @param up Default `c(0, 1, 0)`. A 3D vector representing the up direction.
+#'
+#' @return A 3x3 rotation matrix.
+#'
+#' @keywords internal
+generate_rotation_matrix_from_direction = function(direction = c(0, 1, 0), up = c(0, 1, 0)) {
+  # Ensure the direction vector is a unit vector
+  direction = direction / sqrt(sum(direction^2))
+  
+  # The rotation axis is the cross product of the direction vector and the y-axis
+  rotation_axis = cross_prod(matrix(direction, ncol = 3), matrix(up, ncol = 3))
+  
+  # The sine of the angle is the magnitude of the rotation axis
+  sin_angle = sqrt(sum(rotation_axis^2))
+  
+  # The cosine of the angle is the dot product of the direction and the y-axis
+  cos_angle = sum(direction * up)
+  
+  # Normalizing the rotation axis
+  rotation_axis = rotation_axis / sin_angle
+  
+  # The rotation axis components
+  ux = rotation_axis[1]
+  uy = rotation_axis[2]
+  uz = rotation_axis[3]
+  
+  # Constructing the rotation matrix using Rodrigues' rotation formula
+  R = matrix(c(
+    cos_angle + ux^2 * (1 - cos_angle), ux * uy * (1 - cos_angle) - uz * sin_angle, ux * uz * (1 - cos_angle) + uy * sin_angle,
+    uy * ux * (1 - cos_angle) + uz * sin_angle, cos_angle + uy^2 * (1 - cos_angle), uy * uz * (1 - cos_angle) - ux * sin_angle,
+    uz * ux * (1 - cos_angle) - uy * sin_angle, uz * uy * (1 - cos_angle) + ux * sin_angle, cos_angle + uz^2 * (1 - cos_angle)
+  ), nrow = 3, byrow = TRUE)
+  
+  return(R)
+}

@@ -24,77 +24,77 @@ transparent (and translucent) objects.
 
 Rayvertex features the following:
 
--   Multicore tiled rendering
--   User-specified render resolution
--   Multiple material shader types:
-    -   Diffuse
-    -   Phong
-    -   Vertex
-    -   Toon (cel) shading
-    -   Flat shading
--   Built in shapes:
-    -   Sphere, cube, cylinder, segment, cone, arrow, torus, and plane
-    -   OBJ file support
-    -   `mesh3d` support
--   Built-in mesh transformations:
-    -   Rotation, translation, and scale
--   Support for normal maps, emission maps, ambient maps, and textures
--   Support for multiple point lights and directional lights with shadow
-    mapping
--   Support for multicolor 3D line rasterization (both basic and
-    anti-aliased)
--   Hashed material IDs for efficient memory use
--   Order-independent transparency rendering
--   Orthographic and projective cameras
--   Screen-space ambient occlusion
--   Translucent (tinted) shadows
--   Reflection Maps
--   Refractive Materials
--   Bloom
--   Tone mapping
--   Environment Maps
+- Multicore tiled rendering
+- User-specified render resolution
+- Multiple material shader types:
+  - Diffuse
+  - Phong
+  - Vertex
+  - Toon (cel) shading
+  - Flat shading
+- Built in shapes:
+  - Sphere, cube, cylinder, segment, cone, arrow, torus, and plane
+  - OBJ file support
+  - `mesh3d` support
+- Built-in mesh transformations:
+  - Rotation, translation, and scale
+- Support for normal maps, emission maps, ambient maps, and textures
+- Support for multiple point lights and directional lights with shadow
+  mapping
+- Support for multicolor 3D line rasterization (both basic and
+  anti-aliased)
+- Hashed material IDs for efficient memory use
+- Order-independent transparency rendering
+- Orthographic and projective cameras
+- Screen-space ambient occlusion
+- Translucent (tinted) shadows
+- Reflection Maps
+- Refractive Materials
+- Bloom
+- Tone mapping
+- Environment Maps
 
 Meshes and scenes are specified via list structure that contains the
 following:
 
--   A list of shapes that each include:
-    -   An integer matrix of indices
-    -   (optional) An integer matrix of indices for normal values
-    -   (optional) An integer matrix of indices for texture coordinates
-    -   A vector of material IDs, indexing into the following material
-        property list
-    -   A logical vector, indicating whether each vertex has normals
-    -   A logical vector, indicating whether each vertex has texture
-        coordinates
--   A list of material properties. Rayvertex looks for the following:
-    -   Diffuse color
-    -   Ambient color
-    -   Specular color
-    -   Transmittance color
-    -   Emission color
-    -   Shininess (specular exponent)
-    -   Index of refraction (ior)
-    -   Dissolve (transparency)
-    -   Illumination model
-    -   Diffuse Texture Image Filename
-    -   Ambient Texture Image Filename
-    -   Emissive Texture Image Filename
-    -   Ambient Texture Image Filename
-    -   Normal Texture Image Filename
-    -   Diffuse Intensity
-    -   Ambient Intensity
-    -   Emissive Intensity
-    -   Ambient Intensity
-    -   Culling type
-    -   Shader type
-    -   Translucency
-    -   Number of Toon levels
-    -   Reflection Intensity
--   A 3xN matrix of vertex positions
--   A 2xN matrix of texture coordinates for each vertex
--   A 3xN matrix of normals for each vertex
--   A vector of material hashes. This can save memory by only adding a
-    new material when it does not already exist in the object.
+- A list of shapes that each include:
+  - An integer matrix of indices
+  - (optional) An integer matrix of indices for normal values
+  - (optional) An integer matrix of indices for texture coordinates
+  - A vector of material IDs, indexing into the following material
+    property list
+  - A logical vector, indicating whether each vertex has normals
+  - A logical vector, indicating whether each vertex has texture
+    coordinates
+- A list of material properties. Rayvertex looks for the following:
+  - Diffuse color
+  - Ambient color
+  - Specular color
+  - Transmittance color
+  - Emission color
+  - Shininess (specular exponent)
+  - Index of refraction (ior)
+  - Dissolve (transparency)
+  - Illumination model
+  - Diffuse Texture Image Filename
+  - Ambient Texture Image Filename
+  - Emissive Texture Image Filename
+  - Ambient Texture Image Filename
+  - Normal Texture Image Filename
+  - Diffuse Intensity
+  - Ambient Intensity
+  - Emissive Intensity
+  - Ambient Intensity
+  - Culling type
+  - Shader type
+  - Translucency
+  - Number of Toon levels
+  - Reflection Intensity
+- A 3xN matrix of vertex positions
+- A 2xN matrix of texture coordinates for each vertex
+- A 3xN matrix of normals for each vertex
+- A vector of material hashes. This can save memory by only adding a new
+  material when it does not already exist in the object.
 
 Rayvertex includes a series of helper functions that allow you to
 generate, translate, and scale meshes.
@@ -124,6 +124,7 @@ generate_cornell_mesh() |>
 Let’s add a purple sphere to the center:
 
 ``` r
+
 mat = material_list(diffuse="purple", type = "phong", ambient="purple", ambient_intensity = 0.2)
 
 generate_cornell_mesh() |>
@@ -138,6 +139,7 @@ Now, the ceiling of the Cornell Box is blocking the directional light.
 Let’s remove it.
 
 ``` r
+
 generate_cornell_mesh(ceiling=FALSE) |>
   add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) |>
   rasterize_scene()
@@ -149,6 +151,7 @@ generate_cornell_mesh(ceiling=FALSE) |>
 Let’s add a cylinder and a platform to the bottom of our sphere.
 
 ``` r
+
 mat2 = material_list(diffuse="grey80", ambient="grey80", ambient_intensity = 0.2)
 
 generate_cornell_mesh(ceiling=FALSE) |>
@@ -167,6 +170,7 @@ Now let’s change the angle of the directional light so it’s angled from
 the front :
 
 ``` r
+
 generate_cornell_mesh(ceiling=FALSE) |>
   add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) |>
   add_shape(segment_mesh(start=c(555/2,0,555/2),end=c(555/2,196,555/2), 
@@ -185,7 +189,6 @@ the Rvcg package):
 
 ``` r
 library(Rvcg)
-#> Warning: package 'Rvcg' was built under R version 3.6.2
 data(humface)
 
 cols = hsv(seq(0,1,length.out=6))
@@ -196,21 +199,21 @@ for(i in 1:5) {
                             ambient_intensity = 0.2)
 }
 
-generate_cornell_mesh(ceiling=FALSE) %>%
-  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) %>%
+generate_cornell_mesh(ceiling=FALSE) |>
+  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) |>
   add_shape(segment_mesh(start=c(555/2,0,555/2),end=c(555/2,196,555/2),
-                         radius=30, material=mat2)) %>%
+                         radius=30, material=mat2)) |>
   add_shape(cube_mesh(position=c(555/2,555/2-90,555/2),
-                      scale=c(160,20,160),material=mat2)) %>%
+                      scale=c(160,20,160),material=mat2)) |>
   add_shape(torus_mesh(position=c(100,100,100), radius = 50, ring_radius = 20,
-                       angle=c(45,0,45),material=mats[[1]])) %>%
+                       angle=c(45,0,45),material=mats[[1]])) |>
   add_shape(cone_mesh(start=c(555-100,0,100), end=c(555-100,150,100), radius = 50,
-                      material=mats[[2]])) %>%
+                      material=mats[[2]])) |>
   add_shape(arrow_mesh(start=c(555-100,455,555-100), end=c(100,455,555-100),
                        radius_top = 50, radius_tail=10, tail_proportion = 0.8,
-                       material=mats[[3]])) %>%
+                       material=mats[[3]])) |>
   add_shape(obj_mesh(r_obj(), position=c(100,200,555/2), angle=c(-10,200,0),
-                     scale=80,material=mats[[4]])) %>%
+                     scale=80,material=mats[[4]])) |>
   add_shape(mesh3d_mesh(humface, position = c(555-80,220,555/2),scale = 1,
                         material=mats[[5]],angle=c(0,180,-30))) |>
   rasterize_scene(light_info = directional_light(c(0.4,0.2,-1)))
@@ -222,6 +225,7 @@ generate_cornell_mesh(ceiling=FALSE) %>%
 We can also draw shapes with toon shading:
 
 ``` r
+
 set.seed(1)
 col = hsv(runif(1))
 scene = sphere_mesh(position=runif(3),
@@ -251,6 +255,7 @@ reflection can be controlled on a per-material basis with the
 `reflection_sharpness` argument.
 
 ``` r
+
 tempfilehdr = tempfile(fileext = ".hdr")
 download.file("https://www.tylermw.com/data/venice_sunset_2k.hdr",tempfilehdr)
 
@@ -284,6 +289,7 @@ setting the `background_sharpness` argument to draw focus to your 3D
 scene.
 
 ``` r
+
 rasterize_scene(scene, lookat=c(0,0.25,0),
                 light_info=directional_light(direction=c(0.5,1,1)),
                 lookfrom=c(0,0.5,2.5), 
@@ -296,14 +302,15 @@ Now let’s draw another example scene: we’ll add the R OBJ to a flat
 surface.
 
 ``` r
-base_model = cube_mesh() %>%
-  scale_mesh(scale=c(5,0.2,5)) %>%
-  translate_mesh(c(0,-0.1,0)) %>%
+
+base_model = cube_mesh() |>
+  scale_mesh(scale=c(5,0.2,5)) |>
+  translate_mesh(c(0,-0.1,0)) |>
   set_material(diffuse="white")
 
-r_model = obj_mesh(r_obj()) %>%
-  scale_mesh(scale=0.5) %>%
-  set_material(diffuse="red") %>%
+r_model = obj_mesh(r_obj()) |>
+  scale_mesh(scale=0.5) |>
+  set_material(diffuse="red") |>
   add_shape(base_model)
 
 rasterize_scene(r_model, lookfrom=c(2,4,10),fov=20,
@@ -330,6 +337,7 @@ fidelity of the shadows. This can reduce the amount of “pixelation”
 around the edges.
 
 ``` r
+
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
                 shadow_map_dims=2, light_info = directional_light(direction=c(0.8,1,0.7)))
 #> Setting `lookat` to: c(0.00, 0.34, 0.00)
@@ -341,8 +349,8 @@ We can add multiple directional lights and change their color and
 intensity:
 
 ``` r
-lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 0.7) %>%
-            add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 0.7)) %>%
+lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 0.7) |>
+            add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 0.7)) |>
             add_light(directional_light(c(2,4,10),color = "white",intensity = 0.3))
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
                light_info = lights)
@@ -355,14 +363,15 @@ We can change the transparency of the material, which allows for colored
 shadows.
 
 ``` r
-r_model_t = obj_mesh(r_obj()) %>%
-  scale_mesh(scale=0.5) %>%
-  set_material(diffuse="red", dissolve=0.5, translucent = T) %>%
+
+r_model_t = obj_mesh(r_obj()) |>
+  scale_mesh(scale=0.5) |>
+  set_material(diffuse="red", dissolve=0.5, translucent = T) |>
   add_shape(base_model)
 
-r_model_t = obj_mesh(r_obj(),c(-2,0,0.3)) %>%
-  scale_mesh(scale=0.5) %>%
-  set_material(diffuse="dodgerblue", dissolve=0.5, translucent = T) %>%
+r_model_t = obj_mesh(r_obj(),position = c(-2,0,0.3)) |>
+  scale_mesh(scale=0.5) |>
+  set_material(diffuse="dodgerblue", dissolve=0.5, translucent = T) |>
   add_shape(r_model_t)
 
 rasterize_scene(r_model_t, lookfrom=c(2,4,10),fov=15,lookat=c(-0.5,0,0),
@@ -376,8 +385,8 @@ We can also add some point lights:
 
 ``` r
 #Add some point lights
-lights_p = lights %>%
-  add_light(point_light(position=c(-1,1,0),color="red", intensity=2)) %>%
+lights_p = lights |>
+  add_light(point_light(position=c(-1,1,0),color="red", intensity=2)) |>
   add_light(point_light(position=c(1,1,0),color="purple", intensity=2))
 
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
@@ -402,6 +411,7 @@ Finally, we can also add 3D lines to the scene. We’ll add a spiral of
 lines around the R.
 
 ``` r
+
 t = seq(0,8*pi,length.out=361)
 line_mat = matrix(nrow=0,ncol=9)
 

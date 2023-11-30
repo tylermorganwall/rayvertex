@@ -14,16 +14,18 @@
 #'@param specular                  Default `c(1,1,1)`. The specular color.
 #'@param transmittance             Default `c(1,1,1)`. The transmittance
 #'@param emission                  Default `c(0,0,0)`. The emissive color.
-#'@param shininess                 Default `10.0`. The shininess exponent.
+#'@param shininess                 Default `50.0`. The shininess exponent.
 #'@param ior                       Default `1.0`. The index of refraction. If this is not equal to `1.0`, the material will be refractive.
 #'@param dissolve                  Default `1.0`. The transparency.
 #'@param illum                     Default `1.0`. The illumination.
 #'@param texture_location          Default `""`. The diffuse texture location.
 #'@param normal_texture_location   Default `""`. The normal texture location.
+#'@param bump_texture_location     Default `""`. The bump texture location.
 #'@param specular_texture_location Default `""`. The specular texture location.
 #'@param ambient_texture_location  Default `""`. The ambient texture location.
 #'@param emissive_texture_location Default `""`. The emissive texture location.
 #'@param diffuse_intensity         Default `1`. The diffuse intensity.
+#'@param bump_intensity            Default `1`. The bump intensity.
 #'@param specular_intensity        Default `1`. The specular intensity.
 #'@param emission_intensity        Default `1`. The emission intensity.
 #'@param ambient_intensity         Default `1`. The ambient intensity.
@@ -58,16 +60,18 @@ set_material = function(mesh, material = NULL, id = NULL,
                         specular                  = c(1,1,1),
                         transmittance             = c(1,1,1),
                         emission                  = c(0,0,0),
-                        shininess                 = 10.0,
+                        shininess                 = 50.0,
                         ior                       = 1.0,
                         dissolve                  = 1.0,
                         illum                     = 1.0,
                         texture_location          = "",
                         normal_texture_location   = "",
+                        bump_texture_location     = "",
                         specular_texture_location = "",
                         ambient_texture_location  = "",
                         emissive_texture_location = "",
                         diffuse_intensity         = 1, 
+                        bump_intensity            = 1,
                         specular_intensity        = 1,  
                         emission_intensity        = 1,
                         ambient_intensity         = 1,
@@ -94,10 +98,13 @@ set_material = function(mesh, material = NULL, id = NULL,
     material$illum                      = illum                     
     material$diffuse_texname           = texture_location          
     material$normal_texname    = normal_texture_location   
+    material$bump_texname      = bump_texture_location   
     material$specular_texname  = specular_texture_location 
     material$ambient_texname   = ambient_texture_location  
     material$emissive_texname  = emissive_texture_location 
-    material$diffuse_intensity          = diffuse_intensity         
+    material$diffuse_intensity          = diffuse_intensity       
+    material$bump_intensity             = bump_intensity         
+    
     material$specular_intensity         = specular_intensity        
     material$emission_intensity         = emission_intensity        
     material$ambient_intensity         = ambient_intensity         
@@ -158,10 +165,12 @@ set_material = function(mesh, material = NULL, id = NULL,
 #'@param illum                     Default `NULL`. The illumination.
 #'@param texture_location          Default `NULL`. The diffuse texture location.
 #'@param normal_texture_location   Default `NULL`. The normal texture location.
+#'@param bump_texture_location     Default `NULL`. The bump texture location.
 #'@param specular_texture_location Default `NULL`. The specular texture location.
 #'@param ambient_texture_location  Default `NULL`. The ambient texture location.
 #'@param emissive_texture_location Default `NULL`. The emissive texture location.
 #'@param diffuse_intensity         Default `NULL`. The diffuse intensity.
+#'@param bump_intensity            Default `NULL`. The bump intensity.
 #'@param specular_intensity        Default `NULL`. The specular intensity.
 #'@param emission_intensity        Default `NULL`. The emission intensity.
 #'@param ambient_intensity         Default `NULL`. The ambient intensity.
@@ -201,10 +210,12 @@ change_material = function(mesh, id = NULL, sub_id = 1,
                            illum                     = NULL,
                            texture_location          = NULL,
                            normal_texture_location   = NULL,
+                           bump_texture_location     = NULL,
                            specular_texture_location = NULL,
                            ambient_texture_location  = NULL,
                            emissive_texture_location = NULL,
                            diffuse_intensity         = NULL,
+                           bump_intensity            = NULL,
                            specular_intensity        = NULL,
                            emission_intensity        = NULL,
                            ambient_intensity         = NULL,
@@ -236,10 +247,12 @@ change_material = function(mesh, id = NULL, sub_id = 1,
           if(!is.null(illum))                     mesh$materials[[j]][[i]]$illum                = illum            
           if(!is.null(ambient_texture_location))  mesh$materials[[j]][[i]]$ambient_texname      = ambient_texture_location  
           if(!is.null(texture_location))          mesh$materials[[j]][[i]]$diffuse_texname      = texture_location  
+          if(!is.null(bump_texture_location))     mesh$materials[[j]][[i]]$bump_texname         = bump_texture_location  
           if(!is.null(emissive_texture_location)) mesh$materials[[j]][[i]]$emissive_texname     = emissive_texture_location 
           if(!is.null(specular_texture_location)) mesh$materials[[j]][[i]]$specular_texname     = specular_texture_location 
           if(!is.null(normal_texture_location))   mesh$materials[[j]][[i]]$normal_texname       = normal_texture_location   
           if(!is.null(diffuse_intensity))         mesh$materials[[j]][[i]]$diffuse_intensity    = diffuse_intensity 
+          if(!is.null(bump_intensity))            mesh$materials[[j]][[i]]$bump_intensity       = bump_intensity 
           if(!is.null(specular_intensity))        mesh$materials[[j]][[i]]$specular_intensity   = specular_intensity   
           if(!is.null(emission_intensity))        mesh$materials[[j]][[i]]$emission_intensity   = emission_intensity  
           if(!is.null(ambient_intensity))         mesh$materials[[j]][[i]]$ambient_intensity    = ambient_intensity  
@@ -252,8 +265,6 @@ change_material = function(mesh, id = NULL, sub_id = 1,
           if(!is.null(reflection_intensity))      mesh$materials[[j]][[i]]$reflection_intensity = reflection_intensity
           if(!is.null(reflection_sharpness))      mesh$materials[[j]][[i]]$reflection_sharpness = reflection_sharpness
           if(!is.null(two_sided))                 mesh$materials[[j]][[i]]$two_sided            = two_sided
-          
-          
         }
       }
     } else {
@@ -269,10 +280,12 @@ change_material = function(mesh, id = NULL, sub_id = 1,
         if(!is.null(illum))                     mesh$materials[[id]][[sub_id]]$illum                = illum            
         if(!is.null(ambient_texture_location))  mesh$materials[[id]][[sub_id]]$ambient_texname      = ambient_texture_location  
         if(!is.null(texture_location))          mesh$materials[[id]][[sub_id]]$diffuse_texname      = texture_location  
+        if(!is.null(bump_texture_location))     mesh$materials[[id]][[sub_id]]$bump_texname         = bump_texture_location  
         if(!is.null(emissive_texture_location)) mesh$materials[[id]][[sub_id]]$emissive_texname     = emissive_texture_location 
         if(!is.null(specular_texture_location)) mesh$materials[[id]][[sub_id]]$specular_texname     = specular_texture_location 
         if(!is.null(normal_texture_location))   mesh$materials[[id]][[sub_id]]$normal_texname       = normal_texture_location   
         if(!is.null(diffuse_intensity))         mesh$materials[[id]][[sub_id]]$diffuse_intensity    = diffuse_intensity 
+        if(!is.null(bump_intensity))            mesh$materials[[id]][[sub_id]]$bump_intensity       = bump_intensity 
         if(!is.null(specular_intensity))        mesh$materials[[id]][[sub_id]]$specular_intensity   = specular_intensity   
         if(!is.null(emission_intensity))        mesh$materials[[id]][[sub_id]]$emission_intensity   = emission_intensity  
         if(!is.null(ambient_intensity))         mesh$materials[[id]][[sub_id]]$ambient_intensity    = ambient_intensity  
@@ -301,10 +314,12 @@ change_material = function(mesh, id = NULL, sub_id = 1,
             if(!is.null(illum))                     mesh$materials[[i]][[sub_id]]$illum                = illum            
             if(!is.null(ambient_texture_location))  mesh$materials[[i]][[sub_id]]$ambient_texname      = ambient_texture_location  
             if(!is.null(texture_location))          mesh$materials[[i]][[sub_id]]$diffuse_texname      = texture_location  
+            if(!is.null(bump_texture_location))     mesh$materials[[i]][[sub_id]]$bump_texname         = bump_texture_location  
             if(!is.null(emissive_texture_location)) mesh$materials[[i]][[sub_id]]$emissive_texname     = emissive_texture_location 
             if(!is.null(specular_texture_location)) mesh$materials[[i]][[sub_id]]$specular_texname     = specular_texture_location 
             if(!is.null(normal_texture_location))   mesh$materials[[i]][[sub_id]]$normal_texname       = normal_texture_location   
             if(!is.null(diffuse_intensity))         mesh$materials[[i]][[sub_id]]$diffuse_intensity    = diffuse_intensity 
+            if(!is.null(bump_intensity))            mesh$materials[[i]][[sub_id]]$bump_intensity       = bump_intensity 
             if(!is.null(specular_intensity))        mesh$materials[[i]][[sub_id]]$specular_intensity   = specular_intensity   
             if(!is.null(emission_intensity))        mesh$materials[[i]][[sub_id]]$emission_intensity   = emission_intensity  
             if(!is.null(ambient_intensity))         mesh$materials[[i]][[sub_id]]$ambient_intensity    = ambient_intensity  
@@ -353,16 +368,18 @@ change_material = function(mesh, id = NULL, sub_id = 1,
 #'@param specular                  Default `c(1,1,1)`. The specular color.
 #'@param transmittance             Default `c(1,1,1)`. The transmittance
 #'@param emission                  Default `c(0,0,0)`. The emissive color.
-#'@param shininess                 Default `10.0`. The shininess exponent.
+#'@param shininess                 Default `50.0`. The shininess exponent.
 #'@param ior                       Default `1.0`. The index of refraction. If this is not equal to `1.0`, the material will be refractive.
 #'@param dissolve                  Default `1.0`. The transparency.
 #'@param illum                     Default `1.0`. The illumination.
 #'@param texture_location          Default `""`. The diffuse texture location.
 #'@param normal_texture_location   Default `""`. The normal texture location.
+#'@param bump_texture_location     Default `""`. The bump texture location.
 #'@param specular_texture_location Default `""`. The specular texture location.
 #'@param ambient_texture_location  Default `""`. The ambient texture location.
 #'@param emissive_texture_location Default `""`. The emissive texture location.
 #'@param diffuse_intensity         Default `1`. The diffuse intensity.
+#'@param bump_intensity            Default `1`. The bump intensity.
 #'@param specular_intensity        Default `1`. The specular intensity.
 #'@param emission_intensity        Default `1`. The emission intensity.
 #'@param ambient_intensity         Default `1`. The ambient intensity.
@@ -380,7 +397,7 @@ change_material = function(mesh, id = NULL, sub_id = 1,
 #'@export
 #'@examples
 #'if(rayvertex:::run_documentation()) {
-#'mat_prop = material_list(diffuse="purple", type="phong", shininess=20,
+#'mat_prop = material_list(diffuse="purple", type="phong", shininess = 20,
 #'                         ambient="purple", ambient_intensity=0.3,
 #'                         specular = "red", specular_intensity=2)
 #'                         
@@ -394,16 +411,18 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
                          specular                  = c(1,1,1),
                          transmittance             = c(1,1,1),
                          emission                  = c(0,0,0),
-                         shininess                 = 10.0,
+                         shininess                 = 50.0,
                          ior                       = 1.0,
                          dissolve                  = 1.0,
                          illum                     = 1.0,
                          texture_location          = "",
                          normal_texture_location   = "",
+                         bump_texture_location     = "",
                          specular_texture_location = "",
                          ambient_texture_location  = "",
                          emissive_texture_location = "",
                          diffuse_intensity         = 1, 
+                         bump_intensity            = 1,
                          specular_intensity        = 1,  
                          emission_intensity        = 1,
                          ambient_intensity         = 1,
@@ -429,10 +448,12 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
          illum                     = illum                     ,
          ambient_texname           = ambient_texture_location          ,
          diffuse_texname           = texture_location   ,
+         bump_texname              = bump_texture_location,
          emissive_texname          = emissive_texture_location ,
          specular_texname          = specular_texture_location  ,
          normal_texname            = normal_texture_location ,
          diffuse_intensity         = diffuse_intensity         ,
+         bump_intensity            = bump_intensity,
          specular_intensity        = specular_intensity        ,
          emission_intensity        = emission_intensity        ,
          ambient_intensity         = ambient_intensity         ,
@@ -457,9 +478,7 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
 }
 
 #' Add Outline
-#'
-#'@param angle The angle
-#'@param order_rotation Default `c(1,2,3)`. 
+#' 
 #'@return Matrix
 #'@keywords internal
 generate_toon_outline = function(single_obj, material, scale = 1) {

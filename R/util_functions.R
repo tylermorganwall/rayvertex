@@ -82,10 +82,6 @@ flipud = function(x) {
 
 #' Print time
 #'
-#' @param verbose 
-#' @param message 
-#' 
-#'
 #' @return Nothing
 #' @keywords internal
 init_time = function() {
@@ -106,10 +102,6 @@ get_time = function(init = TRUE) {
 }
 
 #' Print time
-#'
-#' @param verbose 
-#' @param message 
-#' 
 #'
 #' @return Nothing
 #' @keywords internal

@@ -10,16 +10,18 @@ material_list(
   specular = c(1, 1, 1),
   transmittance = c(1, 1, 1),
   emission = c(0, 0, 0),
-  shininess = 10,
+  shininess = 50,
   ior = 1,
   dissolve = 1,
   illum = 1,
   texture_location = "",
   normal_texture_location = "",
+  bump_texture_location = "",
   specular_texture_location = "",
   ambient_texture_location = "",
   emissive_texture_location = "",
   diffuse_intensity = 1,
+  bump_intensity = 1,
   specular_intensity = 1,
   emission_intensity = 1,
   ambient_intensity = 1,
@@ -45,7 +47,7 @@ material_list(
 
 \item{emission}{Default \code{c(0,0,0)}. The emissive color.}
 
-\item{shininess}{Default \code{10.0}. The shininess exponent.}
+\item{shininess}{Default \code{50.0}. The shininess exponent.}
 
 \item{ior}{Default \code{1.0}. The index of refraction. If this is not equal to \code{1.0}, the material will be refractive.}
 
@@ -57,6 +59,8 @@ material_list(
 
 \item{normal_texture_location}{Default \code{""}. The normal texture location.}
 
+\item{bump_texture_location}{Default \code{""}. The bump texture location.}
+
 \item{specular_texture_location}{Default \code{""}. The specular texture location.}
 
 \item{ambient_texture_location}{Default \code{""}. The ambient texture location.}
@@ -64,6 +68,8 @@ material_list(
 \item{emissive_texture_location}{Default \code{""}. The emissive texture location.}
 
 \item{diffuse_intensity}{Default \code{1}. The diffuse intensity.}
+
+\item{bump_intensity}{Default \code{1}. The bump intensity.}
 
 \item{specular_intensity}{Default \code{1}. The specular intensity.}
 
@@ -97,7 +103,7 @@ Generate a material properties list.
 }
 \examples{
 if(rayvertex:::run_documentation()) {
-mat_prop = material_list(diffuse="purple", type="phong", shininess=20,
+mat_prop = material_list(diffuse="purple", type="phong", shininess = 20,
                         ambient="purple", ambient_intensity=0.3,
                         specular = "red", specular_intensity=2)
                         

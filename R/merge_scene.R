@@ -2,7 +2,6 @@
 #'
 #'@description Merge the shapes to one
 #'
-#'@param scene  
 #'@keywords internal
 #'@return Merged scene
 merge_scene = function(old_scene, flatten_materials = TRUE) {

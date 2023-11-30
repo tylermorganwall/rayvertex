@@ -40,10 +40,12 @@ Each "materials" entry is expected to be a list with several entries with specif
    illum \tab 1 \tab Numeric \cr
    diffuse_texname \tab 1 \tab Character \cr
    normal_texname \tab 1 \tab Character \cr
+   bump_texname \tab 1 \tab Character \cr
    specular_texname \tab 1 \tab Character \cr
    ambient_texname \tab 1 \tab Character \cr
    emissive_texname \tab 1 \tab Character \cr
    diffuse_intensity \tab 1 \tab Numeric \cr
+   bump_intensity \tab 1 \tab Numeric \cr
    specular_intensity \tab 1 \tab Numeric \cr
    emission_intensity \tab 1 \tab Numeric \cr
    ambient_intensity \tab 1 \tab Numeric \cr

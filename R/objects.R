@@ -705,12 +705,12 @@ generate_cornell_mesh = function(leftcolor = "#1f7326",
 #' OBJ Mesh 3D Model
 #'
 #' @param filename OBJ filename.
-#' @param center Default `FALSE`. Whether to center the mesh.
 #' @param position Default `c(0,0,0)`. Position of the mesh.
 #' @param scale Default `c(1,1,1)`. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.
 #' @param angle Default `c(0,0,0)`. Angle to rotate the mesh.
 #' @param pivot_point Default `c(0,0,0)`. Point around which to rotate the mesh.
 #' @param order_rotation Default `c(1,2,3)`. Order to rotate the axes.
+#' @param center Default `FALSE`. Whether to center the mesh.
 #' @param materialspath Default `NULL`. Path to the MTL file, if different from the OBJ file.
 #' @param material Default `NULL`, read from the MTL file. If not `NULL`, this accepts the output
 #' from the `material_list()` function to specify the material.
@@ -723,9 +723,9 @@ generate_cornell_mesh = function(leftcolor = "#1f7326",
 #'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
 #'   rasterize_scene(light_info = directional_light(direction=c(0.2,0.5,-1)))
 #'}
-obj_mesh = function(filename, center = FALSE, position = c(0,0,0), scale = c(1,1,1), 
+obj_mesh = function(filename, position = c(0,0,0), scale = c(1,1,1), 
                     angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3), materialspath = NULL,
-                    material = NULL) {
+                    center = FALSE, material = NULL) {
   if(!file.exists(filename) || dir.exists(filename)) {
     stop(sprintf("OBJ `%s` not found or not an OBJ file", filename ))
   }

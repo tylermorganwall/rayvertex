@@ -238,12 +238,14 @@ rasterize_scene  = function(scene,
   if(length(obj$materials) > 0) {
     has_texture          = rep(FALSE,length(obj$materials))
     has_ambient_texture  = rep(FALSE,length(obj$materials))
+    has_bump_texture     = rep(FALSE,length(obj$materials))
     has_normal_texture   = rep(FALSE,length(obj$materials))
     has_specular_texture = rep(FALSE,length(obj$materials))
     has_emissive_texture = rep(FALSE,length(obj$materials))
   } else {
     use_default_material = TRUE
     has_texture          = FALSE
+    has_bump_texture     = FALSE
     has_ambient_texture  = FALSE
     has_normal_texture   = FALSE
     has_specular_texture = FALSE
@@ -253,6 +255,10 @@ rasterize_scene  = function(scene,
     if(!is.null(obj$materials[[i]]$diffuse_texname) && obj$materials[[i]]$diffuse_texname != "") {
       has_texture[i] = TRUE
       obj$materials[[i]]$diffuse_texname = path.expand(obj$materials[[i]]$diffuse_texname)
+    }
+    if(!is.null(obj$materials[[i]]$bump_texname) && obj$materials[[i]]$bump_texname != "") {
+      has_bump_texture[i] = TRUE
+      obj$materials[[i]]$bump_texname = path.expand(obj$materials[[i]]$bump_texname)
     }
     if(!is.null(obj$materials[[i]]$ambient_texname) && obj$materials[[i]]$ambient_texname != "") {
       has_ambient_texture[i] = TRUE
@@ -401,6 +407,7 @@ rasterize_scene  = function(scene,
                         has_tex_vec = has_tex, #This just determines whether to include tex indices
                         has_texture,
                         has_ambient_texture,
+                        has_bump_texture,
                         has_normal_texture,
                         has_specular_texture,
                         has_emissive_texture,

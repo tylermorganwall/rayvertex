@@ -132,6 +132,7 @@ List rasterize(List mesh,
                LogicalVector has_tex_vec,
                LogicalVector has_texture,  
                LogicalVector has_ambient_texture,
+               LogicalVector has_bump_texture,
                LogicalVector has_normal_texture,
                LogicalVector has_specular_texture,
                LogicalVector has_emissive_texture,
@@ -444,10 +445,12 @@ List rasterize(List mesh,
     Float illum = as<Float>(single_material["illum"]);
     String ambient_texname = as<String>(single_material["ambient_texname"]);
     String diffuse_texname = as<String>(single_material["diffuse_texname"]);
+    // String bump_texname = as<String>(single_material["bump_texname"]);
     String specular_texname = as<String>(single_material["specular_texname"]);
     String normal_texname = as<String>(single_material["normal_texname"]);
     String emissive_texname = as<String>(single_material["emissive_texname"]);
     Float diffuse_intensity = as<Float>(single_material["diffuse_intensity"]);
+    // Float bump_intensity = as<Float>(single_material["bump_intensity"]);
     Float specular_intensity = as<Float>(single_material["specular_intensity"]);
     Float emission_intensity = as<Float>(single_material["emission_intensity"]);
     Float ambient_intensity = as<Float>(single_material["ambient_intensity"]);
@@ -461,7 +464,7 @@ List rasterize(List mesh,
     
     bool has_texture_single          = has_texture(i);
     bool has_ambient_texture_single  = has_ambient_texture(i);
-    
+    // bool has_bump_texture_single     = has_bump_texture(i);
     bool has_normal_texture_single   = has_normal_texture(i);
     bool has_specular_texture_single = has_specular_texture(i);
     bool has_emissive_texture_single = has_emissive_texture(i);

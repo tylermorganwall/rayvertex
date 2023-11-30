@@ -24,10 +24,12 @@
 #' |  illum                   |  1       |  Numeric    |
 #' |  diffuse_texname         |  1       |  Character  |
 #' |  normal_texname          |  1       |  Character  |
+#' |  bump_texname            |  1       |  Character  |
 #' |  specular_texname        |  1       |  Character  |
 #' |  ambient_texname         |  1       |  Character  |
 #' |  emissive_texname        |  1       |  Character  |
 #' |  diffuse_intensity       |  1       |  Numeric    |
+#' |  bump_intensity          |  1       |  Numeric    |
 #' |  specular_intensity      |  1       |  Numeric    |
 #' |  emission_intensity      |  1       |  Numeric    |
 #' |  ambient_intensity       |  1       |  Numeric    |
@@ -109,7 +111,7 @@ validate_mesh = function(mesh, validate_materials = TRUE) {
         stopifnot(all(names(material) %in% c("diffuse", "ambient", "specular", "transmittance",
                                              "emission", "shininess", "ior", "dissolve", "illum",
                                              "diffuse_texname", "normal_texname", "specular_texname",
-                                             "ambient_texname", "emissive_texname", "diffuse_intensity",
+                                             "ambient_texname", "emissive_texname", "diffuse_intensity", "bump_intensity", "bump_texname",
                                              "specular_intensity", "emission_intensity", "ambient_intensity",
                                              "culling", "type", "translucent", "toon_levels",
                                              "toon_outline_width", "toon_outline_color", "reflection_intensity",
@@ -127,10 +129,12 @@ validate_mesh = function(mesh, validate_materials = TRUE) {
         stopifnot(is.numeric(material$illum), length(material$illum) == 1)
         stopifnot(is.character(material$diffuse_texname))
         stopifnot(is.character(material$normal_texname))
+        stopifnot(is.character(material$bump_texname))
         stopifnot(is.character(material$specular_texname))
         stopifnot(is.character(material$ambient_texname))
         stopifnot(is.character(material$emissive_texname))
         stopifnot(is.numeric(material$diffuse_intensity), length(material$diffuse_intensity) == 1)
+        stopifnot(is.numeric(material$bump_intensity), length(material$bump_intensity) == 1)
         stopifnot(is.numeric(material$specular_intensity), length(material$specular_intensity) == 1)
         stopifnot(is.numeric(material$emission_intensity), length(material$emission_intensity) == 1)
         stopifnot(is.numeric(material$ambient_intensity), length(material$ambient_intensity) == 1)
