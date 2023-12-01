@@ -22,6 +22,9 @@
     <loc>https://www.rayvertex.com/reference/add_lines.html</loc>
   </url>
   <url>
+    <loc>https://www.rayvertex.com/reference/add_plane_uv_mesh.html</loc>
+  </url>
+  <url>
     <loc>https://www.rayvertex.com/reference/add_shape.html</loc>
   </url>
   <url>
@@ -46,6 +49,9 @@
     <loc>https://www.rayvertex.com/reference/convert_color.html</loc>
   </url>
   <url>
+    <loc>https://www.rayvertex.com/reference/cross_prod.html</loc>
+  </url>
+  <url>
     <loc>https://www.rayvertex.com/reference/cube_mesh.html</loc>
   </url>
   <url>
@@ -53,6 +59,9 @@
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/directional_light.html</loc>
+  </url>
+  <url>
+    <loc>https://www.rayvertex.com/reference/flip_orientation_mesh.html</loc>
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/fliplr.html</loc>
@@ -68,6 +77,9 @@
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/generate_rot_matrix.html</loc>
+  </url>
+  <url>
+    <loc>https://www.rayvertex.com/reference/generate_rotation_matrix_from_direction.html</loc>
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/generate_toon_outline.html</loc>
@@ -163,7 +175,13 @@
     <loc>https://www.rayvertex.com/reference/set_material.html</loc>
   </url>
   <url>
+    <loc>https://www.rayvertex.com/reference/smooth_normals_mesh.html</loc>
+  </url>
+  <url>
     <loc>https://www.rayvertex.com/reference/sphere_mesh.html</loc>
+  </url>
+  <url>
+    <loc>https://www.rayvertex.com/reference/swap_yz.html</loc>
   </url>
   <url>
     <loc>https://www.rayvertex.com/reference/text3d_mesh.html</loc>
