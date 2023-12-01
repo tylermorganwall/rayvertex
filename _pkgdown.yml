@@ -61,6 +61,10 @@ reference:
       - starts_with("rotate")
       - starts_with("translate")
       - starts_with("center")
+      - starts_with("flip")
+      - starts_with("swap")
+      - starts_with("smooth")
+      - starts_with("add_plane_uv_mesh")
   - title: "Get Mesh Info"
     desc: "Functions to get information about meshes "
     contents:
