@@ -282,11 +282,7 @@ rasterize_scene  = function(scene,
   print_time(verbose, "Processed texture filenames")
   
 
-  if(!is.null(options("cores")[[1]])) {
-    numbercores = options("cores")[[1]]
-  } else {
-    numbercores = parallel::detectCores()
-  }
+  numbercores = getOption("cores", default = getOption("Ncpus", default = parallel::detectCores()))
   if(!parallel) {
     numbercores = 1
   }
