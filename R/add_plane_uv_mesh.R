@@ -2,11 +2,12 @@
 #'
 #' @description Applies a planar UV mapping to a mesh based on a given direction and set of U/V vectors.
 #' If `full_mesh_bbox` is true, the UV mapping is scaled based on the bounding box 
-#' of the entire mesh. If false, each shape's bounding box is used. One of direction/u/v must be `NULL` and will be calculated from the others.
+#' of the entire mesh. If false, each shape's bounding box is used. 
+#' One of direction/u/v must be `NULL` and will be calculated from the others.
 #'
 #' @param mesh The mesh to which the UV mapping will be applied.
 #' @param direction Default `c(0, 1, 0)`. A vector specifying the direction for 
-#' UV mapping. The function normalizes this vector.
+#' UV mapping. If not specified and `u`/`v` are both specified, this will be ignored.
 #' @param u Default `NULL`. A vector specifying the u direction. 
 #' @param v Default `NULL`. A vector specifying the v direction.
 #' @param override_existing Default `FALSE`. Specifies whether existing UV 
@@ -87,7 +88,7 @@
 add_plane_uv_mesh = function(mesh, direction = c(0,1,0), u = NULL, v = NULL, 
                              override_existing = FALSE, full_mesh_bbox = TRUE) {
   duv = c(FALSE, FALSE, FALSE)
-  if(is.null(direction) && !is.null(u) && !is.null(v)) {
+  if((is.null(direction) || missing(direction)) && !is.null(u) && !is.null(v)) {
     duv[1] = TRUE
   } 
   if(!is.null(direction) && is.null(u) && !is.null(v)) {

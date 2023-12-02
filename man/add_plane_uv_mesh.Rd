@@ -17,7 +17,7 @@ add_plane_uv_mesh(
 \item{mesh}{The mesh to which the UV mapping will be applied.}
 
 \item{direction}{Default \code{c(0, 1, 0)}. A vector specifying the direction for
-UV mapping. The function normalizes this vector.}
+UV mapping. If not specified and \code{u}/\code{v} are both specified, this will be ignored.}
 
 \item{u}{Default \code{NULL}. A vector specifying the u direction.}
 
@@ -35,7 +35,8 @@ Modified mesh with added UV mapping.
 \description{
 Applies a planar UV mapping to a mesh based on a given direction and set of U/V vectors.
 If \code{full_mesh_bbox} is true, the UV mapping is scaled based on the bounding box
-of the entire mesh. If false, each shape's bounding box is used. One of direction/u/v must be \code{NULL} and will be calculated from the others.
+of the entire mesh. If false, each shape's bounding box is used.
+One of direction/u/v must be \code{NULL} and will be calculated from the others.
 }
 \examples{
 if(rayvertex:::run_documentation()) {
