@@ -20,7 +20,7 @@ Scaled mesh
 Scale Mesh
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Scale a mesh in the Cornell box
 robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 

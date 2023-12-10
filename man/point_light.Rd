@@ -35,7 +35,7 @@ The falloff of the point light intensity is given by the following equation (ref
 Intensity = intensity / (constant + falloff * distance + falloff_quad * (distance * distance));
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Add point lights and vary the intensity
 lights_int = point_light(position=c(100,100,400), color="white", intensity=0.125,
                       falloff_quad = 0.0, constant = 0.0002, falloff = 0.005) |>

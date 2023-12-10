@@ -42,7 +42,7 @@
 #'@return Shape with new material
 #'@export
 #'@examples
-#'if(rayvertex:::run_documentation()) {
+#'if(run_documentation()) {
 #'#Set the material of an object
 #'generate_cornell_mesh() |>
 #'  add_shape(set_material(sphere_mesh(position=c(400,555/2,555/2),radius=40), 
@@ -187,7 +187,7 @@ set_material = function(mesh, material = NULL, id = NULL,
 #'@return Shape with new material settings
 #'@export
 #'@examples
-#'if(rayvertex:::run_documentation()) {
+#'if(run_documentation()) {
 #'p_sphere = sphere_mesh(position=c(555/2,555/2,555/2), 
 #'                       radius=40,material=material_list(diffuse="purple"))
 #'generate_cornell_mesh() |>
@@ -396,7 +396,7 @@ change_material = function(mesh, id = NULL, sub_id = 1,
 #'@return List of material properties.
 #'@export
 #'@examples
-#'if(rayvertex:::run_documentation()) {
+#'if(run_documentation()) {
 #'mat_prop = material_list(diffuse="purple", type="phong", shininess = 20,
 #'                         ambient="purple", ambient_intensity=0.3,
 #'                         specular = "red", specular_intensity=2)

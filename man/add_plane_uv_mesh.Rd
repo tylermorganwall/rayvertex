@@ -39,7 +39,7 @@ of the entire mesh. If false, each shape's bounding box is used.
 One of direction/u/v must be \code{NULL} and will be calculated from the others.
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Let's construct a mesh from the volcano dataset
 #Build the vertex matrix
 vertex_list = list()

@@ -18,7 +18,7 @@ Scene with shape added.
 Add shape to the scene.
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Generate several spheres in the cornell box
 scene = generate_cornell_mesh()
 set.seed(1)

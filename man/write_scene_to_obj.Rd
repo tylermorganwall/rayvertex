@@ -22,7 +22,7 @@ None
 Writes the current scene to a Wavefront OBJ file, with or without materials
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 tmpfile = tempfile(fileext = ".obj")
 write_scene_to_obj(generate_cornell_mesh(), tmpfile)
 }

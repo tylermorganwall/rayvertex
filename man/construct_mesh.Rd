@@ -41,7 +41,7 @@ List containing mesh info.
 Manually construct a mesh
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Let's construct a mesh from the volcano dataset
 #Build the vertex matrix
 vertex_list = list()

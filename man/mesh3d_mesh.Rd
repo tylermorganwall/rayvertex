@@ -43,7 +43,7 @@ List describing the mesh.
 Mesh3d 3D Model
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Read in a mesh3d object and rasterize it
 if(length(find.package("Rvcg", quiet=TRUE)) > 0) {
   library(Rvcg)

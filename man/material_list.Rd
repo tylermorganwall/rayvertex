@@ -102,7 +102,7 @@ List of material properties.
 Generate a material properties list.
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 mat_prop = material_list(diffuse="purple", type="phong", shininess = 20,
                         ambient="purple", ambient_intensity=0.3,
                         specular = "red", specular_intensity=2)

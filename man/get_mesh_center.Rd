@@ -16,7 +16,7 @@ Length-3 numeric vector
 Calculates the coordinates of the center of a mesh
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Calculates the center of the mesh
 get_scene_center(generate_cornell_mesh())
 }

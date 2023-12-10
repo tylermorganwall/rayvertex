@@ -54,13 +54,13 @@
 #'@return Rasterized image.
 #'@export
 #'@examples
-#'if(rayvertex:::run_documentation()) {
+#'if(run_documentation()) {
 #'#Let's load the cube OBJ file included with the package
 #'
 #'rasterize_scene(cube_mesh(),lookfrom=c(2,4,10), 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
 #' }
-#' if(rayvertex:::run_documentation()) {
+#' if(run_documentation()) {
 #'#Flatten the cube, translate downwards, and set to grey
 #'base_model = cube_mesh() |>
 #'  scale_mesh(scale=c(5,0.2,5)) |>
@@ -70,7 +70,7 @@
 #'rasterize_scene(base_model, lookfrom=c(2,4,10), 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
 #' }
-#' if(rayvertex:::run_documentation()) {           
+#' if(run_documentation()) {           
 #'#load the R OBJ file, scale it down, color it blue, and add it to the grey base
 #'r_model = obj_mesh(r_obj()) |>
 #'  scale_mesh(scale=0.5) |>
@@ -80,19 +80,19 @@
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
 #' }
-#' if(rayvertex:::run_documentation()) {
+#' if(run_documentation()) {
 #'#Zoom in and reduce the shadow mapping intensity
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,shadow_map = TRUE, shadow_map_intensity=0.3,
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
 #'}
-#' if(rayvertex:::run_documentation()) {
+#' if(run_documentation()) {
 #'#Include the resolution (4x) of the shadow map for less pixellation around the edges
 #'#Also decrease the shadow_map_bias slightly to remove the "peter panning" floating shadow effect
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 #'               shadow_map_dims=4, 
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
 #'}
-#' if(rayvertex:::run_documentation()) {
+#' if(run_documentation()) {
 #'#Add some more directional lights and change their color
 #' lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 1) |>
 #'            add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 1)) |>
@@ -100,7 +100,7 @@
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 #'               light_info = lights)
 #'}
-#' if(rayvertex:::run_documentation()) {
+#' if(run_documentation()) {
 #'#Add some point lights
 #'lights_p = lights |>
 #'  add_light(point_light(position=c(-1,1,0),color="red", intensity=2)) |>
@@ -108,12 +108,12 @@
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 #'               light_info = lights_p)
 #'}
-#' if(rayvertex:::run_documentation()) {
+#' if(run_documentation()) {
 #'#change the camera position
 #'rasterize_scene(r_model, lookfrom=c(-2,2,-10), fov=10,
 #'               light_info = lights_p)
 #'}
-#' if(rayvertex:::run_documentation()) {
+#' if(run_documentation()) {
 #'               
 #'#Add a spiral of lines around the model by generating a matrix of line segments
 #' t = seq(0,8*pi,length.out=361)

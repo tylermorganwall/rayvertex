@@ -45,7 +45,7 @@ List describing the mesh.
 Torus 3D Model
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Plot a group of tori in the cornell box
 generate_cornell_mesh(ceiling = FALSE) |> 
  add_shape(torus_mesh(position=c(555/2,555/3,555/2), angle=c(20,0,45),

@@ -27,7 +27,7 @@ Rotated lines.
 Rotate Lines
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Generate a cube out of lines
 cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
@@ -43,17 +43,17 @@ cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1)))
 rasterize_lines(cube_outline,lookfrom=c(0,6,10))
 }
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Rotate the cube 30 degrees around the y-axis
 rotated_cube = color_lines(rotate_lines(cube_outline,angle=c(0,30,0)),color="red")
 rasterize_lines(add_lines(cube_outline,rotated_cube),lookfrom=c(0,6,10))
 }
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Rotate the cube 30 degrees around each axis, in this order: x,y,z
 rotated_cube = color_lines(rotate_lines(cube_outline,angle=c(30,30,30)),color="red")
 rasterize_lines(add_lines(cube_outline,rotated_cube),lookfrom=c(0,6,10))
 }
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Rotate the cube 30 degrees around each axis, in this order: z,y,x
 rotated_cube = color_lines(rotate_lines(cube_outline,angle=c(30,30,30), 
                            order_rotation = c(3,2,1)),color="red")

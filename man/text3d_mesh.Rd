@@ -42,14 +42,14 @@ List describing the mesh.
 Text Object
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Generate a label in the Cornell box.
 generate_cornell_mesh() |> 
   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),angle=c(0,180,0),
   text_height=60)) |> 
   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
   }
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Change the orientation
 generate_cornell_mesh() |> 
   add_shape(text3d_mesh(label="YZ Plane", position=c(540,555/2,555/2),text_height=100,
@@ -60,7 +60,7 @@ generate_cornell_mesh() |>
                     orientation = "xz", angle=c(0,0,0))) |> 
   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
   }
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Add an label in front of a sphere
 generate_cornell_mesh() |> 
   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),text_height=60,
@@ -71,7 +71,7 @@ generate_cornell_mesh() |>
                     material=material_list(diffuse="purple",type="phong"))) |>                  
   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
   }
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
   
 #A room full of bees
 bee_scene = list()

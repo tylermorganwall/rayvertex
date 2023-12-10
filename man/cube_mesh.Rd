@@ -33,20 +33,20 @@ List describing the mesh.
 3D obj model of the letter R
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Generate a cube
 generate_cornell_mesh() |>
   add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100)) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Generate a blue rotated cube 
 generate_cornell_mesh() |>
   add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100, angle=c(0,45,0),
                       material = material_list(diffuse="dodgerblue"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Generate a scaled, blue rotated cube 
 generate_cornell_mesh() |>
   add_shape(cube_mesh(position = c(555/2, 100, 555/2), angle=c(0,45,0),

@@ -18,7 +18,7 @@ Fast generation of rayvertex scenes from a list of objects (much faster than cal
 that cdoes
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
  #Build a scene out of cubes including 87 * 61 = 5307 objects
  scene = list()
  volcol = rainbow(103)

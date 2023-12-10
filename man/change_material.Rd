@@ -112,7 +112,7 @@ Shape with new material settings
 Change individual material properties, leaving others alone.
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 p_sphere = sphere_mesh(position=c(555/2,555/2,555/2), 
                       radius=40,material=material_list(diffuse="purple"))
 generate_cornell_mesh() |>

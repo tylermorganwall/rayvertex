@@ -9,7 +9,7 @@
 #'@return `ray_scene` containing mesh info.
 #'@export
 #'@examples
-#'if(rayvertex:::run_documentation()) {
+#'if(run_documentation()) {
 #'  #Build a scene out of cubes including 87 * 61 = 5307 objects
 #'  scene = list()
 #'  volcol = rainbow(103)

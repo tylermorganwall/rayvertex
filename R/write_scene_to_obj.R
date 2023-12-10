@@ -11,7 +11,7 @@
 #' @export
 #'
 #' @examples
-#' if(rayvertex:::run_documentation()) {
+#' if(run_documentation()) {
 #' tmpfile = tempfile(fileext = ".obj")
 #' write_scene_to_obj(generate_cornell_mesh(), tmpfile)
 #' }

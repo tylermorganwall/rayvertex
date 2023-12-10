@@ -75,7 +75,7 @@ Rasterized image.
 Render a 3D scene made out of lines using a software rasterizer.
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Generate a cube out of lines
 cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
@@ -91,12 +91,12 @@ cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1)))
 rasterize_lines(cube_outline,fov=90,lookfrom=c(0,0,3))
 }
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Scale the cube uniformly
 scaled_cube = color_lines(scale_lines(cube_outline,scale=0.5),color="red")
 rasterize_lines(add_lines(cube_outline,scaled_cube),fov=90,lookfrom=c(0,0,3))
 }
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Scale the cube non-uniformly
 scaled_cube = color_lines(scale_lines(cube_outline,scale=c(0.8,2,0.4)),color="red")
 rasterize_lines(add_lines(cube_outline,scaled_cube),fov=60,lookfrom=c(3,3,3))

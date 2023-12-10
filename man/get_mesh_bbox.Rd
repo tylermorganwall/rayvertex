@@ -16,7 +16,7 @@ get_mesh_bbox(mesh)
 Calculates the bounding box of a mesh
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Calculates the center of the mesh
 get_mesh_bbox(generate_cornell_mesh())
 }

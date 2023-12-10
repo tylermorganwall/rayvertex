@@ -17,7 +17,9 @@ Swap Y/Z Axis
 }
 \examples{
 # Flip a mesh 
+if(run_documentation()) {
 sphere_mesh(position=c(-1,0,0)) |> 
   add_shape(swap_yz(sphere_mesh(position=c(0,1,0)))) |> 
   rasterize_scene()
+}
 }

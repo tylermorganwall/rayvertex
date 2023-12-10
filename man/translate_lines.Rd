@@ -18,7 +18,7 @@ Translated line matrix.
 Translate Lines
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Generate a cube out of lines
 cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
@@ -34,7 +34,7 @@ cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1))) 
 rasterize_lines(cube_outline,fov=40,lookfrom=c(1,2,10),lookat=c(0,0,0))
 }
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Scale the cube uniformly
 translated_cube = color_lines(translate_lines(cube_outline,c(1,1,1)),"red")
 translated_cube2 = color_lines(translate_lines(cube_outline,c(-1,-1,-1)),"green")

@@ -18,7 +18,7 @@ Colored line matrix.
 Color Lines
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Generate a cube out of lines
 cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>

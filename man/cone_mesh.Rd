@@ -36,21 +36,21 @@ List describing the mesh.
 Cone 3D Model
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Generate a cone
 generate_cornell_mesh() |>
   add_shape(cone_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2),
                       radius = 100)) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Generate a blue cone with a wide base
 generate_cornell_mesh() |>
   add_shape(cone_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2), radius=200,
                       material = material_list(diffuse="dodgerblue"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Generate a long, thin cone
 generate_cornell_mesh() |>
   add_shape(cone_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 400, 555/2), radius=50,

@@ -6,9 +6,11 @@
 #' @export 
 #' @examples
 #' # Flip a mesh 
+#' if(run_documentation()) {
 #' sphere_mesh(position=c(-1,0,0)) |> 
 #'   add_shape(swap_yz(sphere_mesh(position=c(0,1,0)))) |> 
 #'   rasterize_scene()
+#' }
 swap_yz = function(mesh) {
   for(i in seq_along(mesh$vertices)) {
     mesh$vertices[[i]] = mesh$vertices[[i]][,c(1,3,2)]

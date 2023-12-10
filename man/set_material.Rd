@@ -113,7 +113,7 @@ Shape with new material
 Set the material(s) of the mesh.
 }
 \examples{
-if(rayvertex:::run_documentation()) {
+if(run_documentation()) {
 #Set the material of an object
 generate_cornell_mesh() |>
  add_shape(set_material(sphere_mesh(position=c(400,555/2,555/2),radius=40), 

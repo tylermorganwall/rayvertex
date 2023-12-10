@@ -6,7 +6,7 @@
 #'@return Translated mesh
 #'@export
 #'@examples
-#'if(rayvertex:::run_documentation()) {
+#'if(run_documentation()) {
 #'#Translate a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 #'generate_cornell_mesh() |>
@@ -35,7 +35,7 @@ translate_mesh = function(mesh, position = c(0,0,0)) {
 #'@return Scaled mesh
 #'@export
 #'@examples
-#'if(rayvertex:::run_documentation()) {
+#'if(run_documentation()) {
 #'#Scale a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 #'
@@ -77,7 +77,7 @@ scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
 #'@return Scaled mesh
 #'@export
 #'@examples
-#'if(rayvertex:::run_documentation()) {
+#'if(run_documentation()) {
 #'#Scale a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 #'
@@ -111,7 +111,7 @@ scale_unit_mesh = function(mesh, center_mesh = FALSE) {
 #'@return Centered mesh
 #'@export
 #'@examples
-#'if(rayvertex:::run_documentation()) {
+#'if(run_documentation()) {
 #' #Center the Cornell box and the R OBJ at the origin
 #' center_mesh(generate_cornell_mesh()) |>
 #'   add_shape(center_mesh(obj_mesh(r_obj(),scale=100,angle=c(0,180,0)))) |>
@@ -142,7 +142,7 @@ center_mesh = function(mesh) {
 #'@return Length-3 numeric vector 
 #'@export
 #'@examples
-#' if(rayvertex:::run_documentation()) {
+#' if(run_documentation()) {
 #' #Calculates the center of the mesh
 #' get_scene_center(generate_cornell_mesh())
 #' }
@@ -166,7 +166,7 @@ get_mesh_center = function(mesh) {
 #'@return 2x3 numeric matrix
 #'@export
 #'@examples
-#' if(rayvertex:::run_documentation()) {
+#' if(run_documentation()) {
 #' #Calculates the center of the mesh
 #' get_mesh_bbox(generate_cornell_mesh())
 #' }
@@ -210,7 +210,7 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'@return Rotated Mesh
 #'@export
 #'@examples
-#'if(rayvertex:::run_documentation()) {
+#'if(run_documentation()) {
 #'#Rotate a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
 #'

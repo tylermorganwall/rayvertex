@@ -9,7 +9,7 @@
 #'@export
 #'
 #'@examples
-#'if(rayvertex:::run_documentation()) {
+#'if(run_documentation()) {
 #'#Generate several spheres in the cornell box
 #'scene = generate_cornell_mesh()
 #'set.seed(1)
