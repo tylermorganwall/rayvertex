@@ -93,7 +93,7 @@ List load_obj(std::string inputfile, std::string basedir) {
     List out(num_items);
     CharacterVector names(num_items) ;
     int item = 0;
-    set_item( out, item   , _["ambient"]  =  NumericVector::create(m.ambient[0], m.ambient[1], m.ambient[2]), names) ;
+    set_item( out, item++ , _["ambient"]  =  NumericVector::create(m.ambient[0], m.ambient[1], m.ambient[2]), names) ;
     set_item( out, item++ , _["diffuse"]  = NumericVector::create(m.diffuse[0], m.diffuse[1], m.diffuse[2]), names) ;
     set_item( out, item++ , _["specular"]  = NumericVector::create(m.specular[0], m.specular[1], m.specular[2]), names) ;
     set_item( out, item++ , _["transmittance"]  = NumericVector::create(m.transmittance[0], m.transmittance[1], m.transmittance[2]), names) ;
