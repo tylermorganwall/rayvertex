@@ -11,7 +11,7 @@ set_material(
   diffuse = c(0.5, 0.5, 0.5),
   ambient = c(0, 0, 0),
   specular = c(1, 1, 1),
-  transmittance = c(1, 1, 1),
+  transmittance = c(0, 0, 0),
   emission = c(0, 0, 0),
   shininess = 50,
   ior = 1,
@@ -54,7 +54,7 @@ matching the material name.}
 
 \item{specular}{Default \code{c(1,1,1)}. The specular color.}
 
-\item{transmittance}{Default \code{c(1,1,1)}. The transmittance}
+\item{transmittance}{Default \code{c(0,0,0)}. The transmittance.}
 
 \item{emission}{Default \code{c(0,0,0)}. The emissive color.}
 

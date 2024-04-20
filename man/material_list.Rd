@@ -8,7 +8,7 @@ material_list(
   diffuse = c(0.8, 0.8, 0.8),
   ambient = c(0, 0, 0),
   specular = c(1, 1, 1),
-  transmittance = c(1, 1, 1),
+  transmittance = c(0, 0, 0),
   emission = c(0, 0, 0),
   shininess = 50,
   ior = 1,
@@ -43,7 +43,7 @@ material_list(
 
 \item{specular}{Default \code{c(1,1,1)}. The specular color.}
 
-\item{transmittance}{Default \code{c(1,1,1)}. The transmittance}
+\item{transmittance}{Default \code{c(0,0,0)}. The transmittance}
 
 \item{emission}{Default \code{c(0,0,0)}. The emissive color.}
 

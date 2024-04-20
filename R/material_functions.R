@@ -12,7 +12,7 @@
 #'@param diffuse                   Default `c(0.5,0.5,0.5)`. The diffuse color.
 #'@param ambient                   Default `c(0,0,0)`. The ambient color.
 #'@param specular                  Default `c(1,1,1)`. The specular color.
-#'@param transmittance             Default `c(1,1,1)`. The transmittance
+#'@param transmittance             Default `c(0,0,0)`. The transmittance.
 #'@param emission                  Default `c(0,0,0)`. The emissive color.
 #'@param shininess                 Default `50.0`. The shininess exponent.
 #'@param ior                       Default `1.0`. The index of refraction. If this is not equal to `1.0`, the material will be refractive.
@@ -58,7 +58,7 @@ set_material = function(mesh, material = NULL, id = NULL,
                         diffuse                   = c(0.5,0.5,0.5),
                         ambient                   = c(0,0,0),
                         specular                  = c(1,1,1),
-                        transmittance             = c(1,1,1),
+                        transmittance             = c(0,0,0),
                         emission                  = c(0,0,0),
                         shininess                 = 50.0,
                         ior                       = 1.0,
@@ -366,7 +366,7 @@ change_material = function(mesh, id = NULL, sub_id = 1,
 #'@param diffuse                   Default `c(0.5,0.5,0.5)`. The diffuse color.
 #'@param ambient                   Default `c(0,0,0)`. The ambient color.
 #'@param specular                  Default `c(1,1,1)`. The specular color.
-#'@param transmittance             Default `c(1,1,1)`. The transmittance
+#'@param transmittance             Default `c(0,0,0)`. The transmittance
 #'@param emission                  Default `c(0,0,0)`. The emissive color.
 #'@param shininess                 Default `50.0`. The shininess exponent.
 #'@param ior                       Default `1.0`. The index of refraction. If this is not equal to `1.0`, the material will be refractive.
@@ -409,7 +409,7 @@ change_material = function(mesh, id = NULL, sub_id = 1,
 material_list = function(diffuse                   = c(0.8,0.8,0.8),
                          ambient                   = c(0,0,0),
                          specular                  = c(1,1,1),
-                         transmittance             = c(1,1,1),
+                         transmittance             = c(0,0,0),
                          emission                  = c(0,0,0),
                          shininess                 = 50.0,
                          ior                       = 1.0,
