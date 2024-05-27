@@ -30,20 +30,24 @@ add_shape = function(scene, shape = NULL) {
   if(is.null(scene)) {
     return(shape)
   } 
-  scene$shapes    = c(scene$shapes   , shape$shapes)
-  scene$vertices  = c(scene$vertices , shape$vertices)
-  scene$normals   = c(scene$normals  , shape$normals)
-  scene$texcoords = c(scene$texcoords, shape$texcoords)
-  scene$materials = c(scene$materials, shape$materials)
-  scene$material_hashes = c(scene$material_hashes, shape$material_hashes)
+  new_hashes = c(attr(scene, "material_hashes"), 
+                 attr(shape, "material_hashes"))
+  scene$shapes    = vctrs::vec_c(scene$shapes   , shape$shapes)
+  scene$vertices  = vctrs::vec_c(scene$vertices , shape$vertices)
+  scene$normals   = vctrs::vec_c(scene$normals  , shape$normals)
+  scene$texcoords = vctrs::vec_c(scene$texcoords, shape$texcoords)
+  scene$materials = vctrs::vec_c(scene$materials, shape$materials)
+  # new_scene = ray_mesh(scene)
+  new_scene = (scene)
+
+  attr(new_scene, "material_hashes") = new_hashes
   if(!is.null(attr(shape,"cornell")) || !is.null(attr(scene,"cornell"))) {
-    attr(scene,"cornell") = TRUE
+    attr(new_scene,"cornell") = TRUE
     if(!is.null(attr(shape,"cornell"))) {
-      attr(scene,"cornell_light") = attr(shape,"cornell_light")
+      attr(new_scene,"cornell_light") = attr(shape,"cornell_light")
     } else {
-      attr(scene,"cornell_light") = attr(scene,"cornell_light")
+      attr(new_scene,"cornell_light") = attr(scene,"cornell_light")
     }
   }
-  class(scene) = c("ray_mesh", "list")
-  return(scene)
+  return(new_scene)
 }

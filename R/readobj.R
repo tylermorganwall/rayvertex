@@ -26,7 +26,15 @@ read_obj = function(filename, materialspath = NULL) {
   if(lastchar!=fsep) {
     dir=paste0(dir,fsep)
   }
+  # if(!getOption("ray_loading", FALSE)) {
+  #   browser()
+  # }
   obj_loaded = load_obj(filename, dir)
+  #Everything here is already wrapped in a list, so the constructor for
+  #`ray_vertex_data` only needs a single list wrapper
+  obj_loaded$vertices = ray_vertex_data(obj_loaded$vertices[[1]])
+  obj_loaded$normals = ray_vertex_data(obj_loaded$normals[[1]])
+  obj_loaded$texcoords = ray_vertex_data(obj_loaded$texcoords[[1]])
   for(i in seq_len(length(obj_loaded$shapes))) {
     if(nrow(obj_loaded$shapes[[i]]$indices) == length(obj_loaded$shapes[[i]]$has_vertex_tex)) {
       obj_loaded$shapes[[i]]$has_vertex_tex[apply(obj_loaded$shapes[[i]]$tex_indices,1,(function(x) any(x == -1)))] = FALSE
@@ -50,13 +58,28 @@ read_obj = function(filename, materialspath = NULL) {
     single_has_vertex_tex[[i]]     = obj_loaded$shapes[[i]]$has_vertex_tex
     single_has_vertex_normals[[i]] = obj_loaded$shapes[[i]]$has_vertex_normals
   }
+
+  # 
+  # obj_loaded$shapes = list(ray_shape(indices = do.call(rbind,single_indices),
+  #                               tex_indices = do.call(rbind,single_tex_indices),
+  #                               norm_indices = do.call(rbind,single_norm_indices),
+  #                               material_ids = do.call(rbind,single_material_ids),
+  #                               has_vertex_tex = do.call(c,single_has_vertex_tex),
+  #                               has_vertex_normals = do.call(c,single_has_vertex_normals)))
   
-  obj_loaded$shapes = list(list(indices = do.call(rbind,single_indices),
-                           tex_indices = do.call(rbind,single_tex_indices),
-                           norm_indices = do.call(rbind,single_norm_indices),
-                           material_ids = do.call(rbind,single_material_ids),
-                           has_vertex_tex = do.call(c,single_has_vertex_tex),
-                           has_vertex_normals = do.call(c,single_has_vertex_normals)))
+  obj_loaded$shapes = ray_shape(list(indices = do.call(rbind,single_indices),
+                                tex_indices = do.call(rbind,single_tex_indices),
+                                norm_indices = do.call(rbind,single_norm_indices),
+                                material_ids = do.call(rbind,single_material_ids),
+                                has_vertex_tex = do.call(c,single_has_vertex_tex),
+                                has_vertex_normals = do.call(c,single_has_vertex_normals)))
+  raw_materials = lapply(obj_loaded$materials[[1]], rayvertex_material)
+  # obj_loaded$materials = do.call(vctrs::vec_c, raw_materials)
+  # obj_loaded$materials = vector(mode="list", length = 1)
+  # obj_loaded$materials[[1]] = vector(mode="list", length = length(raw_materials))
+  # for(i in seq_len(length(raw_materials))) {
+  #   obj_loaded$materials[[1]][[i]] = rayvertex_material(raw_materials[[i]])
+  # }
   for(i in seq_len(length(obj_loaded$materials[[1]]))) {
     if(!file.exists(obj_loaded$materials[[1]][[i]]$diffuse_texname) && nchar(obj_loaded$materials[[1]][[i]]$diffuse_texname) > 0 &&
        file.exists(sprintf("%s%s%s", dir,sepval,obj_loaded$materials[[1]][[i]]$diffuse_texname))) {
@@ -88,9 +111,10 @@ read_obj = function(filename, materialspath = NULL) {
   for(i in seq_len(length(obj_loaded$materials[[1]]))) {
     hashes[i] = digest::digest(obj_loaded$materials[[1]][[i]])
   }
-  obj_loaded$material_hashes = hashes
-  class(obj_loaded) = c("ray_mesh", "list")
-  obj_loaded
+  attr(obj_loaded, "material_hashes") = hashes
+  
+  # class(obj_loaded) = c("ray_mesh", "list")
+  ray_mesh(obj_loaded)
 }
 
 #'@title Load an PLY file
@@ -122,7 +146,7 @@ read_ply = function(filename) {
   for(i in seq_len(length(ply_loaded$materials))) {
     hashes[i] = digest::digest(ply_loaded$materials[[i]])
   }
-  ply_loaded$material_hashes = hashes
+  attr(ply_loaded, "material_hashes") = hashes
   class(ply_loaded) = c("ray_mesh","list")
   ply_loaded
 }

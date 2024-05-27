@@ -144,7 +144,7 @@ center_mesh = function(mesh) {
 #'@examples
 #' if(run_documentation()) {
 #' #Calculates the center of the mesh
-#' get_scene_center(generate_cornell_mesh())
+#' get_mesh_center(generate_cornell_mesh())
 #' }
 get_mesh_center = function(mesh) {
   center_mat = matrix(c(Inf,-Inf),nrow=2,ncol=3)

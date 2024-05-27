@@ -107,10 +107,10 @@ write_shapes = function(con,
   mat_offset  = cumsum(c(0,n_mats))
   prev_mat = 0
   for(i in seq_len(length(shapes))) {
-    single_material = length(unique(shapes[[i]]$material_ids)) == 1
-    single_tex      = length(unique(shapes[[i]]$has_vertex_tex)) == 1
-    single_norm     = length(unique(shapes[[i]]$has_vertex_normals)) == 1
-    single_mat      = length(unique(shapes[[i]]$material_ids)) == 1
+    single_material = length(unique(shapes[[i]]$material_ids)) == 1L
+    single_tex      = length(unique(shapes[[i]]$has_vertex_tex)) == 1L
+    single_norm     = length(unique(shapes[[i]]$has_vertex_normals)) == 1L
+    single_mat      = length(unique(shapes[[i]]$material_ids)) == 1L
     voff = vert_offset[i]
     noff = norm_offset[i]
     toff = tex_offset[i]

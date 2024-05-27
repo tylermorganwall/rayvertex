@@ -48,7 +48,7 @@ scene_from_list = function(scene_list) {
   for(i in seq_len(n)) {
     n_shapes = n_shapes + length(scene_list[[i]]$shapes)
     n_materials = n_materials + length(scene_list[[i]]$materials)
-    n_material_hashes = n_material_hashes + length(scene_list[[i]]$material_hashes)
+    n_material_hashes = n_material_hashes + length(attr(scene_list[[i]], "material_hashes"))
   }
 
   #initialize the `ray_scene` object with the right number of entries
@@ -58,35 +58,28 @@ scene_from_list = function(scene_list) {
   new_scene$texcoords = vector(mode="list",n)
   new_scene$normals = vector(mode="list",n)
   new_scene$materials = vector(mode="list",n)
-  new_scene$material_hashes = vector(mode="character")
+  attr(new_scene, "material_hashes") = vector(mode="character")
   #Fill in each shape and corresponding vertex info matrices
-  shape_counter = 1L
-  mat_counter = 1L
-  mat_hash_counter = 1L
-  num_materials = 0L
-
-  num_vertices = 0L
-  num_texcoords = 0L
-  num_norms = 0L
   for(i in seq_len(n)) {
     #Assign the shapes in the nth list entry
     temp_scene = merge_scene(scene_list[[i]], TRUE)
-    new_scene$shapes[[shape_counter]] = temp_scene$shapes[[1]]
-    new_scene$shapes[[shape_counter]]$indices = new_scene$shapes[[shape_counter]]$indices
-    new_scene$shapes[[shape_counter]]$tex_indices = new_scene$shapes[[shape_counter]]$tex_indices
-    new_scene$shapes[[shape_counter]]$norm_indices = new_scene$shapes[[shape_counter]]$norm_indices
-    new_scene$shapes[[shape_counter]]$material_ids = new_scene$shapes[[shape_counter]]$material_ids
-    
-    
-    shape_counter = shape_counter + 1L
+    new_scene$shapes[[i]] = ray_shape(temp_scene$shapes[[1]])
     
     #Assign the vertex info for the nth list try
-    new_scene$vertices[[i]] = unlist(temp_scene$vertices)
-    new_scene$texcoords[[i]] = unlist(temp_scene$texcoords)
-    new_scene$normals[[i]] = unlist(temp_scene$normals)
-    new_scene$materials[[i]] = temp_scene$materials
-    new_scene$material_hashes = c(new_scene$material_hashes, scene_list[[i]]$material_hashes)
+    new_scene$vertices[[i]] = ray_vertex_data((temp_scene$vertices))
+    new_scene$texcoords[[i]] = ray_vertex_data((temp_scene$texcoords))
+    new_scene$normals[[i]] = ray_vertex_data((temp_scene$normals))
+    for(j in seq_along(temp_scene$materials)) {
+      new_scene$materials[[i]][[j]] = (temp_scene$materials[[j]])
+    }
+    attr(new_scene, "material_hashes") = c(attr(new_scene, "material_hashes"), 
+                                           attr(scene_list[[i]], "material_hashes"))
   }
+  new_scene$shapes = do.call(vctrs::vec_c, new_scene$shapes)
+  new_scene$vertices = do.call(vctrs::vec_c, new_scene$vertices)
+  new_scene$texcoords = do.call(vctrs::vec_c, new_scene$texcoords)
+  new_scene$normals = do.call(vctrs::vec_c, new_scene$normals)
+  # new_scene$materials = do.call(vctrs::vec_c, new_scene$materials)
   
   class(new_scene) = c("ray_mesh", "list")
   return(new_scene)

@@ -116,32 +116,41 @@ set_material = function(mesh, material = NULL, id = NULL,
     material$toon_outline_color    = convert_color(toon_outline_color)   
     material$reflection_intensity        = reflection_intensity        
     material$reflection_sharpness    = reflection_sharpness      
-    material$two_sided              = two_sided      
+    material$two_sided              = two_sided   
+    material = rayvertex_material(material)
   }
   material_hash = digest::digest(material)
-  if(length(mesh$materials) > 0 && !is.null(mesh$materials[[1]]) && length(mesh$materials[[1]]) > 0) {
+  #Check if any materials exist
+  if(length(mesh$materials) > 0 && 
+     !is.null(mesh$materials[[1]]) && 
+     length(mesh$materials[[1]]) > 0) {
     if(is.null(id)) {
-      for(i in seq_len(length(mesh$materials))) {
+      #Replace all materials with single material
+      mesh$materials = vector(mode = "list", length = length(mesh$shapes))
+      for(i in seq_len(length(mesh$shapes))) {
         mesh$materials[[i]] = list()
         mesh$materials[[i]][[1]] = material
       }
-      mesh$material_hashes = rep(material_hash, length(mesh$material_hashes))
+      attr(mesh, "material_hashes") = rep(material_hash, length(mesh$shapes))
       for(i in seq_len(length(mesh$shapes))) {
-        mesh$shapes[[i]]$material_ids = rep(0,nrow(mesh$shapes[[i]]$indices))
+        mesh$shapes[[i]]$material_ids = rep(0L,nrow(mesh$shapes[[i]]$indices))
       }
     } else {
-      len_mat = length(mesh$materials[[id]])
-      for(i in seq_len(len_mat)) {
-        mesh$materials[[id]][[i]] = material
-      }
-      mesh$shapes[[id]]$material_ids = rep(0,nrow(mesh$shapes[[id]]$indices))
+      mesh$materials[[id]] = list()
+      mesh$materials[[id]][[1]] = material
+      mesh$shapes[[id]]$material_ids = rep(0L,nrow(mesh$shapes[[id]]$indices))
+      attr(mesh, "material_hashes")[id] = material_hash
     }
   } else {
-    mesh$shapes[[1]]$material_ids = rep(0,nrow(mesh$shapes[[1]]$indices))
-    mesh$materials = list(list(material))
-    mesh$material_hashes[1] = material_hash
+    n_shapes = length(mesh$shapes)
+    for(i in seq_len(n_shapes)) {
+      mesh$materials = vector(mode = "list", length = n_shapes)
+      mesh$shapes[[i]]$material_ids = rep(0L,nrow(mesh$shapes[[i]]$indices))
+      mesh$materials[[i]][[1]] = material
+    }
+    attr(mesh, "material_hashes") = rep(material_hash, n_shapes)
   }
-  class(mesh) = c("ray_mesh", "list")
+  # class(mesh) = c("ray_mesh", "list")
   return(mesh)
 }
 
@@ -343,11 +352,11 @@ change_material = function(mesh, id = NULL, sub_id = 1,
         counter = counter + 1
       }
     }
-    mesh$material_hashes = vector("character", length = counter)
+    attr(mesh, "material_hashes") = vector("character", length = counter)
     counter = 1
     for(i in seq_len(length(mesh$materials))) {
       for(j in seq_len(length(mesh$materials[[i]]))) {
-        mesh$material_hashes[counter] = digest::digest(mesh$materials[[i]][[j]])
+        attr(mesh, "material_hashes")[counter] = digest::digest(mesh$materials[[i]][[j]])
         counter = counter + 1
       }
     }
@@ -433,7 +442,7 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
                          toon_outline_width        = 0.05,
                          toon_outline_color        = "black",
                          reflection_intensity      = 0.0,
-                         reflection_sharpness      = 0.0,
+                         reflection_sharpness      = 1.0,
                          two_sided                 = FALSE) {
   culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   material_props = 
@@ -474,7 +483,7 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
   stopifnot(length(material_props$toon_outline_color) == 3)
   
   
-  return(material_props)
+  return(rayvertex_material(material_props))
 }
 
 #' Add Outline

@@ -6,6 +6,7 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/tylermorganwall/rayvertex/workflows/R-CMD-check/badge.svg)](https://github.com/tylermorganwall/rayvertex/actions)
+[![R-CMD-check](https://github.com/tylermorganwall/rayvertex/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tylermorganwall/rayvertex/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 <img src="man/figures/cubey.gif" ></img>
@@ -109,31 +110,141 @@ devtools::install_github("tylermorganwall/rayvertex")
 ## Example
 
 Here, we will render a basic scene. We’ll use the built-in Cornell Box
-mesh to begin.
+mesh to begin. Here is how the scene data is printed. Note the shapes
+column gives the number of triangles, whether the texture (UV)/normal
+coordinates are given, and the number of materials for that shape. This
+output also prints out overall scene information such as the bounding
+box and the number of shapes and unique materials.
 
 ``` r
 library(rayvertex)
 
-generate_cornell_mesh() |>
-  rasterize_scene()
-#> Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
+generate_cornell_mesh()
 ```
 
-<img src="man/figures/README-cornell-1.png" width="100%" />
+<pre class="r-output"><code>#&gt; ── Scene Description ───────────────────────────────────────────────────────────
+</code></pre>
+<pre class="r-output"><code>#&gt; <span style='color: #00BBBB;'>•</span> Summary - <span style='color: #0000BB;'>Meshes</span>: <span style='color: #00BBBB;'>5</span> | <span style='color: #0000BB;'>Unique Materials</span>: <span style='color: #00BBBB;'>3</span>
+</code></pre>
+<pre class="r-output"><code>#&gt; <span style='color: #00BBBB;'>ℹ</span> XYZ Bounds - <span style='color: #0000BB;'>Min</span>: <span style='color: #00BBBB;'>c(-5.00, -5.00, -2.50)</span> | <span style='color: #0000BB;'>Max</span>: <span style='color: #00BBBB;'>c(560.00, 565.00, 560.00)</span>
+</code></pre>
+<pre class="r-output"><code>#&gt;            shapes  vertices texcoords   normals materials
+#&gt;         <span style='color: #555555; font-style: italic;'>&lt;ray_shp&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;ray_dat&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;ray_dat&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;ray_dat&gt;</span> <span style='color: #555555; font-style: italic;'>&lt;ray_mat&gt;</span>
+#&gt; <span style='color: #555555;'>1</span> <span style='color: #555555;'>&lt;</span>T:<span style='color: #00BBBB;'>12</span><span style='color: #555555;'>|</span><span style='color: #00BB00;'>UV</span><span style='color: #555555;'>|</span><span style='color: #00BB00;'>N</span><span style='color: #555555;'>|</span>M:<span style='color: #00BBBB;'>1</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>8</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>3</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>4</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>2</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>6</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>3</span><span style='color: #555555;'>&gt;</span> <span style='color: #555555;'>&lt;</span><span style='color: #00BB00;'>diffuse</span><span style='color: #555555;'>&gt;</span>
+#&gt; <span style='color: #555555;'>2</span> <span style='color: #555555;'>&lt;</span>T:<span style='color: #00BBBB;'>12</span><span style='color: #555555;'>|</span><span style='color: #00BB00;'>UV</span><span style='color: #555555;'>|</span><span style='color: #00BB00;'>N</span><span style='color: #555555;'>|</span>M:<span style='color: #00BBBB;'>1</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>8</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>3</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>4</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>2</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>6</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>3</span><span style='color: #555555;'>&gt;</span> <span style='color: #555555;'>&lt;</span><span style='color: #00BB00;'>diffuse</span><span style='color: #555555;'>&gt;</span>
+#&gt; <span style='color: #555555;'>3</span> <span style='color: #555555;'>&lt;</span>T:<span style='color: #00BBBB;'>12</span><span style='color: #555555;'>|</span><span style='color: #00BB00;'>UV</span><span style='color: #555555;'>|</span><span style='color: #00BB00;'>N</span><span style='color: #555555;'>|</span>M:<span style='color: #00BBBB;'>1</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>8</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>3</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>4</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>2</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>6</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>3</span><span style='color: #555555;'>&gt;</span> <span style='color: #555555;'>&lt;</span><span style='color: #00BB00;'>diffuse</span><span style='color: #555555;'>&gt;</span>
+#&gt; <span style='color: #555555;'>4</span> <span style='color: #555555;'>&lt;</span>T:<span style='color: #00BBBB;'>12</span><span style='color: #555555;'>|</span><span style='color: #00BB00;'>UV</span><span style='color: #555555;'>|</span><span style='color: #00BB00;'>N</span><span style='color: #555555;'>|</span>M:<span style='color: #00BBBB;'>1</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>8</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>3</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>4</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>2</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>6</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>3</span><span style='color: #555555;'>&gt;</span> <span style='color: #555555;'>&lt;</span><span style='color: #00BB00;'>diffuse</span><span style='color: #555555;'>&gt;</span>
+#&gt; <span style='color: #555555;'>5</span> <span style='color: #555555;'>&lt;</span>T:<span style='color: #00BBBB;'>12</span><span style='color: #555555;'>|</span><span style='color: #00BB00;'>UV</span><span style='color: #555555;'>|</span><span style='color: #00BB00;'>N</span><span style='color: #555555;'>|</span>M:<span style='color: #00BBBB;'>1</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>8</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>3</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>4</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>2</span><span style='color: #555555;'>&gt;</span>     <span style='color: #555555;'>&lt;</span><span style='color: #00BBBB;'>6</span><span style='color: #555555;'>x</span><span style='color: #00BBBB;'>3</span><span style='color: #555555;'>&gt;</span> <span style='color: #555555;'>&lt;</span><span style='color: #00BB00;'>diffuse</span><span style='color: #555555;'>&gt;</span>
+</code></pre>
 
-Let’s add a purple sphere to the center:
+We can render it by passing it to `rasterize_scene()`.
 
 ``` r
 
-mat = material_list(diffuse="purple", type = "phong", ambient="purple", ambient_intensity = 0.2)
-
 generate_cornell_mesh() |>
-  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) |>
   rasterize_scene()
-#> Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
 ```
 
+<pre class="r-output"><code>#&gt; Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
+</code></pre>
+
+<img src="man/figures/README-cornell_render-1.png" width="100%" />
+
+Let’s add a purple sphere to the scene, and a picture of a dragon in a
+Cornell box to the back:
+
+``` r
+
+dragon_file = tempfile(fileext = ".png")
+png::writePNG(rayimage::dragon, dragon_file)
+mat = material_list(diffuse="purple", type = "phong", ambient="purple", ambient_intensity = 0.2)
+mat_dragon = material_list(ambient_texture_location = dragon_file, ambient = "white", 
+                           diffuse_intensity = 0)
+
+generate_cornell_mesh() |>
+  add_shape(sphere_mesh(position=c(300,555,555)/2, radius=80, material=mat)) |>
+  add_shape(xy_rect_mesh(position = c(555/2,555/2,530), angle = c(180,0,0), 
+                         scale = c(400,400,1),
+                         material = mat_dragon)) |> 
+  rasterize_scene(fov=40)
+```
+
+<pre class="r-output"><code>#&gt; Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` .
+</code></pre>
+
 <img src="man/figures/README-cornell2-1.png" width="100%" />
+
+We can preview the material properties by printing the materials in the
+scene. This prints out non-default material arguments, whether a texture
+exists, as well provides a rough preview of the color.
+
+``` r
+
+scene_save = generate_cornell_mesh() |>
+  add_shape(sphere_mesh(position=c(300,555,555)/2, radius=80, material=mat)) |>
+  add_shape(xy_rect_mesh(position = c(555/2,555/2,530), angle = c(180,0,0), 
+                         scale = c(400,400,1),
+                         material = mat_dragon))
+
+print(scene_save$material)
+```
+
+<pre class="r-output"><code>#&gt; [[1]]
+#&gt; [[1]][[1]]
+#&gt; <span style='color: #555555;'>• rayvertex_material</span>
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>type:</span> diffuse
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>diffuse:</span> #1f7326 <span style='background-color: #000000;'> </span> 
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>ambient:</span> #1f7326 <span style='background-color: #000000;'> </span> <span style='color: #555555;'>| intensity:</span> 0.2
+#&gt; 
+#&gt; 
+#&gt; [[2]]
+#&gt; [[2]][[1]]
+#&gt; <span style='color: #555555;'>• rayvertex_material</span>
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>type:</span> diffuse
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>diffuse:</span> #a60d0d <span style='background-color: #000000;'> </span> 
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>ambient:</span> #a60d0d <span style='background-color: #000000;'> </span> <span style='color: #555555;'>| intensity:</span> 0.2
+#&gt; 
+#&gt; 
+#&gt; [[3]]
+#&gt; [[3]][[1]]
+#&gt; <span style='color: #555555;'>• rayvertex_material</span>
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>type:</span> diffuse
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>diffuse:</span> #bababa <span style='background-color: #000000;'> </span> 
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>ambient:</span> #bababa <span style='background-color: #000000;'> </span> <span style='color: #555555;'>| intensity:</span> 0.2
+#&gt; 
+#&gt; 
+#&gt; [[4]]
+#&gt; [[4]][[1]]
+#&gt; <span style='color: #555555;'>• rayvertex_material</span>
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>type:</span> diffuse
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>diffuse:</span> #bababa <span style='background-color: #000000;'> </span> 
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>ambient:</span> #bababa <span style='background-color: #000000;'> </span> <span style='color: #555555;'>| intensity:</span> 0.2
+#&gt; 
+#&gt; 
+#&gt; [[5]]
+#&gt; [[5]][[1]]
+#&gt; <span style='color: #555555;'>• rayvertex_material</span>
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>type:</span> diffuse
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>diffuse:</span> #bababa <span style='background-color: #000000;'> </span> 
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>ambient:</span> #bababa <span style='background-color: #000000;'> </span> <span style='color: #555555;'>| intensity:</span> 0.2
+#&gt; 
+#&gt; 
+#&gt; [[6]]
+#&gt; [[6]][[1]]
+#&gt; <span style='color: #555555;'>• rayvertex_material</span>
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>type:</span> phong
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>diffuse:</span> #a020f0 <span style='background-color: #000000;'> </span> 
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>ambient:</span> #a020f0 <span style='background-color: #000000;'> </span> <span style='color: #555555;'>| intensity:</span> 0.2
+#&gt; 
+#&gt; 
+#&gt; [[7]]
+#&gt; [[7]][[1]]
+#&gt; <span style='color: #555555;'>• rayvertex_material</span>
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>type:</span> diffuse
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>diffuse:</span> #cccccc <span style='background-color: #000000;'> </span> <span style='color: #555555;'>| intensity:</span> 0.0
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>ambient:</span> #ffffff <span style='background-color: #000000;'> </span> 
+#&gt; <span style='color: #555555;'>•</span> <span style='color: #555555;'>ambient_texname:</span> /var/folders/19/j71hqsgx1jjg5kb0nxf58b200000gn/T//RtmpZ5TJIk/file114c8663b0577.png <span style='color: #555555;'>|</span> <span style='color: #00BB00;'>✔</span> File exists!
+</code></pre>
 
 Now, the ceiling of the Cornell Box is blocking the directional light.
 Let’s remove it.
@@ -143,8 +254,10 @@ Let’s remove it.
 generate_cornell_mesh(ceiling=FALSE) |>
   add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) |>
   rasterize_scene()
-#> Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
 ```
+
+<pre class="r-output"><code>#&gt; Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
+</code></pre>
 
 <img src="man/figures/README-cornell3-1.png" width="100%" />
 
@@ -161,8 +274,10 @@ generate_cornell_mesh(ceiling=FALSE) |>
   add_shape(cube_mesh(position=c(555/2,555/2-90,555/2), 
                       scale=c(160,20,160),material=mat2)) |>
   rasterize_scene()
-#> Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
 ```
+
+<pre class="r-output"><code>#&gt; Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
+</code></pre>
 
 <img src="man/figures/README-cornell4-1.png" width="100%" />
 
@@ -178,8 +293,10 @@ generate_cornell_mesh(ceiling=FALSE) |>
   add_shape(cube_mesh(position=c(555/2,555/2-90,555/2), 
                       scale=c(160,20,160),material=mat2)) |>
   rasterize_scene(light_info = directional_light(c(0.4,0.2,-1)))
-#> Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
 ```
+
+<pre class="r-output"><code>#&gt; Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
+</code></pre>
 
 <img src="man/figures/README-cornell5-1.png" width="100%" />
 
@@ -217,8 +334,10 @@ generate_cornell_mesh(ceiling=FALSE) |>
   add_shape(mesh3d_mesh(humface, position = c(555-80,220,555/2),scale = 1,
                         material=mats[[5]],angle=c(0,180,-30))) |>
   rasterize_scene(light_info = directional_light(c(0.4,0.2,-1)))
-#> Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
 ```
+
+<pre class="r-output"><code>#&gt; Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .
+</code></pre>
 
 <img src="man/figures/README-cornell6-1.png" width="100%" />
 
@@ -244,8 +363,10 @@ for(i in 1:30) {
 
 rasterize_scene(scene, light_info=directional_light(direction=c(0.5,0.8,1)),
                 background = "white",fov=10)
-#> Setting `lookat` to: c(0.53, 0.49, 0.50)
 ```
+
+<pre class="r-output"><code>#&gt; Setting `lookat` to: c(0.53, 0.49, 0.50)
+</code></pre>
 
 <img src="man/figures/README-toonshading-1.png" width="100%" />
 
@@ -315,8 +436,10 @@ r_model = obj_mesh(r_obj()) |>
 
 rasterize_scene(r_model, lookfrom=c(2,4,10),fov=20,
                light_info = directional_light(direction=c(0.8,1,0.7)))
-#> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
+
+<pre class="r-output"><code>#&gt; Setting `lookat` to: c(0.00, 0.34, 0.00)
+</code></pre>
 
 <img src="man/figures/README-line1-1.png" width="100%" />
 
@@ -327,8 +450,10 @@ Alternatively, you can add an `ambient` term to the material.
 #Zoom in and reduce the shadow mapping intensity
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,shadow_map = TRUE, shadow_map_intensity=0.3,
                light_info = directional_light(direction=c(0.8,1,0.7)))
-#> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
+
+<pre class="r-output"><code>#&gt; Setting `lookat` to: c(0.00, 0.34, 0.00)
+</code></pre>
 
 <img src="man/figures/README-line2-1.png" width="100%" />
 
@@ -340,8 +465,10 @@ around the edges.
 
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
                 shadow_map_dims=2, light_info = directional_light(direction=c(0.8,1,0.7)))
-#> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
+
+<pre class="r-output"><code>#&gt; Setting `lookat` to: c(0.00, 0.34, 0.00)
+</code></pre>
 
 <img src="man/figures/README-line3-1.png" width="100%" />
 
@@ -354,8 +481,10 @@ lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 0.7) |>
             add_light(directional_light(c(2,4,10),color = "white",intensity = 0.3))
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
                light_info = lights)
-#> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
+
+<pre class="r-output"><code>#&gt; Setting `lookat` to: c(0.00, 0.34, 0.00)
+</code></pre>
 
 <img src="man/figures/README-line4-1.png" width="100%" />
 
@@ -391,8 +520,10 @@ lights_p = lights |>
 
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
                light_info = lights_p)
-#> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
+
+<pre class="r-output"><code>#&gt; Setting `lookat` to: c(0.00, 0.34, 0.00)
+</code></pre>
 
 <img src="man/figures/README-line5-1.png" width="100%" />
 
@@ -402,8 +533,10 @@ We can change the camera position by adjusting the `lookfrom` argument:
 #change the camera position
 rasterize_scene(r_model, lookfrom=c(-2,2,-10), fov=10,
                light_info = lights_p)
-#> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
+
+<pre class="r-output"><code>#&gt; Setting `lookat` to: c(0.00, 0.34, 0.00)
+</code></pre>
 
 <img src="man/figures/README-line6-1.png" width="100%" />
 
@@ -423,7 +556,9 @@ for(i in 1:360) {
 
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10, line_info = line_mat,
                light_info = lights)
-#> Setting `lookat` to: c(0.00, 0.34, 0.00)
 ```
+
+<pre class="r-output"><code>#&gt; Setting `lookat` to: c(0.00, 0.34, 0.00)
+</code></pre>
 
 <img src="man/figures/README-line7-1.png" width="100%" />

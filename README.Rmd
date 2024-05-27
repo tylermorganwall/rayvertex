@@ -16,12 +16,29 @@ knitr::opts_chunk$set(
   fig.height = 8,
   out.width = "100%"
 )
+options(crayon.enabled = TRUE)
+ansi_aware_handler <- function(x, options) {
+  paste0(
+    "<pre class=\"r-output\"><code>",
+    fansi::to_html(x = fansi::html_esc(x), warn = FALSE, 
+                   classes = FALSE,
+                   term.cap = "all"),
+    "</code></pre>"
+  )
+}
+knitr::knit_hooks$set(
+  output = ansi_aware_handler, 
+  message = ansi_aware_handler, 
+  warning = ansi_aware_handler,
+  error = ansi_aware_handler
+)
 ```
 
 rayvertex
 =========================================================
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/tylermorganwall/rayvertex/workflows/R-CMD-check/badge.svg)](https://github.com/tylermorganwall/rayvertex/actions)
+[![R-CMD-check](https://github.com/tylermorganwall/rayvertex/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tylermorganwall/rayvertex/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 <img src="man/figures/cubey.gif" ></img>
@@ -112,26 +129,54 @@ devtools::install_github("tylermorganwall/rayvertex")
 
 ## Example
 
-Here, we will render a basic scene. We'll use the built-in Cornell Box mesh to begin.
+Here, we will render a basic scene. We'll use the built-in Cornell Box mesh to begin. Here is how the scene data is printed. Note the shapes column gives the number of triangles, whether the texture (UV)/normal coordinates are given, and the number of materials for that shape. This output also prints out overall scene information such as the bounding box and the number of shapes and unique materials.
 
 ```{r cornell}
 library(rayvertex)
+
+generate_cornell_mesh()
+
+```
+
+We can render it by passing it to `rasterize_scene()`.
+
+```{r cornell_render}
 
 generate_cornell_mesh() |>
   rasterize_scene()
 
 ```
 
-Let's add a purple sphere to the center:
+Let's add a purple sphere to the scene, and a picture of a dragon in a Cornell box to the back:
 
 ```{r cornell2}
 
+dragon_file = tempfile(fileext = ".png")
+png::writePNG(rayimage::dragon, dragon_file)
 mat = material_list(diffuse="purple", type = "phong", ambient="purple", ambient_intensity = 0.2)
+mat_dragon = material_list(ambient_texture_location = dragon_file, ambient = "white", 
+                           diffuse_intensity = 0)
 
 generate_cornell_mesh() |>
-  add_shape(sphere_mesh(position=c(555,555,555)/2, radius=80, material=mat)) |>
-  rasterize_scene()
+  add_shape(sphere_mesh(position=c(300,555,555)/2, radius=80, material=mat)) |>
+  add_shape(xy_rect_mesh(position = c(555/2,555/2,530), angle = c(180,0,0), 
+                         scale = c(400,400,1),
+                         material = mat_dragon)) |> 
+  rasterize_scene(fov=40)
 
+```
+
+We can preview the material properties by printing the materials in the scene. This prints out non-default material arguments, whether a texture exists, as well provides a rough preview of the color.
+
+```{r cornell_print_material}
+
+scene_save = generate_cornell_mesh() |>
+  add_shape(sphere_mesh(position=c(300,555,555)/2, radius=80, material=mat)) |>
+  add_shape(xy_rect_mesh(position = c(555/2,555/2,530), angle = c(180,0,0), 
+                         scale = c(400,400,1),
+                         material = mat_dragon))
+
+print(scene_save$material)
 ```
 
 Now, the ceiling of the Cornell Box is blocking the directional light. Let's remove it.

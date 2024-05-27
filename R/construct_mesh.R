@@ -59,7 +59,6 @@ construct_mesh  = function(vertices, indices,
                            material = material_list()) {
   mesh = list()
   mesh$shapes = list()
-  mesh$materials = list()
   if(is.null(normals)) {
     normals = matrix(0,nrow=0,ncol=3)
   }
@@ -72,19 +71,18 @@ construct_mesh  = function(vertices, indices,
   if(is.null(tex_indices)) {
     tex_indices = matrix(-1,nrow=nrow(indices),ncol=3)
   }
-  mesh$vertices = list(vertices)
-  mesh$texcoords = list(texcoords)
-  mesh$normals = list(normals)
-  mesh$shapes[[1]] = list()
-  mesh$shapes[[1]]$indices = indices
-  mesh$shapes[[1]]$norm_indices = norm_indices
-  mesh$shapes[[1]]$tex_indices = tex_indices
-  mesh$shapes[[1]]$material_ids = rep(-1,nrow(indices))
-  mesh$shapes[[1]]$has_vertex_tex = apply(tex_indices,1,(function(x) all(x != -1)))
-  mesh$shapes[[1]]$has_vertex_normals = apply(norm_indices,1,(function(x) all(x != -1)))
-  
+  mesh$vertices = ray_vertex_data(vertices)
+  mesh$texcoords = ray_vertex_data(texcoords)
+  mesh$normals = ray_vertex_data(normals)
+  mesh$shapes = ray_shape(list(indices = indices,
+                                    norm_indices = norm_indices,
+                                    tex_indices = tex_indices,
+                                    material_ids = rep(0,nrow(indices)),
+                                    has_vertex_tex = apply(tex_indices,1,(function(x) all(x != -1))),
+                                    has_vertex_normals = apply(norm_indices,1,(function(x) all(x != -1)))))
   mesh$materials = list()
-  mesh = set_material(mesh,material)
+  mesh$materials[[1]] = list(material)
+  attr(mesh, "material_hashes") = digest::digest(material)
   class(mesh) = c("ray_mesh", class(mesh))
   return(mesh)
   

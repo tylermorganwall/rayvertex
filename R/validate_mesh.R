@@ -56,7 +56,8 @@ validate_mesh = function(mesh, validate_materials = TRUE) {
   stopifnot(inherits(mesh,"ray_mesh"))
   stopifnot(all(names(mesh) %in% c("shapes", "materials", 
                                    "vertices", "texcoords", 
-                                   "normals", "material_hashes")))
+                                   "normals")))
+  stopifnot(length(attr(mesh,"material_hashes")) > 0)
   
   # Validate shapes
   for (i in seq_along(mesh$shapes)) {

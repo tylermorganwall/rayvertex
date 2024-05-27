@@ -78,7 +78,7 @@ merge_scene = function(old_scene, flatten_materials = TRUE) {
       }
     }
   }
-  scene$material_hashes = old_scene$material_hashes
+  attr(scene, "material_hashes") = attr(old_scene, "material_hashes")
   
   class(scene) = c("ray_mesh", "list")
   

@@ -308,15 +308,15 @@ arrow_mesh = function(start = c(0,0,0), end = c(0,1,0), radius_top = 0.5, radius
   if(material$type == "toon" || material$type == "toon_phong") {
     obj2 = generate_toon_outline(obj, material)
     
-    new_radius = (2*radius_top) / (fulllength * (1-tail_proportion)) * (fulllength * (1-tail_proportion) + material$toon_outline_width)
+    new_radius = (2*radius_top) / (fulllength * (1-tail_proportion)) * (fulllength * (1-tail_proportion) + material[[1]]$toon_outline_width)
     
-    obj2$vertices[[1]][c(1:32,66:97),c(1,3)] = obj$vertices[[1]][c(1:32,66:97),c(1,3)] * radius_tail/0.25 * (radius_tail + material$toon_outline_width/2)/radius_tail
+    obj2$vertices[[1]][c(1:32,66:97),c(1,3)] = obj$vertices[[1]][c(1:32,66:97),c(1,3)] * radius_tail/0.25 * (radius_tail + material[[1]]$toon_outline_width/2)/radius_tail
     obj2$vertices[[1]][34:65,c(1,3)] = obj$vertices[[1]][34:65,c(1,3)] * new_radius
 
     #Proportions
-    obj2$vertices[[1]][33,2]            = (1 - 0.5) * fulllength + material$toon_outline_width/2
-    obj2$vertices[[1]][c(1:32,34:65),2] = (tail_proportion  - 0.5) * fulllength - material$toon_outline_width/2
-    obj2$vertices[[1]][66:97,2]         = (-0.5 * fulllength) - material$toon_outline_width/2
+    obj2$vertices[[1]][33,2]            = (1 - 0.5) * fulllength + material[[1]]$toon_outline_width/2
+    obj2$vertices[[1]][c(1:32,34:65),2] = (tail_proportion  - 0.5) * fulllength - material[[1]]$toon_outline_width/2
+    obj2$vertices[[1]][66:97,2]         = (-0.5 * fulllength) - material[[1]]$toon_outline_width/2
     
     obj = add_shape(obj,obj2)
   }
@@ -602,14 +602,14 @@ xz_rect_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #' @examples
 #' if(run_documentation()) {
 #' generate_cornell_mesh() |>
-#'   add_shape(yz_rect_mesh(position = c(100, 100, 555/2), scale=c(1,200,200), angle=c(0,0,0),
+#'   add_shape(yz_rect_mesh(position = c(555/2, 100, 555/2), scale=c(200,1,200), angle=c(0,0,0),
 #'              material = material_list(diffuse = "purple"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #'}
 #' if(run_documentation()) {
-#' #Need to flip it around to see the other side
+#' #Rotate and scale
 #' generate_cornell_mesh() |>
-#'   add_shape(yz_rect_mesh(position = c(500, 100, 555/2), scale=200, angle=c(0,180,0),
+#'   add_shape(yz_rect_mesh(position = c(555/2, 100, 555/2), scale=c(300,1,200), angle=c(0,45,0),
 #'              material = material_list(diffuse = "purple"))) |>
 #'   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 #'}
@@ -629,7 +629,7 @@ yz_rect_mesh = function(position = c(0,0,0), scale = c(1,1,1),
     obj = rotate_mesh(obj, angle=angle, pivot_point=pivot_point, order_rotation = order_rotation)
   }
   obj = translate_mesh(obj,position)
-  obj = set_material(obj, material = material, id = 1)
+  obj = set_material(obj, material = material)
   obj
 }
 
@@ -862,8 +862,9 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
   if(material$type == "toon" || material$type == "toon_phong") {
     obj2 = torus_mesh(position = c(0,0,0), scale = scale, 
                       radius = radius, 
-                      ring_radius = ring_radius + material$toon_outline_width/2 , sides = sides, rings=rings,
-                      material = material_list(diffuse=material$toon_outline_color, type="color",culling="front"))
+                      ring_radius = ring_radius + material[[1]]$toon_outline_width/2 , sides = sides, rings=rings,
+                      material = material_list(diffuse=material[[1]]$toon_outline_color, 
+                                               type="color",culling="front"))
     obj = add_shape(obj,obj2)
   }
   if(any(angle != 0)) {
@@ -915,22 +916,22 @@ mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,
     if(!is.null(mat_vals$color)) {
       diffuse_val = mat_vals$color
     } else {
-      diffuse_val = material$diffuse
+      diffuse_val = material[[1]]$diffuse
     }
     if(!is.null(mat_vals$alpha)) {
       dissolve_val = mat_vals$alpha
     } else {
-      dissolve_val = material$dissolve
+      dissolve_val = material[[1]]$dissolve
     }
     if(!is.null(mat_vals$ambient)) {
       ambient_val = mat_vals$ambient
     } else {
-      ambient_val = material$ambient
+      ambient_val = material[[1]]$ambient
     }
     if(!is.null(mat_vals$shininess)) {
       exponent_val = mat_vals$shininess
     } else {
-      exponent_val = material$shininess
+      exponent_val = material[[1]]$shininess
     }
     mesh = construct_mesh(vertices = t(mesh$vb)[,1:3], 
                           indices = t(mesh$it)-1,

@@ -9,6 +9,10 @@ load_ply <- function(inputfile, basedir) {
     .Call(`_rayvertex_load_ply`, inputfile, basedir)
 }
 
+LoopSubdivide <- function(mesh, shape_i, nLevels, verbose) {
+    .Call(`_rayvertex_LoopSubdivide`, mesh, shape_i, nLevels, verbose)
+}
+
 rasterize_lines_rcpp <- function(line_mat, nx, ny, model_color, lookfrom, lookat, fov, near_clip, far_clip, bounds, camera_up, alpha_line, line_offset, ortho_dims, aa_lines) {
     .Call(`_rayvertex_rasterize_lines_rcpp`, line_mat, nx, ny, model_color, lookfrom, lookat, fov, near_clip, far_clip, bounds, camera_up, alpha_line, line_offset, ortho_dims, aa_lines)
 }

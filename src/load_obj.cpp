@@ -136,9 +136,10 @@ List load_obj(std::string inputfile, std::string basedir) {
   }
   List return_val;
   return_val["shapes"]    = shape_list;
-  return_val["materials"] = List::create(material_list);
   return_val["vertices"]  = List::create(Rcpp::transpose(NumericMatrix(3L, attrib.vertices.size()/3L, attrib.vertices.begin())));
   return_val["texcoords"] = List::create(Rcpp::transpose(NumericMatrix(2L, attrib.texcoords.size()/2L, attrib.texcoords.begin())));
   return_val["normals"]   = List::create(Rcpp::transpose(NumericMatrix(3L, attrib.normals.size()/3L, attrib.normals.begin())));
+  return_val["materials"] = List::create(material_list);
+  
   return return_val;
 }
