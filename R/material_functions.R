@@ -206,6 +206,18 @@ set_material = function(mesh, material = NULL, id = NULL,
 #'  add_shape(change_material(translate_mesh(p_sphere,c(-100,0,0)),type="phong")) |>
 #'  add_shape(change_material(translate_mesh(p_sphere,c(-200,0,0)),type="phong",shininess=30)) |>
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
+#'}  
+#'
+#'if(run_documentation()) {
+#'#Change several shapes at once
+#'p_sphere |>
+#'  add_shape(change_material(translate_mesh(p_sphere,c(200,0,0)),diffuse="red")) |>
+#'  add_shape(change_material(translate_mesh(p_sphere,c(100,0,0)),dissolve=0.5)) |>
+#'  add_shape(change_material(translate_mesh(p_sphere,c(-100,0,0)),type="phong")) |>
+#'  add_shape(change_material(translate_mesh(p_sphere,c(-200,0,0)),type="phong",shininess=30)) |>
+#'  change_material(diffuse = "red") |> 
+#'  add_shape(generate_cornell_mesh()) |> 
+#'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
 #'}
 change_material = function(mesh, id = NULL, sub_id = 1,
                            diffuse                   = NULL,

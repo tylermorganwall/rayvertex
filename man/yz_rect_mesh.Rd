@@ -35,14 +35,14 @@ YZ Rectangle 3D Model
 \examples{
 if(run_documentation()) {
 generate_cornell_mesh() |>
-  add_shape(yz_rect_mesh(position = c(100, 100, 555/2), scale=c(1,200,200), angle=c(0,0,0),
+  add_shape(yz_rect_mesh(position = c(555/2, 100, 555/2), scale=c(200,1,200), angle=c(0,0,0),
              material = material_list(diffuse = "purple"))) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }
 if(run_documentation()) {
-#Need to flip it around to see the other side
+#Rotate and scale
 generate_cornell_mesh() |>
-  add_shape(yz_rect_mesh(position = c(500, 100, 555/2), scale=200, angle=c(0,180,0),
+  add_shape(yz_rect_mesh(position = c(555/2, 100, 555/2), scale=c(300,1,200), angle=c(0,45,0),
              material = material_list(diffuse = "purple"))) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }

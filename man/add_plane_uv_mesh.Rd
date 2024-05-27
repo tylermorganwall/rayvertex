@@ -80,7 +80,10 @@ create_checkerboard_texture = function(filename, n = 16) {
 }
 checkerboard_file = tempfile(fileext = ".png")
 create_checkerboard_texture(checkerboard_file)
+rayimage::plot_image(checkerboard_file)
+}
 
+if(run_documentation()) {
 #Construct the mesh
 volc_mesh = construct_mesh(vertices = vertices, indices = indices,
                            material = material_list(type="phong", diffuse="darkred",
@@ -95,8 +98,9 @@ uv = set_material(uv, texture_location = checkerboard_file,
 rasterize_scene(center_mesh(uv), lookfrom=c(200,200,200),fov=0,width=1200,height=1200,
                 light_info = directional_light(c(0,1,1)) |>
                   add_light(directional_light(c(1,1,-1))),ortho_dimensions=c(120,120))
+}
 
-
+if(run_documentation()) {
 #Set the direction so that the checkerboard will be mapped directly at the camera
 uv = add_plane_uv_mesh(volc_mesh, direction=c(200,200,200), v = c(-1,1,-1))
 uv = set_material(uv, texture_location = checkerboard_file,

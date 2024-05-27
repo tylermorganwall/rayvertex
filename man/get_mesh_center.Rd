@@ -18,6 +18,6 @@ Calculates the coordinates of the center of a mesh
 \examples{
 if(run_documentation()) {
 #Calculates the center of the mesh
-get_scene_center(generate_cornell_mesh())
+get_mesh_center(generate_cornell_mesh())
 }
 }
