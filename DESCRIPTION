@@ -16,7 +16,7 @@ Copyright: file inst/COPYRIGHTS
 Depends: R (>= 4.1)
 Imports: Rcpp (>= 1.0.6),
          grDevices,
-         rayimage (>= 0.10.0),
+         rayimage (>= 0.11.0),
          png,
          digest,
          pillar,
@@ -37,3 +37,4 @@ BugReports: https://github.com/tylermorganwall/rayvertex/issues
 Encoding: UTF-8
 SystemRequirements: C++17
 Config/testthat/edition: 3
+Remotes: tylermorganwall/rayimage
