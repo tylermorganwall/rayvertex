@@ -4,12 +4,12 @@
 \alias{smooth_normals_mesh}
 \title{Calculate Smooth Mesh Normals}
 \usage{
-smooth_normals_mesh(mesh, override_existing = FALSE)
+smooth_normals_mesh(mesh, id = NA)
 }
 \arguments{
 \item{mesh}{The mesh.}
 
-\item{override_existing}{Default \code{FALSE}. Whether to override existing normals.}
+\item{id}{Default \code{NA} (all shapes). The shape index to have new normals calculated.}
 }
 \value{
 Mesh with new vertex normals

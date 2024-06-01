@@ -22,12 +22,12 @@ Scale Mesh
 \examples{
 if(run_documentation()) {
 #Scale a mesh in the Cornell box
-robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
+robj = obj_mesh(r_obj(), scale=150,angle=c(0,180,0))
 
 generate_cornell_mesh() |>
-add_shape(scale_mesh(translate_mesh(robj,c(400,0,155)),0.5, center=c(400,0,155))) |>
-add_shape(scale_mesh(translate_mesh(robj,c(555/2,100,555/2)),1.5, center=c(555/2,100,555/2))) |>
-add_shape(scale_mesh(translate_mesh(robj,c(155,200,400)),c(0.5,2,0.5), center=c(155,200,400))) |>
+add_shape(scale_mesh(translate_mesh(robj,c(400,100,155)),0.5, center=c(400,100,155))) |>
+add_shape(scale_mesh(translate_mesh(robj,c(555/2,200,555/2)),1.5, center=c(555/2,200,555/2))) |>
+add_shape(scale_mesh(translate_mesh(robj,c(55,300,400)),c(0.5,2,0.5), center=c(155,300,400))) |>
 rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
 }
 }

@@ -1,7 +1,7 @@
 #'@title Calculate Smooth Mesh Normals
 #'
 #'@param mesh The mesh.
-#'@param override_existing Default `FALSE`. Whether to override existing normals.
+#'@param id Default `NA` (all shapes). The shape index to have new normals calculated.
 #'
 #'@return Mesh with new vertex normals
 #'@export
@@ -53,8 +53,22 @@
 #'                     light_info = directional_light(c(0,1,1)) |>
 #'                       add_light(directional_light(c(1,1,-1))))
 #' }
-smooth_normals_mesh = function(mesh, override_existing = FALSE) {
+smooth_normals_mesh = function(mesh, 
+                               id = NA) {
   stopifnot(inherits(mesh,"ray_mesh"))
-  new_mesh = smooth_normals_mesh_rcpp(mesh, override_existing = override_existing)
-  return(new_mesh)
+  if(is.na(id)) {
+    for(i in seq_len(length(mesh$shapes))) {
+      new_normals = CalculateNormals(mesh, i-1)
+      mesh$shapes[[i]]$norm_indices = mesh$shapes[[i]]$indices
+      mesh$shapes[[i]]$has_vertex_normals = rep(TRUE, length(mesh$shapes[[i]]$indices))
+      mesh$normals[i] = ray_vertex_data(new_normals)
+    }
+  } else {
+    stopifnot(id <= length(mesh$shapes))
+    new_normals = CalculateNormals(mesh, id-1)
+    mesh$shapes[[id]]$norm_indices = mesh$shapes[[id]]$indices
+    mesh$shapes[[id]]$has_vertex_normals = rep(TRUE, length(mesh$shapes[[id]]$indices))
+    mesh$normals[id] = ray_vertex_data(new_normals)
+  }
+  return(mesh)
 }

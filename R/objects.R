@@ -651,25 +651,25 @@ yz_rect_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #' if(run_documentation()) {
 #' #Add an object to the scene
 #' generate_cornell_mesh() |> 
-#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
+#'   add_shape(obj_mesh(r_obj(),position=c(555/2,555/2,555/2),scale=300,angle=c(0,180,0))) |> 
 #'   rasterize_scene()
 #' }
 #' if(run_documentation()) {
 #' #Turn off the ceiling so the default directional light reaches inside the box
 #' generate_cornell_mesh(ceiling=FALSE) |> 
-#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
+#'   add_shape(obj_mesh(r_obj(),position=c(555/2,555/2,555/2),scale=300,angle=c(0,180,0))) |> 
 #'   rasterize_scene()
 #' }
 #' if(run_documentation()) {
 #' #Adjust the light to the front
 #' generate_cornell_mesh(ceiling=FALSE) |> 
-#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
+#'   add_shape(obj_mesh(r_obj(),position=c(555/2,555/2,555/2),scale=300,angle=c(0,180,0))) |> 
 #'   rasterize_scene(light_info = directional_light(direction=c(0,1,-1)))
 #'   }
 #' if(run_documentation()) {
 #' #Change the color palette
 #' generate_cornell_mesh(ceiling=FALSE,leftcolor="purple", rightcolor="yellow") |> 
-#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
+#'   add_shape(obj_mesh(r_obj(),position=c(555/2,555/2,555/2),scale=300,angle=c(0,180,0))) |> 
 #'   rasterize_scene(light_info = directional_light(direction=c(0,1,-1)))
 #'}
 generate_cornell_mesh = function(leftcolor = "#1f7326", 
@@ -720,7 +720,7 @@ generate_cornell_mesh = function(leftcolor = "#1f7326",
 #'if(run_documentation()) {
 #' #Read in the provided 3D R mesh
 #' generate_cornell_mesh(ceiling=FALSE) |> 
-#'   add_shape(obj_mesh(r_obj(),position=c(555/2,0,555/2),scale=150,angle=c(0,180,0))) |> 
+#'   add_shape(obj_mesh(r_obj(),position=c(555/2,555/2,555/2),scale=400,angle=c(0,180,0))) |> 
 #'   rasterize_scene(light_info = directional_light(direction=c(0.2,0.5,-1)))
 #'}
 obj_mesh = function(filename, position = c(0,0,0), scale = c(1,1,1), 
@@ -889,9 +889,8 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #'@return List describing the mesh.
 #'@export
 #'@examples
-#'if(run_documentation()) {
-#' #Read in a mesh3d object and rasterize it
-#' if(length(find.package("Rvcg", quiet=TRUE)) > 0) {
+#' if(run_documentation()) {
+#'   # Read in a mesh3d object and rasterize it
 #'   library(Rvcg)
 #'   data(humface)
 #'   
@@ -899,8 +898,16 @@ torus_mesh = function(position = c(0,0,0), scale = c(1,1,1),
 #'               material=material_list(diffuse="dodgerblue4", type="phong", shininess=20,
 #'               ambient = "dodgerblue4", ambient_intensity=0.3)) |>
 #'     rasterize_scene(lookat = c(0,0.5,1), light_info = directional_light(c(1,0.5,1)))
-#' }
-#' }
+#'  }
+#'  
+#'  if(run_documentation()) {
+#'   # Subdivide the mesh for a smoother appearance
+#'   mesh3d_mesh(humface,position = c(0,-0.3,0),scale = 1/70,
+#'               material=material_list(diffuse="dodgerblue4", type="phong", shininess=20,
+#'               ambient = "dodgerblue4", ambient_intensity=0.3)) |>
+#'     subdivide_mesh() |> 
+#'     rasterize_scene(lookat = c(0,0.5,1), light_info = directional_light(c(1,0.5,1)))
+#'  }
 mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,1), 
                        angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3), materialspath = NULL,
                        material = material_list()) {

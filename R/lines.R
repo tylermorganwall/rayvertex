@@ -32,7 +32,7 @@
 #' }
 #' if(run_documentation()) {
 #' #Use in a scene with a mesh
-#' obj_mesh(r_obj(),material=material_list(diffuse="dodgerblue")) |>
+#' obj_mesh(r_obj(simple_r = TRUE),material=material_list(diffuse="dodgerblue")) |>
 #'  rasterize_scene(line_info = line_mat, light_info = directional_light(c(0,1,1)),
 #'                  lookfrom=c(0,5,10),lookat=c(0,0.8,0),fov=15)
 #' }

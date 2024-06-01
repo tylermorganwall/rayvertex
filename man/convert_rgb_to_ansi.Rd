@@ -7,11 +7,7 @@
 convert_rgb_to_ansi(color)
 }
 \arguments{
-\item{r}{Default \code{1}. Red component in the range \link{0, 1}.}
-
-\item{g}{Default \code{1}. Green component in the range \link{0, 1}.}
-
-\item{b}{Default \code{1}. Blue component in the range \link{0, 1}.}
+\item{color}{Length=3 numeric vector.}
 }
 \value{
 ANSI color code as a string.

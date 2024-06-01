@@ -127,7 +127,8 @@ print_time = function(verbose = FALSE, message_text = "") {
 #' # See if the documentation should be run.
 #' run_documentation()
 run_documentation = function() {
-  return(identical(Sys.getenv("IN_PKGDOWN"), "true"))
+  return(identical(Sys.getenv("IN_PKGDOWN"), "true") &&
+         length(find.package("Rvcg", quiet=TRUE)) > 0)
 }
 
 #' Verify Vertex Shader

@@ -597,7 +597,7 @@ List LoopSubdivide(List mesh,
   // if(has_uv) {
   //   mesh_texcoords(shape_i) = Rcpp::clone(final_texcoords);
   // }
-  return(List::create(_["final_shape_indices"] = final_shape_indices,
+  return(List::create(_["indices"] = final_shape_indices,
                       _["face_material_id"] = face_material_id,
                       _["vertices"] = final_vertices,
                       _["texcoords"] = final_texcoords,

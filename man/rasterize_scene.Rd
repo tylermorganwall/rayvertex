@@ -161,7 +161,7 @@ rasterize_scene(base_model, lookfrom=c(2,4,10),
 }
 if(run_documentation()) {           
 #load the R OBJ file, scale it down, color it blue, and add it to the grey base
-r_model = obj_mesh(r_obj()) |>
+r_model = obj_mesh(r_obj(simple_r = TRUE)) |>
  scale_mesh(scale=0.5) |>
  set_material(diffuse="dodgerblue") |>
  add_shape(base_model)

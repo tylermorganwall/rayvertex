@@ -1,11 +1,19 @@
 
-# Define the ray_shape class
+#' Define the ray_shape class
+#'
+#' @param ... Objects to be included in the ray_shape.
+#' @return A new ray_shape object.
+#' @keywords internal
 ray_shape = function(...) {
   vctrs::new_vctr(list(...),
                   class = c("ray_shape","list"))
 }
 
-# Define the ray_shape class
+#' Define the ray_shape_list class
+#'
+#' @param ... Objects to be included in the ray_shape_list.
+#' @return A new ray_shape_list object.
+#' @keywords internal
 ray_shape_list = function(...) {
   vctrs::new_vctr(...,
                   class = c("ray_shape_list","list"))
@@ -13,17 +21,31 @@ ray_shape_list = function(...) {
 
 
 
-#' @export
+#' Abbreviate the ptype of ray_shape
+#'
+#' @param x A ray_shape object.
+#' @param ... Additional arguments (unused).
+#' @return A character vector with the abbreviation "ray_shp".
+#' @keywords internal
 vec_ptype_abbr.ray_shape = function(x, ...) {
   "ray_shp"
 }
 
 
-#' @export
+#' Abbreviate the ptype of ray_shape_list
+#'
+#' @param x A ray_shape_list object.
+#' @param ... Additional arguments (unused).
+#' @return A character vector with the abbreviation "ray_shp".
+#' @keywords internal
 vec_ptype_abbr.ray_shape_list = function(x, ...) {
   "ray_shp"
 }
 
+#' Format ray_shape for pillar
+#'
+#' @param x A ray_shape object.
+#' @return A formatted character vector.
 #' @keywords internal
 format_pillar_shp = function(x) {
   format_shp = function(x) {
@@ -58,21 +80,35 @@ format_pillar_shp = function(x) {
   vapply(x, format_shp, character(1))
 }
 
-#' @export
+#' Pillar shaft for ray_shape_list
+#'
+#' @param x A ray_shape_list object.
+#' @param ... Additional arguments (unused).
+#' @return A pillar shaft object.
+#' @keywords internal
 pillar_shaft.ray_shape_list = function(x, ...) {
   pillar::new_pillar_shaft_simple(format_pillar_shp(x),
                                   align = "right",
                                   width = 20)
 }
 
-#' @export
+#' Pillar shaft for ray_shape
+#'
+#' @param x A ray_shape object.
+#' @param ... Additional arguments (unused).
+#' @return A pillar shaft object.
+#' @keywords internal
 pillar_shaft.ray_shape = function(x, ...) {
   pillar::new_pillar_shaft_simple(format_pillar_shp(x),
                                   align = "right",
                                   width = 20)
 }
 
-#' @export
+#' Print method for ray_shape
+#'
+#' @param x A ray_shape object.
+#' @param ... Additional arguments (unused).
+#' @keywords internal
 print.ray_shape = function(x, ...) {
   print_shape = function(x, ...) {
     # Print indices
@@ -80,7 +116,7 @@ print.ray_shape = function(x, ...) {
       cat(sprintf("$ %s           : int  [%dx3] %s ...\n", 
                   pillar::style_subtle("indices"),
                   nrow(x$indices), 
-                  cli::col_cyan(paste(t(head(x$indices, 5)), collapse = " "))))
+                  cli::col_cyan(paste(t(utils::head(x$indices, 5)), collapse = " "))))
     } else {
       cat(sprintf("$ %s           : %s\n", "indices", pillar::style_subtle("int(0)")))
     }
@@ -90,7 +126,7 @@ print.ray_shape = function(x, ...) {
       cat(sprintf("$ %s       : int  [%dx3] %s ...\n", 
                   pillar::style_subtle("tex_indices"),
                   nrow(x$tex_indices), 
-                  cli::col_cyan(paste(head(x$tex_indices, 5), collapse = " "))))
+                  cli::col_cyan(paste(utils::head(x$tex_indices, 5), collapse = " "))))
     } else {
       cat(sprintf("$ %s       : %s\n", "tex_indices", pillar::style_subtle("int(0)")))
     }
@@ -100,7 +136,7 @@ print.ray_shape = function(x, ...) {
       cat(sprintf("$ %s      : int  [%dx3] %s ...\n", 
                   pillar::style_subtle("norm_indices"),
                   nrow(x$norm_indices), 
-                  cli::col_cyan(paste(head(x$norm_indices, 5), collapse = " "))))
+                  cli::col_cyan(paste(utils::head(x$norm_indices, 5), collapse = " "))))
     } else {
       cat(sprintf("$ %s      : %s\n","norm_indices",pillar::style_subtle("int(0)")))
     }
@@ -109,19 +145,19 @@ print.ray_shape = function(x, ...) {
     cat(sprintf("$ %s      : int  [%d] %s ...\n", 
                 pillar::style_subtle("material_ids"),
                 length(x$material_ids), 
-                cli::col_cyan(paste(head(x$material_ids, 5), collapse = " "))))
+                cli::col_cyan(paste(utils::head(x$material_ids, 5), collapse = " "))))
     
     # Print has_vertex_tex
     cat(sprintf("$ %s    : logi [%d] %s ...\n", 
                 pillar::style_subtle("has_vertex_tex"),
                 length(x$has_vertex_tex), 
-                cli::col_cyan(paste(head(x$has_vertex_tex, 5), collapse = " "))))
+                cli::col_cyan(paste(utils::head(x$has_vertex_tex, 5), collapse = " "))))
     
     # Print has_vertex_normals
     cat(sprintf("$ %s: logi [%d] %s ...\n", 
                 pillar::style_subtle("has_vertex_normals"),
                 length(x$has_vertex_normals), 
-                cli::col_cyan(paste(head(x$has_vertex_normals, 5), collapse = " "))))
+                cli::col_cyan(paste(utils::head(x$has_vertex_normals, 5), collapse = " "))))
   } 
   for(i in seq_along(x)) {
     cat(sprintf(pillar::style_subtle("[[%i]] ray_shape"),i), sep = "\n")
@@ -129,7 +165,11 @@ print.ray_shape = function(x, ...) {
   }
 }
 
-# Define the ray_mat class
+#' Define the ray_vertex_data class
+#'
+#' @param data A matrix with 2 or 3 columns representing vertex data.
+#' @return A new ray_vertex_data object.
+#' @keywords internal
 ray_vertex_data = function(data = NA) {
   stopifnot(is.matrix(data))
   stopifnot(ncol(data) == 3 || ncol(data) == 2)
@@ -137,7 +177,11 @@ ray_vertex_data = function(data = NA) {
   vctrs::new_vctr(list(data), class = "ray_vertex_data")
 }
 
-#'@export
+#' Print method for ray_vertex_data
+#'
+#' @param x A ray_vertex_data object.
+#' @param ... Additional arguments (unused).
+#' @keywords internal
 print.ray_vertex_data = function(x, ...) {
   
   print_data = function(x, ...) {
@@ -150,7 +194,7 @@ print.ray_vertex_data = function(x, ...) {
                 cli::col_cyan(ncols),
                 cli::col_cyan(" matrix"),
                 pillar::style_subtle(">\n")))
-    print(head(x,5))
+    print(utils::head(x,5))
     if(nrows > 5) {
       cat(pillar::style_subtle(sprintf("[%s,] %i more rows \n", cli::symbol$ellipsis, nrows-5)))
     }
@@ -163,9 +207,7 @@ print.ray_vertex_data = function(x, ...) {
 
 #' Convert RGB to ANSI Color
 #'
-#' @param r Default `1`. Red component in the range [0, 1].
-#' @param g Default `1`. Green component in the range [0, 1].
-#' @param b Default `1`. Blue component in the range [0, 1].
+#' @param color Length=3 numeric vector.
 #'
 #' @return ANSI color code as a string.
 #' @keywords internal
@@ -245,7 +287,7 @@ cat_color = function(color, var_name, default = NA, intensity = 1, spacer = "") 
   }
 }
 
-#' @export
+#' @keywords internal
 print.rayvertex_material = function(x, spacer = "", id = 0, ...) {
   if(spacer != "") {
     cat(pillar::style_subtle(sprintf("%s Material ID: %i ", 
@@ -409,7 +451,7 @@ print.rayvertex_material = function(x, spacer = "", id = 0, ...) {
   print_single_mat(x)
 }
 
-#' @export
+#' @keywords internal
 vec_ptype_abbr.ray_vertex_data = function(x, ...) {
   "ray_dat"
 }
@@ -443,7 +485,7 @@ format_pillar_data = function(x) {
   vapply(x, format_data, character(1))
 }
 
-#' @export
+#' @keywords internal
 pillar_shaft.ray_vertex_data = function(x, ...) {
   pillar::new_pillar_shaft_simple(format_pillar_data(x),
                                   align = "right",
@@ -455,7 +497,7 @@ rayvertex_material = function(...) {
   vctrs::new_vctr(..., class = "rayvertex_material")
 }
 
-#' @export 
+#' @keywords internal 
 vec_ptype_abbr.rayvertex_material = function(x, ...) {
   "ray_mat"
 }
@@ -465,12 +507,12 @@ rayvertex_material_list = function(...) {
   vctrs::new_vctr(..., class = "rayvertex_material_list")
 }
 
-#' @export
+#' @keywords internal
 vec_ptype_abbr.rayvertex_material = function(x, ...) {
   "ray_mat"
 }
 
-#' @export
+#' @keywords internal
 vec_ptype_abbr.rayvertex_material_list = function(x, ...) {
   "ray_mat"
 }
@@ -507,19 +549,19 @@ format_pillar_matlist = function(x) {
   vapply(x, format_matlist, character(1))
 }
 
-#' @export
+#' @keywords internal
 print.rayvertex_material_list = function(x, ...) {
   format_pillar_matlist(x)
 }
 
-#' @export
+#' @keywords internal
 pillar_shaft.rayvertex_material_list = function(x, ...) {
   pillar::new_pillar_shaft_simple(format_pillar_matlist(x),
                                   align = "right",
                                   width = 8)
 }
 
-#' @export
+#' @keywords internal
 pillar_shaft.rayvertex_material = function(x, ...) {
   pillar::new_pillar_shaft_simple(format_pillar_matlist(x),
                                   align = "right",
@@ -535,11 +577,11 @@ ray_mesh = function(...) {
   structure(..., class = c("ray_mesh","tbl", "list"))
 }
 
-#' @export
+#' @keywords internal
 tbl_sum.print_raymesh_df <- function(x, ...) {
 }
 
-#' @export
+#' @keywords internal
 print.ray_mesh = function(x, ...) {
   # Count total objects and lights
   total_meshes = length(x$shapes)

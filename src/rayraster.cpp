@@ -16,8 +16,8 @@
 #include <functional>
 #include <algorithm>
 #include <utility>
-#include "stb_image.h"
-#include "stb_image_resize.h"
+#include "stb/stb_image.h"
+#include "stb/stb_image_resize.h"
 #include <memory>
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"

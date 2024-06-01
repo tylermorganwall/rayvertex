@@ -29,15 +29,15 @@ Rotate Mesh
 \examples{
 if(run_documentation()) {
 #Rotate a mesh in the Cornell box
-robj = obj_mesh(r_obj(), scale=80,angle=c(0,180,0))
+robj = obj_mesh(r_obj(), scale=150,angle=c(0,180,0))
 
 generate_cornell_mesh() |>
-add_shape(rotate_mesh(translate_mesh(robj,c(400,0,155)),c(0,30,0), 
-                      pivot_point=c(400,0,155))) |>
-add_shape(rotate_mesh(translate_mesh(robj,c(555/2,100,555/2)),c(-30,60,30), 
-                      pivot_point=c(555/2,100,555/2))) |>
-add_shape(rotate_mesh(translate_mesh(robj,c(155,200,400)),c(-30,60,30), 
-                      pivot_point=c(155,200,400), order_rotation=c(3,2,1))) |>
+add_shape(rotate_mesh(translate_mesh(robj,c(400,100,155)),c(0,30,0), 
+                      pivot_point=c(400,100,155))) |>
+add_shape(rotate_mesh(translate_mesh(robj,c(555/2,200,555/2)),c(-30,60,30), 
+                      pivot_point=c(555/2,200,555/2))) |>
+add_shape(rotate_mesh(translate_mesh(robj,c(155,300,400)),c(-30,60,30), 
+                      pivot_point=c(155,300,400), order_rotation=c(3,2,1))) |>
 rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
 }
 }

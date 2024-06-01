@@ -3,7 +3,7 @@ using namespace Rcpp;
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT
-#include "tiny_obj_loader.h"
+#include "tinyobj/tiny_obj_loader.h"
 
 template <typename T>
 inline void set_item_impl( List& target, int i, const T& obj, CharacterVector& names, traits::true_type ){

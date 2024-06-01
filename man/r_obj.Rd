@@ -4,15 +4,23 @@
 \alias{r_obj}
 \title{R 3D Model}
 \usage{
-r_obj()
+r_obj(simple_r = FALSE)
+}
+\arguments{
+\item{simple_r}{Default \code{FALSE}. If \code{TRUE}, this will return a 3D R (instead of the R logo).}
 }
 \value{
-File location of the R.obj file (saved with a .txt extension)
+File location of the 3d_r_logo.obj file (saved with a .txt extension)
 }
 \description{
-3D obj model of the letter R
+3D obj model of R logo (created from the R SVG logo with the \code{raybevel} package),
+to be used with \code{obj_model()}
 }
 \examples{
-#Return the location of the r_obj() file on your filesystem
-r_obj()
+#Load and render the included example R object file.
+if(run_documentation()) {
+obj_mesh(r_obj()) |> 
+  rasterize_scene(lookfrom = c(0, 1, 10),
+                  fov=7,light_info = directional_light(c(1,1,1)))
+}
 }
