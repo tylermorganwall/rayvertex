@@ -6,11 +6,6 @@
 #include "rayimage.h"
 #include "defines.h"
 
-// typedef glm::vec4 vec4;
-// typedef vec3 vec3;
-// typedef glm::vec2 vec2;
-// typedef glm::dmat4x4 Mat;
-
 class ModelInfo {
   public:
     ModelInfo(Rcpp::NumericMatrix &verts, Rcpp::NumericMatrix &texcoords, Rcpp::NumericMatrix &normals,
