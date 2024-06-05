@@ -122,7 +122,7 @@ vec4 GouraudShader::vertex(int iface, int nthvert, ModelInfo& model) {
   return (clip);
 }
 
-bool GouraudShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
+bool GouraudShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
   normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;
   vec4 diffuse_color = vec4(material.diffuse,material.dissolve);
   
@@ -208,15 +208,15 @@ ColorShader::~ColorShader() {
 }
 
 ColorShader::ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-                             material_info mat_info,
-                             std::vector<vec3>& vec_varying_intensity,
-                             std::vector<std::vector<vec3> >& vec_varying_uv,
-                             std::vector<std::vector<vec4> >& vec_varying_tri,
-                             std::vector<std::vector<vec3> >& vec_varying_pos,
-                             std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                             std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                             std::vector<std::vector<vec3> >& vec_varying_nrm,
-                             reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
+                         material_info mat_info,
+                         std::vector<vec3>& vec_varying_intensity,
+                         std::vector<std::vector<vec3> >& vec_varying_uv,
+                         std::vector<std::vector<vec4> >& vec_varying_tri,
+                         std::vector<std::vector<vec3> >& vec_varying_pos,
+                         std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+                         std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+                         std::vector<std::vector<vec3> >& vec_varying_nrm,
+                         reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport), material(mat_info),
   vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
@@ -282,14 +282,14 @@ vec4 ColorShader::vertex(int iface, int nthvert, ModelInfo& model) {
   return (vec_varying_tri[iface][nthvert]);
 }
 
-bool ColorShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
+bool ColorShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
   
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;
-  
+  bc = uv;
   color = diffuse_color;
   //Emissive and ambient terms
   color += emissive(uv);
@@ -317,6 +317,7 @@ bool ColorShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
     color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
     color.w = 1.0;
   }
+  
   return false; 
 }
 
@@ -425,7 +426,7 @@ vec4 DiffuseShader::vertex(int iface, int nthvert, ModelInfo& model) {
   return (vec_varying_tri[iface][nthvert]);
 }
 
-bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
+bool DiffuseShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
 
@@ -506,6 +507,7 @@ bool DiffuseShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& norma
     color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
     color.w = 1.0;
   }
+  bc = uv;
   return false; 
 }
 
@@ -612,7 +614,7 @@ vec4 DiffuseNormalShader::vertex(int iface, int nthvert, ModelInfo& model) {
   return (clip);
 }
 
-bool DiffuseNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
+bool DiffuseNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
@@ -686,6 +688,7 @@ bool DiffuseNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3&
     color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
     color.w = 1.0;
   }
+  bc = uv;
   return false;
 }
 
@@ -796,7 +799,7 @@ vec4 DiffuseShaderTangent::vertex(int iface, int nthvert, ModelInfo& model) {
   return clip;
 }
 
-bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
+bool DiffuseShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
@@ -888,6 +891,7 @@ bool DiffuseShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3
     color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
     color.w = 1.0;
   }
+  bc = uv;
   return false;
 }
 
@@ -994,7 +998,7 @@ vec4 PhongShader::vertex(int iface, int nthvert, ModelInfo& model) {
   return clip;
 }
 
-bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
+bool PhongShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
@@ -1079,6 +1083,7 @@ bool PhongShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
     color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
     color.w = 1.0;
   }
+  bc = uv;
   return false;
 }
 
@@ -1182,7 +1187,7 @@ vec4 PhongNormalShader::vertex(int iface, int nthvert, ModelInfo& model) {
   return clip;
 }
 
-bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
+bool PhongNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
@@ -1268,6 +1273,7 @@ bool PhongNormalShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& n
     color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
     color.w = 1.0;
   }
+  bc = uv;
   return false;
 }
 
@@ -1377,7 +1383,7 @@ vec4 PhongShaderTangent::vertex(int iface, int nthvert, ModelInfo& model) {
   return clip;
 }
 
-bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
+bool PhongShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
@@ -1477,6 +1483,7 @@ bool PhongShaderTangent::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& 
     color = (1-reflect_coef) * refract_col * temp_col +  reflect_coef * reflect_col;
     color.w = 1.0;
   }
+  bc = uv;
   return false;
 }
 
@@ -1517,7 +1524,7 @@ vec4 DepthShader::vertex(int iface, int nthvert, ModelInfo& model) {
   return  clip;
 }
 
-bool DepthShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
+bool DepthShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
@@ -1525,6 +1532,7 @@ bool DepthShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal,
   vec4 p = vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z;
   color = diffuse_color;
   pos = p;
+  bc = uv;
   return false;
 }
 
@@ -1633,7 +1641,7 @@ vec4 ToonShader::vertex(int iface, int nthvert, ModelInfo& model) {
   return (vec_varying_tri[iface][nthvert]);
 }
 
-bool ToonShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
+bool ToonShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
@@ -1686,6 +1694,7 @@ bool ToonShader::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, 
   //Emissive and ambient terms
   color += emissive(uv);
   color += ambient(uv);
+  bc = uv;
   return false; 
 }
 
@@ -1792,7 +1801,7 @@ vec4 ToonShaderPhong::vertex(int iface, int nthvert, ModelInfo& model) {
   return clip;
 }
 
-bool ToonShaderPhong::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
+bool ToonShaderPhong::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
@@ -1857,7 +1866,7 @@ bool ToonShaderPhong::fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& nor
   }
   color += amb;
   color += emit;
-  
+  bc = uv;
   return false;
 }
 

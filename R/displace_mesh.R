@@ -19,7 +19,7 @@ displace_mesh = function(mesh,
                          displacement_texture,
                          displacement_scale = 1,
                          displacement_vector = FALSE,
-                         id = NA) {
+                         id = NA, verbose = TRUE) {
   stopifnot(inherits(mesh,"ray_mesh"))
   displacement_texture = rayimage::ray_read_image(displacement_texture)
   if(displacement_vector) {
@@ -27,9 +27,12 @@ displace_mesh = function(mesh,
     disp_y = displacement_texture[,,2]
     disp_z = displacement_texture[,,3]
   } else {
-    disp_x = displacement_texture[,,1]
+    disp_x = t(displacement_texture[,,1])
     disp_y = matrix(0,0,0)
     disp_z = matrix(0,0,0)
+  }
+  if(verbose) {
+    message(sprintf("Displacing mesh with %ix%i texture", dim(displacement_texture)[1],dim(displacement_texture)[2]))
   }
   if(is.na(id)) {
     for(i in seq_len(length(mesh$shapes))) {

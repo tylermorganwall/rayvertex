@@ -1,6 +1,6 @@
 #' Construct Displacement Sphere
 #' 
-#' @param displacement_image Image or matrix/array that will be used to displace the sphere.
+#' @param displacement_texture Image or matrix/array that will be used to displace the sphere.
 #' @param displacement_scale Default `1`. Scale of the displacement.
 #' @param displace Default `TRUE`. Whether to displace the sphere, or just generate the initial mesh 
 #' for later displacement.
@@ -17,8 +17,8 @@
 #' if(run_documentation()) {
 
 #'}
-displacement_sphere = function(displacement_image, displacement_scale = 1,
-                               displace = TRUE,
+displacement_sphere = function(displacement_texture, displacement_scale = 1,
+                               displace = TRUE, verbose = TRUE,
                                position = c(0,0,0), scale = c(1,1,1), 
                                angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3),
                                material = material_list()) {
@@ -39,9 +39,8 @@ displacement_sphere = function(displacement_image, displacement_scale = 1,
     # Return a matrix of sphere coordinates
     return(cbind(X, Y, Z))
   }
-  displacement_image = rayimage::ray_read_image(displacement_image, convert_to_array = FALSE)
-  
-  raymesh_surface = generate_surface(matrix(0,ncol=ncol(displacement_image), nrow = nrow(displacement_image)))
+  displacement_texture = rayimage::ray_read_image(displacement_texture, convert_to_array = FALSE)
+  raymesh_surface = generate_surface(matrix(0,ncol=nrow(displacement_texture), nrow = ncol(displacement_texture)))
   range_x = range(raymesh_surface$verts[,1])
   raymesh_surface$verts[,1] = raymesh_surface$verts[,1]/range_x[2]
   range_z = range(raymesh_surface$verts[,3])
@@ -50,7 +49,9 @@ displacement_sphere = function(displacement_image, displacement_scale = 1,
   
   spherized_mesh_verts = map_grid_to_sphere(raymesh_surface$verts[,1], 
                                             raymesh_surface$verts[,3])/2
-  new_texcoords = matrix(c(c(raymesh_surface$verts[,1],raymesh_surface$verts[,3])/2+0.5), ncol=2)
+
+  new_texcoords = matrix(c(c(-raymesh_surface$verts[,1],
+                             raymesh_surface$verts[,3])/2+0.5), ncol=2)
   
   raymesh_new = construct_mesh(vertices = spherized_mesh_verts,
                                indices = t(raymesh_surface$inds)-1,
@@ -68,7 +69,7 @@ displacement_sphere = function(displacement_image, displacement_scale = 1,
   }
   raymesh_new = translate_mesh(raymesh_new,position)
   if(displace) {
-    return(displace_mesh(raymesh_new, displacement_image,displacement_scale))
+    return(displace_mesh(raymesh_new, displacement_texture,displacement_scale, verbose = verbose))
   } else {
     return(raymesh_new)
   }

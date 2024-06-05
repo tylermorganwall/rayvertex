@@ -49,19 +49,26 @@ scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
   if(length(scale) == 1) {
     scale = rep(scale,3)
   }
+  scale_mat = diag(scale,3,3)
+  inv_scale_mat = diag(1/scale,3,3)
   for(j in seq_len(length(mesh$vertices))) {
-    mesh$vertices[[j]][,1]  = (mesh$vertices[[j]][,1]-center[1])*scale[1] + center[1]
-    mesh$vertices[[j]][,2]  = (mesh$vertices[[j]][,2]-center[2])*scale[2] + center[2]
-    mesh$vertices[[j]][,3]  = (mesh$vertices[[j]][,3]-center[3])*scale[3] + center[3]
+    mesh$vertices[[j]][,1]  = mesh$vertices[[j]][,1]-center[1]
+    mesh$vertices[[j]][,2]  = mesh$vertices[[j]][,2]-center[2]
+    mesh$vertices[[j]][,3]  = mesh$vertices[[j]][,3]-center[3]
+    mesh$vertices[[j]] = mesh$vertices[[j]] %*% scale_mat
+    mesh$vertices[[j]][,1]  = mesh$vertices[[j]][,1]+center[1]
+    mesh$vertices[[j]][,2]  = mesh$vertices[[j]][,2]+center[2]
+    mesh$vertices[[j]][,3]  = mesh$vertices[[j]][,3]+center[3]
     
     if(!is.null(mesh$normals[[j]]) && nrow(mesh$normals[[j]]) > 0) {
-      mesh$normals[[j]][,1]  = mesh$normals[[j]][,1]*1/scale[1]
-      mesh$normals[[j]][,2]  = mesh$normals[[j]][,2]*1/scale[2]
-      mesh$normals[[j]][,3]  = mesh$normals[[j]][,3]*1/scale[3]
-      for(i in seq_len(nrow(mesh$normals[[j]]))) {
-        length_single = sqrt(mesh$normals[[j]][i,1]^2 + mesh$normals[[j]][i,2]^2 + mesh$normals[[j]][i,3]^2)
-        mesh$normals[[j]][i,] = mesh$normals[[j]][i,]/length_single
-      }
+      mesh$normals[[j]] = mesh$normals[[j]] %*% inv_scale_mat
+      # mesh$normals[[j]][,1]  = mesh$normals[[j]][,1]
+      # mesh$normals[[j]][,2]  = mesh$normals[[j]][,2]
+      # mesh$normals[[j]][,3]  = mesh$normals[[j]][,3]
+      # for(i in seq_len(nrow(mesh$normals[[j]]))) {
+      #   length_single = sqrt(mesh$normals[[j]][i,1]^2 + mesh$normals[[j]][i,2]^2 + mesh$normals[[j]][i,3]^2)
+      #   mesh$normals[[j]][i,] = mesh$normals[[j]][i,]/length_single
+      # }
     }
   }
   class(mesh) = c("ray_mesh", "list")
@@ -225,23 +232,19 @@ generate_rot_matrix = function(angle, order_rotation) {
 #' }
 rotate_mesh = function(mesh, angle = c(0,0,0), pivot_point = c(0,0,0), order_rotation = c(1,2,3)) {
   angle = angle*pi/180
+  rot_mat = generate_rot_matrix(angle, order_rotation)
+  inv_t = t(solve(rot_mat))
   for(j in seq_len(length(mesh$vertices))) {
     mesh$vertices[[j]][,1]  = mesh$vertices[[j]][,1]-pivot_point[1]
     mesh$vertices[[j]][,2]  = mesh$vertices[[j]][,2]-pivot_point[2]
     mesh$vertices[[j]][,3]  = mesh$vertices[[j]][,3]-pivot_point[3]
-    rot_mat = generate_rot_matrix(angle, order_rotation)
-    for(i in seq_len(nrow(mesh$vertices[[j]]))) {
-      mesh$vertices[[j]][i,] = mesh$vertices[[j]][i,] %*% rot_mat
-    }
+    mesh$vertices[[j]] = mesh$vertices[[j]] %*% rot_mat
     mesh$vertices[[j]][,1]  = mesh$vertices[[j]][,1]+pivot_point[1]
     mesh$vertices[[j]][,2]  = mesh$vertices[[j]][,2]+pivot_point[2]
     mesh$vertices[[j]][,3]  = mesh$vertices[[j]][,3]+pivot_point[3]
     
     if(!is.null(mesh$normals[[j]]) && nrow(mesh$normals[[j]]) > 0) {
-      inv_t = t(solve(rot_mat))
-      for(i in seq_len(nrow(mesh$normals[[j]]))) {
-        mesh$normals[[j]][i,] = mesh$normals[[j]][i,] %*% inv_t
-      }
+      mesh$normals[[j]] = mesh$normals[[j]] %*% inv_t
     }
   }
   class(mesh) = c("ray_mesh", "list")

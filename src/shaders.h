@@ -23,7 +23,7 @@ static void get_sphere_uv(const vec3& dir, vec2& uv) {
 class IShader {
   public:
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model) = 0;
-    virtual bool fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) = 0;
+    virtual bool fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) = 0;
     virtual ~IShader();
     virtual int get_culling() = 0;
     virtual bool is_translucent() = 0;
@@ -50,7 +50,7 @@ class GouraudShader : public IShader {
     ~GouraudShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-    virtual bool fragment(const vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface);
+    virtual bool fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
     }
@@ -145,7 +145,7 @@ class ColorShader : public IShader {
     ~ColorShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-    virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
+    virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
     }
@@ -234,7 +234,7 @@ class DiffuseShader : public IShader {
     ~DiffuseShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-    virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
+    virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
     }
@@ -334,7 +334,7 @@ public:
                reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~DiffuseNormalShader();
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-  virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
+  virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
     return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
   }
@@ -464,7 +464,7 @@ class DiffuseShaderTangent : public IShader {
       return(material.translucent);
     }
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-    virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
+    virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     
     Mat Model;
     Mat Projection;
@@ -533,7 +533,7 @@ class PhongShader : public IShader {
     ~PhongShader();
     
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-    virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
+    virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
       return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  
                material.specular_intensity * material.specular);
@@ -635,7 +635,7 @@ public:
   ~PhongNormalShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-  virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
+  virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
     return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
   }
@@ -733,7 +733,7 @@ public:
   ~PhongShaderTangent();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-  virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
+  virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
     return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  
              material.specular_intensity * material.specular);
@@ -828,7 +828,7 @@ public:
   ~DepthShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-  virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
+  virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec4 diffuse(vec3 uv) {
     return(has_texture ? vec4(material.diffuse * material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
                          vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
@@ -881,7 +881,7 @@ public:
   ~ToonShader();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-  virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
+  virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
     return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
   }
@@ -980,7 +980,7 @@ public:
   ~ToonShaderPhong();
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
-  virtual bool fragment(const vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
+  virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
     return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
   }
