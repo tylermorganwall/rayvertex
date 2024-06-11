@@ -79,8 +79,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // LoopSubdivide
-List LoopSubdivide(List mesh, int shape_i, const int nLevels, bool verbose);
-RcppExport SEXP _rayvertex_LoopSubdivide(SEXP meshSEXP, SEXP shape_iSEXP, SEXP nLevelsSEXP, SEXP verboseSEXP) {
+List LoopSubdivide(List mesh, int shape_i, const int nLevels, bool verbose, bool simple_subdivision);
+RcppExport SEXP _rayvertex_LoopSubdivide(SEXP meshSEXP, SEXP shape_iSEXP, SEXP nLevelsSEXP, SEXP verboseSEXP, SEXP simple_subdivisionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -88,7 +88,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type shape_i(shape_iSEXP);
     Rcpp::traits::input_parameter< const int >::type nLevels(nLevelsSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(LoopSubdivide(mesh, shape_i, nLevels, verbose));
+    Rcpp::traits::input_parameter< bool >::type simple_subdivision(simple_subdivisionSEXP);
+    rcpp_result_gen = Rcpp::wrap(LoopSubdivide(mesh, shape_i, nLevels, verbose, simple_subdivision));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -222,7 +223,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rayvertex_DisplaceMesh", (DL_FUNC) &_rayvertex_DisplaceMesh, 9},
     {"_rayvertex_load_obj", (DL_FUNC) &_rayvertex_load_obj, 2},
     {"_rayvertex_load_ply", (DL_FUNC) &_rayvertex_load_ply, 2},
-    {"_rayvertex_LoopSubdivide", (DL_FUNC) &_rayvertex_LoopSubdivide, 4},
+    {"_rayvertex_LoopSubdivide", (DL_FUNC) &_rayvertex_LoopSubdivide, 5},
     {"_rayvertex_rasterize_lines_rcpp", (DL_FUNC) &_rayvertex_rasterize_lines_rcpp, 15},
     {"_rayvertex_rasterize", (DL_FUNC) &_rayvertex_rasterize, 48},
     {"_rayvertex_smooth_normals_mesh_rcpp", (DL_FUNC) &_rayvertex_smooth_normals_mesh_rcpp, 2},

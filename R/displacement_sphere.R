@@ -28,7 +28,7 @@ displacement_sphere = function(displacement_texture, displacement_scale = 1,
     latitude = y * 90    # Scale -1 to 1 to -90 to 90
     
     # Convert degrees to radians
-    longitude_rad = longitude * pi / 180
+    longitude_rad = longitude * pi / 180 
     latitude_rad = latitude * pi / 180
     
     # Convert spherical to Cartesian coordinates
@@ -48,7 +48,7 @@ displacement_sphere = function(displacement_texture, displacement_scale = 1,
   raymesh_surface$verts[,2] = 0
   
   spherized_mesh_verts = map_grid_to_sphere(raymesh_surface$verts[,1], 
-                                            raymesh_surface$verts[,3])/2
+                                            raymesh_surface$verts[,3])
 
   new_texcoords = matrix(c(c(-raymesh_surface$verts[,1],
                              raymesh_surface$verts[,3])/2+0.5), ncol=2)
@@ -58,7 +58,7 @@ displacement_sphere = function(displacement_texture, displacement_scale = 1,
                                tex_indices = t(raymesh_surface$inds)-1,
                                norm_indices =  t(raymesh_surface$inds)-1,
                                texcoords = new_texcoords,
-                               normals = t(apply(spherized_mesh_verts, 1, \(x) x/sqrt(sum(x*x))/2)),
+                               normals = t(apply(spherized_mesh_verts, 1, \(x) x/sqrt(sum(x*x)))),
                                material = material)
   
   if(any(scale != 1)) {
@@ -69,7 +69,7 @@ displacement_sphere = function(displacement_texture, displacement_scale = 1,
   }
   raymesh_new = translate_mesh(raymesh_new,position)
   if(displace) {
-    return(displace_mesh(raymesh_new, displacement_texture,displacement_scale, verbose = verbose))
+    return(displace_mesh(raymesh_new, displacement_texture, displacement_scale, verbose = verbose))
   } else {
     return(raymesh_new)
   }

@@ -150,7 +150,70 @@ add_plane_uv_mesh = function(mesh, direction = c(0,1,0), u = NULL, v = NULL,
     uv_coords = vertices_bbox[,c(3,1)]
 
     # Assign the UV coords to the shape
-    mesh$texcoords[[i]] = uv_coords
+    mesh$texcoords[i] = ray_vertex_data(uv_coords)
+    mesh$shapes[[i]]$tex_indices = mesh$shapes[[i]]$indices
+    mesh$shapes[[i]]$has_vertex_tex = rep(TRUE, nrow(mesh$shapes[[i]]$indices))
+  }
+  
+  return(mesh)
+}
+
+#' @title Add Sphere UV Mapping to Mesh
+#'
+#' @description Applies a planar UV mapping to a mesh based on a spherical
+#' direction from the origin.
+#' 
+#' @param mesh The mesh to which the UV mapping will be applied.
+#' @param origin Default `c(0, 0, 0)`. A vector specifying the origin to 
+#' apply spherical UV coordinates.
+#' @param override_existing Default `FALSE`. Specifies whether existing UV 
+#' coordinates should be overridden.
+#' @param full_mesh_bbox Default `TRUE`. Specifies whether the full mesh's 
+#' bounding box is used for UV mapping.
+#'
+#' @return Modified mesh with added UV mapping.
+#' @export
+#' @examples
+#' if(run_documentation()) {
+#' #Let's construct a mesh from the volcano dataset
+#' 
+#'}
+add_sphere_uv_mesh = function(mesh, 
+                              origin = c(0, 0, 0), 
+                              override_existing = FALSE) {
+  stopifnot(length(origin) == 3 && is.numeric(origin))
+  # Iterate over shapes
+  for (i in seq_along(mesh$shapes)) {
+    shape = mesh$shapes[[i]]
+    
+    # Check if UV coords exist and whether they should be overridden
+    if (!override_existing && any(shape$has_vertex_tex)) next
+    
+    vertices = mesh$vertices[[i]]
+    
+    vertices_centered = vertices - matrix(origin,nrow=nrow(vertices), ncol=3,byrow=TRUE)
+    
+    # Initialize a matrix to store UV coordinates
+    uv_coords = matrix(0, nrow = nrow(vertices_centered), ncol = 2)
+    
+    # Calculate spherical coordinates
+    for (j in 1:nrow(vertices_centered)) {
+      x = vertices_centered[j, 1]
+      y = vertices_centered[j, 2]
+      z = vertices_centered[j, 3]
+      
+      r = sqrt(x^2 + y^2 + z^2)
+      theta = acos(y / r)
+      phi = -atan2(z, x)
+      # Normalize theta and phi to [0, 1] range
+      u = (phi + pi) / (2 * pi)
+      v = 1-theta / pi
+      
+      uv_coords[j, ] = c(u, v)
+    }
+    
+    # Assign the UV coords to the shape
+    mesh$texcoords[i] = ray_vertex_data(uv_coords)
     mesh$shapes[[i]]$tex_indices = mesh$shapes[[i]]$indices
     mesh$shapes[[i]]$has_vertex_tex = rep(TRUE, nrow(mesh$shapes[[i]]$indices))
   }

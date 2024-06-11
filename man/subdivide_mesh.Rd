@@ -4,7 +4,14 @@
 \alias{subdivide_mesh}
 \title{Subdivide Mesh}
 \usage{
-subdivide_mesh(scene, id = NA, subdivision_levels = 2, verbose = FALSE)
+subdivide_mesh(
+  scene,
+  id = NA,
+  subdivision_levels = 2,
+  simple = FALSE,
+  normals = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{scene}{The scene to subdivide.}
@@ -14,7 +21,11 @@ subdivide_mesh(scene, id = NA, subdivision_levels = 2, verbose = FALSE)
 \item{subdivision_levels}{Default \code{1}.
 Number of Loop subdivisions to be applied to the mesh.}
 
+\item{normals}{Default \code{TRUE}. Whether to calculate subdivided vertex normals.}
+
 \item{verbose}{Default \code{FALSE}.}
+
+\item{interpolate}{Default \code{FALSE}. Whether to interpolate the vertices}
 }
 \value{
 Scene with shape added.

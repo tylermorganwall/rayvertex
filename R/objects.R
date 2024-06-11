@@ -66,6 +66,7 @@ cube_mesh = function(position = c(0,0,0),
 #' @param order_rotation Default `c(1,2,3)`. Order to rotate the axes.
 #' @param radius Default `1`. Radius of the sphere.
 #' @param low_poly Default `FALSE`. If `TRUE`, will use a low-poly sphere.
+#' @param normals Default `TRUE`. Whether to include vertex normals.
 #' @param material Default `material_list()` (default values). Specify the material of the object.
 #' 
 #' @return List describing the mesh.
@@ -100,6 +101,7 @@ sphere_mesh = function(position = c(0,0,0),
                        order_rotation = c(1,2,3),
                        radius = 1, 
                        low_poly = FALSE,
+                       normals = TRUE,
                        material = material_list()) {
   if(!low_poly) {
     obj = get("sphere", envir = ray_environment)
@@ -107,6 +109,10 @@ sphere_mesh = function(position = c(0,0,0),
     obj = get("low_poly_sphere", envir = ray_environment)
   }
   obj$vertices[[1]] = obj$vertices[[1]] * radius
+  if(!normals) {
+    obj$shapes[[1]]$has_vertex_normals = rep(FALSE,length(obj$shapes[[1]]$indices))
+    obj$normals[[1]] = matrix(0,nrow=0,ncol=3)
+  }
   if(any(scale != 1)) {
     obj = scale_mesh(obj, scale=scale)
   }

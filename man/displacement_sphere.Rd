@@ -5,9 +5,10 @@
 \title{Construct Displacement Sphere}
 \usage{
 displacement_sphere(
-  displacement_image,
+  displacement_texture,
   displacement_scale = 1,
   displace = TRUE,
+  verbose = TRUE,
   position = c(0, 0, 0),
   scale = c(1, 1, 1),
   angle = c(0, 0, 0),
@@ -17,7 +18,7 @@ displacement_sphere(
 )
 }
 \arguments{
-\item{displacement_image}{Image or matrix/array that will be used to displace the sphere.}
+\item{displacement_texture}{Image or matrix/array that will be used to displace the sphere.}
 
 \item{displacement_scale}{Default \code{1}. Scale of the displacement.}
 

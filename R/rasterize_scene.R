@@ -9,6 +9,7 @@
 #'@param line_info Default `NULL`. Matrix of line segments to add to the scene. Number of rows must be a multiple of 2.
 #'@param alpha_line Default `1`. Line transparency.
 #'@param parallel Default `TRUE`. Whether to use parallel processing.
+#'@param plot Default `is.na(filename)`. Whether to plot the image.
 #'@param fov Default `20`. Width of the rendered image.
 #'@param lookfrom Default `c(0,0,10)`. Camera location.
 #'@param lookat Default `NULL`. Camera focal position, defaults to the center of the model.
@@ -129,24 +130,24 @@
 #'               light_info = lights)
 #'}
 rasterize_scene  = function(scene, 
-                           filename = NA, width=800, height=800, 
-                           line_info = NULL, alpha_line = 1.0,
-                           parallel = TRUE, 
-                           fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0),
-                           fsaa = 2,
-                           light_info = directional_light(), color="red",
-                           type = "diffuse", background = "black", 
-                           tangent_space_normals = TRUE,
-                           shadow_map = TRUE, 
-                           shadow_map_bias = 0.003, shadow_map_intensity = 0, shadow_map_dims = NULL,
-                           ssao = FALSE, ssao_intensity = 10, ssao_radius = 0.1, 
-                           tonemap = "none", debug = "none", 
-                           near_plane = 0.1, far_plane = 100,
-                           shader = "default", 
-                           block_size = 4, shape = NULL, line_offset = 0.00001,
-                           ortho_dimensions = c(1,1), bloom = FALSE, antialias_lines = TRUE,
-                           environment_map= "", background_sharpness = 1.0, verbose=FALSE,
-                           vertex_transform = NULL, validate_scene = TRUE) {
+                            filename = NA, width=800, height=800, 
+                            line_info = NULL, alpha_line = 1.0,
+                            parallel = TRUE, plot = is.na(filename),
+                            fov=20,lookfrom=c(0,0,10),lookat=NULL, camera_up = c(0,1,0),
+                            fsaa = 2,
+                            light_info = directional_light(), color="red",
+                            type = "diffuse", background = "black", 
+                            tangent_space_normals = TRUE,
+                            shadow_map = TRUE, 
+                            shadow_map_bias = 0.003, shadow_map_intensity = 0, shadow_map_dims = NULL,
+                            ssao = FALSE, ssao_intensity = 10, ssao_radius = 0.1, 
+                            tonemap = "none", debug = "none", 
+                            near_plane = 0.1, far_plane = 100,
+                            shader = "default", 
+                            block_size = 4, shape = NULL, line_offset = 0.00001,
+                            ortho_dimensions = c(1,1), bloom = FALSE, antialias_lines = TRUE,
+                            environment_map= "", background_sharpness = 1.0, verbose=FALSE,
+                            vertex_transform = NULL, validate_scene = TRUE) {
   init_time()
   if(!is.null(attr(scene,"cornell"))) {
     corn_message = "Setting default values for Cornell box: "
@@ -427,20 +428,22 @@ rasterize_scene  = function(scene,
     imagelist$b = imagelist$b * imagelist$amb
   }
   if(debug == "normals") {
-    norm_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
+    norm_array = array(0,dim=c(dim(imagelist$r)[1:2],3))
     norm_array[,,1] = (imagelist$normalx+1)/2
     norm_array[,,2] = (imagelist$normaly+1)/2
     norm_array[,,3] = (imagelist$normalz+1)/2
     norm_array = rayimage::render_reorient(norm_array,transpose = TRUE, flipx = TRUE)
     if(is.na(filename)) {
-      rayimage::plot_image(norm_array)
+      if(plot) {
+        rayimage::plot_image(norm_array)
+      }
     }  else {
       save_png(norm_array, filename = filename)
     }
     return(invisible(norm_array))
   }
   if(debug == "depth") {
-    depth_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
+    depth_array = array(0,dim=c(dim(imagelist$r)[1:2],3))
     depth_array[,,1] = (imagelist$linear_depth)
     depth_array[,,2] = (imagelist$linear_depth)
     depth_array[,,3] = (imagelist$linear_depth)
@@ -449,7 +452,9 @@ rasterize_scene  = function(scene,
     depth_array = (depth_array - min(depth_array))/scale_factor
     if(is.na(filename)) {
       depth_array = rayimage::render_reorient(depth_array,transpose = TRUE, flipx = TRUE)
-      rayimage::plot_image(depth_array)
+      if(plot) {
+        rayimage::plot_image(depth_array)
+      }
     }  else {
       save_png(depth_array, filename = filename)
     }
@@ -459,7 +464,7 @@ rasterize_scene  = function(scene,
     return(imagelist$linear_depth)
   }
   if(debug == "position") {
-    pos_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
+    pos_array = array(0,dim=c(dim(imagelist$r)[1:2],3))
     imagelist$positionx = rescale(imagelist$positionx,to=c(0,1))
     imagelist$positiony = rescale(imagelist$positiony,to=c(0,1))
     imagelist$positionz = rescale(imagelist$positionz,to=c(0,1))
@@ -470,21 +475,25 @@ rasterize_scene  = function(scene,
     pos_array = rayimage::render_reorient(pos_array,transpose = TRUE, flipx = TRUE)
     pos_array[is.infinite(pos_array)] = 1
     if(is.na(filename)) {
-      rayimage::plot_image(pos_array)
+      if(plot) {
+        rayimage::plot_image(pos_array)
+      }
     }  else {
       save_png(pos_array, filename = filename)
     }
     return(invisible(pos_array))
   }
   if(debug == "uv") {
-    uv_array = array(0,dim=c(dim(imagelist$r)[2:1],3))
+    uv_array = array(0,dim=c(dim(imagelist$r)[1:2],3))
     uv_array[,,1] = (imagelist$uvx)
     uv_array[,,2] = (imagelist$uvy)
     uv_array[,,3] = (imagelist$uvz)
     uv_array = rayimage::render_reorient(uv_array,transpose = TRUE, flipx = TRUE)
     if(is.na(filename)) {
-      rayimage::plot_image(uv_array)
-    }  else {
+      if(plot) {
+        rayimage::plot_image(uv_array)
+      }
+    } else {
       save_png(uv_array, filename = filename)
     }
     return(invisible(uv_array))
@@ -520,7 +529,9 @@ rasterize_scene  = function(scene,
     
   }
   if(is.na(filename)) {
-    rayimage::plot_image(retmat)
+    if(plot) {
+      rayimage::plot_image(retmat)
+    }
   } else {
     retmat[retmat > 1] = 1
     retmat[retmat < 0] = 0

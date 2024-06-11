@@ -12,6 +12,7 @@ sphere_mesh(
   order_rotation = c(1, 2, 3),
   radius = 1,
   low_poly = FALSE,
+  normals = TRUE,
   material = material_list()
 )
 }
@@ -29,6 +30,8 @@ sphere_mesh(
 \item{radius}{Default \code{1}. Radius of the sphere.}
 
 \item{low_poly}{Default \code{FALSE}. If \code{TRUE}, will use a low-poly sphere.}
+
+\item{normals}{Default \code{TRUE}. Whether to include vertex normals.}
 
 \item{material}{Default \code{material_list()} (default values). Specify the material of the object.}
 }

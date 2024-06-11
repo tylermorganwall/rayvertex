@@ -9,7 +9,8 @@ displace_mesh(
   displacement_texture,
   displacement_scale = 1,
   displacement_vector = FALSE,
-  id = NA
+  id = NA,
+  verbose = TRUE
 )
 }
 \arguments{

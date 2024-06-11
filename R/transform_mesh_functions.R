@@ -61,14 +61,12 @@ scale_mesh = function(mesh, scale = 1, center = c(0,0,0)) {
     mesh$vertices[[j]][,3]  = mesh$vertices[[j]][,3]+center[3]
     
     if(!is.null(mesh$normals[[j]]) && nrow(mesh$normals[[j]]) > 0) {
-      mesh$normals[[j]] = mesh$normals[[j]] %*% inv_scale_mat
-      # mesh$normals[[j]][,1]  = mesh$normals[[j]][,1]
-      # mesh$normals[[j]][,2]  = mesh$normals[[j]][,2]
-      # mesh$normals[[j]][,3]  = mesh$normals[[j]][,3]
-      # for(i in seq_len(nrow(mesh$normals[[j]]))) {
-      #   length_single = sqrt(mesh$normals[[j]][i,1]^2 + mesh$normals[[j]][i,2]^2 + mesh$normals[[j]][i,3]^2)
-      #   mesh$normals[[j]][i,] = mesh$normals[[j]][i,]/length_single
-      # }
+      mesh$normals[[j]] = mesh$normals[[j]] %*% t(inv_scale_mat)
+      
+      # Normalize the normals
+      lengths = sqrt(apply(mesh$normals[[j]]*mesh$normals[[j]],1,sum))
+      norm_mat = matrix(lengths,ncol=3,nrow=length(lengths))
+      mesh$normals[[j]] = mesh$normals[[j]] / norm_mat
     }
   }
   class(mesh) = c("ray_mesh", "list")
