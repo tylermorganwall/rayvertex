@@ -168,8 +168,6 @@ add_plane_uv_mesh = function(mesh, direction = c(0,1,0), u = NULL, v = NULL,
 #' apply spherical UV coordinates.
 #' @param override_existing Default `FALSE`. Specifies whether existing UV 
 #' coordinates should be overridden.
-#' @param full_mesh_bbox Default `TRUE`. Specifies whether the full mesh's 
-#' bounding box is used for UV mapping.
 #'
 #' @return Modified mesh with added UV mapping.
 #' @export

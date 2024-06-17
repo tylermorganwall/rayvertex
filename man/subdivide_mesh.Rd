@@ -21,11 +21,12 @@ subdivide_mesh(
 \item{subdivision_levels}{Default \code{1}.
 Number of Loop subdivisions to be applied to the mesh.}
 
+\item{simple}{Default \code{FALSE}. Whether to use simple subdivision, which does
+not change the appearance of the mesh but does create a finer mesh.}
+
 \item{normals}{Default \code{TRUE}. Whether to calculate subdivided vertex normals.}
 
 \item{verbose}{Default \code{FALSE}.}
-
-\item{interpolate}{Default \code{FALSE}. Whether to interpolate the vertices}
 }
 \value{
 Scene with shape added.

@@ -12,6 +12,7 @@ rasterize_scene(
   line_info = NULL,
   alpha_line = 1,
   parallel = TRUE,
+  plot = is.na(filename),
   fov = 20,
   lookfrom = c(0, 0, 10),
   lookat = NULL,
@@ -61,6 +62,8 @@ rasterize_scene(
 \item{alpha_line}{Default \code{1}. Line transparency.}
 
 \item{parallel}{Default \code{TRUE}. Whether to use parallel processing.}
+
+\item{plot}{Default \code{is.na(filename)}. Whether to plot the image.}
 
 \item{fov}{Default \code{20}. Width of the rendered image.}
 

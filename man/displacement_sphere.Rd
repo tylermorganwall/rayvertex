@@ -7,6 +7,8 @@
 displacement_sphere(
   displacement_texture,
   displacement_scale = 1,
+  use_cube = FALSE,
+  cube_subdivision_levels = NA,
   displace = TRUE,
   verbose = TRUE,
   position = c(0, 0, 0),
@@ -22,8 +24,16 @@ displacement_sphere(
 
 \item{displacement_scale}{Default \code{1}. Scale of the displacement.}
 
+\item{use_cube}{Default \code{FALSE}. Whether to use a subdivided cube instead of a UV sphere. Use this
+if you want to visualize areas near the poles.}
+
+\item{cube_subdivision_levels}{Default \code{NA}. Uses the dimensions of the displacement texture
+to automatically calculate the number of subdivision levels.}
+
 \item{displace}{Default \code{TRUE}. Whether to displace the sphere, or just generate the initial mesh
 for later displacement.}
+
+\item{verbose}{Default \code{TRUE}. Whether to print displacement texture information.}
 
 \item{position}{Default \code{c(0,0,0)}. Position of the mesh.}
 
@@ -45,5 +55,6 @@ Construct Displacement Sphere
 }
 \examples{
 if(run_documentation()) {
+
 }
 }

@@ -26,6 +26,8 @@ If \code{TRUE}, the displacement texture is interpreted as providing a 3D displa
 Otherwise, the texture is interpreted as providing a scalar displacement.}
 
 \item{id}{Default \code{NA} (all shapes). The shape index to have new normals calculated.}
+
+\item{verbose}{Default \code{TRUE}. Whether to print displacement texture information.}
 }
 \value{
 raymesh object

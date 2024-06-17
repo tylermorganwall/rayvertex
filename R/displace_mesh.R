@@ -8,6 +8,7 @@
 #' If `TRUE`, the displacement texture is interpreted as providing a 3D displacement vector. 
 #' Otherwise, the texture is interpreted as providing a scalar displacement.
 #' @param id Default `NA` (all shapes). The shape index to have new normals calculated.
+#' @param verbose Default `TRUE`. Whether to print displacement texture information.
 #'
 #'@return raymesh object
 #'@export

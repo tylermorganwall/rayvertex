@@ -14,9 +14,6 @@ apply spherical UV coordinates.}
 
 \item{override_existing}{Default \code{FALSE}. Specifies whether existing UV
 coordinates should be overridden.}
-
-\item{full_mesh_bbox}{Default \code{TRUE}. Specifies whether the full mesh's
-bounding box is used for UV mapping.}
 }
 \value{
 Modified mesh with added UV mapping.

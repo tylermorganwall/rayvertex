@@ -6,7 +6,8 @@
 #' @param id Default `NA`, all shapes. The index of which shape to subdivide.
 #' @param subdivision_levels Default `1`. 
 #' Number of Loop subdivisions to be applied to the mesh.
-#' @param interpolate Default `FALSE`. Whether to interpolate the vertices
+#' @param simple Default `FALSE`. Whether to use simple subdivision, which does
+#' not change the appearance of the mesh but does create a finer mesh.
 #' @param normals Default `TRUE`. Whether to calculate subdivided vertex normals.
 #' @param verbose Default `FALSE`.
 #' @return Scene with shape added.

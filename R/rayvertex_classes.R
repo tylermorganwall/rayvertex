@@ -590,7 +590,6 @@ print.ray_mesh = function(x, ...) {
   # x$shapes = ray_shape_list(x$shapes)
   
   # Count each type of object
-  mesh_summary = sprintf("Meshes - %s", paste(cli::col_blue(names(total_meshes))))
   bbox_x = get_mesh_bbox(x)
   # Calculate bounding box
   bbxmin = c(bbox_x[1,,drop=TRUE])
@@ -611,12 +610,11 @@ print.ray_mesh = function(x, ...) {
   # 
   cli_output = function() {
     cli::cli_rule(left = "Scene Description")
-    cli::cli_bullets(c(
+    bullets = cli::format_bullets_raw(c(
       "*" = line1,
-      ">" = mesh_summary,
       "i" = bbox_text
     ))
-    cli::cli_li(c("{.emph Shapes}" = mesh_summary))
+    cat(paste0(bullets,"\n"),sep="")
   }
   # 
   cli_output()

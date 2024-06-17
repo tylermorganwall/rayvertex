@@ -154,7 +154,8 @@ inline float loopGamma(int valence) {
 List LoopSubdivide(List mesh,
                    int shape_i,
                    const int nLevels,
-                   bool verbose) {
+                   bool verbose,
+                   bool simple_subdivision = false) {
   if(nLevels <= 1) {
     return(List());
   }
@@ -316,26 +317,32 @@ List LoopSubdivide(List mesh,
       if(!vertex->initialized) {
         continue;
       }
-
-      if (!vertex->boundary) {
-        // Apply one-ring rule for even vertex
-        if (vertex->regular) {
-          vertex->child->p = weightOneRing<glm::vec3>(vertex, vertex->p, 1.f / 16.f);
-        } else {
-          vertex->child->p = weightOneRing<glm::vec3>(vertex, vertex->p, beta(vertex->valence()));
-        }
-        if(has_uv) {
-          if (vertex->regular) {
-            vertex->child->uv = weightOneRing<glm::vec2>(vertex, vertex->uv, 1.f / 16.f);
-          } else {
-            vertex->child->uv = weightOneRing<glm::vec2>(vertex, vertex->uv, beta(vertex->valence()));
-          }
+      if(simple_subdivision) {
+        vertex->child->p = vertex->p;
+        if (has_uv) {
+          vertex->child->uv = vertex->uv;
         }
       } else {
-        // Apply boundary rule for even vertex
-        vertex->child->p = weightBoundary<glm::vec3>(vertex, vertex->p, 1.f / 8.f);
-        if(has_uv) {
-          vertex->child->uv = weightBoundary<glm::vec2>(vertex, vertex->uv, 1.f / 8.f);
+        if (!vertex->boundary) {
+          // Apply one-ring rule for even vertex
+          if (vertex->regular) {
+            vertex->child->p = weightOneRing<glm::vec3>(vertex, vertex->p, 1.f / 16.f);
+          } else {
+            vertex->child->p = weightOneRing<glm::vec3>(vertex, vertex->p, beta(vertex->valence()));
+          }
+          if(has_uv) {
+            if (vertex->regular) {
+              vertex->child->uv = weightOneRing<glm::vec2>(vertex, vertex->uv, 1.f / 16.f);
+            } else {
+              vertex->child->uv = weightOneRing<glm::vec2>(vertex, vertex->uv, beta(vertex->valence()));
+            }
+          }
+        } else {
+          // Apply boundary rule for even vertex
+          vertex->child->p = weightBoundary<glm::vec3>(vertex, vertex->p, 1.f / 8.f);
+          if(has_uv) {
+            vertex->child->uv = weightBoundary<glm::vec2>(vertex, vertex->uv, 1.f / 8.f);
+          }
         }
       }
     }    
@@ -358,24 +365,32 @@ List LoopSubdivide(List mesh,
           vert->startFace = face->children[3];
           vert->initialized = true;
           
-          // Apply edge rules to compute new vertex position
-          if (vert->boundary) {
-            vert->p = 0.5f * edge.v[0]->p;
-            vert->p += 0.5f * edge.v[1]->p;
-            if(has_uv) {
-              vert->uv = 0.5f * edge.v[0]->uv;
-              vert->uv += 0.5f * edge.v[1]->uv;
+          if (simple_subdivision) {
+            // Place vertex at the midpoint of the edge
+            vert->p = 0.5f * edge.v[0]->p + 0.5f * edge.v[1]->p;
+            if (has_uv) {
+              vert->uv = 0.5f * edge.v[0]->uv + 0.5f * edge.v[1]->uv;
             }
           } else {
-            vert->p = 3.f / 8.f * edge.v[0]->p;
-            vert->p += 3.f / 8.f * edge.v[1]->p;
-            vert->p += 1.f / 8.f * face->otherVert(edge.v[0], edge.v[1])->p;
-            vert->p += 1.f / 8.f * face->f[k]->otherVert(edge.v[0], edge.v[1])->p;
-            if(has_uv) {
-              vert->uv = 3.f / 8.f * edge.v[0]->uv;
-              vert->uv += 3.f / 8.f * edge.v[1]->uv;
-              vert->uv += 1.f / 8.f * face->otherVert(edge.v[0], edge.v[1])->uv;
-              vert->uv += 1.f / 8.f * face->f[k]->otherVert(edge.v[0], edge.v[1])->uv;
+            // Apply edge rules to compute new vertex position
+            if (vert->boundary) {
+              vert->p = 0.5f * edge.v[0]->p;
+              vert->p += 0.5f * edge.v[1]->p;
+              if(has_uv) {
+                vert->uv = 0.5f * edge.v[0]->uv;
+                vert->uv += 0.5f * edge.v[1]->uv;
+              }
+            } else {
+              vert->p = 3.f / 8.f * edge.v[0]->p;
+              vert->p += 3.f / 8.f * edge.v[1]->p;
+              vert->p += 1.f / 8.f * face->otherVert(edge.v[0], edge.v[1])->p;
+              vert->p += 1.f / 8.f * face->f[k]->otherVert(edge.v[0], edge.v[1])->p;
+              if(has_uv) {
+                vert->uv = 3.f / 8.f * edge.v[0]->uv;
+                vert->uv += 3.f / 8.f * edge.v[1]->uv;
+                vert->uv += 1.f / 8.f * face->otherVert(edge.v[0], edge.v[1])->uv;
+                vert->uv += 1.f / 8.f * face->f[k]->otherVert(edge.v[0], edge.v[1])->uv;
+              }
             }
           }
           edgeVerts[edge] = vert;
@@ -440,16 +455,22 @@ List LoopSubdivide(List mesh,
   for (size_t i = 0; i < v.size(); ++i) {
 
     if(v[i]->initialized) {
-      if (v[i]->boundary) {
-        glm::vec3 tmp_v = weightBoundary<glm::vec3>(v[i], v[i]->p, 1.f / 5.f);
-        final_vertices(i,0) = tmp_v[0];
-        final_vertices(i,1) = tmp_v[1];
-        final_vertices(i,2) = tmp_v[2];
+      if(simple_subdivision) {
+        final_vertices(i,0) = v[i]->p[0];
+        final_vertices(i,1) = v[i]->p[1];
+        final_vertices(i,2) = v[i]->p[2];
       } else {
-        glm::vec3 tmp_v = weightOneRing<glm::vec3>(v[i], v[i]->p, loopGamma(v[i]->valence()));
-        final_vertices(i,0) = tmp_v[0];
-        final_vertices(i,1) = tmp_v[1];
-        final_vertices(i,2) = tmp_v[2];
+        if (v[i]->boundary) {
+          glm::vec3 tmp_v = weightBoundary<glm::vec3>(v[i], v[i]->p, 1.f / 5.f);
+          final_vertices(i,0) = tmp_v[0];
+          final_vertices(i,1) = tmp_v[1];
+          final_vertices(i,2) = tmp_v[2];
+        } else {
+          glm::vec3 tmp_v = weightOneRing<glm::vec3>(v[i], v[i]->p, loopGamma(v[i]->valence()));
+          final_vertices(i,0) = tmp_v[0];
+          final_vertices(i,1) = tmp_v[1];
+          final_vertices(i,2) = tmp_v[2];
+        }
       }
     }
   }
