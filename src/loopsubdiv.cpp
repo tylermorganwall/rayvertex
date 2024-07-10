@@ -4,6 +4,7 @@
 #include "glm.hpp"
 #include "Rcpp.h"
 #include <queue>
+#include <memory>
 
 using namespace Rcpp;
 
@@ -174,11 +175,11 @@ List LoopSubdivide(List mesh,
   std::vector<std::unique_ptr<SDFace> > face_storage;
 
   std::vector<glm::vec3> p(vertex_matrix.nrow());
-  for(size_t i = 0; i < vertex_matrix.nrow(); i++) {
+  for(size_t i = 0; i < static_cast<size_t>(vertex_matrix.nrow()); i++) {
     p[i] = glm::vec3(vertex_matrix(i,0),vertex_matrix(i,1),vertex_matrix(i,2));
   }
   std::vector<glm::vec2> uv(texcoord_matrix.nrow());
-  for(size_t i = 0; i < texcoord_matrix.nrow(); i++) {
+  for(size_t i = 0; i < static_cast<size_t>(texcoord_matrix.nrow()); i++) {
     uv[i] = glm::vec2(texcoord_matrix(i,0),texcoord_matrix(i,1));
   }
   bool has_uv = texcoord_matrix.nrow() > 0;

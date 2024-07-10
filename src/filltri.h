@@ -8,8 +8,8 @@
 #include "alphainfo.h"
 #include "defines.h"
 
-static void print_vec(vec3 m);
-static void print_vec(vec4 m);
+// static void print_vec(vec3 m);
+// static void print_vec(vec4 m);
 inline Float DifferenceOfProducts(Float a, Float b, Float c, Float d);
 inline Float edgeFunction(const vec3 &a, const vec3 &b, const vec3 &c);
 

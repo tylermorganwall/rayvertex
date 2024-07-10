@@ -43,7 +43,7 @@ NumericMatrix DisplaceMesh(Rcpp::List raymesh,
   bool has_tex = texcoords.nrow() > 0;
   int nNormals = normals.nrow();
   int nTex = texcoords.nrow();
-  int nVertices = vertices.nrow();
+  size_t nVertices = vertices.nrow();
 
   if(!has_tex) {
     throw std::runtime_error("Texcoords required for displacement mapping: no texcoords on mesh.");
@@ -62,7 +62,6 @@ NumericMatrix DisplaceMesh(Rcpp::List raymesh,
   if(!displacement_vector) {
     for(size_t i = 0; i < nVertices; i++) {
       vec2 uv = vec2(texcoords(i,0),texcoords(i,1));
-      vec3 pp = vec3(vertices(i,0),vertices(i,1),vertices(i,2));
       int ii = uv[0] * (double)nx;
       int jj = (1-uv[1]) * (double)ny;
       
@@ -84,7 +83,6 @@ NumericMatrix DisplaceMesh(Rcpp::List raymesh,
 
     for(size_t i = 0; i < nVertices; i++) {
       vec2 uv = vec2(texcoords(i,0),texcoords(i,1));
-      vec3 pp = vec3(vertices(i,0),vertices(i,1),vertices(i,2));
       int ii = uv[0] * (double)nx;
       int jj = (1-uv[1]) * (double)ny;
       
