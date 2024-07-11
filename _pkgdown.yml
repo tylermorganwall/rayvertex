@@ -66,6 +66,7 @@ reference:
       - starts_with("smooth")
       - starts_with("add_plane_uv_mesh")
       - starts_with("subdivide")
+      - starts_with("displace")
   - title: "Get Mesh Info"
     desc: "Functions to get information about meshes "
     contents:
