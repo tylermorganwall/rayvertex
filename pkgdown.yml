@@ -1,9 +1,8 @@
 pandoc: 3.1.11
-pkgdown: 2.0.9
+pkgdown: 2.1.0
 pkgdown_sha: ~
 articles: {}
-last_built: 2024-04-20T21:11Z
+last_built: 2024-07-11T03:14Z
 urls:
   reference: https://www.rayvertex.com/reference
   article: https://www.rayvertex.com/articles
-

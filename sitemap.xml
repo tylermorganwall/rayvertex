@@ -1,219 +1,93 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://www.rayvertex.com/404.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/CODE_OF_CONDUCT.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/CONTRIBUTING.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/index.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/add_light.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/add_lines.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/add_plane_uv_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/add_shape.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/arrow_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/center_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/change_material.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/color_lines.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/cone_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/construct_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/convert_color.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/cross_prod.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/cube_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/cylinder_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/directional_light.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/flip_orientation_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/fliplr.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/flipud.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/generate_cornell_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/generate_line.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/generate_rot_matrix.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/generate_rotation_matrix_from_direction.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/generate_toon_outline.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/get_file_type.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/get_mesh_bbox.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/get_mesh_center.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/get_time.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/init_time.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/material_list.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/merge_scene.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/mesh3d_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/obj_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/ply_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/point_light.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/print_time.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/r_obj.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/rasterize_lines.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/rasterize_scene.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/read_obj.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/read_ply.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/remove_duplicate_materials.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/rescale.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/rotate_lines.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/rotate_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/run_documentation.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/save_png.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/scale_lines.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/scale_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/scale_unit_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/scene_from_list.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/segment_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/set_material.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/smooth_normals_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/sphere_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/swap_yz.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/text3d_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/torus_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/translate_lines.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/translate_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/validate_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/validate_scene.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/verify_vertex_shader.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/write_scene_to_obj.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/xy_rect_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/xz_rect_mesh.html</loc>
-  </url>
-  <url>
-    <loc>https://www.rayvertex.com/reference/yz_rect_mesh.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://www.rayvertex.com/404.html</loc></url>
+<url><loc>https://www.rayvertex.com/CODE_OF_CONDUCT.html</loc></url>
+<url><loc>https://www.rayvertex.com/CONTRIBUTING.html</loc></url>
+<url><loc>https://www.rayvertex.com/authors.html</loc></url>
+<url><loc>https://www.rayvertex.com/index.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/add_light.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/add_lines.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/add_plane_uv_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/add_shape.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/add_sphere_uv_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/arrow_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/cat_color.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/center_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/change_material.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/color_lines.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/cone_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/construct_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/convert_color.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/convert_rgb_to_ansi.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/cross_prod.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/cube_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/cylinder_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/directional_light.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/displace_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/displacement_sphere.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/flip_orientation_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/fliplr.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/flipud.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/format_pillar_shp.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/generate_cornell_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/generate_line.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/generate_rot_matrix.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/generate_rotation_matrix_from_direction.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/generate_surface.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/generate_toon_outline.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/get_file_type.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/get_mesh_bbox.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/get_mesh_center.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/get_time.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/index.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/init_time.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/material_list.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/merge_scene.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/mesh3d_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/obj_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/pillar_shaft.ray_shape.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/pillar_shaft.ray_shape_list.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/ply_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/point_light.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/print.ray_shape.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/print.ray_vertex_data.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/print_time.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/r_obj.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/rasterize_lines.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/rasterize_scene.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/ray_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/ray_shape.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/ray_shape_list.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/ray_vertex_data.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/read_obj.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/read_ply.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/remove_duplicate_materials.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/rescale.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/rotate_lines.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/rotate_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/run_documentation.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/save_png.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/scale_lines.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/scale_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/scale_unit_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/scene_from_list.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/segment_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/set_material.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/smooth_normals_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/sphere_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/subdivide_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/swap_yz.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/text3d_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/torus_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/translate_lines.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/translate_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/validate_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/validate_scene.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/vec_ptype_abbr.ray_shape.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/vec_ptype_abbr.ray_shape_list.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/verify_vertex_shader.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/write_scene_to_obj.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/xy_rect_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/xz_rect_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/yz_rect_mesh.html</loc></url>
 </urlset>
+
