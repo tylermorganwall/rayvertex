@@ -41,8 +41,8 @@ NumericMatrix DisplaceMesh(Rcpp::List raymesh,
     p[i] = vec3(vertices(i,0),vertices(i,1),vertices(i,2));
   }
   bool has_tex = texcoords.nrow() > 0;
-  int nNormals = normals.nrow();
-  int nTex = texcoords.nrow();
+  size_t nNormals = normals.nrow();
+  size_t nTex = texcoords.nrow();
   size_t nVertices = vertices.nrow();
 
   if(!has_tex) {
@@ -78,8 +78,8 @@ NumericMatrix DisplaceMesh(Rcpp::List raymesh,
       p[i] += displace_n;
     }
   } else {
-    ASSERT(base_mesh->nVertices == base_mesh->nTex);
-    ASSERT(base_mesh->nVertices == base_mesh->tangent_right_handed.size());
+    ASSERT(nVertices == nTex);
+    ASSERT(nVertices == tangent_right_handed.size());
 
     for(size_t i = 0; i < nVertices; i++) {
       vec2 uv = vec2(texcoords(i,0),texcoords(i,1));
