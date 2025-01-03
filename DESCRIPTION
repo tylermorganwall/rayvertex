@@ -1,8 +1,8 @@
 Package: rayvertex
 Type: Package
 Title: 3D Software Rasterizer
-Version: 0.11.4
-Date: 2024-07-10
+Version: 0.11.5
+Date: 2025-01-02
 Authors@R: c(person("Tyler", "Morgan-Wall", email = "tylermw@gmail.com", 
     role = c("aut", "cph", "cre"), comment = c(ORCID = "0000-0002-3131-3814")),
     person("Syoyo", "Fujita", role=c("ctb", "cph")),
@@ -16,10 +16,10 @@ Copyright: file inst/COPYRIGHTS
 Depends: R (>= 4.1)
 Imports: Rcpp (>= 1.0.6),
          grDevices,
-         rayimage (>= 0.11.0),
+         rayimage (>= 0.11.4),
          png,
          digest,
-         pillar,
+         pillar (>= 1.10.1),
          vctrs,
          tibble,
          withr,
@@ -37,4 +37,4 @@ BugReports: https://github.com/tylermorganwall/rayvertex/issues
 Encoding: UTF-8
 SystemRequirements: C++17
 Config/testthat/edition: 3
-Remotes: tylermorganwall/rayimage
+Remotes: tylermorganwall/rayimage, r-lib/pillar

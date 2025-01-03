@@ -59,7 +59,14 @@ List load_obj(std::string inputfile, std::string basedir) {
       continue;
     }
       
-    List single_shape;
+    List single_shape = List::create(
+       Named("indices") = R_NilValue,
+       Named("tex_indices") = R_NilValue,
+       Named("norm_indices") = R_NilValue,
+       Named("material_ids") = R_NilValue,
+       Named("has_vertex_tex") = R_NilValue,
+       Named("has_vertex_normals") = R_NilValue
+    );
     std::vector<float> verts;
     std::vector<float> norms;
     std::vector<float> texs;
@@ -134,7 +141,13 @@ List load_obj(std::string inputfile, std::string basedir) {
     out.names() = names ;
     material_list.push_back(out);
   }
-  List return_val;
+  List return_val = List::create(
+    Named("shapes") = R_NilValue,
+    Named("vertices") = R_NilValue,
+    Named("texcoords") = R_NilValue,
+    Named("normals") = R_NilValue,
+    Named("materials") = R_NilValue
+  );
   return_val["shapes"]    = shape_list;
   return_val["vertices"]  = List::create(Rcpp::transpose(NumericMatrix(3L, attrib.vertices.size()/3L, attrib.vertices.begin())));
   return_val["texcoords"] = List::create(Rcpp::transpose(NumericMatrix(2L, attrib.texcoords.size()/2L, attrib.texcoords.begin())));
