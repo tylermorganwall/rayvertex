@@ -1,7 +1,7 @@
 Package: rayvertex
 Type: Package
 Title: 3D Software Rasterizer
-Version: 0.11.5
+Version: 0.12.0
 Date: 2025-01-02
 Authors@R: c(person("Tyler", "Morgan-Wall", email = "tylermw@gmail.com", 
     role = c("aut", "cph", "cre"), comment = c(ORCID = "0000-0002-3131-3814")),
@@ -16,7 +16,7 @@ Copyright: file inst/COPYRIGHTS
 Depends: R (>= 4.1)
 Imports: Rcpp (>= 1.0.6),
          grDevices,
-         rayimage (>= 0.11.4),
+         rayimage (>= 0.15.1),
          png,
          digest,
          pillar (>= 1.10.1),
@@ -31,7 +31,7 @@ Suggests:
     testthat (>= 3.0.0)
 LinkingTo: Rcpp, spacefillr, RcppThread, rayimage
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 URL: https://www.rayvertex.com, https://github.com/tylermorganwall/rayvertex
 BugReports: https://github.com/tylermorganwall/rayvertex/issues
 Encoding: UTF-8

@@ -683,24 +683,24 @@ generate_cornell_mesh = function(leftcolor = "#1f7326",
                                  light = TRUE) {
   ambient_intensity = 0.25
   if(ceiling) {
-    scene = set_material(cube_mesh(position=c(555,555/2+2.5,555/2),scale=c(10,550,555)),
+    scene = set_material(cube_mesh(position=c(555+5,555/2,555/2),scale=c(10,555,555)),
                          diffuse=leftcolor,ambient = leftcolor, ambient_intensity=ambient_intensity) |>
-      add_shape(set_material(cube_mesh(position=c(0,555/2+2.5,555/2),angle=c(0,180,0),scale=c(10,555,555)),
+      add_shape(set_material(cube_mesh(position=c(-5,555/2,555/2),angle=c(0,180,0),scale=c(10,555,555)),
                              diffuse=rightcolor,ambient = rightcolor, ambient_intensity=ambient_intensity)) |>
-      add_shape(set_material(cube_mesh(position=c(555/2,555+5,555/2),scale=c(560,10,560),angle=c(0,0,180)),
+      add_shape(set_material(cube_mesh(position=c(555/2,555+5,555/2),scale=c(575,10,555)),
                              diffuse=roomcolor,ambient = roomcolor, ambient_intensity=ambient_intensity)) |>
-      add_shape(set_material(cube_mesh(position=c(555/2,0,555/2),scale=c(560,10,560)),
+      add_shape(set_material(cube_mesh(position=c(555/2,-5,555/2),scale=c(575,10,555)),
                              diffuse=roomcolor,ambient = roomcolor, ambient_intensity=ambient_intensity)) |> 
-      add_shape(set_material(cube_mesh(position=c(555/2,555/2,555),scale=c(560,555,10)),
+      add_shape(set_material(cube_mesh(position=c(555/2,555/2-5,555+5),scale=c(575,565,10)),
                              diffuse=roomcolor,ambient = roomcolor, ambient_intensity=ambient_intensity))
   } else {
-    scene = set_material(cube_mesh(position=c(555,555/2+2.5,555/2),scale=c(10,550,555)),
+    scene = set_material(cube_mesh(position=c(555+5,555/2,555/2),scale=c(10,555,555)),
                          diffuse=leftcolor,ambient = leftcolor, ambient_intensity=ambient_intensity) |>
-      add_shape(set_material(cube_mesh(position=c(0,555/2+2.5,555/2),angle=c(0,180,0),scale=c(10,550,555)),
+      add_shape(set_material(cube_mesh(position=c(-5,555/2,555/2),angle=c(0,180,0),scale=c(10,555,555)),
                              diffuse=rightcolor,ambient = rightcolor, ambient_intensity=ambient_intensity)) |>
-      add_shape(set_material(cube_mesh(position=c(555/2,0,555/2),scale=c(560,10,560)),
+      add_shape(set_material(cube_mesh(position=c(555/2,-5,555/2),scale=c(575,10,555)),
                              diffuse=roomcolor,ambient = roomcolor, ambient_intensity=ambient_intensity)) |> 
-      add_shape(set_material(cube_mesh(position=c(555/2,555/2,555),scale=c(560,555,10)),
+      add_shape(set_material(cube_mesh(position=c(555/2,555/2-5,555+5),scale=c(575,565,10)),
                              diffuse=roomcolor,ambient = roomcolor, ambient_intensity=ambient_intensity))
   }
   attr(scene,"cornell") = TRUE
@@ -985,8 +985,14 @@ mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,
 #' @param label Text string.
 #' @param position Default `c(0,0,0)`. Position of the mesh.
 #' @param text_height Default `1`. Height of the text.
+#' @param font Default `"sans"`. A character string specifying the font family (e.g., `"Arial"`, `"Times"`, `"Helvetica"`).
+#' @param font_color Default `"black"`. The font color.
+#' @param font_lineheight Default `12`. The lineheight for strings with newlines.
+#' @param font_size Default `100`. The size of the font. Note that this does not control the size of the text, just the resolution
+#' as rendered in the texture.
+#' @param background_color Default `"white"`. The background color.
+#' @param background_alpha Default `0`. The background opacity. `1` is fully opaque.
 #' @param orientation Default `xy`. Orientation of the plane. Other options are `yz` and `xz`.
-#' @param color Default `black`. Text color.
 #' @param scale Default `c(1,1,1)`. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.
 #' @param angle Default `c(0,0,0)`. Angle to rotate the mesh.
 #' @param pivot_point Default `c(0,0,0)`. Point around which to rotate the mesh.
@@ -1001,86 +1007,96 @@ mesh3d_mesh = function(mesh, center = FALSE, position = c(0,0,0), scale = c(1,1,
 #' #Generate a label in the Cornell box.
 #' generate_cornell_mesh() |> 
 #'   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),angle=c(0,180,0),
-#'   text_height=60)) |> 
+#'   text_height=120)) |> 
 #'   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
-#'   }
+#' }
 #' if(run_documentation()) {
 #' #Change the orientation
 #' generate_cornell_mesh() |> 
-#'   add_shape(text3d_mesh(label="YZ Plane", position=c(540,555/2,555/2),text_height=100,
+#'   add_shape(text3d_mesh(label="YZ Plane", position=c(540,555/2,555/2),text_height=180,
 #'                     orientation = "yz",angle=c(0,180,0))) |> 
-#'   add_shape(text3d_mesh(label="XY Plane", position=c(555/2,555/2,540),text_height=100,
+#'   add_shape(text3d_mesh(label="XY Plane", position=c(555/2,555/2,540),text_height=180,
 #'                     orientation = "xy", angle=c(0,180,0))) |> 
-#'   add_shape(text3d_mesh(label="XZ Plane", position=c(555/2,15,555/2),text_height=100,
-#'                     orientation = "xz", angle=c(0,0,0))) |> 
+#'   add_shape(text3d_mesh(label="XZ Plane", position=c(555/2,15,555/2),text_height=180,
+#'                     orientation = "xz", angle=c(0,180,0))) |> 
 #'   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
 #'   }
 #' if(run_documentation()) {
-#' #Add an label in front of a sphere
+#' #Add an label in front of a sphere and change the font
 #' generate_cornell_mesh() |> 
-#'   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),text_height=60,
-#'                     color="grey20",angle=c(0,180,0))) |> 
-#'   add_shape(text3d_mesh(label="Sphere", position=c(555/2,100,100),text_height=30,
-#'                     color="white",angle=c(0,180,0))) |> 
+#'   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),text_height=180,
+#'                         font = "Serif", font_color="orange",
+#'                         angle=c(0,180,0))) |> 
+#'   add_shape(text3d_mesh(label="Sphere", position=c(555/2,130,100),text_height=100,
+#'                         font = "sans",
+#'                         font_color="lightblue",angle=c(0,180,40))) |> 
 #'   add_shape(sphere_mesh(radius=100,position=c(555/2,100,555/2),
-#'                     material=material_list(diffuse="purple",type="phong"))) |>                  
+#'                         material=material_list(diffuse="purple",type="phong"))) |>                  
 #'   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
 #'   }
 #' if(run_documentation()) {
-#'   
-#' #A room full of bees
+#' #A room full of b's
+#' set.seed(1)
 #' bee_scene = list()
 #' for(i in 1:100) {
 #' bee_scene = add_shape(bee_scene, text3d_mesh("B", position=c(20+runif(3)*525), 
-#'                                              color="yellow", text_height = 50,
+#'                                              font_color="yellow", text_height = 100,
 #'                                              angle=c(0,180,0)))
 #' }
 #' generate_cornell_mesh() |> 
 #'   add_shape(bee_scene) |>                   
 #'   rasterize_scene(light=directional_light(c(0,1,-1)))
 #'}
+#'
+#' if(run_documentation()) {
+#' #A room full of bees
+#' bee_scene = list()
+#' set.seed(1)
+#' for(i in 1:100) {
+#'   bee_scene = add_shape(bee_scene, text3d_mesh("🐝", position=c(20+runif(3)*525), 
+#'                                                font_color="yellow", text_height = 100,
+#'                                                angle=c(0,180,0)))
+#' }
+#' generate_cornell_mesh() |> 
+#'   add_shape(bee_scene) |>                   
+#'   rasterize_scene(light=directional_light(c(0,1,-1)))
+#'}
 text3d_mesh = function(label, position = c(0,0,0), text_height = 1, orientation = "xy",
-                       color = "black",
+                       font_color = "black", font_size = 100,font = "sans", font_lineheight = 12,
+                       background_color = "white", background_alpha = 0,
                        angle = c(0, 0, 0), pivot_point = c(0,0,0), order_rotation = c(1, 2, 3), 
                        scale = c(1,1,1)) {
   labelfile = tempfile(fileext = ".png")
-  rayimage::add_title(matrix(0,ncol = nchar(label)*60, nrow=60*1.2), 
-                      title_size  = 60,
-                      title_offset = c(0,0),title_text = label, title_color = "white",
-                      title_position = "center", filename = labelfile)
-  text_color = convert_color(color)
-  array_label = (flipud(png::readPNG(labelfile)))
-  image_dim = dim(array_label)
-  temp_array = array(0,dim=c(image_dim[1],image_dim[2],4))
-  temp_array[,,1] = text_color[1]
-  temp_array[,,2] = text_color[2]
-  temp_array[,,3] = text_color[3]
-  temp_array[,,4] = array_label[,,1]
-  if (orientation == "yz" || orientation == "zy") {
-    temp_array = flipud((aperm(temp_array,c(2,1,3))))
-  }
-  if (orientation == "xz" || orientation == "zx") {
-    temp_array = fliplr(temp_array)
-  }
-  png::writePNG(temp_array, labelfile)
+  text_image = rayimage::render_text_image(label, 
+                                           font = font, 
+                                           size = font_size,
+                                           color = font_color, 
+                                           just = "left",
+                                           lineheight = font_lineheight,
+                                           background_color = background_color,
+                                           background_alpha = background_alpha,
+                                           filename = labelfile)
+  height_val_raw = nrow(text_image)
+  width_val_raw = ncol(text_image)
+  ratio = text_height/height_val_raw
+  width_val = width_val_raw * ratio
   if(orientation == "xy" || orientation == "yx") {
     mesh = xy_rect_mesh(position = position, angle = angle,pivot_point = pivot_point,
                         order_rotation = order_rotation,
-                 scale = c(nchar(label)*text_height, text_height,1),
-                 material = material_list(texture_location = labelfile, type="color"))
+                        scale = c(width_val, text_height,1))
   } else if (orientation == "yz" || orientation == "zy") {
     mesh = yz_rect_mesh(position = position, angle = angle,pivot_point = pivot_point,
                         order_rotation = order_rotation,
-                 scale = c(1,text_height,nchar(label)*text_height),
-                 material = material_list(texture_location = labelfile, type="color"))
+                        scale = c(1, text_height, width_val))
   } else if (orientation == "xz" || orientation == "zx") {
     mesh = xz_rect_mesh(position = position, angle = angle,pivot_point = pivot_point,
                         order_rotation = order_rotation,
-                 scale = c(nchar(label)*text_height, 1,zwidth = text_height),
-                 material = material_list(texture_location = labelfile, type="color"))
+                        scale = c(width_val, 1, text_height))
   } else {
     stop("Orientation ", orientation, " not recognized")
   }
+  mesh = set_material(mesh, material = material_list(texture_location = labelfile, type="color",
+                                                     culling = "none"))
   return(mesh)
 }
 
