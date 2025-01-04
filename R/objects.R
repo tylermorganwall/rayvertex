@@ -1067,7 +1067,7 @@ text3d_mesh = function(label, position = c(0,0,0), text_height = 1, orientation 
                        angle = c(0, 0, 0), pivot_point = c(0,0,0), order_rotation = c(1, 2, 3), 
                        scale = c(1,1,1)) {
   labelfile = tempfile(fileext = ".png")
-  text_image = rayimage::render_text_image(label, 
+  text_image = suppressWarnings(rayimage::render_text_image(label, 
                                            font = font, 
                                            size = font_size,
                                            color = font_color, 
@@ -1075,7 +1075,7 @@ text3d_mesh = function(label, position = c(0,0,0), text_height = 1, orientation 
                                            lineheight = font_lineheight,
                                            background_color = background_color,
                                            background_alpha = background_alpha,
-                                           filename = labelfile)
+                                           filename = labelfile))
   height_val_raw = nrow(text_image)
   width_val_raw = ncol(text_image)
   ratio = text_height/height_val_raw
