@@ -22,3 +22,5 @@
 ^_pkgdown\.yml$
 ^cran-comments\.md$
 ^tests/*$
+^compile_commands\.json$
+^\.cache$

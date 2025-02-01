@@ -108,7 +108,7 @@ if(run_documentation()) {
 bee_scene = list()
 set.seed(1)
 for(i in 1:100) {
-  bee_scene = add_shape(bee_scene, text3d_mesh("🐝", position=c(20+runif(3)*525), 
+  bee_scene = add_shape(bee_scene, text3d_mesh("\U1F41D", position=c(20+runif(3)*525), 
                                                font_color="yellow", text_height = 100,
                                                angle=c(0,180,0)))
 }
