@@ -6,6 +6,16 @@
 
 #include "Rcpp.h"
 
+#ifdef __EMSCRIPTEN__
+  #ifdef __EMSCRIPTEN_PTHREADS__
+    #define HAVE_THREADS
+  #else
+  #endif
+#else
+  #define HAVE_THREADS
+#endif 
+
+
 #define FLOAT_AS_DOUBLE
 // #ifndef FLOAT_AS_DOUBLE
 // typedef float Float;
@@ -30,6 +40,7 @@
 #include "single_sample.h"
 // [[Rcpp::depends(RcppThread)]]
 #include "RcppThread.h"
+#include "dummythreadpool.h"
 
 #include "material.h"
 
@@ -151,6 +162,7 @@ List rasterize(List mesh,
                double background_sharpness,
                LogicalVector has_refraction, bool environment_map_hdr,
                bool has_environment_map, NumericVector bg_color,
+               bool transparent_background,
                bool verbose) {
   List materials = as<List>(mesh["materials"]);
   int number_materials = materials.size();
@@ -236,6 +248,8 @@ List rasterize(List mesh,
 
   //Account for colinear camera direction/cam_up vectors
   if(glm::length(glm::cross(eye-center,cam_up)) == 0) {
+    const std::string warn_string("Look direction and camera up colinear--using c(0,0,1) for up.");
+    Rcpp::warning(warn_string);
     cam_up = vec3(0.,0.,1.f);
   }
   
@@ -273,15 +287,19 @@ List rasterize(List mesh,
   NumericMatrix r(nx,ny);
   NumericMatrix g(nx,ny);
   NumericMatrix b(nx,ny);
+  NumericMatrix a(nx,ny);
+  
   
   //Fill bg color
   std::fill(r.begin(), r.end(), bg_color[0]) ;
   std::fill(g.begin(), g.end(), bg_color[1] ) ;
   std::fill(b.begin(), b.end(), bg_color[2] ) ;
+  float default_alpha = !transparent_background ? 1.0f : 0.0f;
+  std::fill(a.begin(), a.end(), default_alpha ) ;
   
   
   //Create buffers
-  rayimage image(r,g,b,nx,ny);
+  rayimage image(r,g,b,a, nx,ny);
   
   //Depth buffer
   NumericMatrix zbuffer(nx,ny);
@@ -459,6 +477,8 @@ List rasterize(List mesh,
     Float toon_levels = as<Float>(single_material["toon_levels"]);
     Float reflection_intensity = as<Float>(single_material["reflection_intensity"]);
     bool two_sided = as<bool>(single_material["two_sided"]);
+    Float sigma = as<Float>(single_material["sigma"]);
+    
     //Change cull type to none if two sided
     cull_type = !two_sided ? cull_type : 3;
     
@@ -496,7 +516,8 @@ List rasterize(List mesh,
       cull_type,
       is_translucent,
       toon_levels,
-      reflection_intensity
+      reflection_intensity,
+      sigma
     };
     mat_info.push_back(temp);
     
@@ -516,19 +537,35 @@ List rasterize(List mesh,
                                  vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
                                  reflection_maps[i], has_reflection_map(i), has_refraction(i));
     } else if (type == 2) {
-      shader = new DiffuseShader(Model, Projection, View, viewport,
-                                 has_shadow_map,
-                                 shadow_map_bias,mat_info[i], point_lights,
-                                 directional_lights, 
-                                 shadowbuffers,
-                                 transparency_buffers,
-                                 vec_varying_intensity,
-                                 vec_varying_uv,
-                                 vec_varying_tri,
-                                 vec_varying_pos,
-                                 vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
-                                 reflection_maps[i], has_reflection_map(i), has_refraction(i),
-                                 two_sided);
+      if(sigma <= 0) {
+        shader = new DiffuseShader(Model, Projection, View, viewport,
+                                   has_shadow_map,
+                                   shadow_map_bias,mat_info[i], point_lights,
+                                   directional_lights, 
+                                   shadowbuffers,
+                                   transparency_buffers,
+                                   vec_varying_intensity,
+                                   vec_varying_uv,
+                                   vec_varying_tri,
+                                   vec_varying_pos,
+                                   vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                                   reflection_maps[i], has_reflection_map(i), has_refraction(i),
+                                   two_sided);
+      } else {
+        shader = new OrenNayerShader(Model, Projection, View, viewport,
+                                   has_shadow_map,
+                                   shadow_map_bias,mat_info[i], point_lights,
+                                   directional_lights, 
+                                   shadowbuffers,
+                                   transparency_buffers,
+                                   vec_varying_intensity,
+                                   vec_varying_uv,
+                                   vec_varying_tri,
+                                   vec_varying_pos,
+                                   vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
+                                   reflection_maps[i], has_reflection_map(i), has_refraction(i),
+                                   two_sided);
+      }
     } else if (type == 3) {
       shader = new PhongShader(Model, Projection, View, viewport,
                                has_shadow_map,
@@ -667,7 +704,8 @@ List rasterize(List mesh,
     1,
     false,
     5,
-    0.0
+    0.0,
+    0
   };
   
   mat_info.push_back(default_mat);
@@ -944,7 +982,7 @@ List rasterize(List mesh,
       auto task = [&depth_shader_single, &blocks_depth, &ndc_verts_depth, &ndc_inv_w_depth,  
                    &min_block_bound_depth, &max_block_bound_depth,
                    &zbuffer_depth, &shadowbuff, &normalbuffer, &positionbuffer, &uvbuffer, 
-                   &models, &alpha_depth_single, sb] (unsigned int i) {
+                   &models, &alpha_depth_single] (unsigned int i) {
         fill_tri_blocks(blocks_depth[i],
                         ndc_verts_depth,
                         ndc_inv_w_depth,
@@ -958,8 +996,12 @@ List rasterize(List mesh,
                         uvbuffer,
                         models, true,
                         alpha_depth_single);
-      };
+      }; 
+      #ifdef HAVE_THREADS
       RcppThread::ThreadPool pool2(numbercores);
+      #else
+      DummyThreadPool pool2;
+      #endif
       for(int i = 0; i < nx_blocks_depth*ny_blocks_depth; i++) {
         pool2.push(task, i);
       }
@@ -1064,8 +1106,11 @@ List rasterize(List mesh,
                     alpha_depths);
   };
   
-
+  #ifdef HAVE_THREADS
   RcppThread::ThreadPool pool(numbercores);
+  #else
+  DummyThreadPool pool;
+  #endif
   for(int i = 0; i < nx_blocks*ny_blocks; i++) {
     pool.push(task, i);
   }
@@ -1275,7 +1320,7 @@ List rasterize(List mesh,
   linear_depth = 2*near_clip*far_clip/(far_clip + near_clip - linear_depth * (far_clip-near_clip));
   print_time(verbose, "Calculated linear depth" );
   
-  return(List::create(_["r"] = r, _["g"] = g, _["b"] = b,
+  return(List::create(_["r"] = r, _["g"] = g, _["b"] = b, _["a"] = a,
                       _["amb"] = abuffer, _["depth"] = zbuffer, _["linear_depth"] = linear_depth,
                       _["normalx"] = nxbuffer, _["normaly"] = nybuffer, _["normalz"] = nzbuffer,
                       _["positionx"] = xxbuffer, _["positiony"] = yybuffer, _["positionz"] = zzbuffer,

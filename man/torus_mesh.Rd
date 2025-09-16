@@ -36,7 +36,7 @@ torus_mesh(
 
 \item{rings}{Default \code{36}. The number of faces around the torus.}
 
-\item{material}{Default \code{material_list()} (default values). Specify the material of the object.}
+\item{material}{Default \code{\link[=material_list]{material_list()}} (default values). Specify the material of the object.}
 }
 \value{
 List describing the mesh.
@@ -47,7 +47,7 @@ Torus 3D Model
 \examples{
 if(run_documentation()) {
 #Plot a group of tori in the cornell box
-generate_cornell_mesh(ceiling = FALSE) |> 
+generate_cornell_mesh(ceiling = FALSE) |>
  add_shape(torus_mesh(position=c(555/2,555/3,555/2), angle=c(20,0,45),
                       radius=120, ring_radius = 40,
                       material = material_list(diffuse="dodgerblue4",type="phong",

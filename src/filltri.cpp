@@ -138,7 +138,7 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                 } else {
                   if(color.w >= 1.0f) {
                     zbuffer(i,j) = z;
-                    image.set_color(i,j,vec3(color));
+                    image.set_color(i,j,vec4(color));
                     normal_buffer.set_color(i,j,normal);
                     position_buffer.set_color(i,j,position);
                     uv_buffer.set_color(i,j,bc_clip);

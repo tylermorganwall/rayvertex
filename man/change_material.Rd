@@ -36,7 +36,8 @@ change_material(
   toon_outline_color = NULL,
   reflection_intensity = NULL,
   reflection_sharpness = NULL,
-  two_sided = NULL
+  two_sided = NULL,
+  sigma = NULL
 )
 }
 \arguments{

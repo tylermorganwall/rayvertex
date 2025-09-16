@@ -98,7 +98,7 @@ List load_obj(std::string inputfile, std::string basedir) {
     shape_list.push_back(single_shape);
   }
   //This needs to be updated when more defaults are added to each texture
-  const int num_items = 29;
+  const int num_items = 30;
   for(unsigned int i=0; i < materials.size(); i++) {
     tinyobj::material_t m = materials[i];
     int culltype = m.dissolve < 1.0 ? 3 : 1; //no culling if at all transparent
@@ -134,6 +134,7 @@ List load_obj(std::string inputfile, std::string basedir) {
     set_item( out, item++ , _["reflection_intensity"] = 1.0, names) ;
     set_item( out, item++ , _["reflection_sharpness"] = 1.0, names) ;
     set_item( out, item++ , _["two_sided"] = false, names) ;
+    set_item( out, item++ , _["sigma"] = 0.0, names) ;
     
     if(item != num_items) {
       throw std::runtime_error("Number of items is not equal to specified material length.");

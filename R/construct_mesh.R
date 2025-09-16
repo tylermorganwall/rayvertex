@@ -11,7 +11,7 @@
 #'@param tex_indices Nx3 integer matrix, where each row defines the texture coordinates for a triangle
 #' using the tex coords defined in `texcoors` for the corresponding triangle in `indices`.
 #'Required to be the same number of rows as `indices`.
-#' @param material Default `material_list()` (default values). Specify the material of the object.
+#' @param material Default [material_list()] (default values). Specify the material of the object.
 #' 
 #'@return List containing mesh info.
 #'@export

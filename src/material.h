@@ -35,6 +35,7 @@ struct material_info {
   bool translucent;
   Float toon_levels;
   Float reflection_intensity;
+  Float sigma;
 };
 
 #endif

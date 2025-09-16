@@ -33,7 +33,7 @@ sphere_mesh(
 
 \item{normals}{Default \code{TRUE}. Whether to include vertex normals.}
 
-\item{material}{Default \code{material_list()} (default values). Specify the material of the object.}
+\item{material}{Default \code{\link[=material_list]{material_list()}} (default values). Specify the material of the object.}
 }
 \value{
 List describing the mesh.
@@ -51,14 +51,14 @@ generate_cornell_mesh() |>
 if(run_documentation()) {
 #Generate a shiny sphere in the Cornell box
 generate_cornell_mesh() |>
-  add_shape(sphere_mesh(position = c(555/2, 100, 555/2), radius = 100, 
+  add_shape(sphere_mesh(position = c(555/2, 100, 555/2), radius = 100,
                     material = material_list(diffuse = "gold",type="phong"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
 }
 if(run_documentation()) {
 #Generate an ellipsoid in the Cornell box
 generate_cornell_mesh() |>
-  add_shape(sphere_mesh(position = c(555/2, 210, 555/2), radius = 100, 
+  add_shape(sphere_mesh(position = c(555/2, 210, 555/2), radius = 100,
                         angle=c(0,30,0), scale = c(0.5,2,0.5),
                         material = material_list(diffuse = "dodgerblue",type="phong"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))

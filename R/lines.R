@@ -241,7 +241,7 @@ color_lines = function(lines, color = "white") {
 #'@title Add Line
 #'
 #'@param lines Existing lines or empty (0-row) matrix.
-#'@param line Line to add, generated with `generate_line()`
+#'@param line Line to add, generated with [generate_line()]
 #'
 #'@return New line matrix.
 #'@export

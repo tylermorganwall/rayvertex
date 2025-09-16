@@ -30,7 +30,7 @@ ply_mesh(
 
 \item{order_rotation}{Default \code{c(1,2,3)}. Order to rotate the axes.}
 
-\item{material}{Default \code{material_list()} (default values). Specify the material of the object.}
+\item{material}{Default \code{\link[=material_list]{material_list()}} (default values). Specify the material of the object.}
 }
 \value{
 List describing the mesh.
@@ -39,6 +39,6 @@ List describing the mesh.
 PLY Mesh 3D Model
 }
 \examples{
-#See the documentation for `obj_mesh()`--no example PLY models are included with this package,
+#See the documentation for [obj_mesh()]--no example PLY models are included with this package,
 #but the process of loading a model is the same (but no materials are included in PLY files).
 }

@@ -34,7 +34,7 @@ obj_mesh(
 \item{center}{Default \code{FALSE}. Whether to center the mesh.}
 
 \item{material}{Default \code{NULL}, read from the MTL file. If not \code{NULL}, this accepts the output
-from the \code{material_list()} function to specify the material.}
+from the \code{\link[=material_list]{material_list()}} function to specify the material.}
 }
 \value{
 List describing the mesh.
@@ -45,8 +45,8 @@ OBJ Mesh 3D Model
 \examples{
 if(run_documentation()) {
 #Read in the provided 3D R mesh
-generate_cornell_mesh(ceiling=FALSE) |> 
-  add_shape(obj_mesh(r_obj(),position=c(555/2,555/2,555/2),scale=400,angle=c(0,180,0))) |> 
+generate_cornell_mesh(ceiling=FALSE) |>
+  add_shape(obj_mesh(r_obj(),position=c(555/2,555/2,555/2),scale=400,angle=c(0,180,0))) |>
   rasterize_scene(light_info = directional_light(direction=c(0.2,0.5,-1)))
 }
 }

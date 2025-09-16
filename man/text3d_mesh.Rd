@@ -60,33 +60,33 @@ Text Object
 \examples{
 if(run_documentation()) {
 #Generate a label in the Cornell box.
-generate_cornell_mesh() |> 
+generate_cornell_mesh() |>
   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),angle=c(0,180,0),
-  text_height=120)) |> 
+  text_height=120)) |>
   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
 }
 if(run_documentation()) {
 #Change the orientation
-generate_cornell_mesh() |> 
+generate_cornell_mesh() |>
   add_shape(text3d_mesh(label="YZ Plane", position=c(540,555/2,555/2),text_height=180,
-                    orientation = "yz",angle=c(0,180,0))) |> 
+                    orientation = "yz",angle=c(0,180,0))) |>
   add_shape(text3d_mesh(label="XY Plane", position=c(555/2,555/2,540),text_height=180,
-                    orientation = "xy", angle=c(0,180,0))) |> 
+                    orientation = "xy", angle=c(0,180,0))) |>
   add_shape(text3d_mesh(label="XZ Plane", position=c(555/2,15,555/2),text_height=180,
-                    orientation = "xz", angle=c(0,180,0))) |> 
+                    orientation = "xz", angle=c(0,180,0))) |>
   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
   }
 if(run_documentation()) {
 #Add an label in front of a sphere and change the font
-generate_cornell_mesh() |> 
+generate_cornell_mesh() |>
   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),text_height=180,
                         font = "Serif", font_color="orange",
-                        angle=c(0,180,0))) |> 
+                        angle=c(0,180,0))) |>
   add_shape(text3d_mesh(label="Sphere", position=c(555/2,130,100),text_height=100,
                         font = "sans",
-                        font_color="lightblue",angle=c(0,180,40))) |> 
+                        font_color="lightblue",angle=c(0,180,40))) |>
   add_shape(sphere_mesh(radius=100,position=c(555/2,100,555/2),
-                        material=material_list(diffuse="purple",type="phong"))) |>                  
+                        material=material_list(diffuse="purple",type="phong"))) |>
   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
   }
 if(run_documentation()) {
@@ -94,12 +94,12 @@ if(run_documentation()) {
 set.seed(1)
 bee_scene = list()
 for(i in 1:100) {
-bee_scene = add_shape(bee_scene, text3d_mesh("B", position=c(20+runif(3)*525), 
+bee_scene = add_shape(bee_scene, text3d_mesh("B", position=c(20+runif(3)*525),
                                              font_color="yellow", text_height = 100,
                                              angle=c(0,180,0)))
 }
-generate_cornell_mesh() |> 
-  add_shape(bee_scene) |>                   
+generate_cornell_mesh() |>
+  add_shape(bee_scene) |>
   rasterize_scene(light=directional_light(c(0,1,-1)))
 }
 
@@ -108,12 +108,12 @@ if(run_documentation()) {
 bee_scene = list()
 set.seed(1)
 for(i in 1:100) {
-  bee_scene = add_shape(bee_scene, text3d_mesh("\U1F41D", position=c(20+runif(3)*525), 
+  bee_scene = add_shape(bee_scene, text3d_mesh("\U1F41D", position=c(20+runif(3)*525),
                                                font_color="yellow", text_height = 100,
                                                angle=c(0,180,0)))
 }
-generate_cornell_mesh() |> 
-  add_shape(bee_scene) |>                   
+generate_cornell_mesh() |>
+  add_shape(bee_scene) |>
   rasterize_scene(light=directional_light(c(0,1,-1)))
 }
 }

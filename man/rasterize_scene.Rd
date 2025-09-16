@@ -45,7 +45,8 @@ rasterize_scene(
   background_sharpness = 1,
   verbose = FALSE,
   vertex_transform = NULL,
-  validate_scene = TRUE
+  validate_scene = TRUE,
+  transparent_background = FALSE
 )
 }
 \arguments{
@@ -76,8 +77,8 @@ rasterize_scene(
 \item{fsaa}{Default \code{2}. Full screen anti-aliasing multiplier. Must be positive integer, higher numbers
 will improve anti-aliasing quality but will vastly increase memory usage.}
 
-\item{light_info}{Default \code{directional_light()}. Description of scene lights, generated with the \code{point_light()} and
-\code{directional_light()} functions.}
+\item{light_info}{Default \code{\link[=directional_light]{directional_light()}}. Description of scene lights, generated with the \code{\link[=point_light]{point_light()}} and
+\code{\link[=directional_light]{directional_light()}} functions.}
 
 \item{color}{Default \code{darkred}. Color of model if no material file present (or for faces using the default material).}
 
@@ -149,7 +150,7 @@ Render a 3D scene with meshes, lights, and lines using a software rasterizer.
 if(run_documentation()) {
 #Let's load the cube OBJ file included with the package
 
-rasterize_scene(cube_mesh(),lookfrom=c(2,4,10), 
+rasterize_scene(cube_mesh(),lookfrom=c(2,4,10),
               light_info = directional_light(direction=c(0.5,1,0.7)))
 }
 if(run_documentation()) {
@@ -157,19 +158,19 @@ if(run_documentation()) {
 base_model = cube_mesh() |>
  scale_mesh(scale=c(5,0.2,5)) |>
  translate_mesh(c(0,-0.1,0)) |>
- set_material(diffuse="grey80") 
- 
-rasterize_scene(base_model, lookfrom=c(2,4,10), 
+ set_material(diffuse="grey80")
+
+rasterize_scene(base_model, lookfrom=c(2,4,10),
               light_info = directional_light(direction=c(0.5,1,0.7)))
 }
-if(run_documentation()) {           
+if(run_documentation()) {
 #load the R OBJ file, scale it down, color it blue, and add it to the grey base
 r_model = obj_mesh(r_obj(simple_r = TRUE)) |>
  scale_mesh(scale=0.5) |>
  set_material(diffuse="dodgerblue") |>
  add_shape(base_model)
- 
-rasterize_scene(r_model, lookfrom=c(2,4,10), 
+
+rasterize_scene(r_model, lookfrom=c(2,4,10),
               light_info = directional_light(direction=c(0.5,1,0.7)))
 }
 if(run_documentation()) {
@@ -181,7 +182,7 @@ if(run_documentation()) {
 #Include the resolution (4x) of the shadow map for less pixellation around the edges
 #Also decrease the shadow_map_bias slightly to remove the "peter panning" floating shadow effect
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
-              shadow_map_dims=4, 
+              shadow_map_dims=4,
               light_info = directional_light(direction=c(0.5,1,0.7)))
 }
 if(run_documentation()) {
@@ -196,7 +197,7 @@ if(run_documentation()) {
 #Add some point lights
 lights_p = lights |>
  add_light(point_light(position=c(-1,1,0),color="red", intensity=2)) |>
- add_light(point_light(position=c(1,1,0),color="purple", intensity=2)) 
+ add_light(point_light(position=c(1,1,0),color="purple", intensity=2))
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
               light_info = lights_p)
 }
@@ -206,7 +207,7 @@ rasterize_scene(r_model, lookfrom=c(-2,2,-10), fov=10,
               light_info = lights_p)
 }
 if(run_documentation()) {
-              
+
 #Add a spiral of lines around the model by generating a matrix of line segments
 t = seq(0,8*pi,length.out=361)
 line_mat = matrix(nrow=0,ncol=9)

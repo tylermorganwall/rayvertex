@@ -14,7 +14,7 @@ scene_from_list(scene_list)
 }
 \description{
 Fast generation of rayvertex scenes from a list of objects (much faster than calling
-\code{add_shape()} on each object individually to build the scene). This returns a \code{ray_scene} object
+\code{\link[=add_shape]{add_shape()}} on each object individually to build the scene). This returns a \code{ray_scene} object
 that cdoes
 }
 \examples{

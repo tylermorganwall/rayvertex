@@ -208,7 +208,7 @@ List load_ply(std::string inputfile, std::string basedir) {
   single_shape["has_vertex_normals"] = LogicalVector(inds.size()/nv_face,inds.size() == norm_inds.size());
   shape_list[0]                = single_shape;
   
-  const int num_items = 29;
+  const int num_items = 30;
   
   List out(num_items);
   CharacterVector names(num_items) ;
@@ -243,6 +243,7 @@ List load_ply(std::string inputfile, std::string basedir) {
   set_item( out, item++, _["reflection_intensity"] = 1.0, names) ;
   set_item( out, item++, _["reflection_sharpness"] = 1.0, names) ;
   set_item( out, item++, _["two_sided"] = false, names) ;
+  set_item( out, item++, _["sigma"] = 1.0, names) ;
   
   if(item != num_items) {
     throw std::runtime_error("Number of items is not equal to specified material length.");

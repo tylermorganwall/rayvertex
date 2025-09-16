@@ -14,7 +14,7 @@
 #' @param angle Default `c(0,0,0)`. Angle to rotate the mesh.
 #' @param pivot_point Default `c(0,0,0)`. Point around which to rotate the mesh.
 #' @param order_rotation Default `c(1,2,3)`. Order to rotate the axes.
-#' @param material Default `material_list()` (default values). Specify the material of the object.
+#' @param material Default [material_list()] (default values). Specify the material of the object.
 #' 
 #' @return raymesh object
 #' @export

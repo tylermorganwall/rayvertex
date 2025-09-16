@@ -33,7 +33,7 @@ determined by the magnitude of the direction vector.}
 \item{from_center}{Default \code{TRUE}. If orientation specified via \code{direction}, setting this argument
 to \code{FALSE} will make \code{start} specify the bottom of the cone, instead of the middle.}
 
-\item{material}{Default \code{material_list()} (default values). Specify the material of the object.}
+\item{material}{Default \code{\link[=material_list]{material_list()}} (default values). Specify the material of the object.}
 }
 \value{
 List describing the mesh.

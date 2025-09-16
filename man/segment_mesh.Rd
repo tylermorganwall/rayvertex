@@ -30,7 +30,7 @@ to \code{FALSE} will make \code{start} specify the bottom of the cone, instead o
 
 \item{square}{Default \code{FALSE}. If \code{TRUE}, will use a square instead of a circle for the cylinder.}
 
-\item{material}{Default \code{material_list()} (default values). Specify the material of the object.}
+\item{material}{Default \code{\link[=material_list]{material_list()}} (default values). Specify the material of the object.}
 }
 \value{
 List describing the mesh.
@@ -40,7 +40,7 @@ Segment 3D Model
 }
 \examples{
 if(run_documentation()) {
-#Generate a segment in the cornell box. 
+#Generate a segment in the cornell box.
 generate_cornell_mesh() |>
   add_shape(segment_mesh(start = c(100, 100, 100), end = c(455, 455, 455), radius = 50)) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
@@ -52,14 +52,14 @@ yvals = dnorm(xvals)
 
 scene_list = list()
 for(i in 1:(length(xvals) - 1)) {
-  scene_list = add_shape(scene_list, 
+  scene_list = add_shape(scene_list,
                          segment_mesh(start = c(555/2 + xvals[i] * 80, yvals[i] * 800, 555/2),
                             end = c(555/2 + xvals[i + 1] * 80, yvals[i + 1] * 800, 555/2),
                             radius = 10,
                             material = material_list(diffuse="purple", type="phong")))
 }
 
-generate_cornell_mesh() |> 
+generate_cornell_mesh() |>
   add_shape(scene_list) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
 }

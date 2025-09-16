@@ -32,7 +32,7 @@ Required to be the same number of rows as \code{indices}.}
 using the tex coords defined in \code{texcoors} for the corresponding triangle in \code{indices}.
 Required to be the same number of rows as \code{indices}.}
 
-\item{material}{Default \code{material_list()} (default values). Specify the material of the object.}
+\item{material}{Default \code{\link[=material_list]{material_list()}} (default values). Specify the material of the object.}
 }
 \value{
 List containing mesh info.

@@ -45,7 +45,7 @@ for later displacement.}
 
 \item{order_rotation}{Default \code{c(1,2,3)}. Order to rotate the axes.}
 
-\item{material}{Default \code{material_list()} (default values). Specify the material of the object.}
+\item{material}{Default \code{\link[=material_list]{material_list()}} (default values). Specify the material of the object.}
 }
 \value{
 raymesh object

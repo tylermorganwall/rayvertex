@@ -9,7 +9,7 @@ add_lines(lines, line)
 \arguments{
 \item{lines}{Existing lines or empty (0-row) matrix.}
 
-\item{line}{Line to add, generated with \code{generate_line()}}
+\item{line}{Line to add, generated with \code{\link[=generate_line]{generate_line()}}}
 }
 \value{
 New line matrix.

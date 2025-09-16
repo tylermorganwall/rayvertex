@@ -36,13 +36,14 @@ set_material(
   toon_outline_color = "black",
   reflection_intensity = 0,
   reflection_sharpness = 0,
-  two_sided = FALSE
+  two_sided = FALSE,
+  sigma = 0
 )
 }
 \arguments{
 \item{mesh}{The target mesh.}
 
-\item{material}{Default \code{NULL}. You can pass the output of the \code{material_list()} function
+\item{material}{Default \code{NULL}. You can pass the output of \code{\link[=material_list]{material_list()}}
 to specify the material, or use the following individual settings.}
 
 \item{id}{Default \code{1}. Either a number specifying the material to change, or a character vector

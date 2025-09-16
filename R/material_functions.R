@@ -1,12 +1,12 @@
-
+# fmt: skip file
 
 #'@title Set Material
 #'
 #'@description Set the material(s) of the mesh.
 #'
 #'@param mesh The target mesh. 
-#'@param material Default `NULL`. You can pass the output of the `material_list()` function
-#'to specify the material, or use the following individual settings.
+#'@param material Default `NULL`. You can pass the output of [material_list()]
+#' to specify the material, or use the following individual settings.
 #'@param id Default `1`. Either a number specifying the material to change, or a character vector 
 #'matching the material name.
 #'@param diffuse                   Default `c(0.5,0.5,0.5)`. The diffuse color.
@@ -83,7 +83,8 @@ set_material = function(mesh, material = NULL, id = NULL,
                         toon_outline_color        = "black",
                         reflection_intensity      = 0.0,
                         reflection_sharpness      = 0.0,
-                        two_sided                 = FALSE) {
+                        two_sided                 = FALSE,
+                        sigma                     = 0) {
   culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   if(is.null(material)) {
     material = list()
@@ -117,6 +118,8 @@ set_material = function(mesh, material = NULL, id = NULL,
     material$reflection_intensity        = reflection_intensity        
     material$reflection_sharpness    = reflection_sharpness      
     material$two_sided              = two_sided   
+    material$sigma              = sigma   
+    
     material = rayvertex_material(material)
   }
   material_hash = digest::digest(material)
@@ -248,7 +251,8 @@ change_material = function(mesh, id = NULL, sub_id = 1,
                            toon_outline_color        = NULL,
                            reflection_intensity      = NULL,
                            reflection_sharpness      = NULL,
-                           two_sided                 = NULL) {
+                           two_sided                 = NULL,
+                           sigma                     = NULL) {
   if(!is.null(culling)) {
     culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   }
@@ -286,6 +290,8 @@ change_material = function(mesh, id = NULL, sub_id = 1,
           if(!is.null(reflection_intensity))      mesh$materials[[j]][[i]]$reflection_intensity = reflection_intensity
           if(!is.null(reflection_sharpness))      mesh$materials[[j]][[i]]$reflection_sharpness = reflection_sharpness
           if(!is.null(two_sided))                 mesh$materials[[j]][[i]]$two_sided            = two_sided
+          if(!is.null(sigma))                     mesh$materials[[j]][[i]]$sigma                = sigma
+          
         }
       }
     } else {
@@ -319,6 +325,7 @@ change_material = function(mesh, id = NULL, sub_id = 1,
         if(!is.null(reflection_intensity))      mesh$materials[[id]][[sub_id]]$reflection_intensity = reflection_intensity
         if(!is.null(reflection_sharpness))      mesh$materials[[id]][[sub_id]]$reflection_sharpness = reflection_sharpness
         if(!is.null(two_sided))                 mesh$materials[[id]][[sub_id]]$two_sided            = two_sided
+        if(!is.null(sigma))                     mesh$materials[[id]][[sub_id]]$sigma                = sigma
         
       }
       if(is.character(id)) {
@@ -353,6 +360,7 @@ change_material = function(mesh, id = NULL, sub_id = 1,
             if(!is.null(reflection_intensity))      mesh$materials[[i]][[sub_id]]$reflection_intensity = reflection_intensity
             if(!is.null(reflection_sharpness))      mesh$materials[[i]][[sub_id]]$reflection_sharpness = reflection_sharpness
             if(!is.null(two_sided))                 mesh$materials[[i]][[sub_id]]$two_sided            = two_sided
+            if(!is.null(sigma))                     mesh$materials[[i]][[sub_id]]$sigma                = sigma
             
           }
         }
@@ -455,7 +463,8 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
                          toon_outline_color        = "black",
                          reflection_intensity      = 0.0,
                          reflection_sharpness      = 1.0,
-                         two_sided                 = FALSE) {
+                         two_sided                 = FALSE,
+                         sigma                     = 0) {
   culling = switch(culling, "back" = 1, "front" = 2, "none" = 3, 1)
   material_props = 
     list(diffuse                   = convert_color(diffuse)                   ,
@@ -486,7 +495,8 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
          toon_outline_color        = convert_color(toon_outline_color)        ,
          reflection_intensity      = reflection_intensity      ,
          reflection_sharpness      = reflection_sharpness,
-         two_sided                 = two_sided)
+         two_sided                 = two_sided,
+         sigma                     = sigma)
   stopifnot(length(material_props$diffuse) == 3)
   stopifnot(length(material_props$ambient) == 3)
   stopifnot(length(material_props$specular) == 3)

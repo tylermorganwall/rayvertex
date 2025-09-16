@@ -315,10 +315,112 @@ class DiffuseShader : public IShader {
     bool two_sided;
 };
 
+
+class OrenNayerShader : public IShader {
+public:
+  OrenNayerShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
+                bool has_shadow_map, Float shadow_map_bias,
+                material_info mat_info,  std::vector<Light>& point_lights, 
+                std::vector<DirectionalLight> directional_lights, 
+                std::vector<rayimage>& shadowbuffers,
+                std::vector<rayimage>& transparency_buffers,
+                std::vector<vec3>& vec_varying_intensity,
+                std::vector<std::vector<vec3> >& vec_varying_uv,
+                std::vector<std::vector<vec4> >& vec_varying_tri,
+                std::vector<std::vector<vec3> >& vec_varying_pos,
+                std::vector<std::vector<vec3> >& vec_varying_world_nrm,
+                std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
+                std::vector<std::vector<vec3> >& vec_varying_nrm,
+                reflection_map_info reflection_map, bool has_reflection, bool has_refraction,
+                bool two_sided);
+  ~OrenNayerShader();
+  
+  virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
+  virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
+  vec3 specular(vec3 uv) {
+    return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
+  }
+  vec4 emissive(vec3 uv) {
+    return(has_emissive_texture ? material.emission_intensity * 
+           trivalue(uv.x,uv.y,emissive_texture, nx_et, ny_et, nn_et) : vec4(0.0f));
+  }
+  vec3 normal_uv(vec3 uv) {
+    return(trivalue(uv.x, uv.y, normal_texture, nx_nt, ny_nt, nn_nt)*(Float)2 - (Float)1);
+  }
+  vec4 diffuse(vec3 uv) {
+    return(has_texture ? 
+             vec4(material.diffuse * material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
+             vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
+  }
+  vec4 ambient(vec3 uv) {
+    return(material.has_ambient_texture ? 
+             vec4(material.ambient * material.ambient_intensity,0.0f) * trivalue(uv.x,uv.y,ambient_texture, nx_a, ny_a, nn_a)  : 
+             vec4(material.ambient * material.ambient_intensity,0.0f));
+  }
+  vec4 reflection(vec3 norm) {
+    norm = glm::normalize(norm);
+    vec2 uv;
+    get_sphere_uv(norm, uv);
+    uv.x = 1 - uv.x;
+    uv.x += 0.25;
+    return(trivalue(uv.x, uv.y, reflection_map));
+  }
+  int get_culling() {
+    return(material.cull_type);
+  }
+  bool is_translucent() {
+    return(material.translucent);
+  }
+  
+  Mat Model;
+  Mat Projection;
+  Mat View;
+  Mat MVP;
+  Mat vp;
+  Mat uniform_Mshadow;
+  Mat uniform_M;
+  Mat uniform_MIT;
+  Mat uniform_M_inv;
+  Mat uniform_MIT_inv;
+  
+  vec4 viewport;
+  
+  bool has_shadow_map;
+  Float shadow_map_bias;
+  material_info material;
+  
+  int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
+  float* texture;
+  float* ambient_texture;
+  float* normal_texture;
+  float* specular_texture;
+  float* emissive_texture;
+  
+  bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
+  bool has_normals;
+  
+  std::vector<Light>& plights;
+  std::vector<DirectionalLight> directional_lights;
+  std::vector<rayimage>& shadowbuffers;
+  std::vector<rayimage>& transparency_buffers;
+  
+  std::vector<vec3>& vec_varying_intensity;
+  std::vector<std::vector<vec3> >& vec_varying_uv;
+  std::vector<std::vector<vec4> >& vec_varying_tri;
+  std::vector<std::vector<vec3> >& vec_varying_pos;
+  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+  
+  
+  reflection_map_info reflection_map;
+  bool has_reflection;   
+  bool has_refraction;  
+  bool two_sided;
+  Float A, B;
+};
+
 class DiffuseNormalShader : public IShader {
 public:
   DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
-               
                bool has_shadow_map, Float shadow_map_bias,
                material_info mat_info,  std::vector<Light>& point_lights, 
                std::vector<DirectionalLight> directional_lights, 

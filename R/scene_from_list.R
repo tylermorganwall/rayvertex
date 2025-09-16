@@ -1,7 +1,7 @@
 #'@title Scene From List
 #'
 #'@description Fast generation of rayvertex scenes from a list of objects (much faster than calling 
-#'`add_shape()` on each object individually to build the scene). This returns a `ray_scene` object
+#'[add_shape()] on each object individually to build the scene). This returns a `ray_scene` object
 #'that cdoes 
 #'
 #'@param scene_list List containing rayvertex mesh objects.

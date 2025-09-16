@@ -33,7 +33,8 @@ material_list(
   toon_outline_color = "black",
   reflection_intensity = 0,
   reflection_sharpness = 1,
-  two_sided = FALSE
+  two_sided = FALSE,
+  sigma = 0
 )
 }
 \arguments{
