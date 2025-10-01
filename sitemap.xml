@@ -40,9 +40,11 @@
 <url><loc>https://www.rayvertex.com/reference/get_time.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/index.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/init_time.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/lookat_transform.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/material_list.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/merge_scene.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/mesh3d_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/normalize.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/obj_mesh.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/pillar_shaft.ray_shape.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/pillar_shaft.ray_shape_list.html</loc></url>
@@ -65,7 +67,6 @@
 <url><loc>https://www.rayvertex.com/reference/rotate_lines.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/rotate_mesh.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/run_documentation.html</loc></url>
-<url><loc>https://www.rayvertex.com/reference/save_png.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/scale_lines.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/scale_mesh.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/scale_unit_mesh.html</loc></url>
@@ -78,6 +79,7 @@
 <url><loc>https://www.rayvertex.com/reference/swap_yz.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/text3d_mesh.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/torus_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/transform_mesh.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/translate_lines.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/translate_mesh.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/validate_mesh.html</loc></url>
