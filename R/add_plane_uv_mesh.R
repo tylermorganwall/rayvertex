@@ -236,7 +236,7 @@ add_sphere_uv_mesh = function(
 #'
 #' @description Computes a normalized vector
 #'
-#' @param x A numeric vector
+#' @param v A numeric vector
 #'
 #' @return Normilzed vector
 #'

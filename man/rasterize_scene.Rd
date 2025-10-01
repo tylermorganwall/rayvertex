@@ -139,6 +139,8 @@ of the background image.}
 Function should takes a length-3 numeric vector and returns another length-3 numeric vector as the output.}
 
 \item{validate_scene}{Default \code{TRUE}. Whether to validate the scene input.}
+
+\item{transparent_background}{Default \code{FALSE}. Whether the background of the render should be transparent.}
 }
 \value{
 Rasterized image.

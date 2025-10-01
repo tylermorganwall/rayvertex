@@ -95,6 +95,8 @@ material_list(
 \item{reflection_sharpness}{Default \code{1.0}. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.}
 
 \item{two_sided}{Default \code{FALSE}. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).}
+
+\item{sigma}{Default \code{0}. Oren-Nayar angle.}
 }
 \value{
 List of material properties.

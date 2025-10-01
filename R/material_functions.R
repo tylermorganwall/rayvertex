@@ -38,7 +38,8 @@
 #'@param reflection_intensity      Default `0.0`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.
 #'@param reflection_sharpness      Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.
 #'@param two_sided                 Default `NULL`. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).
-#'
+#'@param sigma                     Default `0`. Oren-Nayar angle.
+#' 
 #'@return Shape with new material
 #'@export
 #'@examples
@@ -195,7 +196,8 @@ set_material = function(mesh, material = NULL, id = NULL,
 #'@param reflection_intensity      Default `NULL`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.
 #'@param reflection_sharpness      Default `NULL`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.
 #'@param two_sided                 Default `NULL`. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).
-#'
+#'@param sigma                     Default `0`. Oren-Nayar angle.
+#' 
 #'@return Shape with new material settings
 #'@export
 #'@examples
@@ -421,7 +423,8 @@ change_material = function(mesh, id = NULL, sub_id = 1,
 #'@param reflection_intensity      Default `0.0`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.
 #'@param reflection_sharpness      Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.
 #'@param two_sided                 Default `FALSE`. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).
-#'
+#'@param sigma                     Default `0`. Oren-Nayar angle.
+#' 
 #'@return List of material properties.
 #'@export
 #'@examples

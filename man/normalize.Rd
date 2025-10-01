@@ -7,7 +7,7 @@
 normalize(v)
 }
 \arguments{
-\item{x}{A numeric vector}
+\item{v}{A numeric vector}
 }
 \value{
 Normilzed vector

@@ -51,7 +51,8 @@
 #'@param vertex_transform Default `NULL`. A function that transforms the vertex locations, based on their location.
 #'Function should takes a length-3 numeric vector and returns another length-3 numeric vector as the output.
 #'@param validate_scene Default `TRUE`. Whether to validate the scene input.
-#'
+#'@param transparent_background Default `FALSE`. Whether the background of the render should be transparent.
+#' 
 #'@return Rasterized image.
 #'@export
 #'@examples
