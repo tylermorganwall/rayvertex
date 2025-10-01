@@ -1,8 +1,8 @@
 Package: rayvertex
 Type: Package
 Title: 3D Software Rasterizer
-Version: 0.13.0
-Date: 2025-09-15
+Version: 0.13.1
+Date: 2025-09-30
 Authors@R: c(person("Tyler", "Morgan-Wall", email = "tylermw@gmail.com", 
     role = c("aut", "cph", "cre"), comment = c(ORCID = "0000-0002-3131-3814")),
     person("Syoyo", "Fujita", role=c("ctb", "cph")),
@@ -16,7 +16,7 @@ Copyright: file inst/COPYRIGHTS
 Depends: R (>= 4.1)
 Imports: Rcpp (>= 1.0.6),
          grDevices,
-         rayimage (>= 0.15.1),
+         rayimage (>= 0.19.1),
          png,
          digest,
          pillar (>= 1.10.1),

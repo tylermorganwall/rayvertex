@@ -572,7 +572,7 @@ rasterize_scene = function(
         rayimage::plot_image(norm_array)
       }
     } else {
-      save_png(norm_array, filename = filename)
+      rayimage::ray_write_image(norm_array, filename = filename, write_linear = TRUE)
     }
     return(invisible(norm_array))
   }
@@ -595,7 +595,7 @@ rasterize_scene = function(
         rayimage::plot_image(depth_array)
       }
     } else {
-      save_png(depth_array, filename = filename)
+      rayimage::ray_write_image(depth_array, filename = filename, write_linear = TRUE)
     }
     return(invisible(depth_array))
   }
@@ -622,7 +622,7 @@ rasterize_scene = function(
         rayimage::plot_image(pos_array)
       }
     } else {
-      save_png(pos_array, filename = filename)
+      rayimage::ray_write_image(pos_array, filename = filename, write_linear = TRUE)
     }
     return(invisible(pos_array))
   }
@@ -641,7 +641,7 @@ rasterize_scene = function(
         rayimage::plot_image(uv_array)
       }
     } else {
-      save_png(uv_array, filename = filename)
+      rayimage::ray_write_image(uv_array, filename = filename, write_linear = TRUE)
     }
     return(invisible(uv_array))
   }
@@ -692,12 +692,13 @@ rasterize_scene = function(
     retmat = abs(retmat)
     print_time(verbose, "Applied FSAA")
   }
+	# Image is aleady linear
   if (is.na(filename)) {
     if (plot) {
-      rayimage::plot_image(retmat)
+      rayimage::plot_image(retmat, show_linear = TRUE)
     }
   } else {
-    rayimage::ray_write_image(retmat, filename = filename, clamp = TRUE)
+    rayimage::ray_write_image(retmat, filename = filename, clamp = TRUE, write_linear = TRUE)
   }
   if (debug == "all") {
     return(imagelist)

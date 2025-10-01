@@ -163,7 +163,7 @@ rasterize_lines  = function(line_info = NULL,
   if(is.na(filename)) {
     rayimage::plot_image(retmat)
   } else {
-    save_png(retmat, filename = filename)
+    rayimage::ray_write_image(retmat, filename = filename)
   }
   return(invisible(retmat))
 }
