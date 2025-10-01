@@ -67,6 +67,8 @@ reference:
       - starts_with("add_plane_uv_mesh")
       - starts_with("subdivide")
       - starts_with("displace")
+      - starts_with("transform")
+      - starts_with("lookat")
   - title: "Get Mesh Info"
     desc: "Functions to get information about meshes "
     contents:
