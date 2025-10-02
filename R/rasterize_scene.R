@@ -52,7 +52,7 @@
 #'Function should takes a length-3 numeric vector and returns another length-3 numeric vector as the output.
 #'@param validate_scene Default `TRUE`. Whether to validate the scene input.
 #'@param transparent_background Default `FALSE`. Whether the background of the render should be transparent.
-#' 
+#'
 #'@return Rasterized image.
 #'@export
 #'@examples
@@ -573,7 +573,11 @@ rasterize_scene = function(
         rayimage::plot_image(norm_array)
       }
     } else {
-      rayimage::ray_write_image(norm_array, filename = filename, write_linear = TRUE)
+      rayimage::ray_write_image(
+        norm_array,
+        filename = filename,
+        write_linear = TRUE
+      )
     }
     return(invisible(norm_array))
   }
@@ -596,7 +600,11 @@ rasterize_scene = function(
         rayimage::plot_image(depth_array)
       }
     } else {
-      rayimage::ray_write_image(depth_array, filename = filename, write_linear = TRUE)
+      rayimage::ray_write_image(
+        depth_array,
+        filename = filename,
+        write_linear = TRUE
+      )
     }
     return(invisible(depth_array))
   }
@@ -623,7 +631,11 @@ rasterize_scene = function(
         rayimage::plot_image(pos_array)
       }
     } else {
-      rayimage::ray_write_image(pos_array, filename = filename, write_linear = TRUE)
+      rayimage::ray_write_image(
+        pos_array,
+        filename = filename,
+        write_linear = TRUE
+      )
     }
     return(invisible(pos_array))
   }
@@ -642,7 +654,11 @@ rasterize_scene = function(
         rayimage::plot_image(uv_array)
       }
     } else {
-      rayimage::ray_write_image(uv_array, filename = filename, write_linear = TRUE)
+      rayimage::ray_write_image(
+        uv_array,
+        filename = filename,
+        write_linear = TRUE
+      )
     }
     return(invisible(uv_array))
   }
@@ -682,7 +698,6 @@ rasterize_scene = function(
     retmat = rayimage::render_convolution(retmat, min_value = 1)
     print_time(verbose, "Rendered bloom")
   }
-
   retmat[retmat > 1] = 1
   if (fsaa > 1) {
     retmat = rayimage::render_resized(
@@ -690,16 +705,21 @@ rasterize_scene = function(
       mag = 1 / fsaa,
       method = "mitchell"
     )
-    retmat = abs(retmat)
+    retmat = rayimage::render_clamp(retmat)
     print_time(verbose, "Applied FSAA")
   }
-	# Image is aleady linear
+  # Image is aleady linear
   if (is.na(filename)) {
     if (plot) {
       rayimage::plot_image(retmat, show_linear = TRUE)
     }
   } else {
-    rayimage::ray_write_image(retmat, filename = filename, clamp = TRUE, write_linear = TRUE)
+    rayimage::ray_write_image(
+      retmat,
+      filename = filename,
+      clamp = TRUE,
+      write_linear = TRUE
+    )
   }
   if (debug == "all") {
     return(imagelist)
