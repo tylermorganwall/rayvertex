@@ -37,10 +37,6 @@ smooth_normals_mesh_rcpp <- function(mesh_input, override_existing = FALSE) {
     .Call(`_rayvertex_smooth_normals_mesh_rcpp`, mesh_input, override_existing)
 }
 
-tonemap_image <- function(routput, goutput, boutput, toneval) {
-    .Call(`_rayvertex_tonemap_image`, routput, goutput, boutput, toneval)
-}
-
 wireframe <- function(verts, inds, nx, ny) {
     .Call(`_rayvertex_wireframe`, verts, inds, nx, ny)
 }

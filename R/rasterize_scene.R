@@ -29,7 +29,7 @@
 #'@param ssao Default `FALSE`. Whether to add screen-space ambient occlusion (SSAO) to the render.
 #'@param ssao_intensity Default `10`. Intensity of the shadow map.
 #'@param ssao_radius Default `0.1`. Radius to use when calculating the SSAO term.
-#'@param tonemap Default `"none"`.
+#'@param tonemap Default `"raw"`. See [rayimage::render_tonemap()] for more details.
 #'@param debug Default `"none"`.
 #'@param near_plane Default `0.1`.
 #'@param far_plane Default `100`.
@@ -447,14 +447,6 @@ rasterize_scene = function(
 			stop("shadow_map_dims must be vector of length 2")
 		}
 	}
-	tonemap = switch(
-		tonemap,
-		"gamma" = 1,
-		"uncharted" = 2,
-		"hbd" = 3,
-		"none" = 4,
-		1
-	)
 
 	is_dir_light = rep(TRUE, nrow(lightinfo))
 	for (i in seq_len(nrow(lightinfo))) {
@@ -668,62 +660,53 @@ rasterize_scene = function(
 		imagelist$b[imagelist$depth == 1] = bg_color[3]
 	}
 
-	retmat = array(0, dim = c(dim(imagelist$r)[2:1], 4))
-	if (tonemap != 4) {
-		imagelist = tonemap_image(imagelist$r, imagelist$g, imagelist$b, tonemap)
-		print_time(verbose, "Tonemapped image")
-	}
-	retmat[,, 1] = rayimage::render_reorient(
-		imagelist$r,
-		transpose = TRUE,
-		flipx = TRUE
-	)
-	retmat[,, 2] = rayimage::render_reorient(
-		imagelist$g,
-		transpose = TRUE,
-		flipx = TRUE
-	)
-	retmat[,, 3] = rayimage::render_reorient(
-		imagelist$b,
-		transpose = TRUE,
-		flipx = TRUE
-	)
-	retmat[,, 4] = rayimage::render_reorient(
-		imagelist$a,
-		transpose = TRUE,
-		flipx = TRUE
-	)
+	final_image = array(0, dim = c(dim(imagelist$r)[1:2], 4))
+	final_image[,, 1] = imagelist$r
+	final_image[,, 2] = imagelist$g
+	final_image[,, 3] = imagelist$b
+	final_image[,, 4] = imagelist$a
 
+	final_image = rayimage::ray_read_image(
+		final_image,
+		assume_colorspace = rayimage::CS_SRGB,
+		assume_white = "D65",
+		source_linear = FALSE
+	) |>
+		rayimage::render_reorient(
+			transpose = TRUE,
+			flipx = TRUE
+		)
+	if (tonemap != "raw") {
+		final_image = rayimage::render_tonemap(final_image, method = tonemap)
+	}
 	if (bloom) {
-		retmat = rayimage::render_convolution(retmat, min_value = 1)
+		final_image = rayimage::render_convolution(final_image, min_value = 1)
 		print_time(verbose, "Rendered bloom")
 	}
-	retmat[retmat > 1] = 1
 	if (fsaa > 1) {
-		retmat = rayimage::render_resized(
-			retmat,
+		final_image = rayimage::render_resized(
+			final_image,
 			mag = 1 / fsaa,
 			method = "mitchell"
 		)
-		retmat = rayimage::render_clamp(retmat)
 		print_time(verbose, "Applied FSAA")
 	}
+	final_image = rayimage::render_clamp(final_image)
+
 	# Image is aleady linear
 	if (is.na(filename)) {
 		if (plot) {
-			rayimage::plot_image(retmat, show_linear = TRUE)
+			rayimage::plot_image(final_image)
 		}
 	} else {
 		rayimage::ray_write_image(
-			retmat,
-			filename = filename,
-			clamp = TRUE,
-			write_linear = TRUE
+			final_image,
+			filename = filename
 		)
 	}
 	if (debug == "all") {
 		return(imagelist)
 	}
 	print_time(verbose, "Display/save image")
-	return(invisible(retmat))
+	return(invisible(final_image))
 }

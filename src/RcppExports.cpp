@@ -189,20 +189,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// tonemap_image
-Rcpp::List tonemap_image(Rcpp::NumericMatrix routput, Rcpp::NumericMatrix goutput, Rcpp::NumericMatrix boutput, int toneval);
-RcppExport SEXP _rayvertex_tonemap_image(SEXP routputSEXP, SEXP goutputSEXP, SEXP boutputSEXP, SEXP tonevalSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type routput(routputSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type goutput(goutputSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type boutput(boutputSEXP);
-    Rcpp::traits::input_parameter< int >::type toneval(tonevalSEXP);
-    rcpp_result_gen = Rcpp::wrap(tonemap_image(routput, goutput, boutput, toneval));
-    return rcpp_result_gen;
-END_RCPP
-}
 // wireframe
 List wireframe(NumericMatrix verts, IntegerMatrix inds, int nx, int ny);
 RcppExport SEXP _rayvertex_wireframe(SEXP vertsSEXP, SEXP indsSEXP, SEXP nxSEXP, SEXP nySEXP) {
@@ -228,7 +214,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rayvertex_rasterize_lines_rcpp", (DL_FUNC) &_rayvertex_rasterize_lines_rcpp, 15},
     {"_rayvertex_rasterize", (DL_FUNC) &_rayvertex_rasterize, 49},
     {"_rayvertex_smooth_normals_mesh_rcpp", (DL_FUNC) &_rayvertex_smooth_normals_mesh_rcpp, 2},
-    {"_rayvertex_tonemap_image", (DL_FUNC) &_rayvertex_tonemap_image, 4},
     {"_rayvertex_wireframe", (DL_FUNC) &_rayvertex_wireframe, 4},
     {NULL, NULL, 0}
 };

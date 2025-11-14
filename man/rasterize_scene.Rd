@@ -102,7 +102,7 @@ will improve anti-aliasing quality but will vastly increase memory usage.}
 
 \item{ssao_radius}{Default \code{0.1}. Radius to use when calculating the SSAO term.}
 
-\item{tonemap}{Default \code{"none"}.}
+\item{tonemap}{Default \code{"raw"}. See \code{\link[rayimage:render_tonemap]{rayimage::render_tonemap()}} for more details.}
 
 \item{debug}{Default \code{"none"}.}
 
