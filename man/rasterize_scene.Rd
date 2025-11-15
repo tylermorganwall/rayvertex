@@ -30,7 +30,7 @@ rasterize_scene(
   ssao = FALSE,
   ssao_intensity = 10,
   ssao_radius = 0.1,
-  tonemap = "none",
+  tonemap = "raw",
   debug = "none",
   near_plane = 0.1,
   far_plane = 100,
