@@ -510,21 +510,3 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
   
   return(rayvertex_material(material_props))
 }
-
-#' Add Outline
-#' 
-#'@return Matrix
-#'@keywords internal
-generate_toon_outline = function(single_obj, material, scale = 1) {
-  if((material$type == "toon" || material$type == "toon_phong") && material$toon_outline_width != 0.0) {
-    bbox = apply(single_obj$vertices[[1]],2,range)
-    bbox_size = bbox[2,] - bbox[1,]
-    scaleval = (bbox_size + material$toon_outline_width)/bbox_size
-    single_obj = single_obj |>
-      scale_mesh(scale = scaleval) |>
-      set_material(diffuse=material$toon_outline_color , culling = "front", type="color")
-  }
-  class(single_obj) = c("ray_mesh", "list")
-  
-  return(single_obj)
-}
