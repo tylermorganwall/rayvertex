@@ -187,7 +187,7 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.rayvertex.com">rayvertex</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/generate_cornell_mesh.html">generate_cornell_mesh</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre class="r-output"><code><span><span class="co">#&gt; ── Scene Description ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span></code></pre>
+<pre class="r-output"><code><span><span class="co">#&gt; ── Scene Description ───────────────────────────────────────────────────────────</span></span></code></pre>
 <pre class="r-output"><code><span><span class="co">#&gt; • Summary - Meshes: 5 | Unique Materials: 3</span></span>
 <span><span class="co">#&gt; ℹ XYZ Bounds - Min: c(-10.00, -10.00, 0.00) | Max: c(565.00, 565.00, 565.00)</span></span>
 <span><span class="co">#&gt;            shapes  vertices texcoords   normals materials</span></span>
@@ -203,11 +203,7 @@
 <span><span class="fu"><a href="reference/generate_cornell_mesh.html">generate_cornell_mesh</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre class="r-output"><code><span><span class="co">#&gt; Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></span></code></pre>
-<div class="figure">
-<img src="reference/figures/README-cornell_render-1.png" alt="plot of chunk cornell_render" width="100%"><p class="caption">
-plot of chunk cornell_render
-</p>
-</div>
+<p><img src="reference/figures/README-cornell_render-1.png" width="100%"></p>
 <p>Let’s add a purple sphere to the scene, and a picture of a dragon in a Cornell box to the back:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sunset_file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".png"</span><span class="op">)</span></span>
@@ -245,11 +241,7 @@ plot of chunk cornell_render
 <span>    <span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="reference/rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span>fov <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span></code></pre></div>
 <pre class="r-output"><code><span><span class="co">#&gt; Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` .</span></span></code></pre>
-<div class="figure">
-<img src="reference/figures/README-cornell2-1.png" alt="plot of chunk cornell2" width="100%"><p class="caption">
-plot of chunk cornell2
-</p>
-</div>
+<p><img src="reference/figures/README-cornell2-1.png" width="100%"></p>
 <p>We can preview the material properties by printing the materials in the scene. This prints out non-default material arguments, whether a texture exists, as well provides a rough preview of the color.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">scene_save</span> <span class="op">=</span> <span class="fu"><a href="reference/generate_cornell_mesh.html">generate_cornell_mesh</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -320,7 +312,7 @@ plot of chunk cornell2
 <span><span class="co">#&gt; • type: phong</span></span>
 <span><span class="co">#&gt; • diffuse: #cccccc   | intensity: 0.0</span></span>
 <span><span class="co">#&gt; • ambient: #ffffff  </span></span>
-<span><span class="co">#&gt; • ambient_texname: /var/folders/19/j71hqsgx1jjg5kb0nxf58b200000gn/T//RtmpJweb4j/fileb559474c030.png | ✔ File exists!</span></span></code></pre>
+<span><span class="co">#&gt; • ambient_texname: /var/folders/19/j71hqsgx1jjg5kb0nxf58b200000gn/T//RtmpfalxX3/filee76b4644cf46.png | ✔ File exists!</span></span></code></pre>
 <p>Now, the ceiling of the Cornell Box is blocking the directional light. Let’s remove it.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/generate_cornell_mesh.html">generate_cornell_mesh</a></span><span class="op">(</span>ceiling <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -331,14 +323,37 @@ plot of chunk cornell2
 <span>    <span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="reference/rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre class="r-output"><code><span><span class="co">#&gt; Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></span></code></pre>
-<div class="figure">
-<img src="reference/figures/README-cornell3-1.png" alt="plot of chunk cornell3" width="100%"><p class="caption">
-plot of chunk cornell3
-</p>
-</div>
+<p><img src="reference/figures/README-cornell3-1.png" width="100%"></p>
 <p>Let’s add a cylinder and a platform to the bottom of our sphere.</p>
-<p>Now let’s change the angle of the directional light so it’s angled from the front :</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mat2</span> <span class="op">=</span> <span class="fu"><a href="reference/material_list.html">material_list</a></span><span class="op">(</span></span>
+<span>  diffuse <span class="op">=</span> <span class="st">"grey80"</span>,</span>
+<span>  ambient <span class="op">=</span> <span class="st">"grey80"</span>,</span>
+<span>  ambient_intensity <span class="op">=</span> <span class="fl">0.2</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/generate_cornell_mesh.html">generate_cornell_mesh</a></span><span class="op">(</span>ceiling <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/add_shape.html">add_shape</a></span><span class="op">(</span><span class="fu"><a href="reference/sphere_mesh.html">sphere_mesh</a></span><span class="op">(</span></span>
+<span>    position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">555</span>, <span class="fl">555</span>, <span class="fl">555</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>,</span>
+<span>    radius <span class="op">=</span> <span class="fl">80</span>,</span>
+<span>    material <span class="op">=</span> <span class="va">mat</span></span>
+<span>  <span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/add_shape.html">add_shape</a></span><span class="op">(</span><span class="fu"><a href="reference/segment_mesh.html">segment_mesh</a></span><span class="op">(</span></span>
+<span>    start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">555</span> <span class="op">/</span> <span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">555</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">555</span> <span class="op">/</span> <span class="fl">2</span>, <span class="fl">196</span>, <span class="fl">555</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    radius <span class="op">=</span> <span class="fl">30</span>,</span>
+<span>    material <span class="op">=</span> <span class="va">mat2</span></span>
+<span>  <span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/add_shape.html">add_shape</a></span><span class="op">(</span><span class="fu"><a href="reference/cube_mesh.html">cube_mesh</a></span><span class="op">(</span></span>
+<span>    position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">555</span> <span class="op">/</span> <span class="fl">2</span>, <span class="fl">555</span> <span class="op">/</span> <span class="fl">2</span> <span class="op">-</span> <span class="fl">90</span>, <span class="fl">555</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">160</span>, <span class="fl">20</span>, <span class="fl">160</span><span class="op">)</span>,</span>
+<span>    material <span class="op">=</span> <span class="va">mat2</span></span>
+<span>  <span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<pre class="r-output"><code><span><span class="co">#&gt; Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></span></code></pre>
+<p><img src="reference/figures/README-cornell4-1.png" width="100%"></p>
+<p>Now let’s change the angle of the directional light so it’s angled from the front :</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/generate_cornell_mesh.html">generate_cornell_mesh</a></span><span class="op">(</span>ceiling <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="reference/add_shape.html">add_shape</a></span><span class="op">(</span><span class="fu"><a href="reference/sphere_mesh.html">sphere_mesh</a></span><span class="op">(</span></span>
 <span>        position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">555</span>, <span class="fl">555</span>, <span class="fl">555</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>,</span>
@@ -358,13 +373,9 @@ plot of chunk cornell3
 <span>    <span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="reference/rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span>light_info <span class="op">=</span> <span class="fu"><a href="reference/directional_light.html">directional_light</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">0.2</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre class="r-output"><code><span><span class="co">#&gt; Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></span></code></pre>
-<div class="figure">
-<img src="reference/figures/README-cornell5-1.png" alt="plot of chunk cornell5" width="100%"><p class="caption">
-plot of chunk cornell5
-</p>
-</div>
+<p><img src="reference/figures/README-cornell5-1.png" width="100%"></p>
 <p>And let’s add all the other basic mesh shapes included in the package (including the included OBJ file and the <code>humface</code> mesh3d object from the Rvcg package):</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/zarquon42b/Rvcg" class="external-link">Rvcg</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">humface</span><span class="op">)</span></span>
 <span></span>
@@ -434,13 +445,9 @@ plot of chunk cornell5
 <span>    <span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="reference/rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span>light_info <span class="op">=</span> <span class="fu"><a href="reference/directional_light.html">directional_light</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">0.2</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre class="r-output"><code><span><span class="co">#&gt; Setting default values for Cornell box: lookfrom `c(278,278,-800)` lookat `c(278,278,0)` fov `40` .</span></span></code></pre>
-<div class="figure">
-<img src="reference/figures/README-cornell6-1.png" alt="plot of chunk cornell6" width="100%"><p class="caption">
-plot of chunk cornell6
-</p>
-</div>
+<p><img src="reference/figures/README-cornell6-1.png" width="100%"></p>
 <p>We can also draw shapes with toon shading:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">col</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/hsv.html" class="external-link">hsv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">scene_list</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -469,13 +476,9 @@ plot of chunk cornell6
 <span>    fov <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <pre class="r-output"><code><span><span class="co">#&gt; Setting `lookat` to: c(0.49, 0.50, 0.54)</span></span></code></pre>
-<div class="figure">
-<img src="reference/figures/README-toonshading-1.png" alt="plot of chunk toonshading" width="100%"><p class="caption">
-plot of chunk toonshading
-</p>
-</div>
+<p><img src="reference/figures/README-toonshading-1.png" width="100%"></p>
 <p>You can also include a environment map to use for reflective, semi-reflective, and refractive surfaces. The roughness of the reflection can be controlled on a per-material basis with the <code>reflection_sharpness</code> argument.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tempfilehdr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".hdr"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file</a></span><span class="op">(</span><span class="st">"https://www.tylermw.com/data/venice_sunset_2k.hdr"</span>, <span class="va">tempfilehdr</span><span class="op">)</span></span>
 <span></span>
@@ -536,25 +539,17 @@ plot of chunk toonshading
 <span>    fov <span class="op">=</span> <span class="fl">30</span>,</span>
 <span>    environment_map <span class="op">=</span> <span class="va">tempfilehdr</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="reference/figures/README-reflectionshading-1.png" alt="plot of chunk reflectionshading" width="100%"><p class="caption">
-plot of chunk reflectionshading
-</p>
-</div>
+<p><img src="reference/figures/README-reflectionshading-1.png" width="100%"></p>
 <p>You can also blur the background but keep the reflections sharp by setting the <code>background_sharpness</code> argument to draw focus to your 3D scene.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span><span class="va">scene</span>, lookat<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0.25</span>,<span class="fl">0</span><span class="op">)</span>,</span>
 <span>                light_info<span class="op">=</span><span class="fu"><a href="reference/directional_light.html">directional_light</a></span><span class="op">(</span>direction<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                lookfrom<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0.5</span>,<span class="fl">2.5</span><span class="op">)</span>, </span>
 <span>                fov<span class="op">=</span><span class="fl">30</span>, environment_map <span class="op">=</span> <span class="va">tempfilehdr</span>, background_sharpness <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="reference/figures/README-sharpness-1.png" alt="plot of chunk sharpness" width="100%"><p class="caption">
-plot of chunk sharpness
-</p>
-</div>
+<p><img src="reference/figures/README-sharpness-1.png" width="100%"></p>
 <p>Now let’s draw another example scene: we’ll add the R OBJ to a flat surface.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">base_model</span> <span class="op">=</span> <span class="fu"><a href="reference/cube_mesh.html">cube_mesh</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="reference/scale_mesh.html">scale_mesh</a></span><span class="op">(</span>scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">0.2</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="reference/translate_mesh.html">translate_mesh</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -572,13 +567,9 @@ plot of chunk sharpness
 <span>    light_info <span class="op">=</span> <span class="fu"><a href="reference/directional_light.html">directional_light</a></span><span class="op">(</span>direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.8</span>, <span class="fl">1</span>, <span class="fl">0.7</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <pre class="r-output"><code><span><span class="co">#&gt; Setting `lookat` to: c(0.00, 0.34, 0.00)</span></span></code></pre>
-<div class="figure">
-<img src="reference/figures/README-line1-1.png" alt="plot of chunk line1" width="100%"><p class="caption">
-plot of chunk line1
-</p>
-</div>
+<p><img src="reference/figures/README-line1-1.png" width="100%"></p>
 <p>We can reduce the shadow intensity so the shadows aren’t black. Alternatively, you can add an <code>ambient</code> term to the material.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Zoom in and reduce the shadow mapping intensity</span></span>
 <span><span class="fu"><a href="reference/rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span></span>
 <span>    <span class="va">r_model</span>,</span>
@@ -589,13 +580,9 @@ plot of chunk line1
 <span>    light_info <span class="op">=</span> <span class="fu"><a href="reference/directional_light.html">directional_light</a></span><span class="op">(</span>direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.8</span>, <span class="fl">1</span>, <span class="fl">0.7</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <pre class="r-output"><code><span><span class="co">#&gt; Setting `lookat` to: c(0.00, 0.34, 0.00)</span></span></code></pre>
-<div class="figure">
-<img src="reference/figures/README-line2-1.png" alt="plot of chunk line2" width="100%"><p class="caption">
-plot of chunk line2
-</p>
-</div>
+<p><img src="reference/figures/README-line2-1.png" width="100%"></p>
 <p>We can increase the resolution of the shadow map to increase the fidelity of the shadows. This can reduce the amount of “pixelation” around the edges.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span></span>
 <span>    <span class="va">r_model</span>,</span>
 <span>    lookfrom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">10</span><span class="op">)</span>,</span>
@@ -604,13 +591,9 @@ plot of chunk line2
 <span>    light_info <span class="op">=</span> <span class="fu"><a href="reference/directional_light.html">directional_light</a></span><span class="op">(</span>direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.8</span>, <span class="fl">1</span>, <span class="fl">0.7</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <pre class="r-output"><code><span><span class="co">#&gt; Setting `lookat` to: c(0.00, 0.34, 0.00)</span></span></code></pre>
-<div class="figure">
-<img src="reference/figures/README-line3-1.png" alt="plot of chunk line3" width="100%"><p class="caption">
-plot of chunk line3
-</p>
-</div>
+<p><img src="reference/figures/README-line3-1.png" width="100%"></p>
 <p>We can add multiple directional lights and change their color and intensity:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lights</span> <span class="op">=</span> <span class="fu"><a href="reference/directional_light.html">directional_light</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.7</span>, <span class="fl">1.1</span>, <span class="op">-</span><span class="fl">0.9</span><span class="op">)</span>,</span>
 <span>    color <span class="op">=</span> <span class="st">"orange"</span>,</span>
@@ -625,13 +608,9 @@ plot of chunk line3
 <span></span>
 <span><span class="fu"><a href="reference/rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span><span class="va">r_model</span>, lookfrom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">10</span><span class="op">)</span>, fov <span class="op">=</span> <span class="fl">10</span>, light_info <span class="op">=</span> <span class="va">lights</span><span class="op">)</span></span></code></pre></div>
 <pre class="r-output"><code><span><span class="co">#&gt; Setting `lookat` to: c(0.00, 0.34, 0.00)</span></span></code></pre>
-<div class="figure">
-<img src="reference/figures/README-line4-1.png" alt="plot of chunk line4" width="100%"><p class="caption">
-plot of chunk line4
-</p>
-</div>
+<p><img src="reference/figures/README-line4-1.png" width="100%"></p>
 <p>We can change the transparency of the material, which allows for colored shadows.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">r_model_t</span> <span class="op">=</span> <span class="fu"><a href="reference/obj_mesh.html">obj_mesh</a></span><span class="op">(</span><span class="fu"><a href="reference/r_obj.html">r_obj</a></span><span class="op">(</span>simple_r <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="reference/scale_mesh.html">scale_mesh</a></span><span class="op">(</span>scale <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="reference/set_material.html">set_material</a></span><span class="op">(</span>diffuse <span class="op">=</span> <span class="st">"red"</span>, dissolve <span class="op">=</span> <span class="fl">0.5</span>, translucent <span class="op">=</span> <span class="cn">T</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -650,13 +629,9 @@ plot of chunk line4
 <span>    light_info <span class="op">=</span> <span class="fu"><a href="reference/directional_light.html">directional_light</a></span><span class="op">(</span>direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.8</span>, <span class="fl">1</span>, <span class="fl">0.7</span><span class="op">)</span>, intensity <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>        <span class="fu"><a href="reference/add_light.html">add_light</a></span><span class="op">(</span><span class="fu"><a href="reference/directional_light.html">directional_light</a></span><span class="op">(</span>direction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.8</span>, <span class="fl">1</span>, <span class="fl">0.7</span><span class="op">)</span>, intensity <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="reference/figures/README-trans1-1.png" alt="plot of chunk trans1" width="100%"><p class="caption">
-plot of chunk trans1
-</p>
-</div>
+<p><img src="reference/figures/README-trans1-1.png" width="100%"></p>
 <p>We can also add some point lights:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Add some point lights</span></span>
 <span><span class="va">lights_p</span> <span class="op">=</span> <span class="va">lights</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="reference/add_light.html">add_light</a></span><span class="op">(</span><span class="fu"><a href="reference/point_light.html">point_light</a></span><span class="op">(</span></span>
@@ -673,13 +648,9 @@ plot of chunk trans1
 <span>    light_info <span class="op">=</span> <span class="va">lights_p</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <pre class="r-output"><code><span><span class="co">#&gt; Setting `lookat` to: c(0.00, 0.34, 0.00)</span></span></code></pre>
-<div class="figure">
-<img src="reference/figures/README-line5-1.png" alt="plot of chunk line5" width="100%"><p class="caption">
-plot of chunk line5
-</p>
-</div>
+<p><img src="reference/figures/README-line5-1.png" width="100%"></p>
 <p>We can change the camera position by adjusting the <code>lookfrom</code> argument:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#change the camera position</span></span>
 <span><span class="fu"><a href="reference/rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span></span>
 <span>    <span class="va">r_model</span>,</span>
@@ -688,13 +659,9 @@ plot of chunk line5
 <span>    light_info <span class="op">=</span> <span class="va">lights_p</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <pre class="r-output"><code><span><span class="co">#&gt; Setting `lookat` to: c(0.00, 0.34, 0.00)</span></span></code></pre>
-<div class="figure">
-<img src="reference/figures/README-line6-1.png" alt="plot of chunk line6" width="100%"><p class="caption">
-plot of chunk line6
-</p>
-</div>
+<p><img src="reference/figures/README-line6-1.png" width="100%"></p>
 <p>Finally, we can also add 3D lines to the scene. We’ll add a spiral of lines around the R.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">t</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">8</span> <span class="op">*</span> <span class="va">pi</span>, length.out <span class="op">=</span> <span class="fl">361</span><span class="op">)</span></span>
 <span><span class="va">line_mat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span>nrow <span class="op">=</span> <span class="fl">0</span>, ncol <span class="op">=</span> <span class="fl">9</span><span class="op">)</span></span>
 <span></span>
@@ -716,11 +683,7 @@ plot of chunk line6
 <span>    light_info <span class="op">=</span> <span class="va">lights</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <pre class="r-output"><code><span><span class="co">#&gt; Setting `lookat` to: c(0.00, 0.34, 0.00)</span></span></code></pre>
-<div class="figure">
-<img src="reference/figures/README-line7-1.png" alt="plot of chunk line7" width="100%"><p class="caption">
-plot of chunk line7
-</p>
-</div>
+<p><img src="reference/figures/README-line7-1.png" width="100%"></p>
 </div>
 </div>
   </div>
