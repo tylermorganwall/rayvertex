@@ -33,8 +33,8 @@
 #'@param type                      Default `"diffuse"`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.
 #'@param translucent               Default `TRUE`. Whether light should transmit through a semi-transparent material.
 #'@param toon_levels               Default `5`. Number of color breaks in the toon shader. 
-#'@param toon_outline_width        Default `0.05`. Expansion term for model to specify toon outline width. Note: setting this property via this function currently does not generate outlines. Specify it during object creation.
-#'@param toon_outline_color        Default `black`. Toon outline color. Note: setting this property via this function currently does not color outlines. Specify it during object creation.
+#'@param toon_outline_width        Default `3`. Number of pixels of toon outline.
+#'@param toon_outline_color        Default `black`. Toon outline color. 
 #'@param reflection_intensity      Default `0.0`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.
 #'@param reflection_sharpness      Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.
 #'@param two_sided                 Default `NULL`. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).
@@ -80,7 +80,7 @@ set_material = function(mesh, material = NULL, id = NULL,
                         type                      = "diffuse",
                         translucent               = TRUE,
                         toon_levels               = 5,
-                        toon_outline_width        = 0.05,
+                        toon_outline_width        = 3,
                         toon_outline_color        = "black",
                         reflection_intensity      = 0.0,
                         reflection_sharpness      = 0.0,
@@ -191,8 +191,8 @@ set_material = function(mesh, material = NULL, id = NULL,
 #'@param type                      Default `NULL`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.
 #'@param translucent               Default `NULL`. Whether light should transmit through a semi-transparent material.
 #'@param toon_levels               Default `NULL`. Number of color breaks in the toon shader.
-#'@param toon_outline_width        Default `NULL`. Expansion term for model to specify toon outline width. Note: setting this property via this function currently does not generate outlines. Specify it during object creation.
-#'@param toon_outline_color        Default `NULL`. Toon outline color.Note: setting this property via this function currently does not color outlines. Specify it during object creation.
+#'@param toon_outline_width        Default `NULL`. Number of pixels of toon outline.
+#'@param toon_outline_color        Default `NULL`. Toon outline color. 
 #'@param reflection_intensity      Default `NULL`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.
 #'@param reflection_sharpness      Default `NULL`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.
 #'@param two_sided                 Default `NULL`. Whether diffuse materials should be two sided (normal is taken as the absolute value of the dot product of the light direction and the normal).
@@ -418,7 +418,7 @@ change_material = function(mesh, id = NULL, sub_id = 1,
 #'@param type                      Default `"diffuse"`. The shader type. Options include `diffuse`,`phong`,`vertex`, and `color`.
 #'@param translucent               Default `FALSE`. Whether light should transmit through a semi-transparent material.
 #'@param toon_levels               Default `5`. Number of color breaks in the toon shader.
-#'@param toon_outline_width        Default `0.05`. Expansion term for model to specify toon outline width.
+#'@param toon_outline_width        Default `3`. Number of pixels of toon outline.
 #'@param toon_outline_color        Default `black`. Toon outline color.
 #'@param reflection_intensity      Default `0.0`. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.
 #'@param reflection_sharpness      Default `1.0`. Sharpness of the reflection, where lower values have blurrier reflections. Must be greater than zero and less than one.
@@ -462,7 +462,7 @@ material_list = function(diffuse                   = c(0.8,0.8,0.8),
                          type                      = "diffuse",
                          translucent               = TRUE,
                          toon_levels               = 5,
-                         toon_outline_width        = 0.05,
+                         toon_outline_width        = 3,
                          toon_outline_color        = "black",
                          reflection_intensity      = 0.0,
                          reflection_sharpness      = 1.0,

@@ -96,9 +96,9 @@ matching the material name.}
 
 \item{toon_levels}{Default \code{NULL}. Number of color breaks in the toon shader.}
 
-\item{toon_outline_width}{Default \code{NULL}. Expansion term for model to specify toon outline width. Note: setting this property via this function currently does not generate outlines. Specify it during object creation.}
+\item{toon_outline_width}{Default \code{NULL}. Number of pixels of toon outline.}
 
-\item{toon_outline_color}{Default \code{NULL}. Toon outline color.Note: setting this property via this function currently does not color outlines. Specify it during object creation.}
+\item{toon_outline_color}{Default \code{NULL}. Toon outline color.}
 
 \item{reflection_intensity}{Default \code{NULL}. Intensity of the reflection of the environment map, if present. This will be ignored if the material is refractive.}
 

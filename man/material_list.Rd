@@ -29,7 +29,7 @@ material_list(
   type = "diffuse",
   translucent = TRUE,
   toon_levels = 5,
-  toon_outline_width = 0.05,
+  toon_outline_width = 3,
   toon_outline_color = "black",
   reflection_intensity = 0,
   reflection_sharpness = 1,
@@ -86,7 +86,7 @@ material_list(
 
 \item{toon_levels}{Default \code{5}. Number of color breaks in the toon shader.}
 
-\item{toon_outline_width}{Default \code{0.05}. Expansion term for model to specify toon outline width.}
+\item{toon_outline_width}{Default \code{3}. Number of pixels of toon outline.}
 
 \item{toon_outline_color}{Default \code{black}. Toon outline color.}
 

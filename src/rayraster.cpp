@@ -23,6 +23,10 @@
 // typedef double Float;
 // #endif
 
+#include <vector>
+#include <cstdint>
+#include <limits>
+#include <cmath>
 #include <functional>
 #include <algorithm>
 #include <utility>
@@ -46,19 +50,7 @@
 
 #include "light.h"
 #include "line.h"
-
-// typedef glm::dvec4 vec4;
-// typedef glm::dvec3 vec3;
-// typedef glm::dvec2 vec2;
-// typedef glm::dmat4x4 Mat;
-
-// static void print_vec(vec3 m) {
-//   RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << "\n";
-// }
-// 
-// static void print_vec(glm::dvec4 m) {
-//   RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << " " << m[3] << "\n";
-// }
+#include "GBuffer.h"
 
 using namespace Rcpp;
 
@@ -112,15 +104,187 @@ inline T lerp(Float t, T v1, T v2) {
   return((1-t) * v1 + t * v2);
 }
 
-// void print_mat(Mat m) {
-//   m = glm::transpose(m);
-//   Rcpp::Rcout.precision(5);
-//   Rcpp::Rcout << std::fixed << m[0][0] << " " << m[0][1] << " " << m[0][2] << " " << m[0][3] << "\n";
-//   Rcpp::Rcout << std::fixed << m[1][0] << " " << m[1][1] << " " << m[1][2] << " " << m[1][3] << "\n";
-//   Rcpp::Rcout << std::fixed << m[2][0] << " " << m[2][1] << " " << m[2][2] << " " << m[2][3] << "\n";
-//   Rcpp::Rcout << std::fixed << m[3][0] << " " << m[3][1] << " " << m[3][2] << " " << m[3][3] << "\n";
-// }
+struct JFASeed {
+  int x;
+  int y;
+};
+static void
+apply_toon_outlines_jfa(std::vector<vec3> &color_buffer,
+                        const std::vector<OutlineGBufferPixel> &gbuffer,
+                        int width, int height, Float fov_y,
+                        Float ortho_view_height,
+						NumericMatrix &zbuffer,
+                        NumericMatrix &linear_depth) {
+  if (width <= 1 || height <= 1) {
+    return;
+  }
+  const std::size_t n =
+      static_cast<std::size_t>(width) * static_cast<std::size_t>(height);
+  if (color_buffer.size() != n || gbuffer.size() != n) {
+    return;
+  }
 
+  std::vector<JFASeed> seeds_curr(n);
+  std::vector<JFASeed> seeds_next(n);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      std::size_t idx = static_cast<std::size_t>(y) * width + x;
+      const OutlineGBufferPixel &px = gbuffer[idx];
+
+      // Default value
+      seeds_curr[idx].x = -1;
+      seeds_curr[idx].y = -1;
+
+      if (px.outline_width <= 0.0f || std::isinf(px.depth_view)) {
+        continue;
+      }
+
+      bool is_edge = false;
+
+      // Check 8-neighborhood for a discontinuity in occupancy/material
+      for (int dy = -1; dy <= 1 && !is_edge; ++dy) {
+        for (int dx = -1; dx <= 1 && !is_edge; ++dx) {
+          if (dx == 0 && dy == 0) {
+            continue;
+          }
+          int nx = x + dx;
+          int ny = y + dy;
+          if (nx < 0 || nx >= width || ny < 0 || ny >= height) {
+            continue;
+          }
+          std::size_t nidx = static_cast<std::size_t>(ny) * width + nx;
+          const OutlineGBufferPixel &npx = gbuffer[nidx];
+
+          bool n_has_geom = !std::isinf(npx.depth_view);
+
+          // Edge if neighbor has no geometry, or different material
+          if (!n_has_geom || npx.material_id != px.material_id) {
+            is_edge = true;
+            break;
+          }
+        }
+      }
+
+      if (is_edge) {
+        seeds_curr[idx].x = x;
+        seeds_curr[idx].y = y;
+      }
+    }
+  }
+
+  // Jump Flood
+  int max_dim = std::max(width, height);
+  int step = 1;
+  while (step < max_dim) {
+    step <<= 1;
+  }
+  step >>= 1;
+
+  static const int dirs[9][2] = {
+      {-1, -1}, {0, -1}, {1, -1},
+      {-1,  0}, {0,  0}, {1,  0},
+      {-1,  1}, {0,  1}, {1,  1}
+  };
+
+  for (; step >= 1; step >>= 1) {
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; ++x) {
+        std::size_t idx = static_cast<std::size_t>(y) * width + x;
+
+        JFASeed best = seeds_curr[idx];
+        Float best_dist2 = std::numeric_limits<Float>::infinity();
+        if (best.x >= 0) {
+          Float dx = (Float)(best.x - x);
+          Float dy = (Float)(best.y - y);
+          best_dist2 = dx * dx + dy * dy;
+        }
+
+        for (int k = 0; k < 9; ++k) {
+          int nx = x + dirs[k][0] * step;
+          int ny = y + dirs[k][1] * step;
+          if (nx < 0 || nx >= width || ny < 0 || ny >= height) {
+            continue;
+          }
+          std::size_t nidx = static_cast<std::size_t>(ny) * width + nx;
+          const JFASeed &cand = seeds_curr[nidx];
+          if (cand.x < 0) {
+            continue;
+          }
+          Float dx = (Float)(cand.x - x);
+          Float dy = (Float)(cand.y - y);
+          Float d2 = dx * dx + dy * dy;
+          if (d2 < best_dist2) {
+            best_dist2 = d2;
+            best = cand;
+          }
+        }
+
+        seeds_next[idx] = best;
+      }
+    }
+    seeds_curr.swap(seeds_next);
+  }
+
+  // Apply outlines
+  std::vector<vec3> out_colors = color_buffer;
+
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      std::size_t idx = static_cast<std::size_t>(y) * width + x;
+      const JFASeed &s = seeds_curr[idx];
+
+      if (s.x < 0) {
+        continue; // no edge reachable
+      }
+
+      std::size_t sidx = static_cast<std::size_t>(s.y) * width + s.x;
+      const OutlineGBufferPixel &seed_px = gbuffer[sidx];
+      const OutlineGBufferPixel &dst_px = gbuffer[idx];
+
+      Float radius_px = seed_px.outline_width;
+      if (radius_px <= 0.5f) {
+        continue;
+      }
+
+      Float dx = (Float)(x - s.x);
+      Float dy = (Float)(y - s.y);
+      Float dist2 = dx * dx + dy * dy;
+
+      if (dist2 > radius_px * radius_px) {
+        continue;
+      }
+
+      bool dst_has_geom = !std::isinf(dst_px.depth_view);
+
+      // Never draw on the same toon surface itself.
+      // Any pixel that originally belonged to the same toon material
+      // (has outline_width > 0) is considered "interior" for the purpose
+      // of outline drawing, regardless of its depth.
+      bool same_toon_surface = dst_has_geom && dst_px.outline_width > 0.0f &&
+                               dst_px.material_id == seed_px.material_id;
+
+      if (same_toon_surface) {
+        continue;
+      }
+
+      // Occluder check: if there is geometry in front of the edge,
+      // don't draw the outline through it.
+      if (dst_has_geom && dst_px.depth_view < seed_px.depth_view) {
+        continue;
+      }
+
+      out_colors[idx] = seed_px.outline_color;
+      int sx = s.x;
+      int sy = s.y;
+
+      zbuffer(x, y) = zbuffer(sx, sy);
+      linear_depth(x, y) = seed_px.depth_view;
+    }
+  }
+  color_buffer.swap(out_colors);
+}
 
 // [[Rcpp::export]]
 List rasterize(List mesh, 
@@ -316,6 +480,11 @@ List rasterize(List mesh,
   NumericMatrix xxbuffer(nx,ny);
   NumericMatrix yybuffer(nx,ny);
   NumericMatrix zzbuffer(nx,ny);
+
+  // Material ID buffer (topmost visible material index per pixel)
+  IntegerMatrix material_id_buffer(nx, ny);
+  std::fill(material_id_buffer.begin(), material_id_buffer.end(), -1);
+  
   
   //Normal space buffer
   NumericMatrix nxbuffer(nx,ny);
@@ -475,10 +644,17 @@ List rasterize(List mesh,
     int cull_type = as<int>(single_material["culling"]);
     bool is_translucent = as<bool>(single_material["translucent"]);
     Float toon_levels = as<Float>(single_material["toon_levels"]);
+	Float toon_outline_width = as<Float>(single_material["toon_outline_width"]);
+	NumericVector toon_outline_color = as<NumericVector>(single_material["toon_outline_color"]);
     Float reflection_intensity = as<Float>(single_material["reflection_intensity"]);
     bool two_sided = as<bool>(single_material["two_sided"]);
     Float sigma = as<Float>(single_material["sigma"]);
     
+    int type = typevals(i);
+
+	if(type != 9 && type != 10) {
+      toon_outline_width = 0.0f;
+  	}
     //Change cull type to none if two sided
     cull_type = !two_sided ? cull_type : 3;
     
@@ -516,13 +692,14 @@ List rasterize(List mesh,
       cull_type,
       is_translucent,
       toon_levels,
+	  toon_outline_width,
+	  vec3(toon_outline_color(0),toon_outline_color(1),toon_outline_color(2)),
       reflection_intensity,
       sigma
     };
     mat_info.push_back(temp);
-    
+
     IShader* shader;
-    int type = typevals(i);
     if(type == 1) {
       shader = new GouraudShader(Model, Projection, View, viewport,
                                  has_shadow_map, 
@@ -704,6 +881,8 @@ List rasterize(List mesh,
     1,
     false,
     5,
+	0.0,         // toon_outline_width
+    vec3(0.0),   // toon_outline_color
     0.0,
     0
   };
@@ -995,7 +1174,8 @@ List rasterize(List mesh,
                         positionbuffer,
                         uvbuffer,
                         models, true,
-                        alpha_depth_single);
+                        alpha_depth_single,
+						nullptr);
       }; 
       #ifdef HAVE_THREADS
       RcppThread::ThreadPool pool2(numbercores);
@@ -1089,7 +1269,7 @@ List rasterize(List mesh,
   }
 
   auto task = [&shaders, &models, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
-               &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer,
+               &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer, &material_id_buffer,
                &alpha_depths] (unsigned int i) {
     fill_tri_blocks(blocks[i],
                     ndc_verts,
@@ -1103,7 +1283,8 @@ List rasterize(List mesh,
                     positionbuffer,
                     uvbuffer,
                     models, false,
-                    alpha_depths);
+                    alpha_depths,
+					&material_id_buffer);
   };
   
   #ifdef HAVE_THREADS
@@ -1319,7 +1500,98 @@ List rasterize(List mesh,
   }
   linear_depth = 2*near_clip*far_clip/(far_clip + near_clip - linear_depth * (far_clip-near_clip));
   print_time(verbose, "Calculated linear depth" );
-  
+
+  // Build color buffer and outline g-buffer for JFA
+  std::size_t pix_count =
+      static_cast<std::size_t>(nx) * static_cast<std::size_t>(ny);
+  std::vector<vec3> toon_color_buffer(pix_count);
+  std::vector<OutlineGBufferPixel> outline_gbuffer(pix_count);
+
+  for (int x = 0; x < nx; ++x) {
+    for (int y = 0; y < ny; ++y) {
+      std::size_t idx =
+          static_cast<std::size_t>(y) * static_cast<std::size_t>(nx) + x;
+
+      toon_color_buffer[idx] = image.get_color(x, y);
+      OutlineGBufferPixel &px = outline_gbuffer[idx];
+
+      // --- Decide if this pixel has geometry ---
+      bool z_is_inf = std::isinf(zbuffer(x, y));
+
+      int raw_mat_id = -1;
+      if (material_id_buffer.nrow() == nx && material_id_buffer.ncol() == ny) {
+        raw_mat_id = material_id_buffer(x, y);
+      }
+      bool has_material =
+          (raw_mat_id >= 0 && raw_mat_id < (int)mat_info.size());
+
+      bool has_normal = (nxbuffer(x, y) != 0.0 || nybuffer(x, y) != 0.0 ||
+                         nzbuffer(x, y) != 0.0);
+
+      bool has_geom = !z_is_inf && has_material && has_normal;
+
+      if (!has_geom) {
+        // Background: no geometry
+        px.normal_view = vec3(0.0);
+        px.depth_view = std::numeric_limits<Float>::infinity();
+        px.material_id = 0u;
+        px.outline_width = 0.0;
+        px.outline_color = vec3(0.0);
+        px.has_outline = false;
+        continue;
+      }
+
+      int mat_id = raw_mat_id;
+      if (mat_id < 0 || mat_id >= (int)mat_info.size()) {
+        mat_id = 0;
+      }
+
+      px.normal_view = vec3(nxbuffer(x, y), nybuffer(x, y), nzbuffer(x, y));
+      px.depth_view = linear_depth(x, y); 
+      px.material_id = static_cast<std::uint32_t>(mat_id);
+
+      const material_info &m = mat_info[mat_id];
+
+      Float outline_width = m.toon_outline_width; 
+      vec3 outline_color = m.toon_outline_color;
+
+      px.outline_width = outline_width;
+      px.outline_color = outline_color;
+      px.has_outline = (outline_width > (Float)0.0);
+    }
+  }
+
+  // Check if we even have any toon materials that want outlines
+  bool any_toon_outline = false;
+  for (std::size_t i = 0; i < mat_info.size(); ++i) {
+    if (mat_info[i].toon_outline_width > (Float)0.0) {
+      any_toon_outline = true;
+      break;
+    }
+  }
+
+  if (any_toon_outline) {
+    Float camera_fov_y = fov != 0.0 ? glm::radians((Float)fov) : (Float)0.0;
+    Float ortho_view_height = 0.0;
+    if (fov == 0.0 && ortho_dims.size() > 1) {
+      ortho_view_height = static_cast<Float>(ortho_dims(1));
+    }
+
+    apply_toon_outlines_jfa(toon_color_buffer, outline_gbuffer, nx, ny,
+                            camera_fov_y, ortho_view_height, zbuffer, linear_depth);
+
+    // Copy the modified colors back into the rayimage
+    for (int x = 0; x < nx; ++x) {
+      for (int y = 0; y < ny; ++y) {
+        std::size_t idx =
+            static_cast<std::size_t>(y) * static_cast<std::size_t>(nx) + x;
+        image.set_color(x, y, toon_color_buffer[idx]);
+      }
+    }
+
+    print_time(verbose, "Applied toon outline JFA pass");
+  }
+
   return(List::create(_["r"] = r, _["g"] = g, _["b"] = b, _["a"] = a,
                       _["amb"] = abuffer, _["depth"] = zbuffer, _["linear_depth"] = linear_depth,
                       _["normalx"] = nxbuffer, _["normaly"] = nybuffer, _["normalz"] = nzbuffer,

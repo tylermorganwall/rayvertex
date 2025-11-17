@@ -1,13 +1,5 @@
 #include "filltri.h"
 
-// static void print_vec(vec3 m) {
-//   RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << "\n";
-// }
-// 
-// static void print_vec(glm::dvec4 m) {
-//   RcppThread::Rcout << std::fixed << m[0] << " " << m[1] << " " << m[2] << " " << m[3] << "\n";
-// }
-
 inline Float DifferenceOfProducts(Float a, Float b, Float c, Float d) {
   Float cd = c * d;
   Float err = std::fma(-c, d, cd);
@@ -32,8 +24,10 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                      rayimage& uv_buffer,
                      std::vector<ModelInfo> &models,
                      bool depth, 
-                     std::vector<std::map<Float, alpha_info> >& alpha_depths) {
+                     std::vector<std::map<Float, alpha_info> >& alpha_depths,
+                     Rcpp::IntegerMatrix* material_id_buffer) {
   unsigned int ny = image.height();
+  bool write_material_ids = (!depth && material_id_buffer != nullptr);
   
   for(unsigned int model_num = 0; model_num < models.size(); model_num++ ) {
     ModelInfo &shp = models[model_num];
@@ -49,12 +43,12 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
       Float v3_ndc_inv_w = ndc_inv_w[model_num][2][face];
 
       int mat_num = shp.materials[face] >= 0 && shp.materials[face] < (int)shaders.size() ? 
-        shp.materials[face] : shaders.size()-1;
+        shp.materials[face] : (int)shaders.size()-1;
       
       int culling = shaders[mat_num]->get_culling();
     
       bool not_culled = culling == 1 ? cross(v2-v1, v3-v2).z > 0 :
-        culling == 2 ? cross(v2-v1, v3-v2).z < 0 : true;
+                        culling == 2 ? cross(v2-v1, v3-v2).z < 0 : true;
       not_culled = !depth ? not_culled : true;
       
       if(not_culled) {
@@ -65,13 +59,24 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                               fmax(v1.y,fmax(v2.y,v3.y)),
                               fmax(v1.z,fmax(v2.z,v3.z)));
         
-        
-        unsigned int xmin =  std::min(std::max((int)floor(bound_min.x),(int)min_block_bound.x ),(int)min_block_bound.x);
-        unsigned int xmax =  std::max(std::min((int)ceil(bound_max.x), (int)max_block_bound.x), (int)max_block_bound.x);
-        unsigned int ymin =  std::min(std::max((int)floor(bound_min.y),(int)min_block_bound.y), (int)min_block_bound.y);
-        unsigned int ymax =  std::max(std::min((int)ceil(bound_max.y), (int)max_block_bound.y ),(int)max_block_bound.y);
+        // NOTE: if your original code had different clamp logic, keep that.
+        unsigned int xmin =  std::min(std::max((int)floor(bound_min.x),
+                                               (int)min_block_bound.x ),
+                                      (int)max_block_bound.x);
+        unsigned int xmax =  std::max(std::min((int)ceil(bound_max.x),
+                                               (int)max_block_bound.x),
+                                      (int)min_block_bound.x);
+        unsigned int ymin =  std::min(std::max((int)floor(bound_min.y),
+                                               (int)min_block_bound.y),
+                                      (int)max_block_bound.y);
+        unsigned int ymax =  std::max(std::min((int)ceil(bound_max.y),
+                                               (int)max_block_bound.y ),
+                                      (int)min_block_bound.y);
         
         Float area =  edgeFunction(v3, v2, v1); 
+        if(area == 0.0f) {
+          continue;
+        }
         Float inv_area = 1.0f/area;
         
         vec4 color;
@@ -104,11 +109,14 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
             Float w3 = w3_p + (j-ymin) * p_step_21;
             
             bool inside = culling == 1 ? (w1 >= 0 && w2 >= 0 && w3 >= 0) : 
-              culling == 2 ? (w1 <= 0 && w2 <= 0 && w3 <= 0) :
-              (w1 >= 0 && w2 >= 0 && w3 >= 0) || (w1 <= 0 && w2 <= 0 && w3 <= 0);
+                          culling == 2 ? (w1 <= 0 && w2 <= 0 && w3 <= 0) :
+                          ((w1 >= 0 && w2 >= 0 && w3 >= 0) ||
+                           (w1 <= 0 && w2 <= 0 && w3 <= 0));
             if (inside) {
               vec3 bc       = vec3(w1, w2, w3)*inv_area;
-              vec3 bc_clip  = vec3(bc.x*v1_ndc_inv_w, bc.y*v2_ndc_inv_w, bc.z*v3_ndc_inv_w);
+              vec3 bc_clip  = vec3(bc.x*v1_ndc_inv_w,
+                                   bc.y*v2_ndc_inv_w,
+                                   bc.z*v3_ndc_inv_w);
               bc_clip      /= (bc_clip.x + bc_clip.y + bc_clip.z);
               
               //Using bc_clip results in wrong zbuffer values here--bug?
@@ -136,19 +144,30 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                     alpha_depths[j + ny*i][z] = tmp_data;
                   }
                 } else {
+                  // Main color pass.
                   if(color.w >= 1.0f) {
+                    // Opaque (or effectively opaque): commit as topmost
                     zbuffer(i,j) = z;
                     image.set_color(i,j,vec4(color));
                     normal_buffer.set_color(i,j,normal);
                     position_buffer.set_color(i,j,position);
                     uv_buffer.set_color(i,j,bc_clip);
+
+					if(write_material_ids) {
+						(*material_id_buffer)(i, j) = mat_num;
+					}
                   } else {
+                    // Translucent: store for later compositing.
                     alpha_info tmp_data;
                     tmp_data.color = color;
                     tmp_data.normal = normal;
                     tmp_data.position = position;
                     tmp_data.uv = bc_clip;
                     alpha_depths[j + ny*i][z] = tmp_data;
+                    // Note: if we want correct material IDs after blending
+                    // translucent layers, we'll also need material_id in
+                    // alpha_info and update material_id_buffer in the
+                    // final resolve loop.
                   }
                 }
               }

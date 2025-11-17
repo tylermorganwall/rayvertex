@@ -34,6 +34,8 @@ struct material_info {
   int cull_type; //1 = back, 2 = front, 3 = none
   bool translucent;
   Float toon_levels;
+  Float toon_outline_width;
+  vec3 toon_outline_color;
   Float reflection_intensity;
   Float sigma;
 };
