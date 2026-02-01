@@ -589,12 +589,20 @@ List rasterize(List mesh,
   ///
   //Parse mesh3d
   //
+  List shapes = as<List>(mesh["shapes"]);
+  int number_shapes = shapes.size();
   
   //Start by generating a shader for every material
   std::vector<material_info> mat_info;
   std::vector<IShader*> shaders;
 
-  
+  // Count total faces across all shapes so we can size varying buffers correctly
+  int total_faces = 0;
+  for(int i = 0; i < number_shapes; i++) {
+    List single_shape = as<List>(shapes(i));
+    IntegerMatrix shape_inds = as<IntegerMatrix>(single_shape["indices"]);
+    total_faces += shape_inds.nrow();
+  }
   std::vector<vec3> vec_varying_intensity;
   std::vector<std::vector<vec3> > vec_varying_uv;
   std::vector<std::vector<vec4> > vec_varying_tri;
@@ -603,7 +611,8 @@ List rasterize(List mesh,
   std::vector<std::vector<vec3> > vec_varying_ndc_tri;
   std::vector<std::vector<vec3> > vec_varying_nrm;
   
-  for(int i = 0; i < max_indices; i++ ) {
+  for(int i = 0; i < total_faces; i++ ) {
+    vec_varying_intensity.push_back(vec3(0.0f));
     std::vector<vec3> tempuv(3);
     std::vector<vec4> temptri(3);
     std::vector<vec3> temppos(3);
@@ -968,8 +977,6 @@ List rasterize(List mesh,
   
   
   //Initialize Model vectors
-  List shapes = as<List>(mesh["shapes"]);
-  int number_shapes = shapes.size();
   std::vector<ModelInfo> models;
 
   //Initialize vertex storage vectors
@@ -984,8 +991,7 @@ List rasterize(List mesh,
   NumericMatrix mesh_texcoords = as<NumericMatrix>(mesh["texcoords"]);
   NumericMatrix mesh_normals = as<NumericMatrix>(mesh["normals"]);
   
-  
-  
+  int running_face_offset = 0;
   for(int i = 0; i < number_shapes; i++) {
     List single_shape = as<List>(shapes(i));
     IntegerMatrix shape_inds = as<IntegerMatrix>(single_shape["indices"]);
@@ -1007,8 +1013,10 @@ List rasterize(List mesh,
                     shape_inds, tex_inds, norm_inds, 
                     has_vertex_tex, has_vertex_normals,
                     shape_materials,
-                    has_normals_vec(i), has_tex_vec(i), tbn);
+                    has_normals_vec(i), has_tex_vec(i), tbn,
+                    running_face_offset);
     models.push_back(model);
+    running_face_offset += n;
   }
   print_time(verbose, "Initialized 3D models" );
   

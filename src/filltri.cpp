@@ -33,6 +33,7 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
     ModelInfo &shp = models[model_num];
     for(unsigned int entry=0; entry < block_faces[model_num].size(); entry++) {
       int face = block_faces[model_num][entry];
+      int global_face = shp.index_offset + face;
       
       vec3 v1 = ndc_verts[model_num][0][face] * ndc_inv_w[model_num][0][face];
       vec3 v2 = ndc_verts[model_num][1][face] * ndc_inv_w[model_num][1][face];
@@ -124,7 +125,7 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
               Float z = v1.z * bc.x + v2.z * bc.y + v3.z * bc.z;
               if(z > zbuffer(i,j)) continue;
               
-              bool discard = shaders[mat_num]->fragment(bc_clip, color, position, normal, face);
+              bool discard = shaders[mat_num]->fragment(bc_clip, color, position, normal, global_face);
               bool is_translucent = shaders[mat_num]->is_translucent();
               if(!discard) {
                 if (depth) {

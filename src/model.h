@@ -13,11 +13,12 @@ class ModelInfo {
               Rcpp::LogicalVector has_vertex_tex, Rcpp::LogicalVector has_vertex_normals, 
               Rcpp::IntegerVector &materials,
               bool has_normals_, bool has_texcoords_,
-              bool tbn) :
+              bool tbn,
+              int index_offset = 0) :
       verts(verts),  texcoords(texcoords), normals(normals), 
       inds(inds), tex_inds(tex_inds), norm_inds(norm_inds), 
       materials(materials), has_vertex_tex(has_vertex_tex), has_vertex_normals(has_vertex_normals),
-      tbn(tbn) {
+      has_normals(has_normals_), has_texcoords(has_texcoords_), tbn(tbn), index_offset(index_offset) {
       num_indices = inds.nrow();
     }
     
@@ -32,17 +33,19 @@ class ModelInfo {
                   normals(norm_inds(iface,nthvert), 2)));
     }
     vec3 tex(int iface, int nthvert) {
-      return(has_vertex_tex(iface) ?  
-             vec3(texcoords(tex_inds(iface,nthvert), 0),
-                  texcoords(tex_inds(iface,nthvert), 1),
-                  0.0f) :
-              vec3(1.0));
+      // Trust provided tex indices; fall back only if index invalid
+      if(tex_inds(iface, nthvert) != -1) {
+        return(vec3(texcoords(tex_inds(iface,nthvert), 0),
+                    texcoords(tex_inds(iface,nthvert), 1),
+                    0.0f));
+      }
+      return(vec3(1.0));
     }
     bool model_vertex_normals(int iface) {
-      return(has_vertex_normals(iface));
+      return(has_normals);
     }
     bool model_vertex_texcoords(int iface) {
-      return(has_vertex_tex(iface));
+      return(has_texcoords);
     }
     
     Rcpp::NumericMatrix verts;
@@ -58,7 +61,10 @@ class ModelInfo {
     Rcpp::LogicalVector has_vertex_normals;
     
     bool tbn;
+    bool has_normals;
+    bool has_texcoords;
     int num_indices;
+    int index_offset;
 };
 
 
