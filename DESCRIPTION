@@ -36,4 +36,4 @@ BugReports: https://github.com/tylermorganwall/rayvertex/issues
 Encoding: UTF-8
 SystemRequirements: C++17
 Config/testthat/edition: 3
-Remotes: tylermorganwall/rayimage, r-lib/pillar
+Remotes: tylermorganwall/rayimage
