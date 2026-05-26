@@ -35,7 +35,7 @@ Scene with shape added.
 Applies Loop subdivision to the scene (or selected meshes).
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 #Subdivide the included R mesh
 obj_mesh(r_obj(),position=c(-0.5,0,0)) |> 
   add_shape(subdivide_mesh(obj_mesh(r_obj(),position=c(0.5,0,0)),

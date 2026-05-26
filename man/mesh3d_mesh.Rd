@@ -43,7 +43,7 @@ List describing the mesh.
 Mesh3d 3D Model
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
   # Read in a mesh3d object and rasterize it
   library(Rvcg)
   data(humface)
@@ -52,14 +52,12 @@ if(run_documentation()) {
               material=material_list(diffuse="dodgerblue4", type="phong", shininess=20,
               ambient = "dodgerblue4", ambient_intensity=0.3)) |>
     rasterize_scene(lookat = c(0,0.5,1), light_info = directional_light(c(1,0.5,1)))
- }
 
- if(run_documentation()) {
   # Subdivide the mesh for a smoother appearance
   mesh3d_mesh(humface,position = c(0,-0.3,0),scale = 1/70,
               material=material_list(diffuse="dodgerblue4", type="phong", shininess=20,
               ambient = "dodgerblue4", ambient_intensity=0.3)) |>
     subdivide_mesh() |>
     rasterize_scene(lookat = c(0,0.5,1), light_info = directional_light(c(1,0.5,1)))
- }
+}
 }

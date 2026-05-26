@@ -20,7 +20,7 @@ Scaled mesh
 Scale Mesh
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 #Scale a mesh in the Cornell box
 robj = obj_mesh(r_obj(), scale=150,angle=c(0,180,0))
 

@@ -18,7 +18,8 @@ text3d_mesh(
   angle = c(0, 0, 0),
   pivot_point = c(0, 0, 0),
   order_rotation = c(1, 2, 3),
-  scale = c(1, 1, 1)
+  scale = c(1, 1, 1),
+  color = NULL
 )
 }
 \arguments{
@@ -50,6 +51,8 @@ as rendered in the texture.}
 \item{order_rotation}{Default \code{c(1,2,3)}. Order to rotate the axes.}
 
 \item{scale}{Default \code{c(1,1,1)}. Scale of the mesh. Can also be a single numeric value scaling all axes uniformly.}
+
+\item{color}{Default \code{NULL}. Deprecated alias for \code{font_color}; retained for compatibility.}
 }
 \value{
 List describing the mesh.
@@ -58,14 +61,12 @@ List describing the mesh.
 Text Object
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 #Generate a label in the Cornell box.
 generate_cornell_mesh() |>
   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),angle=c(0,180,0),
   text_height=120)) |>
   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
-}
-if(run_documentation()) {
 #Change the orientation
 generate_cornell_mesh() |>
   add_shape(text3d_mesh(label="YZ Plane", position=c(540,555/2,555/2),text_height=180,
@@ -75,8 +76,6 @@ generate_cornell_mesh() |>
   add_shape(text3d_mesh(label="XZ Plane", position=c(555/2,15,555/2),text_height=180,
                     orientation = "xz", angle=c(0,180,0))) |>
   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
-  }
-if(run_documentation()) {
 #Add an label in front of a sphere and change the font
 generate_cornell_mesh() |>
   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),text_height=180,
@@ -88,8 +87,6 @@ generate_cornell_mesh() |>
   add_shape(sphere_mesh(radius=100,position=c(555/2,100,555/2),
                         material=material_list(diffuse="purple",type="phong"))) |>
   rasterize_scene(light_info = directional_light(c(0.1,0.4,-1)))
-  }
-if(run_documentation()) {
 #A room full of b's
 set.seed(1)
 bee_scene = list()
@@ -101,9 +98,7 @@ bee_scene = add_shape(bee_scene, text3d_mesh("B", position=c(20+runif(3)*525),
 generate_cornell_mesh() |>
   add_shape(bee_scene) |>
   rasterize_scene(light=directional_light(c(0,1,-1)))
-}
 
-if(run_documentation()) {
 #A room full of bees
 bee_scene = list()
 set.seed(1)

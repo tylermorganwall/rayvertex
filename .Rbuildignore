@@ -14,6 +14,7 @@
 ^.*yml$
 ^docs$
 ^pkgdown$
+^revdep$
 ^\.github$
 ^.+\.png$
 ^.+\.mp4$
@@ -21,7 +22,7 @@
 ^.+\.jpg$
 ^_pkgdown\.yml$
 ^cran-comments\.md$
-^tests/*$
+^tests/testthat/Rplots\.pdf$
 ^compile_commands\.json$
 ^\.cache$
 ^todo\.txt$

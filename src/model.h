@@ -18,7 +18,7 @@ class ModelInfo {
       verts(verts),  texcoords(texcoords), normals(normals), 
       inds(inds), tex_inds(tex_inds), norm_inds(norm_inds), 
       materials(materials), has_vertex_tex(has_vertex_tex), has_vertex_normals(has_vertex_normals),
-      has_normals(has_normals_), has_texcoords(has_texcoords_), tbn(tbn), index_offset(index_offset) {
+      tbn(tbn), has_normals(has_normals_), has_texcoords(has_texcoords_), index_offset(index_offset) {
       num_indices = inds.nrow();
     }
     
@@ -42,9 +42,23 @@ class ModelInfo {
       return(vec3(1.0));
     }
     bool model_vertex_normals(int iface) {
+      if(has_vertex_normals.size() == num_indices) {
+        return(has_vertex_normals(iface));
+      }
+      int global_face = index_offset + iface;
+      if(global_face >= 0 && global_face < has_vertex_normals.size()) {
+        return(has_vertex_normals(global_face));
+      }
       return(has_normals);
     }
     bool model_vertex_texcoords(int iface) {
+      if(has_vertex_tex.size() == num_indices) {
+        return(has_vertex_tex(iface));
+      }
+      int global_face = index_offset + iface;
+      if(global_face >= 0 && global_face < has_vertex_tex.size()) {
+        return(has_vertex_tex(global_face));
+      }
       return(has_texcoords);
     }
     

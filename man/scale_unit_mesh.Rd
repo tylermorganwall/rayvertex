@@ -18,7 +18,7 @@ Scaled mesh
 Scale Mesh to Unit Bounding Box
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 #Scale the Cornell box (and contents) down to the unit box.
 robj = obj_mesh(r_obj(), scale=150,angle=c(0,180,0))
 

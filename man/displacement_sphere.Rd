@@ -54,7 +54,7 @@ raymesh object
 Construct Displacement Sphere
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 
 }
 }

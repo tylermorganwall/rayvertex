@@ -23,7 +23,7 @@ Applies a planar UV mapping to a mesh based on a spherical
 direction from the origin.
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 #Let's construct a mesh from the volcano dataset
 
 }

@@ -18,7 +18,7 @@ New line matrix.
 Add Line
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 #Generate a cube out of lines
 cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>

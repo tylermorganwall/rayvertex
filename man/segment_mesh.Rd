@@ -39,13 +39,11 @@ List describing the mesh.
 Segment 3D Model
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 #Generate a segment in the cornell box.
 generate_cornell_mesh() |>
   add_shape(segment_mesh(start = c(100, 100, 100), end = c(455, 455, 455), radius = 50)) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
-}
-if(run_documentation()) {
 # Draw a line graph representing a normal distribution, but with metal:
 xvals = seq(-3, 3, length.out = 30)
 yvals = dnorm(xvals)
@@ -62,8 +60,6 @@ for(i in 1:(length(xvals) - 1)) {
 generate_cornell_mesh() |>
   add_shape(scene_list) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
-}
-if(run_documentation()) {
 #Draw the outline of a cube:
 
 cube_outline = segment_mesh(start = c(100, 100, 100), end = c(100, 100, 455), radius = 10) |>
@@ -82,8 +78,6 @@ cube_outline = segment_mesh(start = c(100, 100, 100), end = c(100, 100, 455), ra
 generate_cornell_mesh() |>
   add_shape(set_material(cube_outline,diffuse="dodgerblue",type="phong")) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
-  }
-if(run_documentation()) {
 #Shrink and rotate the cube
 generate_cornell_mesh() |>
   add_shape(

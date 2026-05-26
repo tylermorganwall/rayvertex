@@ -16,7 +16,7 @@ Centered mesh
 Centers the mesh at the origin.
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 #Center the Cornell box and the R OBJ at the origin
 center_mesh(generate_cornell_mesh()) |>
   add_shape(center_mesh(obj_mesh(r_obj(),scale=100,angle=c(0,180,0)))) |>

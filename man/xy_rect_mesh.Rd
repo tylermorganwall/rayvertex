@@ -33,13 +33,11 @@ List describing the mesh.
 XY Rectangle 3D Model
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 generate_cornell_mesh() |>
   add_shape(xy_rect_mesh(position = c(555/2, 100, 555/2), scale=200,
              material = material_list(diffuse = "purple"),angle=c(0,180,0))) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
-}
-if(run_documentation()) {
 #Rotate the plane and scale
 generate_cornell_mesh() |>
   add_shape(xy_rect_mesh(position = c(555/2, 100, 555/2), scale=c(200,100,1), angle=c(0,180,0),

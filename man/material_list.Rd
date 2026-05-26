@@ -105,7 +105,7 @@ List of material properties.
 Generate a material properties list.
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 mat_prop = material_list(diffuse="purple", type="phong", shininess = 20,
                         ambient="purple", ambient_intensity=0.3,
                         specular = "red", specular_intensity=2)

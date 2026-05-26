@@ -33,20 +33,16 @@ List describing the mesh.
 3D obj model of the letter R
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 #Generate a cube
 generate_cornell_mesh() |>
   add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100)) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
-}
-if(run_documentation()) {
 #Generate a blue rotated cube
 generate_cornell_mesh() |>
   add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100, angle=c(0,45,0),
                       material = material_list(diffuse="dodgerblue"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
-}
-if(run_documentation()) {
 #Generate a scaled, blue rotated cube
 generate_cornell_mesh() |>
   add_shape(cube_mesh(position = c(555/2, 100, 555/2), angle=c(0,45,0),

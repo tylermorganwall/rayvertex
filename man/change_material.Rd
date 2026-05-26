@@ -115,7 +115,7 @@ Shape with new material settings
 Change individual material properties, leaving others alone.
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 p_sphere = sphere_mesh(position=c(555/2,555/2,555/2), 
                       radius=40,material=material_list(diffuse="purple"))
 generate_cornell_mesh() |>
@@ -125,9 +125,7 @@ generate_cornell_mesh() |>
  add_shape(change_material(translate_mesh(p_sphere,c(-100,-100,0)),type="phong")) |>
  add_shape(change_material(translate_mesh(p_sphere,c(-200,-100,0)),type="phong",shininess=30)) |>
  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
-}  
 
-if(run_documentation()) {
 #Change several shapes at once
 p_sphere |>
  add_shape(change_material(translate_mesh(p_sphere,c(200,0,0)),diffuse="red")) |>

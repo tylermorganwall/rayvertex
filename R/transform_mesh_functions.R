@@ -5,8 +5,7 @@
 #'
 #'@return Translated mesh
 #'@export
-#'@examples
-#'if(run_documentation()) {
+#'@examplesIf interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))
 #'#Translate a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=150,angle=c(0,180,0))
 #'generate_cornell_mesh() |>
@@ -14,7 +13,6 @@
 #'  add_shape(translate_mesh(robj,c(555/2,200,555/2))) |>
 #'  add_shape(translate_mesh(robj,c(155,300,400))) |>
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
-#'}
 translate_mesh = function(mesh, position = c(0, 0, 0)) {
   for (j in seq_len(length(mesh$vertices))) {
     mesh$vertices[[j]][, 1] = mesh$vertices[[j]][, 1] + position[1]
@@ -34,8 +32,7 @@ translate_mesh = function(mesh, position = c(0, 0, 0)) {
 #'
 #'@return Scaled mesh
 #'@export
-#'@examples
-#'if(run_documentation()) {
+#'@examplesIf interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))
 #'#Scale a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=150,angle=c(0,180,0))
 #'
@@ -44,7 +41,6 @@ translate_mesh = function(mesh, position = c(0, 0, 0)) {
 #' add_shape(scale_mesh(translate_mesh(robj,c(555/2,200,555/2)),1.5, center=c(555/2,200,555/2))) |>
 #' add_shape(scale_mesh(translate_mesh(robj,c(55,300,400)),c(0.5,2,0.5), center=c(155,300,400))) |>
 #' rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
-#' }
 scale_mesh = function(mesh, scale = 1, center = c(0, 0, 0)) {
   if (length(scale) == 1) {
     scale = rep(scale, 3)
@@ -82,8 +78,7 @@ scale_mesh = function(mesh, scale = 1, center = c(0, 0, 0)) {
 #'
 #'@return Scaled mesh
 #'@export
-#'@examples
-#'if(run_documentation()) {
+#'@examplesIf interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))
 #'#Scale the Cornell box (and contents) down to the unit box.
 #'robj = obj_mesh(r_obj(), scale=150,angle=c(0,180,0))
 #'
@@ -94,7 +89,6 @@ scale_mesh = function(mesh, scale = 1, center = c(0, 0, 0)) {
 #' scale_unit_mesh(center_mesh = TRUE) |>
 #' rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)),
 #'                 lookfrom = c(0,0,-2), lookat=c(0,0,0))
-#' }
 scale_unit_mesh = function(mesh, center_mesh = FALSE) {
   center = get_mesh_center(mesh)
   bbox = get_mesh_bbox(mesh)
@@ -116,15 +110,13 @@ scale_unit_mesh = function(mesh, center_mesh = FALSE) {
 #'
 #'@return Centered mesh
 #'@export
-#'@examples
-#'if(run_documentation()) {
+#'@examplesIf interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))
 #' #Center the Cornell box and the R OBJ at the origin
 #' center_mesh(generate_cornell_mesh()) |>
 #'   add_shape(center_mesh(obj_mesh(r_obj(),scale=100,angle=c(0,180,0)))) |>
 #'   rasterize_scene(lookfrom=c(0,0,-1100),fov=40,lookat=c(0,0,0),
 #'                   light_info = directional_light(c(0.4,0.4,-1)) |>
 #'       add_light(point_light(c(0,450,0),  falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)))
-#' }
 center_mesh = function(mesh) {
   center_mat = matrix(c(Inf, -Inf), nrow = 2, ncol = 3)
   for (j in seq_len(length(mesh$vertices))) {
@@ -147,11 +139,9 @@ center_mesh = function(mesh) {
 #'
 #'@return Length-3 numeric vector
 #'@export
-#'@examples
-#' if(run_documentation()) {
+#'@examplesIf interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))
 #' #Calculates the center of the mesh
 #' get_mesh_center(generate_cornell_mesh())
-#' }
 get_mesh_center = function(mesh) {
   center_mat = matrix(c(Inf, -Inf), nrow = 2, ncol = 3)
   for (j in seq_len(length(mesh$vertices))) {
@@ -171,11 +161,9 @@ get_mesh_center = function(mesh) {
 #'
 #'@return 2x3 numeric matrix
 #'@export
-#'@examples
-#' if(run_documentation()) {
+#'@examplesIf interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))
 #' #Calculates the center of the mesh
 #' get_mesh_bbox(generate_cornell_mesh())
-#' }
 get_mesh_bbox = function(mesh) {
   center_mat = matrix(c(Inf, -Inf), nrow = 2, ncol = 3)
   for (j in seq_len(length(mesh$vertices))) {
@@ -257,8 +245,7 @@ generate_rot_matrix = function(angle, order_rotation) {
 #'
 #'@return Rotated Mesh
 #'@export
-#'@examples
-#'if(run_documentation()) {
+#'@examplesIf interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))
 #'#Rotate a mesh in the Cornell box
 #'robj = obj_mesh(r_obj(), scale=150,angle=c(0,180,0))
 #'
@@ -270,7 +257,6 @@ generate_rot_matrix = function(angle, order_rotation) {
 #' add_shape(rotate_mesh(translate_mesh(robj,c(155,300,400)),c(-30,60,30),
 #'                       pivot_point=c(155,300,400), order_rotation=c(3,2,1))) |>
 #' rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
-#' }
 rotate_mesh = function(
   mesh,
   angle = c(0, 0, 0),
@@ -352,8 +338,7 @@ transform_mesh = function(mesh, transform_matrix) {
 #' [transform_mesh()]. The last column contains `pos` for convenience, but
 #' translation should be applied via [translate_mesh()].
 #' @export
-#' @examples
-#' if(run_documentation()) {
+#' @examplesIf interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))
 #'   m = sphere_mesh(radius = 0.5)
 #'   pos  = c(-1,0,0)   # place Moon on the left
 #'   look = c(0,0,0)    # look toward the origin (e.g., Earth/camera)
@@ -366,7 +351,6 @@ transform_mesh = function(mesh, transform_matrix) {
 #'     translate_mesh(pos) |>
 #'     rasterize_scene(lookfrom = c(0,0,0), lookat = pos,
 #'       light_info = directional_light(direction = c(1,0,0)))
-#' }
 lookat_transform = function(
   pos = c(0, 0, 0),
   look = c(0, 0, 1),

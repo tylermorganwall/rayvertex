@@ -36,7 +36,7 @@ raymesh object
 Displace a Mesh
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
  #Let's construct a mesh from the volcano dataset
 }
 }

@@ -55,14 +55,11 @@
 #'
 #'@return Rasterized image.
 #'@export
-#'@examples
-#'if(run_documentation()) {
+#'@examplesIf interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))
 #'#Let's load the cube OBJ file included with the package
 #'
 #'rasterize_scene(cube_mesh(),lookfrom=c(2,4,10),
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#' }
-#' if(run_documentation()) {
 #'#Flatten the cube, translate downwards, and set to grey
 #'base_model = cube_mesh() |>
 #'  scale_mesh(scale=c(5,0.2,5)) |>
@@ -71,8 +68,6 @@
 #'
 #'rasterize_scene(base_model, lookfrom=c(2,4,10),
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#' }
-#' if(run_documentation()) {
 #'#load the R OBJ file, scale it down, color it blue, and add it to the grey base
 #'r_model = obj_mesh(r_obj(simple_r = TRUE)) |>
 #'  scale_mesh(scale=0.5) |>
@@ -81,41 +76,29 @@
 #'
 #'rasterize_scene(r_model, lookfrom=c(2,4,10),
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#' }
-#' if(run_documentation()) {
 #'#Zoom in and reduce the shadow mapping intensity
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,shadow_map = TRUE, shadow_map_intensity=0.3,
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#'}
-#' if(run_documentation()) {
 #'#Include the resolution (4x) of the shadow map for less pixellation around the edges
 #'#Also decrease the shadow_map_bias slightly to remove the "peter panning" floating shadow effect
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 #'               shadow_map_dims=4,
 #'               light_info = directional_light(direction=c(0.5,1,0.7)))
-#'}
-#' if(run_documentation()) {
 #'#Add some more directional lights and change their color
 #' lights = directional_light(c(0.7,1.1,-0.9),color = "orange",intensity = 1) |>
 #'            add_light(directional_light(c(0.7,1,1),color = "dodgerblue",intensity = 1)) |>
 #'            add_light(directional_light(c(2,4,10),color = "white",intensity = 0.5))
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 #'               light_info = lights)
-#'}
-#' if(run_documentation()) {
 #'#Add some point lights
 #'lights_p = lights |>
 #'  add_light(point_light(position=c(-1,1,0),color="red", intensity=2)) |>
 #'  add_light(point_light(position=c(1,1,0),color="purple", intensity=2))
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10,
 #'               light_info = lights_p)
-#'}
-#' if(run_documentation()) {
 #'#change the camera position
 #'rasterize_scene(r_model, lookfrom=c(-2,2,-10), fov=10,
 #'               light_info = lights_p)
-#'}
-#' if(run_documentation()) {
 #'
 #'#Add a spiral of lines around the model by generating a matrix of line segments
 #' t = seq(0,8*pi,length.out=361)
@@ -129,584 +112,586 @@
 #'
 #'rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10, line_info = line_mat,
 #'               light_info = lights)
-#'}
 rasterize_scene = function(
-	scene,
-	filename = NA,
-	width = 800,
-	height = 800,
-	line_info = NULL,
-	alpha_line = 1.0,
-	parallel = TRUE,
-	plot = is.na(filename),
-	fov = 20,
-	lookfrom = c(0, 0, 10),
-	lookat = NULL,
-	camera_up = c(0, 1, 0),
-	fsaa = 2,
-	light_info = directional_light(),
-	color = "red",
-	type = "diffuse",
-	background = "black",
-	tangent_space_normals = TRUE,
-	shadow_map = TRUE,
-	shadow_map_bias = 0.003,
-	shadow_map_intensity = 0,
-	shadow_map_dims = NULL,
-	ssao = FALSE,
-	ssao_intensity = 10,
-	ssao_radius = 0.1,
-	tonemap = "raw",
-	debug = "none",
-	near_plane = 0.1,
-	far_plane = 100,
-	shader = "default",
-	block_size = 4,
-	shape = NULL,
-	line_offset = 0.00001,
-	ortho_dimensions = c(1, 1),
-	bloom = FALSE,
-	antialias_lines = TRUE,
-	environment_map = "",
-	background_sharpness = 1.0,
-	verbose = FALSE,
-	vertex_transform = NULL,
-	validate_scene = TRUE,
-	transparent_background = FALSE
+  scene,
+  filename = NA,
+  width = 800,
+  height = 800,
+  line_info = NULL,
+  alpha_line = 1.0,
+  parallel = TRUE,
+  plot = is.na(filename),
+  fov = 20,
+  lookfrom = c(0, 0, 10),
+  lookat = NULL,
+  camera_up = c(0, 1, 0),
+  fsaa = 2,
+  light_info = directional_light(),
+  color = "red",
+  type = "diffuse",
+  background = "black",
+  tangent_space_normals = TRUE,
+  shadow_map = TRUE,
+  shadow_map_bias = 0.003,
+  shadow_map_intensity = 0,
+  shadow_map_dims = NULL,
+  ssao = FALSE,
+  ssao_intensity = 10,
+  ssao_radius = 0.1,
+  tonemap = "raw",
+  debug = "none",
+  near_plane = 0.1,
+  far_plane = 100,
+  shader = "default",
+  block_size = 4,
+  shape = NULL,
+  line_offset = 0.00001,
+  ortho_dimensions = c(1, 1),
+  bloom = FALSE,
+  antialias_lines = TRUE,
+  environment_map = "",
+  background_sharpness = 1.0,
+  verbose = FALSE,
+  vertex_transform = NULL,
+  validate_scene = TRUE,
+  transparent_background = FALSE
 ) {
-	init_time()
-	if (!is.null(attr(scene, "cornell"))) {
-		corn_message = "Setting default values for Cornell box: "
-		missing_corn = FALSE
-		if (missing(lookfrom)) {
-			lookfrom = c(278, 278, -800)
-			corn_message = paste0(corn_message, "lookfrom `c(278,278,-800)` ")
-			missing_corn = TRUE
-		}
-		if (missing(lookat)) {
-			lookat = c(278, 278, 0)
-			corn_message = paste0(corn_message, "lookat `c(278,278,0)` ")
-			missing_corn = TRUE
-		}
-		if (missing(fov)) {
-			fov = 40
-			corn_message = paste0(corn_message, "fov `40` ")
-			missing_corn = TRUE
-		}
-		if (fov == 0 && missing(ortho_dimensions)) {
-			ortho_dimensions = c(580, 580)
-			corn_message = paste0(corn_message, "ortho_dimensions `c(580, 580)` ")
-			missing_corn = TRUE
-		}
-		corn_message = paste0(corn_message, ".")
-		if (missing_corn) {
-			message(corn_message)
-		}
-		if (attr(scene, "cornell_light")) {
-			light_info = add_light(
-				light_info,
-				point_light(
-					c(555 / 2, 450, 555 / 2),
-					falloff_quad = 0.0,
-					constant = 0.0002,
-					falloff = 0.005
-				)
-			)
-		}
-	}
-	print_time(verbose, "Validating Mesh")
-	if (validate_scene) {
-		validate_mesh(scene)
-	}
-	#Get the scene down to one vertex/texcoord/normal matrix, and adjust indices to match
-	print_time(verbose, "Pre-processing scene")
-	scene = merge_scene(scene, flatten_materials = TRUE)
-	#Remove duplicate materials
-	print_time(verbose, "Pre-processed  scene")
-	obj = remove_duplicate_materials(scene)
-	print_time(verbose, "Removed duplicate materials")
+  init_time()
+  if (!is.null(attr(scene, "cornell"))) {
+    corn_message = "Setting default values for Cornell box: "
+    missing_corn = FALSE
+    if (missing(lookfrom)) {
+      lookfrom = c(278, 278, -800)
+      corn_message = paste0(corn_message, "lookfrom `c(278,278,-800)` ")
+      missing_corn = TRUE
+    }
+    if (missing(lookat)) {
+      lookat = c(278, 278, 0)
+      corn_message = paste0(corn_message, "lookat `c(278,278,0)` ")
+      missing_corn = TRUE
+    }
+    if (missing(fov)) {
+      fov = 40
+      corn_message = paste0(corn_message, "fov `40` ")
+      missing_corn = TRUE
+    }
+    if (fov == 0 && missing(ortho_dimensions)) {
+      ortho_dimensions = c(580, 580)
+      corn_message = paste0(corn_message, "ortho_dimensions `c(580, 580)` ")
+      missing_corn = TRUE
+    }
+    corn_message = paste0(corn_message, ".")
+    if (missing_corn) {
+      message(corn_message)
+    }
+    if (attr(scene, "cornell_light")) {
+      light_info = add_light(
+        light_info,
+        point_light(
+          c(555 / 2, 450, 555 / 2),
+          falloff_quad = 0.0,
+          constant = 0.0002,
+          falloff = 0.005
+        )
+      )
+    }
+  }
+  print_time(verbose, "Validating Mesh")
+  if (validate_scene) {
+    validate_mesh(scene)
+  }
+  #Get the scene down to one vertex/texcoord/normal matrix, and adjust indices to match
+  print_time(verbose, "Pre-processing scene")
+  scene = merge_scene(scene, flatten_materials = TRUE)
+  #Remove duplicate materials
+  print_time(verbose, "Pre-processed  scene")
+  obj = remove_duplicate_materials(scene)
+  print_time(verbose, "Removed duplicate materials")
 
-	fsaa = as.integer(fsaa)
-	if (fsaa > 1) {
-		width = width * fsaa
-		height = height * fsaa
-	}
+  fsaa = as.integer(fsaa)
+  if (fsaa > 1) {
+    width = width * fsaa
+    height = height * fsaa
+  }
 
-	max_indices = 0
-	has_norms = rep(FALSE, length(obj$shapes))
-	has_tex = rep(FALSE, length(obj$shapes))
-	has_vertex_tex = list()
-	has_vertex_normals = list()
+  max_indices = 0
+  has_norms = rep(FALSE, length(obj$shapes))
+  has_tex = rep(FALSE, length(obj$shapes))
+  has_vertex_tex = list()
+  has_vertex_normals = list()
 
-	if (length(ortho_dimensions) != 2) {
-		stop("ortho_dimensions must be length-2 numeric vector")
-	}
-	#lights
-	if (!is.null(light_info)) {
-		if (ncol(light_info) != 10) {
-			stop("light_info must have 10 cols")
-		}
-		lightinfo = light_info
-	} else {
-		lightinfo = matrix(nrow = 0, ncol = 10)
-	}
+  if (length(ortho_dimensions) != 2) {
+    stop("ortho_dimensions must be length-2 numeric vector")
+  }
+  #lights
+  if (!is.null(light_info)) {
+    if (ncol(light_info) != 10) {
+      stop("light_info must have 10 cols")
+    }
+    lightinfo = light_info
+  } else {
+    lightinfo = matrix(nrow = 0, ncol = 10)
+  }
 
-	if (is.null(line_info)) {
-		line_info = matrix(nrow = 0, ncol = 0)
-	}
+  if (is.null(line_info)) {
+    line_info = matrix(nrow = 0, ncol = 0)
+  }
 
-	bounds = c(Inf, Inf, Inf, -Inf, -Inf, -Inf)
-	for (i in seq_len(length(obj$shapes))) {
-		has_vertex_tex[[i]] = obj$shapes[[i]]$has_vertex_tex
-		has_vertex_normals[[i]] = obj$shapes[[i]]$has_vertex_normals
+  bounds = c(Inf, Inf, Inf, -Inf, -Inf, -Inf)
+  for (i in seq_len(length(obj$shapes))) {
+    has_vertex_tex[[i]] = obj$shapes[[i]]$has_vertex_tex
+    has_vertex_normals[[i]] = obj$shapes[[i]]$has_vertex_normals
 
-		max_indices = max(c(max_indices, nrow(obj$shapes[[i]]$indices)))
-		has_norms[i] = nrow(obj$shapes[[i]]$indices) ==
-			nrow(obj$shapes[[i]]$norm_indices)
-		has_tex[i] = nrow(obj$shapes[[i]]$indices) ==
-			nrow(obj$shapes[[i]]$tex_indices) &&
-			all(obj$shapes[[i]]$tex_indices != -1)
-	}
-	print_time(verbose, "Processed scene bounds")
+    max_indices = max(c(max_indices, nrow(obj$shapes[[i]]$indices)))
+    has_norms[i] = nrow(obj$shapes[[i]]$indices) ==
+      nrow(obj$shapes[[i]]$norm_indices)
+    has_tex[i] = nrow(obj$shapes[[i]]$indices) ==
+      nrow(obj$shapes[[i]]$tex_indices) &&
+      all(obj$shapes[[i]]$tex_indices != -1)
+  }
+  print_time(verbose, "Processed scene bounds")
 
-	has_vertex_tex = unlist(has_vertex_tex)
-	has_vertex_normals = unlist(has_vertex_normals)
+  has_vertex_tex = unlist(has_vertex_tex)
+  has_vertex_normals = unlist(has_vertex_normals)
 
-	use_default_material = FALSE
-	if (length(obj$materials) > 0) {
-		has_texture = rep(FALSE, length(obj$materials))
-		has_ambient_texture = rep(FALSE, length(obj$materials))
-		has_bump_texture = rep(FALSE, length(obj$materials))
-		has_normal_texture = rep(FALSE, length(obj$materials))
-		has_specular_texture = rep(FALSE, length(obj$materials))
-		has_emissive_texture = rep(FALSE, length(obj$materials))
-	} else {
-		use_default_material = TRUE
-		has_texture = FALSE
-		has_bump_texture = FALSE
-		has_ambient_texture = FALSE
-		has_normal_texture = FALSE
-		has_specular_texture = FALSE
-		has_emissive_texture = FALSE
-	}
-	for (i in seq_len(length(obj$materials))) {
-		if (
-			!is.null(obj$materials[[i]]$diffuse_texname) &&
-				obj$materials[[i]]$diffuse_texname != ""
-		) {
-			has_texture[i] = TRUE
-			obj$materials[[i]]$diffuse_texname = path.expand(
-				obj$materials[[i]]$diffuse_texname
-			)
-		}
-		if (
-			!is.null(obj$materials[[i]]$bump_texname) &&
-				obj$materials[[i]]$bump_texname != ""
-		) {
-			has_bump_texture[i] = TRUE
-			obj$materials[[i]]$bump_texname = path.expand(
-				obj$materials[[i]]$bump_texname
-			)
-		}
-		if (
-			!is.null(obj$materials[[i]]$ambient_texname) &&
-				obj$materials[[i]]$ambient_texname != ""
-		) {
-			has_ambient_texture[i] = TRUE
-			obj$materials[[i]]$ambient_texname = path.expand(
-				obj$materials[[i]]$ambient_texname
-			)
-		}
-		if (
-			!is.null(obj$materials[[i]]$specular_texname) &&
-				obj$materials[[i]]$specular_texname != ""
-		) {
-			has_specular_texture[i] = TRUE
-			obj$materials[[i]]$specular_texname = path.expand(
-				obj$materials[[i]]$specular_texname
-			)
-		}
-		if (
-			!is.null(obj$materials[[i]]$normal_texname) &&
-				obj$materials[[i]]$normal_texname != ""
-		) {
-			has_normal_texture[i] = TRUE
+  use_default_material = FALSE
+  if (length(obj$materials) > 0) {
+    has_texture = rep(FALSE, length(obj$materials))
+    has_ambient_texture = rep(FALSE, length(obj$materials))
+    has_bump_texture = rep(FALSE, length(obj$materials))
+    has_normal_texture = rep(FALSE, length(obj$materials))
+    has_specular_texture = rep(FALSE, length(obj$materials))
+    has_emissive_texture = rep(FALSE, length(obj$materials))
+  } else {
+    use_default_material = TRUE
+    has_texture = FALSE
+    has_bump_texture = FALSE
+    has_ambient_texture = FALSE
+    has_normal_texture = FALSE
+    has_specular_texture = FALSE
+    has_emissive_texture = FALSE
+  }
+  for (i in seq_len(length(obj$materials))) {
+    if (
+      !is.null(obj$materials[[i]]$diffuse_texname) &&
+        obj$materials[[i]]$diffuse_texname != ""
+    ) {
+      has_texture[i] = TRUE
+      obj$materials[[i]]$diffuse_texname = path.expand(
+        obj$materials[[i]]$diffuse_texname
+      )
+    }
+    if (
+      !is.null(obj$materials[[i]]$bump_texname) &&
+        obj$materials[[i]]$bump_texname != ""
+    ) {
+      has_bump_texture[i] = TRUE
+      obj$materials[[i]]$bump_texname = path.expand(
+        obj$materials[[i]]$bump_texname
+      )
+    }
+    if (
+      !is.null(obj$materials[[i]]$ambient_texname) &&
+        obj$materials[[i]]$ambient_texname != ""
+    ) {
+      has_ambient_texture[i] = TRUE
+      obj$materials[[i]]$ambient_texname = path.expand(
+        obj$materials[[i]]$ambient_texname
+      )
+    }
+    if (
+      !is.null(obj$materials[[i]]$specular_texname) &&
+        obj$materials[[i]]$specular_texname != ""
+    ) {
+      has_specular_texture[i] = TRUE
+      obj$materials[[i]]$specular_texname = path.expand(
+        obj$materials[[i]]$specular_texname
+      )
+    }
+    if (
+      !is.null(obj$materials[[i]]$normal_texname) &&
+        obj$materials[[i]]$normal_texname != ""
+    ) {
+      has_normal_texture[i] = TRUE
 
-			obj$materials[[i]]$normal_texname = path.expand(
-				obj$materials[[i]]$normal_texname
-			)
-		}
-		if (
-			!is.null(obj$materials[[i]]$emissive_texname) &&
-				obj$materials[[i]]$emissive_texname != ""
-		) {
-			has_emissive_texture[i] = TRUE
+      obj$materials[[i]]$normal_texname = path.expand(
+        obj$materials[[i]]$normal_texname
+      )
+    }
+    if (
+      !is.null(obj$materials[[i]]$emissive_texname) &&
+        obj$materials[[i]]$emissive_texname != ""
+    ) {
+      has_emissive_texture[i] = TRUE
 
-			obj$materials[[i]]$emissive_texname = path.expand(
-				obj$materials[[i]]$emissive_texname
-			)
-		}
-	}
-	print_time(verbose, "Processed texture filenames")
+      obj$materials[[i]]$emissive_texname = path.expand(
+        obj$materials[[i]]$emissive_texname
+      )
+    }
+  }
+  print_time(verbose, "Processed texture filenames")
 
-	numbercores = getOption(
-		"cores",
-		default = getOption("Ncpus", default = parallel::detectCores())
-	)
-	if (!parallel) {
-		numbercores = 1
-	}
+  numbercores = getOption(
+    "cores",
+    default = getOption("Ncpus", default = parallel::detectCores())
+  )
+  if (identical(Sys.getenv("_R_CHECK_LIMIT_CORES_"), "TRUE")) {
+    numbercores = min(as.integer(numbercores), 2L)
+  }
+  if (!parallel) {
+    numbercores = 1L
+  }
 
-	color = convert_color(color)
-	bg_color = convert_color(background)
+  color = convert_color(color)
+  bg_color = convert_color(background)
 
-	typevals = rep(2, max(c(length(obj$materials), 1)))
-	if (!use_default_material) {
-		for (i in seq_len(length(obj$materials))) {
-			typeval = switch(
-				obj$materials[[i]]$type,
-				"vertex" = 1,
-				"diffuse" = 2,
-				"phong" = 3,
-				"color" = 8,
-				"toon" = 9,
-				"toon_phong" = 10,
-				1
-			)
-			if (typeval < 8) {
-				if (has_normal_texture[i]) {
-					if (typeval == 2) {
-						if (!tangent_space_normals) {
-							typevals[i] = 4
-						} else {
-							typevals[i] = 5
-						}
-					} else if (typeval == 3) {
-						if (!tangent_space_normals) {
-							typevals[i] = 6
-						} else {
-							typevals[i] = 7
-						}
-					}
-				} else {
-					typevals[i] = typeval
-				}
-			} else {
-				typevals[i] = typeval
-			}
-		}
-	}
-	has_reflection_map = rep(FALSE, length(obj$materials))
-	has_refraction = rep(FALSE, length(obj$materials))
+  typevals = rep(2, max(c(length(obj$materials), 1)))
+  if (!use_default_material) {
+    for (i in seq_len(length(obj$materials))) {
+      typeval = switch(
+        obj$materials[[i]]$type,
+        "vertex" = 1,
+        "diffuse" = 2,
+        "phong" = 3,
+        "color" = 8,
+        "toon" = 9,
+        "toon_phong" = 10,
+        1
+      )
+      if (typeval < 8) {
+        if (has_normal_texture[i]) {
+          if (typeval == 2) {
+            if (!tangent_space_normals) {
+              typevals[i] = 4
+            } else {
+              typevals[i] = 5
+            }
+          } else if (typeval == 3) {
+            if (!tangent_space_normals) {
+              typevals[i] = 6
+            } else {
+              typevals[i] = 7
+            }
+          }
+        } else {
+          typevals[i] = typeval
+        }
+      } else {
+        typevals[i] = typeval
+      }
+    }
+  }
+  has_reflection_map = rep(FALSE, length(obj$materials))
+  has_refraction = rep(FALSE, length(obj$materials))
 
-	for (i in seq_len(length(obj$materials))) {
-		obj$materials[[i]]$culling = switch(
-			obj$materials[[i]]$culling,
-			"back" = 1,
-			"front" = 2,
-			"none" = 3,
-			1
-		)
-		if (
-			environment_map != "" &&
-				obj$materials[[i]]$reflection_intensity > 0 &&
-				file.exists(environment_map) &&
-				!dir.exists(environment_map)
-		) {
-			has_reflection_map[i] = TRUE
-		}
-		if (
-			environment_map != "" &&
-				obj$materials[[i]]$ior != 1 &&
-				file.exists(environment_map) &&
-				!dir.exists(environment_map)
-		) {
-			has_refraction[i] = TRUE
-		}
-	}
-	environment_map_hdr = FALSE
-	has_environment_map = FALSE
-	if (environment_map != "") {
-		has_environment_map = TRUE
-		environment_map = path.expand(environment_map)
-		if (tools::file_ext(environment_map) == "hdr") {
-			environment_map_hdr = TRUE
-		}
-	}
+  for (i in seq_len(length(obj$materials))) {
+    obj$materials[[i]]$culling = switch(
+      obj$materials[[i]]$culling,
+      "back" = 1,
+      "front" = 2,
+      "none" = 3,
+      1
+    )
+    if (
+      environment_map != "" &&
+        obj$materials[[i]]$reflection_intensity > 0 &&
+        file.exists(environment_map) &&
+        !dir.exists(environment_map)
+    ) {
+      has_reflection_map[i] = TRUE
+    }
+    if (
+      environment_map != "" &&
+        obj$materials[[i]]$ior != 1 &&
+        file.exists(environment_map) &&
+        !dir.exists(environment_map)
+    ) {
+      has_refraction[i] = TRUE
+    }
+  }
+  environment_map_hdr = FALSE
+  has_environment_map = FALSE
+  if (environment_map != "") {
+    has_environment_map = TRUE
+    environment_map = path.expand(environment_map)
+    if (tools::file_ext(environment_map) == "hdr") {
+      environment_map_hdr = TRUE
+    }
+  }
 
-	if (is.null(shadow_map_dims)) {
-		shadow_map_dims = c(width, height)
-	} else {
-		if (
-			length(shadow_map_dims) == 1 &&
-				is.numeric(shadow_map_dims) &&
-				shadow_map_dims > 0
-		) {
-			shadow_map_dims = c(width, height) * shadow_map_dims
-		} else if (length(shadow_map_dims) != 2) {
-			stop("shadow_map_dims must be vector of length 2")
-		}
-	}
+  if (is.null(shadow_map_dims)) {
+    shadow_map_dims = c(width, height)
+  } else {
+    if (
+      length(shadow_map_dims) == 1 &&
+        is.numeric(shadow_map_dims) &&
+        shadow_map_dims > 0
+    ) {
+      shadow_map_dims = c(width, height) * shadow_map_dims
+    } else if (length(shadow_map_dims) != 2) {
+      stop("shadow_map_dims must be vector of length 2")
+    }
+  }
 
-	is_dir_light = rep(TRUE, nrow(lightinfo))
-	for (i in seq_len(nrow(lightinfo))) {
-		if (any(lightinfo[i, 7:9] != 0)) {
-			is_dir_light[i] = FALSE
-		}
-	}
-	if (!is.null(vertex_transform) && is.function(vertex_transform)) {
-		if (verify_vertex_shader(vertex_transform)) {
-			obj$vertices = t(apply(obj$vertices, 1, vertex_transform))
-			if (any(is.na(obj$vertices)) || any(is.infinite(obj$vertices))) {
-				stop(
-					"vertex_transform transformed a vertex to either NA or infinity--transformed vertices should be finite values."
-				)
-			}
-		} else {
-			warning(
-				"vertex_transform function does not return correct output, not applying"
-			)
-		}
-	}
-	tempboundsmin = apply(obj$vertices, 2, min)
-	tempboundsmax = apply(obj$vertices, 2, max)
-	bounds[1:3] = c(
-		min(c(bounds[1], tempboundsmin[1])),
-		min(c(bounds[2], tempboundsmin[2])),
-		min(c(bounds[3], tempboundsmin[3]))
-	)
-	bounds[4:6] = c(
-		max(c(bounds[4], tempboundsmax[1])),
-		max(c(bounds[5], tempboundsmax[2])),
-		max(c(bounds[6], tempboundsmax[3]))
-	)
+  is_dir_light = rep(TRUE, nrow(lightinfo))
+  for (i in seq_len(nrow(lightinfo))) {
+    if (any(lightinfo[i, 7:9] != 0)) {
+      is_dir_light[i] = FALSE
+    }
+  }
+  if (!is.null(vertex_transform) && is.function(vertex_transform)) {
+    if (verify_vertex_shader(vertex_transform)) {
+      obj$vertices = t(apply(obj$vertices, 1, vertex_transform))
+      if (any(is.na(obj$vertices)) || any(is.infinite(obj$vertices))) {
+        stop(
+          "vertex_transform transformed a vertex to either NA or infinity--transformed vertices should be finite values."
+        )
+      }
+    } else {
+      warning(
+        "vertex_transform function does not return correct output, not applying"
+      )
+    }
+  }
+  tempboundsmin = apply(obj$vertices, 2, min)
+  tempboundsmax = apply(obj$vertices, 2, max)
+  bounds[1:3] = c(
+    min(c(bounds[1], tempboundsmin[1])),
+    min(c(bounds[2], tempboundsmin[2])),
+    min(c(bounds[3], tempboundsmin[3]))
+  )
+  bounds[4:6] = c(
+    max(c(bounds[4], tempboundsmax[1])),
+    max(c(bounds[5], tempboundsmax[2])),
+    max(c(bounds[6], tempboundsmax[3]))
+  )
 
-	if (is.null(lookat)) {
-		lookat = (bounds[1:3] + bounds[4:6]) / 2
-		message(sprintf(
-			"Setting `lookat` to: c(%0.2f, %0.2f, %0.2f)",
-			lookat[1],
-			lookat[2],
-			lookat[3]
-		))
-	}
-	print_time(verbose, "Processed materials")
-	imagelist = rasterize(
-		obj,
-		lightinfo,
-		line_mat = line_info,
-		nx = width,
-		ny = height,
-		model_color = color,
-		lookfrom = lookfrom,
-		lookat = lookat,
-		fov = fov,
-		typevals = typevals,
-		has_shadow_map = shadow_map,
-		calc_ambient = ssao,
-		tbn = tangent_space_normals,
-		ambient_radius = ssao_radius,
-		shadow_map_bias = shadow_map_bias,
-		numbercores = numbercores,
-		max_indices = max_indices,
-		has_normals_vec = has_norms,
-		has_tex_vec = has_tex, #This just determines whether to include tex indices
-		has_texture,
-		has_ambient_texture,
-		has_bump_texture,
-		has_normal_texture,
-		has_specular_texture,
-		has_emissive_texture,
-		block_size = block_size,
-		use_default_material = use_default_material,
-		near_plane,
-		far_plane,
-		shadow_map_intensity,
-		bounds,
-		shadow_map_dims,
-		camera_up,
-		alpha_line,
-		line_offset,
-		ortho_dimensions,
-		is_dir_light,
-		antialias_lines,
-		has_vertex_tex,
-		has_vertex_normals,
-		has_reflection_map,
-		environment_map,
-		background_sharpness,
-		has_refraction,
-		environment_map_hdr,
-		has_environment_map,
-		bg_color,
-		transparent_background,
-		verbose
-	)
-	print_time(verbose, "Rasterized image")
+  if (is.null(lookat)) {
+    lookat = (bounds[1:3] + bounds[4:6]) / 2
+    message(sprintf(
+      "Setting `lookat` to: c(%0.2f, %0.2f, %0.2f)",
+      lookat[1],
+      lookat[2],
+      lookat[3]
+    ))
+  }
+  print_time(verbose, "Processed materials")
+  imagelist = rasterize(
+    obj,
+    lightinfo,
+    line_mat = line_info,
+    nx = width,
+    ny = height,
+    model_color = color,
+    lookfrom = lookfrom,
+    lookat = lookat,
+    fov = fov,
+    typevals = typevals,
+    has_shadow_map = shadow_map,
+    calc_ambient = ssao,
+    tbn = tangent_space_normals,
+    ambient_radius = ssao_radius,
+    shadow_map_bias = shadow_map_bias,
+    numbercores = numbercores,
+    max_indices = max_indices,
+    has_normals_vec = has_norms,
+    has_tex_vec = has_tex, #This just determines whether to include tex indices
+    has_texture,
+    has_ambient_texture,
+    has_bump_texture,
+    has_normal_texture,
+    has_specular_texture,
+    has_emissive_texture,
+    block_size = block_size,
+    use_default_material = use_default_material,
+    near_plane,
+    far_plane,
+    shadow_map_intensity,
+    bounds,
+    shadow_map_dims,
+    camera_up,
+    alpha_line,
+    line_offset,
+    ortho_dimensions,
+    is_dir_light,
+    antialias_lines,
+    has_vertex_tex,
+    has_vertex_normals,
+    has_reflection_map,
+    environment_map,
+    background_sharpness,
+    has_refraction,
+    environment_map_hdr,
+    has_environment_map,
+    bg_color,
+    transparent_background,
+    verbose
+  )
+  print_time(verbose, "Rasterized image")
 
-	if (ssao) {
-		imagelist$amb = (imagelist$amb)^ssao_intensity
-		imagelist$r = imagelist$r * imagelist$amb
-		imagelist$g = imagelist$g * imagelist$amb
-		imagelist$b = imagelist$b * imagelist$amb
-	}
-	if (debug == "normals") {
-		norm_array = array(0, dim = c(dim(imagelist$r)[1:2], 3))
-		norm_array[,, 1] = (imagelist$normalx + 1) / 2
-		norm_array[,, 2] = (imagelist$normaly + 1) / 2
-		norm_array[,, 3] = (imagelist$normalz + 1) / 2
-		norm_array = rayimage::render_reorient(
-			norm_array,
-			transpose = TRUE,
-			flipx = TRUE
-		)
-		if (is.na(filename)) {
-			if (plot) {
-				rayimage::plot_image(norm_array)
-			}
-		} else {
-			rayimage::ray_write_image(
-				norm_array,
-				filename = filename,
-				write_linear = TRUE
-			)
-		}
-		return(invisible(norm_array))
-	}
-	if (debug == "depth") {
-		depth_array = array(0, dim = c(dim(imagelist$r)[1:2], 3))
-		depth_array[,, 1] = (imagelist$linear_depth)
-		depth_array[,, 2] = (imagelist$linear_depth)
-		depth_array[,, 3] = (imagelist$linear_depth)
-		depth_array[is.infinite(depth_array)] = 1
-		scale_factor = max(depth_array, na.rm = TRUE) -
-			min(depth_array, na.rm = TRUE)
-		depth_array = (depth_array - min(depth_array)) / scale_factor
-		if (is.na(filename)) {
-			depth_array = rayimage::render_reorient(
-				depth_array,
-				transpose = TRUE,
-				flipx = TRUE
-			)
-			if (plot) {
-				rayimage::plot_image(depth_array)
-			}
-		} else {
-			rayimage::ray_write_image(
-				depth_array,
-				filename = filename,
-				write_linear = TRUE
-			)
-		}
-		return(invisible(depth_array))
-	}
-	if (debug == "raw_depth") {
-		return(imagelist$linear_depth)
-	}
-	if (debug == "position") {
-		pos_array = array(0, dim = c(dim(imagelist$r)[1:2], 3))
-		imagelist$positionx = rescale(imagelist$positionx, to = c(0, 1))
-		imagelist$positiony = rescale(imagelist$positiony, to = c(0, 1))
-		imagelist$positionz = rescale(imagelist$positionz, to = c(0, 1))
+  if (ssao) {
+    imagelist$amb = (imagelist$amb)^ssao_intensity
+    imagelist$r = imagelist$r * imagelist$amb
+    imagelist$g = imagelist$g * imagelist$amb
+    imagelist$b = imagelist$b * imagelist$amb
+  }
+  if (debug == "normals") {
+    norm_array = array(0, dim = c(dim(imagelist$r)[1:2], 3))
+    norm_array[,, 1] = (imagelist$normalx + 1) / 2
+    norm_array[,, 2] = (imagelist$normaly + 1) / 2
+    norm_array[,, 3] = (imagelist$normalz + 1) / 2
+    norm_array = rayimage::render_reorient(
+      norm_array,
+      transpose = TRUE,
+      flipx = TRUE
+    )
+    if (is.na(filename)) {
+      if (plot) {
+        rayimage::plot_image(norm_array)
+      }
+    } else {
+      rayimage::ray_write_image(
+        norm_array,
+        filename = filename,
+        write_linear = TRUE
+      )
+    }
+    return(invisible(norm_array))
+  }
+  if (debug == "depth") {
+    depth_array = array(0, dim = c(dim(imagelist$r)[1:2], 3))
+    depth_array[,, 1] = (imagelist$linear_depth)
+    depth_array[,, 2] = (imagelist$linear_depth)
+    depth_array[,, 3] = (imagelist$linear_depth)
+    depth_array[is.infinite(depth_array)] = 1
+    scale_factor = max(depth_array, na.rm = TRUE) -
+      min(depth_array, na.rm = TRUE)
+    depth_array = (depth_array - min(depth_array)) / scale_factor
+    if (is.na(filename)) {
+      depth_array = rayimage::render_reorient(
+        depth_array,
+        transpose = TRUE,
+        flipx = TRUE
+      )
+      if (plot) {
+        rayimage::plot_image(depth_array)
+      }
+    } else {
+      rayimage::ray_write_image(
+        depth_array,
+        filename = filename,
+        write_linear = TRUE
+      )
+    }
+    return(invisible(depth_array))
+  }
+  if (debug == "raw_depth") {
+    return(imagelist$linear_depth)
+  }
+  if (debug == "position") {
+    pos_array = array(0, dim = c(dim(imagelist$r)[1:2], 3))
+    imagelist$positionx = rescale(imagelist$positionx, to = c(0, 1))
+    imagelist$positiony = rescale(imagelist$positiony, to = c(0, 1))
+    imagelist$positionz = rescale(imagelist$positionz, to = c(0, 1))
 
-		pos_array[,, 1] = (imagelist$positionx)
-		pos_array[,, 2] = (imagelist$positiony)
-		pos_array[,, 3] = (imagelist$positionz)
-		pos_array = rayimage::render_reorient(
-			pos_array,
-			transpose = TRUE,
-			flipx = TRUE
-		)
-		pos_array[is.infinite(pos_array)] = 1
-		if (is.na(filename)) {
-			if (plot) {
-				rayimage::plot_image(pos_array)
-			}
-		} else {
-			rayimage::ray_write_image(
-				pos_array,
-				filename = filename,
-				write_linear = TRUE
-			)
-		}
-		return(invisible(pos_array))
-	}
-	if (debug == "uv") {
-		uv_array = array(0, dim = c(dim(imagelist$r)[1:2], 3))
-		uv_array[,, 1] = (imagelist$uvx)
-		uv_array[,, 2] = (imagelist$uvy)
-		uv_array[,, 3] = (imagelist$uvz)
-		uv_array = rayimage::render_reorient(
-			uv_array,
-			transpose = TRUE,
-			flipx = TRUE
-		)
-		if (is.na(filename)) {
-			if (plot) {
-				rayimage::plot_image(uv_array)
-			}
-		} else {
-			rayimage::ray_write_image(
-				uv_array,
-				filename = filename,
-				write_linear = TRUE
-			)
-		}
-		return(invisible(uv_array))
-	}
-	if (environment_map == "") {
-		imagelist$r[imagelist$depth == 1] = bg_color[1]
-		imagelist$g[imagelist$depth == 1] = bg_color[2]
-		imagelist$b[imagelist$depth == 1] = bg_color[3]
-	}
+    pos_array[,, 1] = (imagelist$positionx)
+    pos_array[,, 2] = (imagelist$positiony)
+    pos_array[,, 3] = (imagelist$positionz)
+    pos_array = rayimage::render_reorient(
+      pos_array,
+      transpose = TRUE,
+      flipx = TRUE
+    )
+    pos_array[is.infinite(pos_array)] = 1
+    if (is.na(filename)) {
+      if (plot) {
+        rayimage::plot_image(pos_array)
+      }
+    } else {
+      rayimage::ray_write_image(
+        pos_array,
+        filename = filename,
+        write_linear = TRUE
+      )
+    }
+    return(invisible(pos_array))
+  }
+  if (debug == "uv") {
+    uv_array = array(0, dim = c(dim(imagelist$r)[1:2], 3))
+    uv_array[,, 1] = (imagelist$uvx)
+    uv_array[,, 2] = (imagelist$uvy)
+    uv_array[,, 3] = (imagelist$uvz)
+    uv_array = rayimage::render_reorient(
+      uv_array,
+      transpose = TRUE,
+      flipx = TRUE
+    )
+    if (is.na(filename)) {
+      if (plot) {
+        rayimage::plot_image(uv_array)
+      }
+    } else {
+      rayimage::ray_write_image(
+        uv_array,
+        filename = filename,
+        write_linear = TRUE
+      )
+    }
+    return(invisible(uv_array))
+  }
+  if (environment_map == "") {
+    imagelist$r[imagelist$depth == 1] = bg_color[1]
+    imagelist$g[imagelist$depth == 1] = bg_color[2]
+    imagelist$b[imagelist$depth == 1] = bg_color[3]
+  }
 
-	final_image = array(0, dim = c(dim(imagelist$r)[1:2], 4))
-	final_image[,, 1] = imagelist$r
-	final_image[,, 2] = imagelist$g
-	final_image[,, 3] = imagelist$b
-	final_image[,, 4] = imagelist$a
+  final_image = array(0, dim = c(dim(imagelist$r)[1:2], 4))
+  final_image[,, 1] = imagelist$r
+  final_image[,, 2] = imagelist$g
+  final_image[,, 3] = imagelist$b
+  final_image[,, 4] = imagelist$a
 
-	final_image = rayimage::ray_read_image(
-		final_image,
-		assume_colorspace = rayimage::CS_SRGB,
-		assume_white = "D65",
-		source_linear = FALSE
-	) |>
-		rayimage::render_reorient(
-			transpose = TRUE,
-			flipx = TRUE
-		)
-	if (tonemap != "raw") {
-		final_image = rayimage::render_tonemap(final_image, method = tonemap)
-	}
-	if (bloom) {
-		final_image = rayimage::render_convolution(final_image, min_value = 1)
-		print_time(verbose, "Rendered bloom")
-	}
-	if (fsaa > 1) {
-		final_image = rayimage::render_resized(
-			final_image,
-			mag = 1 / fsaa,
-			method = "mitchell"
-		)
-		print_time(verbose, "Applied FSAA")
-	}
-	final_image = rayimage::render_clamp(final_image)
+  final_image = rayimage::ray_read_image(
+    final_image,
+    assume_colorspace = rayimage::CS_SRGB,
+    assume_white = "D65",
+    source_linear = FALSE
+  ) |>
+    rayimage::render_reorient(
+      transpose = TRUE,
+      flipx = TRUE
+    )
+  if (tonemap != "raw") {
+    final_image = rayimage::render_tonemap(final_image, method = tonemap)
+  }
+  if (bloom) {
+    final_image = rayimage::render_convolution(final_image, min_value = 1)
+    print_time(verbose, "Rendered bloom")
+  }
+  if (fsaa > 1) {
+    final_image = rayimage::render_resized(
+      final_image,
+      mag = 1 / fsaa,
+      method = "mitchell"
+    )
+    print_time(verbose, "Applied FSAA")
+  }
+  final_image = rayimage::render_clamp(final_image)
 
-	# Image is aleady linear
-	if (is.na(filename)) {
-		if (plot) {
-			rayimage::plot_image(final_image)
-		}
-	} else {
-		rayimage::ray_write_image(
-			final_image,
-			filename = filename
-		)
-	}
-	if (debug == "all") {
-		return(imagelist)
-	}
-	print_time(verbose, "Display/save image")
-	return(invisible(final_image))
+  # Image is aleady linear
+  if (is.na(filename)) {
+    if (plot) {
+      rayimage::plot_image(final_image)
+    }
+  } else {
+    rayimage::ray_write_image(
+      final_image,
+      filename = filename
+    )
+  }
+  if (debug == "all") {
+    return(imagelist)
+  }
+  print_time(verbose, "Display/save image")
+  return(invisible(final_image))
 }

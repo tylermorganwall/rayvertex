@@ -16,7 +16,7 @@ get_mesh_bbox(mesh)
 Calculates the bounding box of a mesh
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 #Calculates the center of the mesh
 get_mesh_bbox(generate_cornell_mesh())
 }

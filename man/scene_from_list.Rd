@@ -18,7 +18,7 @@ Fast generation of rayvertex scenes from a list of objects (much faster than cal
 that cdoes
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
  #Build a scene out of cubes including 87 * 61 = 5307 objects
  scene = list()
  volcol = rainbow(103)

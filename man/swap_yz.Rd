@@ -16,8 +16,8 @@ Mesh with Y and Z axis exchanged
 Swap Y/Z Axis
 }
 \examples{
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 # Flip a mesh that's originally aligned along the y-axis
-if(run_documentation()) {
 cyl_mat = material_list(ambient="red", ambient_intensity=0.3, 
                         diffuse="red", diffuse_intensity=0.7)
 change_material(cylinder_mesh(length = 3, position=c(0,2,0), material = cyl_mat),

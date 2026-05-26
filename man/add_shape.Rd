@@ -18,7 +18,7 @@ Scene with shape added.
 Add shape to the scene.
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 #Generate several spheres in the cornell box
 scene = generate_cornell_mesh()
 set.seed(1)

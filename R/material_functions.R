@@ -42,8 +42,7 @@
 #' 
 #'@return Shape with new material
 #'@export
-#'@examples
-#'if(run_documentation()) {
+#'@examplesIf interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))
 #'#Set the material of an object
 #'generate_cornell_mesh() |>
 #'  add_shape(set_material(sphere_mesh(position=c(400,555/2,555/2),radius=40), 
@@ -54,7 +53,6 @@
 #'                         material = material_list(diffuse="gold", type="phong", 
 #'                                                  ambient="gold", ambient_intensity=0.4))) |>
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
-#'  }
 set_material = function(mesh, material = NULL, id = NULL,
                         diffuse                   = c(0.5,0.5,0.5),
                         ambient                   = c(0,0,0),
@@ -200,8 +198,7 @@ set_material = function(mesh, material = NULL, id = NULL,
 #' 
 #'@return Shape with new material settings
 #'@export
-#'@examples
-#'if(run_documentation()) {
+#'@examplesIf interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))
 #'p_sphere = sphere_mesh(position=c(555/2,555/2,555/2), 
 #'                       radius=40,material=material_list(diffuse="purple"))
 #'generate_cornell_mesh() |>
@@ -211,9 +208,7 @@ set_material = function(mesh, material = NULL, id = NULL,
 #'  add_shape(change_material(translate_mesh(p_sphere,c(-100,-100,0)),type="phong")) |>
 #'  add_shape(change_material(translate_mesh(p_sphere,c(-200,-100,0)),type="phong",shininess=30)) |>
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
-#'}  
 #'
-#'if(run_documentation()) {
 #'#Change several shapes at once
 #'p_sphere |>
 #'  add_shape(change_material(translate_mesh(p_sphere,c(200,0,0)),diffuse="red")) |>
@@ -223,7 +218,6 @@ set_material = function(mesh, material = NULL, id = NULL,
 #'  change_material(diffuse = "red") |> 
 #'  add_shape(generate_cornell_mesh()) |> 
 #'  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
-#'}
 change_material = function(mesh, id = NULL, sub_id = 1,
                            diffuse                   = NULL,
                            ambient                   = NULL,
@@ -427,8 +421,7 @@ change_material = function(mesh, id = NULL, sub_id = 1,
 #' 
 #'@return List of material properties.
 #'@export
-#'@examples
-#'if(run_documentation()) {
+#'@examplesIf interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))
 #'mat_prop = material_list(diffuse="purple", type="phong", shininess = 20,
 #'                         ambient="purple", ambient_intensity=0.3,
 #'                         specular = "red", specular_intensity=2)
@@ -437,7 +430,6 @@ change_material = function(mesh, id = NULL, sub_id = 1,
 #'                       radius=40,material=mat_prop)
 #'                       
 #'rasterize_scene(p_sphere, light_info=directional_light(direction=c(0.1,0.6,-1)))
-#'}
 material_list = function(diffuse                   = c(0.8,0.8,0.8),
                          ambient                   = c(0,0,0),
                          specular                  = c(1,1,1),

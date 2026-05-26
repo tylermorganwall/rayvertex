@@ -24,7 +24,7 @@ Builds a 4x4 transform whose rows are the world-space basis
 \code{\link[=translate_mesh]{translate_mesh()}} (position).
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
   m = sphere_mesh(radius = 0.5)
   pos  = c(-1,0,0)   # place Moon on the left
   look = c(0,0,0)    # look toward the origin (e.g., Earth/camera)

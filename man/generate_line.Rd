@@ -20,7 +20,7 @@ Line matrix
 Generate Lines
 }
 \examples{
-if(run_documentation()) {
+if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
 # Make a spiral of lines
 t = seq(0,8*pi,length.out=361)
 line_mat = matrix(nrow=0,ncol=9)
@@ -31,8 +31,6 @@ for(i in 1:360) {
                                     end  = c(0.5*sin(t[i+1]), t[i+1]/(8*pi), 0.5*cos(t[i+1]))))
 }
 rasterize_lines(line_mat)
-}
-if(run_documentation()) {
 #Change the line color
 line_mat = matrix(nrow=0,ncol=9)
 cols = hsv(seq(0,1,length.out=360))
@@ -43,8 +41,6 @@ for(i in 1:360) {
                                    color = cols[i]))
 }
 rasterize_lines(line_mat,lookfrom=c(0,10,10),fov=15)
-}
-if(run_documentation()) {
 #Use in a scene with a mesh
 obj_mesh(r_obj(simple_r = TRUE),material=material_list(diffuse="dodgerblue")) |>
  rasterize_scene(line_info = line_mat, light_info = directional_light(c(0,1,1)),

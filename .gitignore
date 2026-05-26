@@ -9,3 +9,4 @@ src/*.dll
 docs
 compile_commands.json
 .cache
+revdep/

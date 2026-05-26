@@ -1,16 +1,23 @@
 #' Convert Color
 #'
-#' @param color The color to convert. Can be either a hexadecimal code, or a numeric rgb 
+#' @param color The color to convert. Can be either a hexadecimal code, or a numeric rgb
 #' vector listing three intensities between `0` and `1`.
 #'
 #' @return Color vector
 #' @keywords internal
 convert_color = function(color, as_hex = FALSE) {
-  if(inherits(color,"character")) {
-    color = as.vector(grDevices::col2rgb(color))/255
-  } 
-  if(as_hex) {
-    paste0("#",paste0(format(as.hexmode(round(color*255,0)),width=2),collapse=""),collapse="")
+  if (inherits(color, "character")) {
+    color = as.vector(grDevices::col2rgb(color)) / 255
+  }
+  if (as_hex) {
+    paste0(
+      "#",
+      paste0(
+        format(as.hexmode(round(color * 255, 0)), width = 2),
+        collapse = ""
+      ),
+      collapse = ""
+    )
   } else {
     color
   }
@@ -23,10 +30,25 @@ convert_color = function(color, as_hex = FALSE) {
 #'
 #' @return Color vector
 #' @keywords internal
-rescale = function(vals, to=c(0,1)) {
-  range_vals = range(vals[!is.infinite(vals)],na.rm=TRUE)
-  vals = (vals-range_vals[1])/(range_vals[2]-range_vals[1])
-  (vals + to[1]) * (t[2]-t[1])
+rescale = function(vals, to = c(0, 1)) {
+  stopifnot(length(to) == 2)
+
+  finite = is.finite(vals)
+  if (!any(finite)) {
+    return(vals)
+  }
+
+  range_vals = range(vals[finite], na.rm = TRUE)
+  if (diff(range_vals) == 0) {
+    vals[finite] = mean(to)
+    return(vals)
+  }
+
+  vals[finite] = (vals[finite] - range_vals[1]) /
+    diff(range_vals) *
+    diff(to) +
+    to[1]
+  vals
 }
 
 #' Check Filename
@@ -35,8 +57,8 @@ rescale = function(vals, to=c(0,1)) {
 #' @return Flipped matrix
 #' @keywords internal
 get_file_type = function(file) {
-  if(is.character(file)) {
-    if(tools::file_ext(file) == "png") {
+  if (is.character(file)) {
+    if (tools::file_ext(file) == "png") {
       imagetype = "png"
     } else {
       imagetype = "jpg"
@@ -46,9 +68,8 @@ get_file_type = function(file) {
   } else if (length(dim(file)) == 2) {
     imagetype = "matrix"
   } else {
-    stop("`",file,"` not recognized class (png, jpeg, array, matrix).")
+    stop("`", file, "` not recognized class (png, jpeg, array, matrix).")
   }
-  
 }
 
 #' Flip Left-Right
@@ -58,10 +79,10 @@ get_file_type = function(file) {
 #' @return Flipped matrix
 #' @keywords internal
 fliplr = function(x) {
-  if(length(dim(x)) == 2) {
-    x[,ncol(x):1]
+  if (length(dim(x)) == 2) {
+    x[, ncol(x):1]
   } else {
-    x[,ncol(x):1,]
+    x[, ncol(x):1, ]
   }
 }
 
@@ -73,10 +94,10 @@ fliplr = function(x) {
 #' @return Flipped matrix
 #' @keywords internal
 flipud = function(x) {
-  if(length(dim(x)) == 2) {
-    x[nrow(x):1,]
+  if (length(dim(x)) == 2) {
+    x[nrow(x):1, ]
   } else {
-    x[nrow(x):1,,]
+    x[nrow(x):1, , ]
   }
 }
 
@@ -94,7 +115,7 @@ init_time = function() {
 #' @return Nothing
 #' @keywords internal
 get_time = function(init = TRUE) {
-  if(init) {
+  if (init) {
     get("init_time", envir = ray_environment)
   } else {
     get("prev_time", envir = ray_environment)
@@ -106,48 +127,32 @@ get_time = function(init = TRUE) {
 #' @return Nothing
 #' @keywords internal
 print_time = function(verbose = FALSE, message_text = "") {
-  if(verbose) {
+  if (verbose) {
     time_now = proc.time()[3]
-    message(sprintf("%-27s: %0.1f secs (Total: %0.1f secs)",
-                    message_text, 
-                    time_now-get_time(FALSE),
-                    time_now-get_time(TRUE)))
+    message(sprintf(
+      "%-27s: %0.1f secs (Total: %0.1f secs)",
+      message_text,
+      time_now - get_time(FALSE),
+      time_now - get_time(TRUE)
+    ))
     assign("prev_time", time_now, envir = ray_environment)
   }
 }
 
-#' @title Run Documentation
-#'
-#' @description This function determines if the examples are being run in pkgdown. It is not meant to be called by the user.
-#'
-#' @export
-#'
-#' @return Boolean value.
-#' @examples
-#' # See if the documentation should be run.
-#' run_documentation()
-run_documentation = function() {
-  return(identical(Sys.getenv("IN_PKGDOWN"), "true") &&
-         length(find.package("Rvcg", quiet=TRUE)) > 0)
-}
-
 #' Verify Vertex Shader
-#' 
+#'
 #' @return bool
 #'
 #' @keywords internal
 verify_vertex_shader = function(vertex_shader) {
   verify_matrix = matrix(1:18, ncol = 3, nrow = 6)
   processed_matrix = t(apply(verify_matrix, 1, vertex_shader))
-  
-  if(ncol(processed_matrix) != 3) {
+
+  if (ncol(processed_matrix) != 3) {
     return(FALSE)
   }
-  if(nrow(processed_matrix) != 6) {
+  if (nrow(processed_matrix) != 6) {
     return(FALSE)
   }
   return(TRUE)
 }
-
-
-
