@@ -16,7 +16,7 @@ Copyright: file inst/COPYRIGHTS
 Depends: R (>= 4.1)
 Imports: Rcpp (>= 1.0.6),
          grDevices,
-         rayimage (>= 0.22.3),
+         rayimage (>= 0.26.1),
          digest,
          pillar (>= 1.10.1),
          vctrs,
