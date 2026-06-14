@@ -13,25 +13,29 @@ Description: Rasterize images using a 3D software renderer. 3D scenes are create
 License: MIT + file LICENSE
 Copyright: file inst/COPYRIGHTS 
 Depends: R (>= 4.1)
-Imports: Rcpp (>= 1.0.6),
-         grDevices,
-         rayimage (>= 0.26.1),
-         digest,
-         pillar (>= 1.10.1),
-         vctrs,
-         tibble,
-         withr,
-         cli
+Imports: 
+    Rcpp (>= 1.0.6),
+    grDevices,
+    rayimage (>= 0.26.1),
+    digest,
+    pillar (>= 1.10.1),
+    vctrs,
+    tibble,
+    withr,
+    cli
 Suggests: 
     Rvcg,
     magick,
     raster,
     testthat (>= 3.0.0)
-LinkingTo: Rcpp, spacefillr, RcppThread, stbimageheaders
+LinkingTo: 
+    Rcpp, 
+    spacefillr, 
+    RcppThread, 
+    stbimageheaders
 Roxygen: list(markdown = TRUE)
 URL: https://www.rayvertex.com, https://github.com/tylermorganwall/rayvertex
 BugReports: https://github.com/tylermorganwall/rayvertex/issues
 Encoding: UTF-8
 Config/testthat/edition: 3
-Remotes: tylermorganwall/rayimage
 Config/roxygen2/version: 8.0.0
