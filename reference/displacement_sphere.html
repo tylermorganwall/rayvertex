@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rayvertex</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.14.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.15.0</span>
       </span>
     </div>
 
@@ -64,7 +64,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">displacement_sphere</span><span class="op">(</span></span>
 <span>  <span class="va">displacement_texture</span>,</span>
 <span>  displacement_scale <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  use_cube <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  use_cube <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  cube_subdivision_levels <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  displace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -95,8 +95,11 @@ if you want to visualize areas near the poles.</p></dd>
 
 
 <dt id="arg-cube-subdivision-levels">cube_subdivision_levels<a class="anchor" aria-label="anchor" href="#arg-cube-subdivision-levels"></a></dt>
-<dd><p>Default <code>NA</code>. Uses the dimensions of the displacement texture
-to automatically calculate the number of subdivision levels.</p></dd>
+<dd><p>Default <code>NA</code>. Number of times to subdivide the cube before
+projecting it to a sphere. When <code>NA</code>, this is calculated from the displacement texture
+resolution as <code>max(1, ceiling(log((width * height) / 12) / log(4)))</code>, where
+<code>width * height</code> is the number of pixels in the texture, <code>12</code> is the number of starting
+cube triangles, and each subdivision level increases the triangle count by about <code>4</code>.</p></dd>
 
 
 <dt id="arg-displace">displace<a class="anchor" aria-label="anchor" href="#arg-displace"></a></dt>
@@ -139,10 +142,42 @@ for later displacement.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span> <span class="op">||</span> <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"IN_PKGDOWN"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">texture_dim</span> <span class="op">=</span> <span class="fl">800</span></span></span>
+<span class="r-in"><span><span class="va">u</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span>, length.out <span class="op">=</span> <span class="va">texture_dim</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">v</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span>, length.out <span class="op">=</span> <span class="va">texture_dim</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">knit_texture</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">u</span>, <span class="va">v</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">*</span> <span class="va">x</span> <span class="op">+</span> <span class="fl">0.75</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">*</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fl">0.35</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="fl">12</span> <span class="op">*</span> <span class="va">y</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span></span>
+<span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">knit_texture</span> <span class="op">=</span> <span class="op">(</span><span class="va">knit_texture</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">knit_texture</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">knit_texture</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">knit_texture</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">knit_texture</span>, <span class="fl">3</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">texture_dim</span>, <span class="va">texture_dim</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">rayimage</span><span class="fu">::</span><span class="fu"><a href="https://www.rayimage.dev/reference/plot_image.html" class="external-link">plot_image</a></span><span class="op">(</span><span class="va">knit_texture</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="displacement_sphere-1.png" alt="" width="800" height="800"></span>
+<span class="r-in"><span><span class="va">light_info</span> <span class="op">=</span> <span class="fu"><a href="directional_light.html">directional_light</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span>, color<span class="op">=</span><span class="st">"dodgerblue"</span>,intensity<span class="op">=</span><span class="fl">0.8</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>                <span class="fu"><a href="add_light.html">add_light</a></span><span class="op">(</span><span class="fu"><a href="directional_light.html">directional_light</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>,<span class="op">-</span><span class="fl">1</span>,<span class="fl">0.1</span><span class="op">)</span>, color<span class="op">=</span><span class="st">"red"</span>,intensity<span class="op">=</span><span class="fl">0.8</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>                <span class="fu"><a href="add_light.html">add_light</a></span><span class="op">(</span><span class="fu"><a href="directional_light.html">directional_light</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">1</span>,<span class="fl">0.5</span><span class="op">)</span>,intensity<span class="op">=</span><span class="fl">0.8</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">displacement_sphere</span><span class="op">(</span><span class="va">knit_texture</span>,</span></span>
+<span class="r-in"><span>displacement_scale <span class="op">=</span> <span class="fl">0.08</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span>light_info <span class="op">=</span> <span class="va">light_info</span>, fov<span class="op">=</span><span class="fl">15</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Displacing mesh with 800x800 texture</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting `lookat` to: c(-0.00, 0.00, 0.00)</span>
+<span class="r-plt img"><img src="displacement_sphere-2.png" alt="" width="800" height="800"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-in"><span><span class="co">#The default sphere has issues near the poles</span></span></span>
+<span class="r-in"><span><span class="fu">displacement_sphere</span><span class="op">(</span><span class="va">knit_texture</span>, displacement_scale <span class="op">=</span> <span class="fl">0.08</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span>light_info <span class="op">=</span> <span class="va">light_info</span>, fov<span class="op">=</span><span class="fl">10</span>, lookfrom<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">10</span>,<span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Displacing mesh with 800x800 texture</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting `lookat` to: c(-0.00, 0.00, 0.00)</span>
+<span class="r-plt img"><img src="displacement_sphere-3.png" alt="" width="800" height="800"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A cube will render more nicely near the poles</span></span></span>
+<span class="r-in"><span><span class="fu">displacement_sphere</span><span class="op">(</span><span class="va">knit_texture</span>, use_cube <span class="op">=</span> <span class="cn">TRUE</span>, displacement_scale <span class="op">=</span> <span class="fl">0.08</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span>light_info <span class="op">=</span> <span class="va">light_info</span>, fov<span class="op">=</span><span class="fl">10</span>, lookfrom<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">10</span>,<span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Displacing mesh with 800x800 texture</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting `lookat` to: c(-0.00, 0.00, 0.00)</span>
+<span class="r-plt img"><img src="displacement_sphere-4.png" alt="" width="800" height="800"></span>
 </code></pre></div>
     </div>
   </div>

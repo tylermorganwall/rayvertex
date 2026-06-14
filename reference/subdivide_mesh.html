@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rayvertex</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.14.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.15.0</span>
       </span>
     </div>
 
@@ -108,13 +108,11 @@ not change the appearance of the mesh but does create a finer mesh.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span> <span class="op">||</span> <span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">as.logical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"IN_PKGDOWN"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span><span class="co">#Subdivide the included R mesh</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="obj_mesh.html">obj_mesh</a></span><span class="op">(</span><span class="fu"><a href="r_obj.html">r_obj</a></span><span class="op">(</span><span class="op">)</span>,position<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.5</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#Subdivide the included R mesh</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="obj_mesh.html">obj_mesh</a></span><span class="op">(</span><span class="fu"><a href="r_obj.html">r_obj</a></span><span class="op">(</span><span class="op">)</span>,position<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.5</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="add_shape.html">add_shape</a></span><span class="op">(</span><span class="fu">subdivide_mesh</span><span class="op">(</span><span class="fu"><a href="obj_mesh.html">obj_mesh</a></span><span class="op">(</span><span class="fu"><a href="r_obj.html">r_obj</a></span><span class="op">(</span><span class="op">)</span>,position<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                           subdivision_levels <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
+<span class="r-in"><span>                           subdivision_levels <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span>light_info <span class="op">=</span> <span class="fu"><a href="directional_light.html">directional_light</a></span><span class="op">(</span>direction<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>,<span class="fl">0.5</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>,fov<span class="op">=</span><span class="fl">13</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Setting `lookat` to: c(-0.00, 0.00, 0.00)</span>
 <span class="r-plt img"><img src="subdivide_mesh-1.png" alt="" width="800" height="800"></span>
 </code></pre></div>
