@@ -64,7 +64,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">displacement_sphere</span><span class="op">(</span></span>
 <span>  <span class="va">displacement_texture</span>,</span>
 <span>  displacement_scale <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  use_cube <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  use_cube <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  cube_subdivision_levels <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  displace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -162,14 +162,14 @@ for later displacement.</p></dd>
 <span class="r-in"><span>displacement_scale <span class="op">=</span> <span class="fl">0.08</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span>light_info <span class="op">=</span> <span class="va">light_info</span>, fov<span class="op">=</span><span class="fl">15</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Displacing mesh with 800x800 texture</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting `lookat` to: c(-0.00, 0.00, 0.00)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting `lookat` to: c(-0.00, -0.00, -0.00)</span>
 <span class="r-plt img"><img src="displacement_sphere-2.png" alt="" width="800" height="800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#The default sphere has issues near the poles</span></span></span>
 <span class="r-in"><span><span class="fu">displacement_sphere</span><span class="op">(</span><span class="va">knit_texture</span>, displacement_scale <span class="op">=</span> <span class="fl">0.08</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="rasterize_scene.html">rasterize_scene</a></span><span class="op">(</span>light_info <span class="op">=</span> <span class="va">light_info</span>, fov<span class="op">=</span><span class="fl">10</span>, lookfrom<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">10</span>,<span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Displacing mesh with 800x800 texture</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting `lookat` to: c(-0.00, 0.00, 0.00)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting `lookat` to: c(-0.00, -0.00, -0.00)</span>
 <span class="r-plt img"><img src="displacement_sphere-3.png" alt="" width="800" height="800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># A cube will render more nicely near the poles</span></span></span>
