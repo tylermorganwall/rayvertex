@@ -7,7 +7,7 @@
 displacement_sphere(
   displacement_texture,
   displacement_scale = 1,
-  use_cube = TRUE,
+  use_cube = FALSE,
   cube_subdivision_levels = NA,
   displace = TRUE,
   verbose = TRUE,
