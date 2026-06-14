@@ -17,10 +17,10 @@ File location of the 3d_r_logo.obj file (saved with a .txt extension)
 to be used with \code{obj_model()}
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Load and render the included example R object file.
-obj_mesh(r_obj()) |> 
+obj_mesh(r_obj()) |>
   rasterize_scene(lookfrom = c(0, 1, 10),
                   fov=7,light_info = directional_light(c(1,1,1)))
-}
+\dontshow{\}) # examplesIf}
 }

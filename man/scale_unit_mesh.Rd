@@ -18,7 +18,7 @@ Scaled mesh
 Scale Mesh to Unit Bounding Box
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Scale the Cornell box (and contents) down to the unit box.
 robj = obj_mesh(r_obj(), scale=150,angle=c(0,180,0))
 
@@ -29,5 +29,5 @@ add_shape(scale_mesh(translate_mesh(robj,c(55,300,400)),c(0.5,2,0.5), center=c(1
 scale_unit_mesh(center_mesh = TRUE) |>
 rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)),
                 lookfrom = c(0,0,-2), lookat=c(0,0,0))
-}
+\dontshow{\}) # examplesIf}
 }

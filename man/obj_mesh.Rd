@@ -43,10 +43,10 @@ List describing the mesh.
 OBJ Mesh 3D Model
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Read in the provided 3D R mesh
 generate_cornell_mesh(ceiling=FALSE) |>
   add_shape(obj_mesh(r_obj(),position=c(555/2,555/2,555/2),scale=400,angle=c(0,180,0))) |>
   rasterize_scene(light_info = directional_light(direction=c(0.2,0.5,-1)))
-}
+\dontshow{\}) # examplesIf}
 }

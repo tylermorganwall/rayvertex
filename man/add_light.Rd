@@ -18,20 +18,20 @@ A matrix representing the light information.
 Add light
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Add a light to scene (manually specify the light automatically added to the Cornell Box
 lights = point_light(position=c(555/2,450,555/2),
                     falloff_quad = 0.0, constant = 0.0002, falloff = 0.005)
 generate_cornell_mesh(light=FALSE) |>
  rasterize_scene(light_info = lights)
- 
+
 #Add directional lights and a point light
 lights_d = add_light(lights, directional_light(direction=c(1,1.5,-1), intensity=0.2)) |>
  add_light(directional_light(direction=c(-1,1.5,-1),color="red", intensity=0.2)) |>
  add_light(point_light(position=c(555/2,50,555/2), color="blue", intensity=0.3,
                        falloff_quad = 0.0, constant = 0.0002, falloff = 0.005))
-                       
+
 generate_cornell_mesh(light=FALSE) |>
  rasterize_scene(light_info = lights_d)
-}
+\dontshow{\}) # examplesIf}
 }

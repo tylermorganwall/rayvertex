@@ -115,7 +115,7 @@ Shape with new material settings
 Change individual material properties, leaving others alone.
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 p_sphere = sphere_mesh(position=c(555/2,555/2,555/2), 
                       radius=40,material=material_list(diffuse="purple"))
 generate_cornell_mesh() |>
@@ -135,5 +135,5 @@ p_sphere |>
  change_material(diffuse = "red") |> 
  add_shape(generate_cornell_mesh()) |> 
  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
-}
+\dontshow{\}) # examplesIf}
 }

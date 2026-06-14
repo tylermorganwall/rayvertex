@@ -116,7 +116,7 @@ Shape with new material
 Set the material(s) of the mesh.
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Set the material of an object
 generate_cornell_mesh() |>
  add_shape(set_material(sphere_mesh(position=c(400,555/2,555/2),radius=40), 
@@ -127,5 +127,5 @@ generate_cornell_mesh() |>
                         material = material_list(diffuse="gold", type="phong", 
                                                  ambient="gold", ambient_intensity=0.4))) |>
  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
-}
+\dontshow{\}) # examplesIf}
 }

@@ -33,7 +33,7 @@ List describing the mesh.
 3D obj model of the letter R
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Generate a cube
 generate_cornell_mesh() |>
   add_shape(cube_mesh(position = c(555/2, 100, 555/2), scale = 100)) |>
@@ -49,5 +49,5 @@ generate_cornell_mesh() |>
                       scale = c(2,0.5,0.8)*100,
                       material = material_list(diffuse="dodgerblue"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
-}
+\dontshow{\}) # examplesIf}
 }

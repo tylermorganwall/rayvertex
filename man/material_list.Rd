@@ -105,7 +105,7 @@ List of material properties.
 Generate a material properties list.
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 mat_prop = material_list(diffuse="purple", type="phong", shininess = 20,
                         ambient="purple", ambient_intensity=0.3,
                         specular = "red", specular_intensity=2)
@@ -114,5 +114,5 @@ p_sphere = sphere_mesh(position=c(555/2,555/2,555/2),
                       radius=40,material=mat_prop)
                       
 rasterize_scene(p_sphere, light_info=directional_light(direction=c(0.1,0.6,-1)))
-}
+\dontshow{\}) # examplesIf}
 }

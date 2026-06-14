@@ -1,4 +1,4 @@
-#define STB_IMAGE_IMPLEMENTATION 
+#define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 
 #ifndef RAYRASTERH
@@ -30,8 +30,8 @@
 #include <functional>
 #include <algorithm>
 #include <utility>
-#include "stb/stb_image.h"
-#include "stb/stb_image_resize.h"
+#include "stbimageheaders/stb_image.h"
+#include "stbimageheaders/stb_image_resize2.h"
 #include <memory>
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
@@ -53,6 +53,34 @@
 #include "GBuffer.h"
 
 using namespace Rcpp;
+
+inline stbir_pixel_layout stbir_layout_from_channels(int channels) {
+  switch(channels) {
+  case 1:
+    return STBIR_1CHANNEL;
+  case 2:
+    return STBIR_2CHANNEL;
+  case 3:
+    return STBIR_RGB;
+  case 4:
+    return STBIR_4CHANNEL;
+  default:
+    throw std::runtime_error("Reflection map must have between 1 and 4 channels");
+  }
+}
+
+inline void resize_reflection_map(const float* input_pixels, int input_w, int input_h,
+                                  float* output_pixels, int output_w, int output_h,
+                                  int channels) {
+  void* resize_result = stbir_resize(input_pixels, input_w, input_h, 0,
+                                     output_pixels, output_w, output_h, 0,
+                                     stbir_layout_from_channels(channels),
+                                     STBIR_TYPE_FLOAT, STBIR_EDGE_WRAP,
+                                     STBIR_FILTER_CUBICBSPLINE);
+  if(resize_result == nullptr) {
+    throw std::runtime_error("Reflection map resizing failed");
+  }
+}
 
 inline vec3 clamp(const vec3& c, Float clamplow, Float clamphigh) {
   vec3 temp = c;
@@ -373,13 +401,13 @@ List rasterize(List mesh,
       float* reflection_map_data_new = new float[nx_r * ny_r * nn_r];
       if(reflection_sharpness < 1.0 && reflection_sharpness > 0.0) {
         float* reflection_map_data_temp = new float[nx_r_resize * ny_r_resize * nn_r];
-        stbir_resize_float_generic(reflection_map_data, nx_r, ny_r, 0, 
-                                   reflection_map_data_temp, nx_r_resize, ny_r_resize, 0,
-                                   nn_r, 0, 0, STBIR_EDGE_WRAP, STBIR_FILTER_CUBICBSPLINE, STBIR_COLORSPACE_LINEAR, NULL);
+        resize_reflection_map(reflection_map_data, nx_r, ny_r,
+                              reflection_map_data_temp, nx_r_resize, ny_r_resize,
+                              nn_r);
         
-        stbir_resize_float_generic(reflection_map_data_temp, nx_r_resize, ny_r_resize, 0, 
-                                   reflection_map_data_new, nx_r, ny_r, 0,
-                                   nn_r, 0, 0, STBIR_EDGE_WRAP, STBIR_FILTER_CUBICBSPLINE, STBIR_COLORSPACE_LINEAR, NULL);
+        resize_reflection_map(reflection_map_data_temp, nx_r_resize, ny_r_resize,
+                              reflection_map_data_new, nx_r, ny_r,
+                              nn_r);
         delete[] reflection_map_data_temp;
       } else {
         memcpy(reflection_map_data_new, main_reflection_map.reflection, sizeof(float) * nx_r * ny_r * nn_r);
@@ -1441,13 +1469,13 @@ List rasterize(List mesh,
       
       float* reflection_map_data_temp = new float[nx_r_resize * ny_r_resize * nn_r];
       
-      stbir_resize_float_generic(main_reflection_map.reflection, nx_r, ny_r, 0, 
-                         reflection_map_data_temp, nx_r_resize, ny_r_resize, 0,
-                         nn_r, 0, 0, STBIR_EDGE_WRAP, STBIR_FILTER_CUBICBSPLINE, STBIR_COLORSPACE_LINEAR, NULL);
+      resize_reflection_map(main_reflection_map.reflection, nx_r, ny_r,
+                            reflection_map_data_temp, nx_r_resize, ny_r_resize,
+                            nn_r);
       
-      stbir_resize_float_generic(reflection_map_data_temp, nx_r_resize, ny_r_resize, 0, 
-                         main_reflection_map.reflection, nx_r, ny_r, 0,
-                         nn_r, 0, 0, STBIR_EDGE_WRAP, STBIR_FILTER_CUBICBSPLINE, STBIR_COLORSPACE_LINEAR, NULL);
+      resize_reflection_map(reflection_map_data_temp, nx_r_resize, ny_r_resize,
+                            main_reflection_map.reflection, nx_r, ny_r,
+                            nn_r);
       delete[] reflection_map_data_temp;
     }
     Float theta = fov * M_PI/180;

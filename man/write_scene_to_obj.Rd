@@ -22,8 +22,8 @@ None
 Writes the current scene to a Wavefront OBJ file, with or without materials
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 tmpfile = tempfile(fileext = ".obj")
 write_scene_to_obj(generate_cornell_mesh(), tmpfile)
-}
+\dontshow{\}) # examplesIf}
 }

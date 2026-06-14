@@ -42,7 +42,7 @@ List describing the mesh.
 Arrow 3D Model
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Generate an arrow
 generate_cornell_mesh() |>
   add_shape(arrow_mesh(start = c(555/2, 20, 555/2), end = c(555/2, 300, 555/2), radius_tail=50,
@@ -73,5 +73,5 @@ generate_cornell_mesh() |>
                        radius_tail = 10, tail_proportion = 0.8,
                       material = material_list(diffuse="green"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
-}
+\dontshow{\}) # examplesIf}
 }

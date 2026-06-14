@@ -1,7 +1,7 @@
 #include "shaders.h"
 
 #include "RcppThread.h"
-#include "stb/stb_image.h"
+#include "stbimageheaders/stb_image.h"
 
 
 void print_vec(vec3 m) {

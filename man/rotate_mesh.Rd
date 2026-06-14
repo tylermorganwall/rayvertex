@@ -27,7 +27,7 @@ Rotated Mesh
 Rotate Mesh
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Rotate a mesh in the Cornell box
 robj = obj_mesh(r_obj(), scale=150,angle=c(0,180,0))
 
@@ -39,5 +39,5 @@ add_shape(rotate_mesh(translate_mesh(robj,c(555/2,200,555/2)),c(-30,60,30),
 add_shape(rotate_mesh(translate_mesh(robj,c(155,300,400)),c(-30,60,30),
                       pivot_point=c(155,300,400), order_rotation=c(3,2,1))) |>
 rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
-}
+\dontshow{\}) # examplesIf}
 }

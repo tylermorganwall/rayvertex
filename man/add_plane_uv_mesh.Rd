@@ -39,7 +39,7 @@ of the entire mesh. If false, each shape's bounding box is used.
 One of direction/u/v must be \code{NULL} and will be calculated from the others.
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Let's construct a mesh from the volcano dataset
 #Build the vertex matrix
 vertex_list = list()
@@ -105,5 +105,5 @@ uv = set_material(uv, texture_location = checkerboard_file,
 rasterize_scene(center_mesh(uv), lookfrom=c(200,200,200),fov=0,width=1200,height=1200,
                 light_info = directional_light(c(0,1,1)) |>
                 add_light(directional_light(c(1,1,-1))), ortho_dimensions=c(120,120))
-}
+\dontshow{\}) # examplesIf}
 }

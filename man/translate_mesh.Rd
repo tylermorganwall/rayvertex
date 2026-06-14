@@ -18,7 +18,7 @@ Translated mesh
 Translate Mesh
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Translate a mesh in the Cornell box
 robj = obj_mesh(r_obj(), scale=150,angle=c(0,180,0))
 generate_cornell_mesh() |>
@@ -26,5 +26,5 @@ generate_cornell_mesh() |>
  add_shape(translate_mesh(robj,c(555/2,200,555/2))) |>
  add_shape(translate_mesh(robj,c(155,300,400))) |>
  rasterize_scene(light_info=directional_light(direction=c(0.1,0.6,-1)))
-}
+\dontshow{\}) # examplesIf}
 }

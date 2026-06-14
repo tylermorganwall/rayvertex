@@ -18,7 +18,7 @@ Scene with shape added.
 Add shape to the scene.
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Generate several spheres in the cornell box
 scene = generate_cornell_mesh()
 set.seed(1)
@@ -31,5 +31,5 @@ for(i in 1:30) {
                                       radius=30))
 }
 rasterize_scene(scene, light_info=directional_light(direction=c(0.1,0.6,-1)))
-}
+\dontshow{\}) # examplesIf}
 }

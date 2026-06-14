@@ -149,7 +149,7 @@ Rasterized image.
 Render a 3D scene with meshes, lights, and lines using a software rasterizer.
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Let's load the cube OBJ file included with the package
 
 rasterize_scene(cube_mesh(),lookfrom=c(2,4,10),
@@ -206,5 +206,5 @@ for(i in 1:360) {
 
 rasterize_scene(r_model, lookfrom=c(2,4,10), fov=10, line_info = line_mat,
               light_info = lights)
-}
+\dontshow{\}) # examplesIf}
 }

@@ -61,7 +61,7 @@ List describing the mesh.
 Text Object
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Generate a label in the Cornell box.
 generate_cornell_mesh() |>
   add_shape(text3d_mesh(label="Cornell Box", position=c(555/2,555/2,555/2),angle=c(0,180,0),
@@ -110,5 +110,5 @@ for(i in 1:100) {
 generate_cornell_mesh() |>
   add_shape(bee_scene) |>
   rasterize_scene(light=directional_light(c(0,1,-1)))
-}
+\dontshow{\}) # examplesIf}
 }

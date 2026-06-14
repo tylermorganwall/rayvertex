@@ -4,22 +4,10 @@ License: MIT
 URL: https://github.com/g-truc/glm/
 Additional notice: src/glm/ext/scalar_ulp.inl contains code copyright (C) 1993 by Sun Microsystems, Inc.; permission to use, copy, modify, and distribute this software is freely granted, provided that the notice is preserved.
 
-Files: src/stb/stb_image.h, src/stb/stb_image_resize.h, src/stb/stb_image_write.h
-Copyright: 2017 Sean Barrett
-License: MIT or Public Domain (Unlicense), at user's choice
-URL: https://github.com/nothings/stb/
-Additional notice: src/stb/stb_image_resize.h identifies Jorge L Rodriguez, 2014; src/stb/stb_image_write.h identifies Sean Barrett, 2010-2015.
-
 File: src/tinyobj/tiny_obj_loader.h
 Copyright: 2012-Present, Syoyo Fujita and many contributors
 License: MIT
 URL: https://github.com/syoyo/tinyobjloader/
-
-File: src/tinyobj/tinyexr.h
-Copyright: 2014 - 2021, Syoyo Fujita and many contributors
-License: BSD-style, as provided in the source header
-URL: https://github.com/syoyo/tinyexr/
-Additional notice: tinyexr.h contains OpenEXR code copyright (c) 2002, Industrial Light & Magic, a division of Lucas Digital Ltd. LLC, under a BSD-style license provided in the source header.
 
 File: src/tinyobj/earcut.h
 Component: Mapbox earcut implementation

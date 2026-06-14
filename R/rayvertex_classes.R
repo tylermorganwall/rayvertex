@@ -115,6 +115,7 @@ pillar_shaft.ray_shape = function(x, ...) {
 #' @param x A ray_shape object.
 #' @param ... Additional arguments (unused).
 #' @keywords internal
+#' @export
 print.ray_shape = function(x, ...) {
   print_shape = function(x, ...) {
     # Print indices
@@ -212,6 +213,7 @@ ray_vertex_data = function(data = NA) {
 #' @param x A ray_vertex_data object.
 #' @param ... Additional arguments (unused).
 #' @keywords internal
+#' @export
 print.ray_vertex_data = function(x, ...) {
   print_data = function(x, ...) {
     ncols = ncol(x)
@@ -346,6 +348,7 @@ cat_color = function(
 }
 
 #' @keywords internal
+#' @export
 print.rayvertex_material = function(x, spacer = "", id = 0, ...) {
   if (spacer != "") {
     cat(
@@ -826,6 +829,7 @@ format_pillar_matlist = function(x) {
 }
 
 #' @keywords internal
+#' @export
 print.rayvertex_material_list = function(x, ...) {
   format_pillar_matlist(x)
 }
@@ -862,6 +866,7 @@ tbl_sum.print_raymesh_df <- function(x, ...) {
 }
 
 #' @keywords internal
+#' @export
 print.ray_mesh = function(x, ...) {
   # Count total objects and lights
   total_meshes = length(x$shapes)

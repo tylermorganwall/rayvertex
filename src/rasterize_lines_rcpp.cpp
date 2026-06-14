@@ -1,5 +1,3 @@
-#define STB_IMAGE_IMPLEMENTATION 
-
 #ifndef RAYRASTERH
 #define RAYRASTERH
 

@@ -35,11 +35,11 @@ Scene with shape added.
 Applies Loop subdivision to the scene (or selected meshes).
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Subdivide the included R mesh
-obj_mesh(r_obj(),position=c(-0.5,0,0)) |> 
+obj_mesh(r_obj(),position=c(-0.5,0,0)) |>
   add_shape(subdivide_mesh(obj_mesh(r_obj(),position=c(0.5,0,0)),
-                           subdivision_levels = 2)) |> 
+                           subdivision_levels = 2)) |>
   rasterize_scene(light_info = directional_light(direction=c(0.2,0.5,1)),fov=13)
-}
+\dontshow{\}) # examplesIf}
 }

@@ -43,7 +43,7 @@ List describing the mesh.
 Mesh3d 3D Model
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
   # Read in a mesh3d object and rasterize it
   library(Rvcg)
   data(humface)
@@ -59,5 +59,5 @@ if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
               ambient = "dodgerblue4", ambient_intensity=0.3)) |>
     subdivide_mesh() |>
     rasterize_scene(lookat = c(0,0.5,1), light_info = directional_light(c(1,0.5,1)))
-}
+\dontshow{\}) # examplesIf}
 }

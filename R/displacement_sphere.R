@@ -4,8 +4,11 @@
 #' @param displacement_scale Default `1`. Scale of the displacement.
 #' @param use_cube Default `FALSE`. Whether to use a subdivided cube instead of a UV sphere. Use this
 #' if you want to visualize areas near the poles.
-#' @param cube_subdivision_levels Default `NA`. Uses the dimensions of the displacement texture
-#' to automatically calculate the number of subdivision levels.
+#' @param cube_subdivision_levels Default `NA`. Number of times to subdivide the cube before
+#' projecting it to a sphere. When `NA`, this is calculated from the displacement texture
+#' resolution as `max(1, ceiling(log((width * height) / 12) / log(4)))`, where
+#' `width * height` is the number of pixels in the texture, `12` is the number of starting
+#' cube triangles, and each subdivision level increases the triangle count by about `4`.
 #' @param displace Default `TRUE`. Whether to displace the sphere, or just generate the initial mesh
 #' for later displacement.
 #' @param verbose Default `TRUE`. Whether to print displacement texture information.
@@ -19,11 +22,36 @@
 #' @return raymesh object
 #' @export
 #' @examplesIf interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))
+#' texture_dim = 800
+#' u = seq(0, 2 * pi, length.out = texture_dim)
+#' v = seq(0, 2 * pi, length.out = texture_dim)
+#' knit_texture = outer(u, v, function(x, y) {
+#'   sin(10 * x + 0.75 * sin(10 * y))^2 + 0.35 * cos(12 * y)^2
+#' })
+#' knit_texture = (knit_texture - min(knit_texture)) / diff(range(knit_texture))
+#' knit_texture = array(
+#'   rep(knit_texture, 3),
+#'   dim = c(texture_dim, texture_dim, 3)
+#' )
+#' rayimage::plot_image(knit_texture)
+#' light_info = directional_light(c(1,1,1), color="dodgerblue",intensity=0.8) |>
+#'                 add_light(directional_light(c(-1,-1,0.1), color="red",intensity=0.8)) |>
+#'                 add_light(directional_light(c(0.5,1,0.5),intensity=0.8))
+#' displacement_sphere(knit_texture,
+#' displacement_scale = 0.08, verbose = TRUE) |>
+#'   rasterize_scene(light_info = light_info, fov=15)
 #'
+#' #The default sphere has issues near the poles
+#' displacement_sphere(knit_texture, displacement_scale = 0.08) |>
+#'   rasterize_scene(light_info = light_info, fov=10, lookfrom=c(0,10,10))
+#'
+#' # A cube will render more nicely near the poles
+#' displacement_sphere(knit_texture, use_cube = TRUE, displacement_scale = 0.08) |>
+#'   rasterize_scene(light_info = light_info, fov=10, lookfrom=c(0,10,10))
 displacement_sphere = function(
   displacement_texture,
   displacement_scale = 1,
-  use_cube = FALSE,
+  use_cube = TRUE,
   cube_subdivision_levels = NA,
   displace = TRUE,
   verbose = TRUE,
@@ -54,9 +82,13 @@ displacement_sphere = function(
         smooth_normals_mesh()
     }
     if (is.na(cube_subdivision_levels)) {
-      initial_verts = 8
-      pixels = prod(displacement_texture[1:2])
-      cube_subdivision_levels = ceiling(log(pixels) / log(initial_verts))
+      initial_triangles = 12
+      subdivision_factor = 4
+      pixels = prod(dim(displacement_texture)[1:2])
+      cube_subdivision_levels = max(
+        1,
+        ceiling(log(pixels / initial_triangles) / log(subdivision_factor))
+      )
     }
 
     raymesh_new = cube_mesh() |>

@@ -36,7 +36,7 @@ raymesh object
 Displace a Mesh
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
  #Let's construct a mesh from the volcano dataset
-}
+\dontshow{\}) # examplesIf}
 }

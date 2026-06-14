@@ -1,18 +1,10 @@
 #include "displacement.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb/stb_image_write.h"
-#define TINYEXR_IMPLEMENTATION
-#define TINYEXR_USE_MINIZ 0
-#define TINYEXR_USE_STB_ZLIB 1
-#include "tinyobj/tinyexr.h"
 #ifndef STBIMAGEH
 #define STBIMAGEH
-#include "stb/stb_image.h"
+#include "stbimageheaders/stb_image.h"
 #endif
 // #include "assert.h"
 // #include "trianglemesh.h"
-#include <filesystem> // C++17
-namespace fs = std::filesystem;
 // #include "texturecache.h"
 #include "Rcpp.h"
 using namespace Rcpp;

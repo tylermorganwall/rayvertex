@@ -39,7 +39,7 @@ List describing the mesh.
 Segment 3D Model
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Generate a segment in the cornell box.
 generate_cornell_mesh() |>
   add_shape(segment_mesh(start = c(100, 100, 100), end = c(455, 455, 455), radius = 50)) |>
@@ -85,5 +85,5 @@ generate_cornell_mesh() |>
                 angle=c(45,45,45), pivot_point=c(555/2,555/2,555/2)),0.5,
                 center=c(555/2,555/2,555/2))) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
-}
+\dontshow{\}) # examplesIf}
 }

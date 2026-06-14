@@ -33,7 +33,7 @@ List describing the mesh.
 XY Rectangle 3D Model
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 generate_cornell_mesh() |>
   add_shape(xy_rect_mesh(position = c(555/2, 100, 555/2), scale=200,
              material = material_list(diffuse = "purple"),angle=c(0,180,0))) |>
@@ -43,5 +43,5 @@ generate_cornell_mesh() |>
   add_shape(xy_rect_mesh(position = c(555/2, 100, 555/2), scale=c(200,100,1), angle=c(0,180,0),
              material = material_list(diffuse = "purple"))) |>
   rasterize_scene(light_info = directional_light(c(0,0.5,-1)))
-}
+\dontshow{\}) # examplesIf}
 }

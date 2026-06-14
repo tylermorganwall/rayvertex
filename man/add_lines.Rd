@@ -18,7 +18,7 @@ New line matrix.
 Add Line
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Generate a cube out of lines
 cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
   add_lines(generate_line(start = c(-1, -1, -1), end = c(-1, 1, -1))) |>
@@ -32,7 +32,7 @@ cube_outline = generate_line(start = c(-1, -1, -1), end = c(-1, -1, 1)) |>
   add_lines(generate_line(start = c(1, -1, -1), end = c(1, -1, 1))) |>
   add_lines(generate_line(start = c(1, -1, 1), end = c(1, 1, 1))) |>
   add_lines(generate_line(start = c(-1, 1, -1), end = c(1, 1, -1)))
-  
+
 rasterize_lines(cube_outline,fov=90,lookfrom=c(0,0,3))
-}
+\dontshow{\}) # examplesIf}
 }

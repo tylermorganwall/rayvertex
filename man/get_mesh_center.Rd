@@ -16,8 +16,8 @@ Length-3 numeric vector
 Calculates the coordinates of the center of a mesh
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Calculates the center of the mesh
 get_mesh_center(generate_cornell_mesh())
-}
+\dontshow{\}) # examplesIf}
 }

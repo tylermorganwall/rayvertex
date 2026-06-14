@@ -36,7 +36,7 @@ List describing the mesh.
 Cylinder 3D Model
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 #Generate a cylinder
 generate_cornell_mesh() |>
   add_shape(cylinder_mesh(position=c(555/2,150,555/2),
@@ -52,5 +52,5 @@ generate_cornell_mesh() |>
   add_shape(cylinder_mesh(position=c(555/2,555/2,555/2),angle=c(45,-45,0),
                           radius = 10, length=500, material = material_list(diffuse="purple"))) |>
   rasterize_scene(light_info = directional_light(c(0.5,0.5,-1)))
-}
+\dontshow{\}) # examplesIf}
 }

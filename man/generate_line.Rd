@@ -20,7 +20,7 @@ Line matrix
 Generate Lines
 }
 \examples{
-if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) {
+\dontshow{if (interactive() || isTRUE(as.logical(Sys.getenv("IN_PKGDOWN")))) withAutoprint(\{ # examplesIf}
 # Make a spiral of lines
 t = seq(0,8*pi,length.out=361)
 line_mat = matrix(nrow=0,ncol=9)
@@ -45,5 +45,5 @@ rasterize_lines(line_mat,lookfrom=c(0,10,10),fov=15)
 obj_mesh(r_obj(simple_r = TRUE),material=material_list(diffuse="dodgerblue")) |>
  rasterize_scene(line_info = line_mat, light_info = directional_light(c(0,1,1)),
                  lookfrom=c(0,5,10),lookat=c(0,0.8,0),fov=15)
-}
+\dontshow{\}) # examplesIf}
 }
