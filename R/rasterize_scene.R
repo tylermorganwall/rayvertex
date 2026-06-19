@@ -210,6 +210,10 @@ rasterize_scene = function(
 
   fsaa = as.integer(fsaa)
   if (fsaa > 1) {
+    for (i in seq_len(length(obj$materials))) {
+      obj$materials[[i]]$toon_outline_width =
+        obj$materials[[i]]$toon_outline_width * fsaa
+    }
     width = width * fsaa
     height = height * fsaa
   }

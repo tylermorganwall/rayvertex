@@ -29,6 +29,51 @@ test_that("rasterize_scene position debug path works", {
   testthat::expect_equal(dim(image), c(32, 32, 3))
 })
 
+test_that("rasterize_scene scales toon outlines for FSAA before rasterizing", {
+  testthat::skip_on_cran()
+  testthat::skip_if_not(
+    "with_mocked_bindings" %in% getNamespaceExports("testthat"),
+    "testthat::with_mocked_bindings() is required"
+  )
+
+  captured = new.env(parent = emptyenv())
+  rasterize_stub = function(mesh, ..., nx, ny) {
+    captured$outline_width = mesh$materials[[1]]$toon_outline_width
+    captured$dims = c(nx, ny)
+
+    color = matrix(0, nrow = nx, ncol = ny)
+    list(
+      r = color,
+      g = color,
+      b = color,
+      a = matrix(1, nrow = nx, ncol = ny),
+      depth = color
+    )
+  }
+
+  testthat::with_mocked_bindings(
+    rasterize = rasterize_stub,
+    .package = "rayvertex",
+    {
+      rasterize_scene(
+        cube_mesh(
+          material = material_list(type = "toon", toon_outline_width = 4)
+        ),
+        width = 8,
+        height = 6,
+        fsaa = 3,
+        light_info = NULL,
+        lookat = c(0, 0, 0),
+        plot = FALSE,
+        parallel = FALSE
+      )
+    }
+  )
+
+  testthat::expect_equal(captured$outline_width, 12)
+  testthat::expect_equal(captured$dims, c(24, 18))
+})
+
 test_that("mesh3d_mesh centers the supplied mesh", {
   testthat::skip_on_cran()
 
