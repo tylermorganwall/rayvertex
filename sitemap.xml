@@ -25,6 +25,8 @@
 <url><loc>https://www.rayvertex.com/reference/directional_light.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/displace_mesh.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/displacement_sphere.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/extruded_path_mesh.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/extruded_polygon_mesh.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/flip_orientation_mesh.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/fliplr.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/flipud.html</loc></url>
@@ -40,6 +42,7 @@
 <url><loc>https://www.rayvertex.com/reference/get_time.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/index.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/init_time.html</loc></url>
+<url><loc>https://www.rayvertex.com/reference/lathe_mesh.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/lookat_transform.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/material_list.html</loc></url>
 <url><loc>https://www.rayvertex.com/reference/merge_scene.html</loc></url>
