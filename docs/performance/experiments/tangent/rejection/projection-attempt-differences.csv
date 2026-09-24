@@ -1,0 +1,771 @@
+"path","exact","attributes_exact","max_absolute","changed_finite","nonfinite_exact"
+"/vertex FALSE/none",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/r",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/g",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/b",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/a",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/amb",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/depth",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/normals",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/uv",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/position",TRUE,TRUE,0,0,TRUE
+"/vertex FALSE/depth",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/none",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/r",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/g",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/b",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/a",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/amb",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/depth",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/normals",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/uv",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/position",TRUE,TRUE,0,0,TRUE
+"/vertex TRUE/depth",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/none",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/r",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/g",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/b",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/a",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/amb",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/depth",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/normals",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/uv",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/position",TRUE,TRUE,0,0,TRUE
+"/diffuse FALSE/depth",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/none",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/r",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/g",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/b",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/a",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/amb",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/depth",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/normals",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/uv",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/position",TRUE,TRUE,0,0,TRUE
+"/diffuse TRUE/depth",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/none",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/r",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/g",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/b",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/a",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/amb",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/depth",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/normals",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/uv",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/position",TRUE,TRUE,0,0,TRUE
+"/phong FALSE/depth",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/none",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/r",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/g",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/b",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/a",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/amb",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/depth",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/normals",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/uv",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/position",TRUE,TRUE,0,0,TRUE
+"/phong TRUE/depth",TRUE,TRUE,0,0,TRUE
+"/color FALSE/none",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/r",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/g",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/b",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/a",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/amb",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/depth",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/color FALSE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/color FALSE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/color FALSE/normals",TRUE,TRUE,0,0,TRUE
+"/color FALSE/uv",TRUE,TRUE,0,0,TRUE
+"/color FALSE/position",TRUE,TRUE,0,0,TRUE
+"/color FALSE/depth",TRUE,TRUE,0,0,TRUE
+"/color TRUE/none",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/r",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/g",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/b",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/a",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/amb",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/depth",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/color TRUE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/color TRUE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/color TRUE/normals",TRUE,TRUE,0,0,TRUE
+"/color TRUE/uv",TRUE,TRUE,0,0,TRUE
+"/color TRUE/position",TRUE,TRUE,0,0,TRUE
+"/color TRUE/depth",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/none",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/r",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/g",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/b",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/a",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/amb",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/depth",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/normals",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/uv",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/position",TRUE,TRUE,0,0,TRUE
+"/toon FALSE/depth",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/none",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/r",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/g",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/b",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/a",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/amb",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/depth",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/normals",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/uv",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/position",TRUE,TRUE,0,0,TRUE
+"/toon TRUE/depth",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/none",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/r",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/g",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/b",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/a",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/amb",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/depth",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/normals",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/uv",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/position",TRUE,TRUE,0,0,TRUE
+"/toon_phong FALSE/depth",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/none",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/r",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/g",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/b",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/a",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/amb",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/depth",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/normals",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/uv",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/position",TRUE,TRUE,0,0,TRUE
+"/toon_phong TRUE/depth",TRUE,TRUE,0,0,TRUE
+"/ssao/none",TRUE,TRUE,0,0,TRUE
+"/ssao/all/r",TRUE,TRUE,0,0,TRUE
+"/ssao/all/g",TRUE,TRUE,0,0,TRUE
+"/ssao/all/b",TRUE,TRUE,0,0,TRUE
+"/ssao/all/a",TRUE,TRUE,0,0,TRUE
+"/ssao/all/amb",TRUE,TRUE,0,0,TRUE
+"/ssao/all/depth",TRUE,TRUE,0,0,TRUE
+"/ssao/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/ssao/all/normalx",TRUE,TRUE,0,0,TRUE
+"/ssao/all/normaly",TRUE,TRUE,0,0,TRUE
+"/ssao/all/normalz",TRUE,TRUE,0,0,TRUE
+"/ssao/all/positionx",TRUE,TRUE,0,0,TRUE
+"/ssao/all/positiony",TRUE,TRUE,0,0,TRUE
+"/ssao/all/positionz",TRUE,TRUE,0,0,TRUE
+"/ssao/all/uvx",TRUE,TRUE,0,0,TRUE
+"/ssao/all/uvy",TRUE,TRUE,0,0,TRUE
+"/ssao/all/uvz",TRUE,TRUE,0,0,TRUE
+"/ssao/raw_depth",TRUE,TRUE,0,0,TRUE
+"/ssao/normals",TRUE,TRUE,0,0,TRUE
+"/ssao/uv",TRUE,TRUE,0,0,TRUE
+"/ssao/position",TRUE,TRUE,0,0,TRUE
+"/ssao/depth",TRUE,TRUE,0,0,TRUE
+"/orthographic/none",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/r",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/g",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/b",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/a",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/amb",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/depth",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/normalx",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/normaly",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/normalz",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/positionx",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/positiony",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/positionz",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/uvx",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/uvy",TRUE,TRUE,0,0,TRUE
+"/orthographic/all/uvz",TRUE,TRUE,0,0,TRUE
+"/orthographic/raw_depth",TRUE,TRUE,0,0,TRUE
+"/orthographic/normals",TRUE,TRUE,0,0,TRUE
+"/orthographic/uv",TRUE,TRUE,0,0,TRUE
+"/orthographic/position",TRUE,TRUE,0,0,TRUE
+"/orthographic/depth",TRUE,TRUE,0,0,TRUE
+"/fsaa2/none",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/r",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/g",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/b",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/a",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/amb",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/depth",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/normalx",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/normaly",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/normalz",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/positionx",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/positiony",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/positionz",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/uvx",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/uvy",TRUE,TRUE,0,0,TRUE
+"/fsaa2/all/uvz",TRUE,TRUE,0,0,TRUE
+"/fsaa2/raw_depth",TRUE,TRUE,0,0,TRUE
+"/fsaa2/normals",TRUE,TRUE,0,0,TRUE
+"/fsaa2/uv",TRUE,TRUE,0,0,TRUE
+"/fsaa2/position",TRUE,TRUE,0,0,TRUE
+"/fsaa2/depth",TRUE,TRUE,0,0,TRUE
+"/portrait/none",TRUE,TRUE,0,0,TRUE
+"/portrait/all/r",TRUE,TRUE,0,0,TRUE
+"/portrait/all/g",TRUE,TRUE,0,0,TRUE
+"/portrait/all/b",TRUE,TRUE,0,0,TRUE
+"/portrait/all/a",TRUE,TRUE,0,0,TRUE
+"/portrait/all/amb",TRUE,TRUE,0,0,TRUE
+"/portrait/all/depth",TRUE,TRUE,0,0,TRUE
+"/portrait/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/portrait/all/normalx",TRUE,TRUE,0,0,TRUE
+"/portrait/all/normaly",TRUE,TRUE,0,0,TRUE
+"/portrait/all/normalz",TRUE,TRUE,0,0,TRUE
+"/portrait/all/positionx",TRUE,TRUE,0,0,TRUE
+"/portrait/all/positiony",TRUE,TRUE,0,0,TRUE
+"/portrait/all/positionz",TRUE,TRUE,0,0,TRUE
+"/portrait/all/uvx",TRUE,TRUE,0,0,TRUE
+"/portrait/all/uvy",TRUE,TRUE,0,0,TRUE
+"/portrait/all/uvz",TRUE,TRUE,0,0,TRUE
+"/portrait/raw_depth",TRUE,TRUE,0,0,TRUE
+"/portrait/normals",TRUE,TRUE,0,0,TRUE
+"/portrait/uv",TRUE,TRUE,0,0,TRUE
+"/portrait/position",TRUE,TRUE,0,0,TRUE
+"/portrait/depth",TRUE,TRUE,0,0,TRUE
+"/empty/none",TRUE,TRUE,0,0,TRUE
+"/empty/all/r",TRUE,TRUE,0,0,TRUE
+"/empty/all/g",TRUE,TRUE,0,0,TRUE
+"/empty/all/b",TRUE,TRUE,0,0,TRUE
+"/empty/all/a",TRUE,TRUE,0,0,TRUE
+"/empty/all/amb",TRUE,TRUE,0,0,TRUE
+"/empty/all/depth",TRUE,TRUE,0,0,TRUE
+"/empty/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/empty/all/normalx",TRUE,TRUE,0,0,TRUE
+"/empty/all/normaly",TRUE,TRUE,0,0,TRUE
+"/empty/all/normalz",TRUE,TRUE,0,0,TRUE
+"/empty/all/positionx",TRUE,TRUE,0,0,TRUE
+"/empty/all/positiony",TRUE,TRUE,0,0,TRUE
+"/empty/all/positionz",TRUE,TRUE,0,0,TRUE
+"/empty/all/uvx",TRUE,TRUE,0,0,TRUE
+"/empty/all/uvy",TRUE,TRUE,0,0,TRUE
+"/empty/all/uvz",TRUE,TRUE,0,0,TRUE
+"/empty/raw_depth",TRUE,TRUE,0,0,TRUE
+"/empty/normals",TRUE,TRUE,0,0,TRUE
+"/empty/uv",TRUE,TRUE,0,0,TRUE
+"/empty/position",TRUE,TRUE,0,0,TRUE
+"/empty/depth",TRUE,TRUE,0,0,TRUE
+"/offscreen/none",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/r",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/g",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/b",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/a",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/amb",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/depth",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/normalx",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/normaly",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/normalz",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/positionx",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/positiony",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/positionz",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/uvx",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/uvy",TRUE,TRUE,0,0,TRUE
+"/offscreen/all/uvz",TRUE,TRUE,0,0,TRUE
+"/offscreen/raw_depth",TRUE,TRUE,0,0,TRUE
+"/offscreen/normals",TRUE,TRUE,0,0,TRUE
+"/offscreen/uv",TRUE,TRUE,0,0,TRUE
+"/offscreen/position",TRUE,TRUE,0,0,TRUE
+"/offscreen/depth",TRUE,TRUE,0,0,TRUE
+"/near_crossing/none",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/r",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/g",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/b",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/a",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/amb",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/depth",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/normalx",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/normaly",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/normalz",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/positionx",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/positiony",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/positionz",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/uvx",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/uvy",TRUE,TRUE,0,0,TRUE
+"/near_crossing/all/uvz",TRUE,TRUE,0,0,TRUE
+"/near_crossing/raw_depth",TRUE,TRUE,0,0,TRUE
+"/near_crossing/normals",TRUE,TRUE,0,0,TRUE
+"/near_crossing/uv",TRUE,TRUE,0,0,TRUE
+"/near_crossing/position",TRUE,TRUE,0,0,TRUE
+"/near_crossing/depth",TRUE,TRUE,0,0,TRUE
+"/sliver/none",TRUE,TRUE,0,0,TRUE
+"/sliver/all/r",TRUE,TRUE,0,0,TRUE
+"/sliver/all/g",TRUE,TRUE,0,0,TRUE
+"/sliver/all/b",TRUE,TRUE,0,0,TRUE
+"/sliver/all/a",TRUE,TRUE,0,0,TRUE
+"/sliver/all/amb",TRUE,TRUE,0,0,TRUE
+"/sliver/all/depth",TRUE,TRUE,0,0,TRUE
+"/sliver/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/sliver/all/normalx",TRUE,TRUE,0,0,TRUE
+"/sliver/all/normaly",TRUE,TRUE,0,0,TRUE
+"/sliver/all/normalz",TRUE,TRUE,0,0,TRUE
+"/sliver/all/positionx",TRUE,TRUE,0,0,TRUE
+"/sliver/all/positiony",TRUE,TRUE,0,0,TRUE
+"/sliver/all/positionz",TRUE,TRUE,0,0,TRUE
+"/sliver/all/uvx",TRUE,TRUE,0,0,TRUE
+"/sliver/all/uvy",TRUE,TRUE,0,0,TRUE
+"/sliver/all/uvz",TRUE,TRUE,0,0,TRUE
+"/sliver/raw_depth",TRUE,TRUE,0,0,TRUE
+"/sliver/normals",TRUE,TRUE,0,0,TRUE
+"/sliver/uv",TRUE,TRUE,0,0,TRUE
+"/sliver/position",TRUE,TRUE,0,0,TRUE
+"/sliver/depth",TRUE,TRUE,0,0,TRUE
+"/alpha4/none",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/r",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/g",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/b",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/a",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/amb",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/depth",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/normalx",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/normaly",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/normalz",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/positionx",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/positiony",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/positionz",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/uvx",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/uvy",TRUE,TRUE,0,0,TRUE
+"/alpha4/all/uvz",TRUE,TRUE,0,0,TRUE
+"/alpha4/raw_depth",TRUE,TRUE,0,0,TRUE
+"/alpha4/normals",TRUE,TRUE,0,0,TRUE
+"/alpha4/uv",TRUE,TRUE,0,0,TRUE
+"/alpha4/position",TRUE,TRUE,0,0,TRUE
+"/alpha4/depth",TRUE,TRUE,0,0,TRUE
+"/alpha16/none",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/r",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/g",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/b",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/a",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/amb",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/depth",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/normalx",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/normaly",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/normalz",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/positionx",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/positiony",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/positionz",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/uvx",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/uvy",TRUE,TRUE,0,0,TRUE
+"/alpha16/all/uvz",TRUE,TRUE,0,0,TRUE
+"/alpha16/raw_depth",TRUE,TRUE,0,0,TRUE
+"/alpha16/normals",TRUE,TRUE,0,0,TRUE
+"/alpha16/uv",TRUE,TRUE,0,0,TRUE
+"/alpha16/position",TRUE,TRUE,0,0,TRUE
+"/alpha16/depth",TRUE,TRUE,0,0,TRUE
+"/alpha64/none",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/r",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/g",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/b",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/a",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/amb",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/depth",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/normalx",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/normaly",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/normalz",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/positionx",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/positiony",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/positionz",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/uvx",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/uvy",TRUE,TRUE,0,0,TRUE
+"/alpha64/all/uvz",TRUE,TRUE,0,0,TRUE
+"/alpha64/raw_depth",TRUE,TRUE,0,0,TRUE
+"/alpha64/normals",TRUE,TRUE,0,0,TRUE
+"/alpha64/uv",TRUE,TRUE,0,0,TRUE
+"/alpha64/position",TRUE,TRUE,0,0,TRUE
+"/alpha64/depth",TRUE,TRUE,0,0,TRUE
+"/alpha129/none",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/r",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/g",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/b",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/a",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/amb",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/depth",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/normalx",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/normaly",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/normalz",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/positionx",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/positiony",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/positionz",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/uvx",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/uvy",TRUE,TRUE,0,0,TRUE
+"/alpha129/all/uvz",TRUE,TRUE,0,0,TRUE
+"/alpha129/raw_depth",TRUE,TRUE,0,0,TRUE
+"/alpha129/normals",TRUE,TRUE,0,0,TRUE
+"/alpha129/uv",TRUE,TRUE,0,0,TRUE
+"/alpha129/position",TRUE,TRUE,0,0,TRUE
+"/alpha129/depth",TRUE,TRUE,0,0,TRUE
+"/lights/none",TRUE,TRUE,0,0,TRUE
+"/lights/all/r",TRUE,TRUE,0,0,TRUE
+"/lights/all/g",TRUE,TRUE,0,0,TRUE
+"/lights/all/b",TRUE,TRUE,0,0,TRUE
+"/lights/all/a",TRUE,TRUE,0,0,TRUE
+"/lights/all/amb",TRUE,TRUE,0,0,TRUE
+"/lights/all/depth",TRUE,TRUE,0,0,TRUE
+"/lights/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/lights/all/normalx",TRUE,TRUE,0,0,TRUE
+"/lights/all/normaly",TRUE,TRUE,0,0,TRUE
+"/lights/all/normalz",TRUE,TRUE,0,0,TRUE
+"/lights/all/positionx",TRUE,TRUE,0,0,TRUE
+"/lights/all/positiony",TRUE,TRUE,0,0,TRUE
+"/lights/all/positionz",TRUE,TRUE,0,0,TRUE
+"/lights/all/uvx",TRUE,TRUE,0,0,TRUE
+"/lights/all/uvy",TRUE,TRUE,0,0,TRUE
+"/lights/all/uvz",TRUE,TRUE,0,0,TRUE
+"/lights/raw_depth",TRUE,TRUE,0,0,TRUE
+"/lights/normals",TRUE,TRUE,0,0,TRUE
+"/lights/uv",TRUE,TRUE,0,0,TRUE
+"/lights/position",TRUE,TRUE,0,0,TRUE
+"/lights/depth",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/none",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/r",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/g",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/b",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/a",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/amb",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/depth",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/normals",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/uv",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/position",TRUE,TRUE,0,0,TRUE
+"/lines FALSE FALSE/depth",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/none",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/r",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/g",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/b",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/a",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/amb",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/depth",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/normals",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/uv",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/position",TRUE,TRUE,0,0,TRUE
+"/lines FALSE TRUE/depth",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/none",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/r",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/g",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/b",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/a",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/amb",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/depth",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/normals",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/uv",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/position",TRUE,TRUE,0,0,TRUE
+"/lines TRUE FALSE/depth",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/none",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/r",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/g",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/b",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/a",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/amb",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/depth",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/normalx",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/normaly",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/normalz",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/positionx",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/positiony",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/positionz",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/uvx",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/uvy",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/all/uvz",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/raw_depth",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/normals",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/uv",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/position",TRUE,TRUE,0,0,TRUE
+"/lines TRUE TRUE/depth",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/none",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/r",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/g",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/b",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/a",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/amb",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/depth",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/normalx",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/normaly",FALSE,TRUE,2.3283064365387e-10,25,TRUE
+"/tangent_diffuse/all/normalz",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/positionx",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/positiony",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/positionz",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/uvx",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/uvy",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/all/uvz",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/raw_depth",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/normals",FALSE,TRUE,1.16415321826935e-10,25,TRUE
+"/tangent_diffuse/uv",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/position",TRUE,TRUE,0,0,TRUE
+"/tangent_diffuse/depth",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/none",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/all/r",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/all/g",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/all/b",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/all/a",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/all/amb",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/all/depth",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/all/normalx",FALSE,TRUE,3.72529029846191e-09,10,TRUE
+"/tangent_phong/all/normaly",FALSE,TRUE,2.3283064365387e-10,7,TRUE
+"/tangent_phong/all/normalz",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/all/positionx",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/all/positiony",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/all/positionz",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/all/uvx",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/all/uvy",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/all/uvz",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/raw_depth",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/normals",FALSE,TRUE,1.86264514923096e-09,17,TRUE
+"/tangent_phong/uv",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/position",TRUE,TRUE,0,0,TRUE
+"/tangent_phong/depth",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/none",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/r",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/g",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/b",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/a",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/amb",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/depth",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/normalx",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/normaly",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/normalz",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/positionx",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/positiony",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/positionz",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/uvx",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/uvy",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/all/uvz",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/raw_depth",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/normals",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/uv",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/position",TRUE,TRUE,0,0,TRUE
+"/normal_diffuse/depth",TRUE,TRUE,0,0,TRUE
+"/normal_phong/none",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/r",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/g",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/b",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/a",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/amb",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/depth",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/normalx",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/normaly",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/normalz",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/positionx",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/positiony",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/positionz",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/uvx",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/uvy",TRUE,TRUE,0,0,TRUE
+"/normal_phong/all/uvz",TRUE,TRUE,0,0,TRUE
+"/normal_phong/raw_depth",TRUE,TRUE,0,0,TRUE
+"/normal_phong/normals",TRUE,TRUE,0,0,TRUE
+"/normal_phong/uv",TRUE,TRUE,0,0,TRUE
+"/normal_phong/position",TRUE,TRUE,0,0,TRUE
+"/normal_phong/depth",TRUE,TRUE,0,0,TRUE
+"/normal_point/none",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/r",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/g",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/b",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/a",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/amb",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/depth",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/normalx",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/normaly",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/normalz",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/positionx",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/positiony",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/positionz",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/uvx",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/uvy",TRUE,TRUE,0,0,TRUE
+"/normal_point/all/uvz",TRUE,TRUE,0,0,TRUE
+"/normal_point/raw_depth",TRUE,TRUE,0,0,TRUE
+"/normal_point/normals",TRUE,TRUE,0,0,TRUE
+"/normal_point/uv",TRUE,TRUE,0,0,TRUE
+"/normal_point/position",TRUE,TRUE,0,0,TRUE
+"/normal_point/depth",TRUE,TRUE,0,0,TRUE
+"/refraction/none",TRUE,TRUE,0,0,TRUE
+"/refraction/all/r",TRUE,TRUE,0,0,TRUE
+"/refraction/all/g",TRUE,TRUE,0,0,TRUE
+"/refraction/all/b",TRUE,TRUE,0,0,TRUE
+"/refraction/all/a",TRUE,TRUE,0,0,TRUE
+"/refraction/all/amb",TRUE,TRUE,0,0,TRUE
+"/refraction/all/depth",TRUE,TRUE,0,0,TRUE
+"/refraction/all/linear_depth",TRUE,TRUE,0,0,TRUE
+"/refraction/all/normalx",TRUE,TRUE,0,0,TRUE
+"/refraction/all/normaly",TRUE,TRUE,0,0,TRUE
+"/refraction/all/normalz",TRUE,TRUE,0,0,TRUE
+"/refraction/all/positionx",TRUE,TRUE,0,0,TRUE
+"/refraction/all/positiony",TRUE,TRUE,0,0,TRUE
+"/refraction/all/positionz",TRUE,TRUE,0,0,TRUE
+"/refraction/all/uvx",TRUE,TRUE,0,0,TRUE
+"/refraction/all/uvy",TRUE,TRUE,0,0,TRUE
+"/refraction/all/uvz",TRUE,TRUE,0,0,TRUE
+"/refraction/raw_depth",TRUE,TRUE,0,0,TRUE
+"/refraction/normals",TRUE,TRUE,0,0,TRUE
+"/refraction/uv",TRUE,TRUE,0,0,TRUE
+"/refraction/position",TRUE,TRUE,0,0,TRUE
+"/refraction/depth",TRUE,TRUE,0,0,TRUE

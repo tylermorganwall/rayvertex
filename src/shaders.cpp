@@ -1,5 +1,4 @@
 #include "shaders.h"
-#include "tangent_basis.h"
 #include "texture_cache.h"
 
 #include "RcppThread.h"
@@ -990,15 +989,14 @@ bool DiffuseShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& norm
     vec_varying_nrm[iface][1] * bc.y + 
     vec_varying_nrm[iface][2] * bc.z);
   
-  const vec3 e1=vec_varying_ndc_tri[iface][1]-vec_varying_ndc_tri[iface][0];
-  const vec3 e2=vec_varying_ndc_tri[iface][2]-vec_varying_ndc_tri[iface][0];
-  const vec2 du(vec_varying_uv[iface][1].x-vec_varying_uv[iface][0].x,
-                vec_varying_uv[iface][2].x-vec_varying_uv[iface][0].x);
-  const vec2 dv(vec_varying_uv[iface][1].y-vec_varying_uv[iface][0].y,
-                vec_varying_uv[iface][2].y-vec_varying_uv[iface][0].y);
-  const auto basis=tangent_algebra ? algebraic_tangent_basis(e1,e2,bn,du,dv) :
-    scalar_tangent_basis(e1,e2,bn,du,dv);
-  glm::mat3 B=glm::mat3{basis[0],basis[1],bn};
+  glm::mat3 A{(vec_varying_ndc_tri[iface][1] - vec_varying_ndc_tri[iface][0]),
+              (vec_varying_ndc_tri[iface][2] - vec_varying_ndc_tri[iface][0]),bn};
+  glm::mat3 AI = inverse(transpose(A));
+  vec3 i = AI * vec3(vec_varying_uv[iface][1].x - vec_varying_uv[iface][0].x,
+                     vec_varying_uv[iface][2].x - vec_varying_uv[iface][0].x, 0.0f);
+  vec3 j = AI * vec3(vec_varying_uv[iface][1].y - vec_varying_uv[iface][0].y,
+                     vec_varying_uv[iface][2].y - vec_varying_uv[iface][0].y, 0.0f);
+  glm::mat3 B = (glm::mat3{ normalize(i), normalize(j), bn });
   vec3 norm = normalize(B * normal_uv(uv));
   
   vec3 light_color(0.0);
@@ -1521,15 +1519,14 @@ bool PhongShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal
     vec_varying_nrm[iface][1] * bc.y + 
     vec_varying_nrm[iface][2] * bc.z);
   
-  const vec3 e1=vec_varying_ndc_tri[iface][1]-vec_varying_ndc_tri[iface][0];
-  const vec3 e2=vec_varying_ndc_tri[iface][2]-vec_varying_ndc_tri[iface][0];
-  const vec2 du(vec_varying_uv[iface][1].x-vec_varying_uv[iface][0].x,
-                vec_varying_uv[iface][2].x-vec_varying_uv[iface][0].x);
-  const vec2 dv(vec_varying_uv[iface][1].y-vec_varying_uv[iface][0].y,
-                vec_varying_uv[iface][2].y-vec_varying_uv[iface][0].y);
-  const auto basis=tangent_algebra ? algebraic_tangent_basis(e1,e2,bn,du,dv) :
-    scalar_tangent_basis(e1,e2,bn,du,dv);
-  glm::mat3 B=glm::mat3{basis[0],basis[1],bn};
+  glm::mat3 A{(vec_varying_ndc_tri[iface][1] - vec_varying_ndc_tri[iface][0]),
+              (vec_varying_ndc_tri[iface][2] - vec_varying_ndc_tri[iface][0]),bn};
+  glm::mat3 AI = inverse(transpose(A));
+  vec3 i = AI * vec3(vec_varying_uv[iface][1].x - vec_varying_uv[iface][0].x,
+                     vec_varying_uv[iface][2].x - vec_varying_uv[iface][0].x, 0.0f);
+  vec3 j = AI * vec3(vec_varying_uv[iface][1].y - vec_varying_uv[iface][0].y,
+                     vec_varying_uv[iface][2].y - vec_varying_uv[iface][0].y, 0.0f);
+  glm::mat3 B = (glm::mat3{ normalize(i), normalize(j), bn });
   normal = normalize(B * normal_uv(uv));
   
   vec3 spec_uv = specular(uv);

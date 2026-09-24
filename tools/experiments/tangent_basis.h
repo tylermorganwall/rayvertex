@@ -1,7 +1,8 @@
+// Archived candidate: not dispatched by the renderer. See docs/performance/experiments/tangent.
 #ifndef RAYVERTEX_TANGENT_BASIS_H
 #define RAYVERTEX_TANGENT_BASIS_H
 
-#include "defines.h"
+#include "../../src/defines.h"
 #include <array>
 
 inline std::array<vec3,2> scalar_tangent_basis(const vec3& e1,const vec3& e2,

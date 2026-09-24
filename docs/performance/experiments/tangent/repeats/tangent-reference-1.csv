@@ -1,0 +1,11 @@
+"case","cores","width","height","fsaa","regime","sample","elapsed_ms"
+"tangent",1,800,800,1,"warm",1,59
+"tangent",1,800,800,1,"warm",2,82
+"tangent",1,800,800,1,"warm",3,58.9999999999999
+"tangent",1,800,800,1,"warm",4,81.0000000000001
+"tangent",1,800,800,1,"warm",5,60.9999999999999
+"tangent",1,800,800,1,"native",1,44
+"tangent",1,800,800,1,"native",2,44.9999999999999
+"tangent",1,800,800,1,"native",3,44
+"tangent",1,800,800,1,"native",4,43.9999999999998
+"tangent",1,800,800,1,"native",5,44.9999999999999

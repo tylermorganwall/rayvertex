@@ -1,0 +1,61 @@
+/Library/Frameworks/R.framework/Versions/4.6/Resources/library/stbimageheaders/include/stbimageheaders/stb_image_resize2.h:3735:11: runtime error: store to misaligned address 0x60400002b75c for type 'stbir_uint64' (aka 'unsigned long long'), which requires 8 byte alignment
+0x60400002b75c: note: pointer points here
+  40 60 90 3d 00 00 00 00  40 60 90 3d 62 13 1d 3f  2b c1 a1 3e 00 00 00 00  be be be be be be be be
+              ^ 
+==27080==WARNING: external symbolizer didn't start up correctly!
+==27080==WARNING: Can't write to symbolizer at fd 5
+==27080==WARNING: external symbolizer didn't start up correctly!
+==27080==WARNING: Can't write to symbolizer at fd 6
+==27080==WARNING: external symbolizer didn't start up correctly!
+==27080==WARNING: Can't write to symbolizer at fd 7
+==27080==WARNING: external symbolizer didn't start up correctly!
+==27080==WARNING: Can't write to symbolizer at fd 8
+==27080==WARNING: external symbolizer didn't start up correctly!
+==27080==WARNING: Failed to use and restart external symbolizer!
+    #0 0x109eaa4f0 in stbir__alloc_internal_mem_and_build_samplers(stbir__sampler*, stbir__sampler*, stbir__contributors*, stbir_pixel_layout, stbir_pixel_layout, int, int, int, int, void*)+0x7ed4 (/private/tmp/rayvertex-optimization/lib-tangent-projection-asan/rayvertex/libs/rayvertex.so:arm64+0x2f64f0)
+    #1 0x109da82cc in stbir_build_samplers_with_splits+0xcd8 (/private/tmp/rayvertex-optimization/lib-tangent-projection-asan/rayvertex/libs/rayvertex.so:arm64+0x1f42cc)
+    #2 0x109da9358 in stbir_resize_extended+0x110 (/private/tmp/rayvertex-optimization/lib-tangent-projection-asan/rayvertex/libs/rayvertex.so:arm64+0x1f5358)
+    #3 0x109dae9c0 in stbir_quick_resize_helper(void const*, int, int, int, void*, int, int, int, stbir_pixel_layout, stbir_datatype, stbir_edge, stbir_filter)+0x4f8 (/private/tmp/rayvertex-optimization/lib-tangent-projection-asan/rayvertex/libs/rayvertex.so:arm64+0x1fa9c0)
+    #4 0x109f83828 in resize_reflection_map(float const*, int, int, float*, int, int, int)+0x84 (/private/tmp/rayvertex-optimization/lib-tangent-projection-asan/rayvertex/libs/rayvertex.so:arm64+0x3cf828)
+    #5 0x109de2088 in rasterize(Rcpp::Vector<19, Rcpp::PreserveStorage>, Rcpp::Matrix<14, Rcpp::PreserveStorage>, Rcpp::Matrix<14, Rcpp::PreserveStorage>, int, int, Rcpp::Vector<14, Rcpp::PreserveStorage>, Rcpp::Vector<14, Rcpp::PreserveStorage>, Rcpp::Vector<14, Rcpp::PreserveStorage>, double, Rcpp::Vector<13, Rcpp::PreserveStorage>, bool, bool, bool, double, double, int, int, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, int, bool, double, double, double, Rcpp::Vector<14, Rcpp::PreserveStorage>, Rcpp::Vector<13, Rcpp::PreserveStorage>, Rcpp::Vector<14, Rcpp::PreserveStorage>, double, double, Rcpp::Vector<14, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, bool, Rcpp::Vector<10, Rcpp::PreserveStorage>&, Rcpp::Vector<10, Rcpp::PreserveStorage>&, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::String, double, Rcpp::Vector<10, Rcpp::PreserveStorage>, bool, bool, Rcpp::Vector<14, Rcpp::PreserveStorage>, bool, bool, int, SEXPREC*)::$_0::operator()(double, bool) const+0x5d4 (/private/tmp/rayvertex-optimization/lib-tangent-projection-asan/rayvertex/libs/rayvertex.so:arm64+0x22e088)
+    #6 0x109dcca2c in rasterize(Rcpp::Vector<19, Rcpp::PreserveStorage>, Rcpp::Matrix<14, Rcpp::PreserveStorage>, Rcpp::Matrix<14, Rcpp::PreserveStorage>, int, int, Rcpp::Vector<14, Rcpp::PreserveStorage>, Rcpp::Vector<14, Rcpp::PreserveStorage>, Rcpp::Vector<14, Rcpp::PreserveStorage>, double, Rcpp::Vector<13, Rcpp::PreserveStorage>, bool, bool, bool, double, double, int, int, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, int, bool, double, double, double, Rcpp::Vector<14, Rcpp::PreserveStorage>, Rcpp::Vector<13, Rcpp::PreserveStorage>, Rcpp::Vector<14, Rcpp::PreserveStorage>, double, double, Rcpp::Vector<14, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, bool, Rcpp::Vector<10, Rcpp::PreserveStorage>&, Rcpp::Vector<10, Rcpp::PreserveStorage>&, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::String, double, Rcpp::Vector<10, Rcpp::PreserveStorage>, bool, bool, Rcpp::Vector<14, Rcpp::PreserveStorage>, bool, bool, int, SEXPREC*)+0x1dc04 (/private/tmp/rayvertex-optimization/lib-tangent-projection-asan/rayvertex/libs/rayvertex.so:arm64+0x218a2c)
+    #7 0x109bc18d8 in _rayvertex_rasterize+0xb08 (/private/tmp/rayvertex-optimization/lib-tangent-projection-asan/rayvertex/libs/rayvertex.so:arm64+0xd8d8)
+    #8 0x1038eaeb8 in R_doDotCall+0xb78 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0x8aeb8)
+    #9 0x1038eb338 in do_dotcall+0x138 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0x8b338)
+    #10 0x10392faa0 in bcEval_loop+0x5060 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xcfaa0)
+    #11 0x10391c830 in bcEval+0x270 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc830)
+    #12 0x10391bee0 in Rf_eval+0x160 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbbee0)
+    #13 0x10391ead8 in R_execClosure+0x318 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbead8)
+    #14 0x10391dbe0 in applyClosure_core+0xa0 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbdbe0)
+    #15 0x10391c3e4 in Rf_eval+0x664 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc3e4)
+    #16 0x1038b5bf0 in do_docall+0x270 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0x55bf0)
+    #17 0x10392faa0 in bcEval_loop+0x5060 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xcfaa0)
+    #18 0x10391c830 in bcEval+0x270 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc830)
+    #19 0x103920bfc in R_compileAndExecute+0x2fc (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xc0bfc)
+    #20 0x10391fe2c in do_for+0xec (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbfe2c)
+    #21 0x10391c17c in Rf_eval+0x3fc (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc17c)
+    #22 0x103923544 in do_eval+0x784 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xc3544)
+    #23 0x10392faa0 in bcEval_loop+0x5060 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xcfaa0)
+    #24 0x10391c830 in bcEval+0x270 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc830)
+    #25 0x10391bee0 in Rf_eval+0x160 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbbee0)
+    #26 0x10391cab4 in forcePromise+0xf4 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbcab4)
+    #27 0x10391c004 in Rf_eval+0x284 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc004)
+    #28 0x10392363c in do_withVisible+0x3c (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xc363c)
+    #29 0x10397e80c in do_internal+0x18c (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0x11e80c)
+    #30 0x103932270 in bcEval_loop+0x7830 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xd2270)
+    #31 0x10391c830 in bcEval+0x270 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc830)
+    #32 0x10391bee0 in Rf_eval+0x160 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbbee0)
+    #33 0x10391ead8 in R_execClosure+0x318 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbead8)
+    #34 0x10391dbe0 in applyClosure_core+0xa0 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbdbe0)
+    #35 0x10391c3e4 in Rf_eval+0x664 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc3e4)
+    #36 0x10396868c in Rf_ReplIteration+0x40c (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0x10868c)
+    #37 0x103969be0 in run_Rmainloop+0xe0 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0x109be0)
+    #38 0x103969c4c in Rf_mainloop+0xc (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0x109c4c)
+    #39 0x10236d09c in main+0x1c (/Library/Frameworks/R.framework/Versions/4.6/Resources/bin/exec/R:arm64+0x10000109c)
+    #40 0x1868cab94  (<unknown module>)
+
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /Library/Frameworks/R.framework/Versions/4.6/Resources/library/stbimageheaders/include/stbimageheaders/stb_image_resize2.h:3735:11 in 
+Error in eval(ei, envir) : 
+  Parity failures: tangent_diffuse/all, tangent_diffuse/normals, tangent_phong/all, tangent_phong/normals
+Calls: source -> withVisible -> eval -> eval
+Execution halted

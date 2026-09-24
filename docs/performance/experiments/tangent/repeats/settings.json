@@ -1,0 +1,17 @@
+{
+  "libraries": {
+    "reference": "/tmp/rayvertex-optimization/lib-tangent",
+    "final": "/tmp/rayvertex-optimization/lib-tangent"
+  },
+  "cases": [
+    "tangent",
+    "tangent_overdraw"
+  ],
+  "rounds": 3,
+  "samples_per_regime": 5,
+  "width": 800,
+  "height": 800,
+  "fsaa": 1,
+  "cores": 1,
+  "tangent_after": true
+}

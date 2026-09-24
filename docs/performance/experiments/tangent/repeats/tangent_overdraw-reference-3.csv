@@ -1,0 +1,11 @@
+"case","cores","width","height","fsaa","regime","sample","elapsed_ms"
+"tangent_overdraw",1,800,800,1,"warm",1,598
+"tangent_overdraw",1,800,800,1,"warm",2,623
+"tangent_overdraw",1,800,800,1,"warm",3,601
+"tangent_overdraw",1,800,800,1,"warm",4,624
+"tangent_overdraw",1,800,800,1,"warm",5,597
+"tangent_overdraw",1,800,800,1,"native",1,579.999999999999
+"tangent_overdraw",1,800,800,1,"native",2,585
+"tangent_overdraw",1,800,800,1,"native",3,598
+"tangent_overdraw",1,800,800,1,"native",4,601.999999999999
+"tangent_overdraw",1,800,800,1,"native",5,590.999999999999

@@ -1,0 +1,18 @@
+diff --git a/src/tangent_basis.h b/src/tangent_basis.h
+index e4c60dbf..fee957e9 100644
+--- a/src/tangent_basis.h
++++ b/src/tangent_basis.h
+@@ -30,9 +30,10 @@ inline std::array<vec3,2> algebraic_tangent_basis(const vec3& e1,const vec3& e2,
+                              +(u.x*v.y-u.y*v.x))*reciprocal;
+   auto project=[&](const vec2& gradient) {
+     const glm::vec2 g(gradient);
+-    return vec3(x.x*g.x+y.x*g.y+z.x*0.0f,
+-                x.y*g.x+y.y*g.y+z.y*0.0f,
+-                x.z*g.x+y.z*g.y+z.z*0.0f);
++    const glm::vec3 projected(x.x*g.x+y.x*g.y+z.x*0.0f,
++                              x.y*g.x+y.y*g.y+z.y*0.0f,
++                              x.z*g.x+y.z*g.y+z.z*0.0f);
++    return vec3(projected);
+   };
+   return {glm::normalize(project(du)),glm::normalize(project(dv))};
+ }
