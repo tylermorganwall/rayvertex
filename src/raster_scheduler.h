@@ -31,9 +31,7 @@ std::size_t dispatch_raster_blocks(Pool& pool, const Blocks& blocks, Task task,
   std::vector<std::size_t> active;
   active.reserve(blocks.size());
   for (std::size_t i = 0; i < blocks.size(); ++i) {
-    for (const auto& faces : blocks[i]) {
-      if (!faces.empty()) { active.push_back(i); break; }
-    }
+    if (blocks.active(i)) active.push_back(i);
   }
   if (active.empty()) return 0;
   if (workers <= 1) {

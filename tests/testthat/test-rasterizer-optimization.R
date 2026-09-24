@@ -327,3 +327,23 @@ test_that("sparse transparency preserves tree ties, shadows, and deep growth", {
     }
   }
 })
+
+test_that("triangle setup is per primitive while contiguous bins retain overlap", {
+  path = tempfile()
+  withr::local_envvar(RAYVERTEX_PROFILE = path)
+  rasterize_scene(
+    xy_rect_mesh(material = material_list(type = "color", culling = "none")),
+    width = 127,
+    height = 91,
+    fsaa = 1,
+    plot = FALSE,
+    parallel = FALSE,
+    lookfrom = c(0, 0, 4),
+    lookat = c(0, 0, 0),
+    shadow_map = FALSE
+  )
+  stats = read.csv(path, header = FALSE, col.names = c("name", "value"))
+  counts = setNames(stats$value, stats$name)
+  expect_equal(unname(counts["count_main_setup_count"]), 2)
+  expect_gt(unname(counts["count_main_bin_references"]), 2)
+})

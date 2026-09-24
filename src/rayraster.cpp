@@ -1026,12 +1026,6 @@ List rasterize(List mesh,
   //Initialize Model vectors
   std::vector<ModelInfo> models;
 
-  //Initialize vertex storage vectors
-  std::vector<std::vector<std::vector<vec4>  > > ndc_verts;
-  std::vector<std::vector<std::vector<Float> > > ndc_inv_w;
-  std::vector<std::vector<std::vector<vec4>  > > ndc_verts_depth;
-  std::vector<std::vector<std::vector<Float> > > ndc_inv_w_depth;
-  
   //Fill vectors for each shape in the model
   //order: [model_num][triangle vertex][face]
   NumericMatrix mesh_verts = as<NumericMatrix>(mesh["vertices"]);
@@ -1047,13 +1041,6 @@ List rasterize(List mesh,
     IntegerVector shape_materials = as<IntegerVector>(single_shape["material_ids"]);
 
     int n = shape_inds.nrow();
-    
-    ndc_verts.push_back(std::vector<std::vector<vec4>  >(3, std::vector<vec4>(n)));
-    ndc_inv_w.push_back(std::vector<std::vector<Float> >(3, std::vector<Float>(n)));
-    if(has_shadow_map) {
-      ndc_verts_depth.push_back(std::vector<std::vector<vec4>  >(3, std::vector<vec4>(n)));
-      ndc_inv_w_depth.push_back(std::vector<std::vector<Float> >(3, std::vector<Float>(n)));
-    }
     
     //Create model object
     ModelInfo model(mesh_verts, mesh_texcoords, mesh_normals,
@@ -1110,77 +1097,9 @@ List rasterize(List mesh,
   for (std::size_t i=0; i<shadowbuffers.size(); ++i)
     alpha_depths_trans.emplace_back(shadowdims(0), shadowdims(1), block_size);
 
-  //Set up blocks
-  int blocksize = block_size;
-  
-  //Inner-most index model, then block, then index
-  std::vector<std::vector<std::vector<int> > > blocks;
-  
-  std::vector<vec2> min_block_bound;
-  std::vector<vec2> max_block_bound;
-  int nx_blocks = ceil((Float)nx/(Float)blocksize);
-  int ny_blocks = ceil((Float)ny/(Float)blocksize);
-  
-  std::vector<std::vector<int> > single_model_blocks;
+  TriangleBins blocks(nx,ny,block_size);
+  blocks.triangles.reserve(total_faces);
 
-  //Generate block bounds
-  for(int i = 0; i < nx; i += blocksize) {
-    for(int j = 0; j < ny; j += blocksize) {
-      min_block_bound.push_back(vec2(i,j));
-      max_block_bound.push_back(vec2(std::min(i+blocksize,nx),std::min(j+blocksize,ny)));
-    }
-  }
-  
-  //Generate a group of index vectors for each model
-  for(int i = 0; i < nx_blocks; i++) {
-    for(int j = 0; j < ny_blocks; j++) {
-      std::vector<std::vector<int> > temp;
-      blocks.push_back(temp);
-      //This is a vector of all the models for that block
-      //blocks[j + ny_blocks * i]
-      for(unsigned int k = 0; k < models.size(); k++) {
-        std::vector<int> model_inds_temp;
-        //This is a vector for per-model indices in that specific block
-        //blocks[j + ny_blocks * i][model_num]
-        blocks[j + ny_blocks * i].push_back(model_inds_temp);
-      }
-    }
-  }
-  
-  //Light, Inner-most index model, then block, then index
-  std::vector<std::vector<std::vector<int> > > blocks_depth;
-  
-  std::vector<vec2> min_block_bound_depth;
-  std::vector<vec2> max_block_bound_depth;
-  int nx_blocks_depth = has_shadow_map ? ceil((Float)nx_d/(Float)blocksize) : 0;
-  int ny_blocks_depth = has_shadow_map ? ceil((Float)ny_d/(Float)blocksize) : 0;
-  
-  std::vector<std::vector<int> > single_model_blocks_depth;
-  
-  //Generate block bounds
-  for(int i = 0; has_shadow_map && i < nx_d; i += blocksize) {
-    for(int j = 0; j < ny_d; j += blocksize) {
-      min_block_bound_depth.push_back(vec2(i,j));
-      max_block_bound_depth.push_back(vec2(std::min(i+blocksize,nx_d),std::min(j+blocksize,ny_d)));
-    }
-  }
-  
-  //Generate a group of index vectors for each model
-  for(int i = 0; i < nx_blocks_depth; i++) {
-    for(int j = 0; j < ny_blocks_depth; j++) {
-      std::vector<std::vector<int> > temp;
-      blocks_depth.push_back(temp);
-      //This is a vector of all the models for that block
-      //blocks[j + ny_blocks * i]
-      for(unsigned int k = 0; k < models.size(); k++) {
-        std::vector<int> model_inds_temp;
-        //This is a vector for per-model indices in that specific block
-        //blocks[j + ny_blocks * i][model_num]
-        blocks_depth[j + ny_blocks_depth * i].push_back(model_inds_temp);
-      }
-    }
-  }
-  
   std::vector<std::vector<IShader*> > depthshaders(has_shadow_map ? directional_lights.size() : 0);
   for(unsigned int j = 0; j < depthshaders.size(); j++) {
     for(int i = 0; i < number_materials+1; i++ ) {
@@ -1205,6 +1124,8 @@ List rasterize(List mesh,
   profile.mark("bin_and_shadow_shader_allocate");
   if(has_shadow_map) {
     for(unsigned int sb = 0; sb < shadowbuffers.size(); sb++) {
+      TriangleBins blocks_depth(nx_d,ny_d,block_size);
+      blocks_depth.triangles.reserve(total_faces);
       prepare_indexed(directional_lights[sb].lightProjection * directional_lights[sb].lightView * Model,
                       vp_shadow, false, true, false);
       
@@ -1214,74 +1135,25 @@ List rasterize(List mesh,
           int mat_num = shp.materials[i] >= 0 && shp.materials[i] < (int)shaders.size() ? 
             shp.materials[i] : shaders.size()-1;
           
-          ndc_verts_depth[model_num][0][i] = depthshaders[sb][mat_num]->vertex(i,0, shp);
-          ndc_verts_depth[model_num][1][i] = depthshaders[sb][mat_num]->vertex(i,1, shp);
-          ndc_verts_depth[model_num][2][i] = depthshaders[sb][mat_num]->vertex(i,2, shp);
-          
-          ndc_verts[model_num][0][i].w = ndc_verts[model_num][0][i].w < near_clip ? near_clip : ndc_verts[model_num][0][i].w;
-          ndc_verts[model_num][1][i].w = ndc_verts[model_num][1][i].w < near_clip ? near_clip : ndc_verts[model_num][1][i].w;
-          ndc_verts[model_num][2][i].w = ndc_verts[model_num][2][i].w < near_clip ? near_clip : ndc_verts[model_num][2][i].w;
-    
-          ndc_inv_w_depth[model_num][0][i] = 1.0f/ndc_verts_depth[model_num][0][i].w;
-          ndc_inv_w_depth[model_num][1][i] = 1.0f/ndc_verts_depth[model_num][1][i].w;
-          ndc_inv_w_depth[model_num][2][i] = 1.0f/ndc_verts_depth[model_num][2][i].w;
-          
-          vec3 v1 = ndc_verts_depth[model_num][0][i] * ndc_inv_w_depth[model_num][0][i];
-          vec3 v2 = ndc_verts_depth[model_num][1][i] * ndc_inv_w_depth[model_num][1][i];
-          vec3 v3 = ndc_verts_depth[model_num][2][i] * ndc_inv_w_depth[model_num][2][i];
-          
-          vec3 min_bounds = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
-                                 fmin(v1.y,fmin(v2.y,v3.y)),
-                                 fmin(v1.z,fmin(v2.z,v3.z)));
-          
-          vec3 max_bounds = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
-                                 fmax(v1.y,fmax(v2.y,v3.y)),
-                                 fmax(v1.z,fmax(v2.z,v3.z)));
-          
-          int min_x_block = std::fmax(floor(min_bounds.x / (Float)blocksize), 0);
-          int min_y_block = std::fmax(floor(min_bounds.y / (Float)blocksize), 0);
-          int max_x_block = std::fmin(ceil(max_bounds.x  / (Float)blocksize), nx_blocks_depth);
-          int max_y_block = std::fmin(ceil(max_bounds.y  / (Float)blocksize), ny_blocks_depth);
-          if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks_depth && min_y_block < ny_blocks_depth) {
-            for(int j = min_x_block; j < max_x_block; j++) {
-              for(int k = min_y_block; k < max_y_block; k++) {
-                blocks_depth[k + ny_blocks_depth * j][model_num].push_back(i); 
-              }
-            }
-          }
+          std::array<vec4,3> clip;
+          for(int k=0;k<3;++k) clip[k]=depthshaders[sb][mat_num]->vertex(i,k,shp);
+          blocks_depth.add(clip,shp.index_offset+i,mat_num,depthshaders[sb][mat_num]->get_culling(),true);
         }
       }
-      
+      profile.mark("shadow_" + std::to_string(sb) + "_transform_setup");
+      blocks_depth.build();
+      profile.mark("shadow_" + std::to_string(sb) + "_bin_build");
       rayimage& shadowbuff = shadowbuffers[sb];
       std::vector<IShader*>& depth_shader_single = depthshaders[sb];
       FragmentArena& alpha_depth_single = alpha_depths_trans[sb];
       //Calculate shadow buffer
-      auto task = [&depth_shader_single, &blocks_depth, &ndc_verts_depth, &ndc_inv_w_depth,  
-                   &min_block_bound_depth, &max_block_bound_depth,
-                   &zbuffer_depth, &shadowbuff, &normalbuffer, &positionbuffer, &uvbuffer, 
-                   &models, &alpha_depth_single] (unsigned int i) {
-        fill_tri_blocks(blocks_depth[i],
-                        ndc_verts_depth,
-                        ndc_inv_w_depth,
-                        min_block_bound_depth[i],
-                        max_block_bound_depth[i],
-                        depth_shader_single,
-                        zbuffer_depth,
-                        shadowbuff,
-                        normalbuffer,
-                        positionbuffer,
-                        uvbuffer,
-                        models, true,
-                        alpha_depth_single,
-						nullptr);
-      }; 
+      auto task = [&](unsigned int i) {
+        fill_tri_blocks(blocks_depth,i,depth_shader_single,zbuffer_depth,shadowbuff,
+                        normalbuffer,positionbuffer,uvbuffer,true,alpha_depth_single,nullptr);
+      };
       shadow_tasks += dispatch_raster_blocks(pool, blocks_depth, task, workers,
                                               batch_size, reference_scheduler);
-      for(unsigned int j = 0; j < blocks_depth.size(); j++) {
-        for(unsigned int model_num = 0; model_num < models.size(); model_num++ ) {
-          blocks_depth[j][model_num].clear();
-        }
-      }
+      profile.mark("shadow_" + std::to_string(sb) + "_coverage_shading");
       // Resolve the exact depth-keyed winners, retaining opaque equality.
       alpha_depth_single.resolve([&](int i, int j, Float z, const alpha_info& fragment) {
         if(z <= zbuffer_depth(i,j)) {
@@ -1293,10 +1165,12 @@ List rasterize(List mesh,
           transparency_buffers[sb].set_color(i,j,old_color);
         }
       });
+      profile.mark("shadow_" + std::to_string(sb) + "_transparency_resolve");
       std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<Float>::infinity() ) ;
+      profile.mark("shadow_" + std::to_string(sb) + "_clear");
     }
   }
-  profile.mark("shadow_passes");
+  profile.mark("shadow_finalize");
   print_time(verbose, "Calculated depth buffer(s)" );
   
   
@@ -1311,72 +1185,25 @@ List rasterize(List mesh,
 
       int mat_num = shp.materials[i] >= 0 && shp.materials[i] < (int)shaders.size() ?
         shp.materials[i] : shaders.size()-1;
-      ndc_verts[model_num][0][i] = shaders[mat_num]->vertex(i,0, shp);
-      ndc_verts[model_num][1][i] = shaders[mat_num]->vertex(i,1, shp);
-      ndc_verts[model_num][2][i] = shaders[mat_num]->vertex(i,2, shp);
-
-      //Depth clamping
-      ndc_verts[model_num][0][i].w = ndc_verts[model_num][0][i].w < near_clip ? near_clip : ndc_verts[model_num][0][i].w;
-      ndc_verts[model_num][1][i].w = ndc_verts[model_num][1][i].w < near_clip ? near_clip : ndc_verts[model_num][1][i].w;
-      ndc_verts[model_num][2][i].w = ndc_verts[model_num][2][i].w < near_clip ? near_clip : ndc_verts[model_num][2][i].w;
-
-      //Depth clamping
-      ndc_verts[model_num][0][i].w = ndc_verts[model_num][0][i].w > far_clip ? far_clip : ndc_verts[model_num][0][i].w;
-      ndc_verts[model_num][1][i].w = ndc_verts[model_num][1][i].w > far_clip ? far_clip : ndc_verts[model_num][1][i].w;
-      ndc_verts[model_num][2][i].w = ndc_verts[model_num][2][i].w > far_clip ? far_clip : ndc_verts[model_num][2][i].w;
-
-      ndc_inv_w[model_num][0][i] = 1.0f/ndc_verts[model_num][0][i].w;
-      ndc_inv_w[model_num][1][i] = 1.0f/ndc_verts[model_num][1][i].w;
-      ndc_inv_w[model_num][2][i] = 1.0f/ndc_verts[model_num][2][i].w;
-
-      vec3 v1 = ndc_verts[model_num][0][i] * ndc_inv_w[model_num][0][i];
-      vec3 v2 = ndc_verts[model_num][1][i] * ndc_inv_w[model_num][1][i];
-      vec3 v3 = ndc_verts[model_num][2][i] * ndc_inv_w[model_num][2][i];
-
-      vec3 min_bounds = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
-                             fmin(v1.y,fmin(v2.y,v3.y)),
-                             fmin(v1.z,fmin(v2.z,v3.z)));
-
-      vec3 max_bounds = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
-                             fmax(v1.y,fmax(v2.y,v3.y)),
-                             fmax(v1.z,fmax(v2.z,v3.z)));
-      
-
-      int min_x_block = std::fmax(floor(min_bounds.x / (Float)blocksize), 0);
-      int min_y_block = std::fmax(floor(min_bounds.y / (Float)blocksize), 0);
-      int max_x_block = std::fmin(ceil(max_bounds.x  / (Float)blocksize), nx_blocks);
-      int max_y_block = std::fmin(ceil(max_bounds.y  / (Float)blocksize), ny_blocks);
-      if(max_x_block >= 0 && max_y_block >= 0 && min_x_block < nx_blocks && min_y_block < ny_blocks) {
-        for(int j = min_x_block; j < max_x_block; j++) {
-          for(int k = min_y_block; k < max_y_block; k++) {
-            blocks[k + ny_blocks * j][model_num].push_back(i);
-          }
-        }
+      std::array<vec4,3> clip;
+      for(int k=0;k<3;++k) {
+        clip[k]=shaders[mat_num]->vertex(i,k,shp);
+        // Retain legacy clamping here; homogeneous clipping is a separate correction.
+        clip[k].w=clip[k].w<near_clip ? near_clip : clip[k].w;
+        clip[k].w=clip[k].w>far_clip ? far_clip : clip[k].w;
       }
+      blocks.add(clip,shp.index_offset+i,mat_num,shaders[mat_num]->get_culling(),false);
     }
   }
-
-  profile.mark("main_transform_setup_bins");
-  auto task = [&shaders, &models, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
-               &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer, &material_id_buffer, &requirements,
-               &alpha_depths, &main_counters] (unsigned int i) {
-    fill_tri_blocks(blocks[i],
-                    ndc_verts,
-                    ndc_inv_w,
-                    min_block_bound[i],
-                    max_block_bound[i],
-                    shaders,
-                    zbuffer,
-                    image,
-                    normalbuffer,
-                    positionbuffer,
-                    uvbuffer,
-                    models, false,
-                    alpha_depths,
-					requirements.outlines ? &material_id_buffer : nullptr,
+  profile.mark("main_transform_setup");
+  blocks.build();
+  profile.mark("main_bin_build");
+  auto task = [&](unsigned int i) {
+    fill_tri_blocks(blocks,i,shaders,zbuffer,image,normalbuffer,positionbuffer,uvbuffer,
+                    false,alpha_depths,requirements.outlines ? &material_id_buffer : nullptr,
                     main_counters.empty() ? nullptr : &main_counters[i]);
   };
-  
+
   main_tasks = dispatch_raster_blocks(pool, blocks, task, workers, batch_size,
                                       reference_scheduler);
   profile.mark("main_coverage_depth_shading");
@@ -1681,14 +1508,13 @@ List rasterize(List mesh,
   profile.count("main_tasks", main_tasks);
   profile.count("shadow_tasks", shadow_tasks);
   if(profile.enabled()) {
-    std::size_t active = 0, refs = 0;
-    for(const auto& block : blocks) {
-      bool nonempty = false;
-      for(const auto& faces : block) { refs += faces.size(); nonempty |= !faces.empty(); }
-      active += nonempty;
-    }
+    std::size_t active=0;
+    for(std::size_t i=0;i<blocks.size();++i) active+=blocks.active(i);
     profile.count("main_active_blocks", active);
-    profile.count("main_bin_references", refs);
+    profile.count("main_bin_references", blocks.references());
+    profile.count("main_setup_count", blocks.attempted);
+    profile.count("main_culled_primitives", blocks.culled);
+    profile.count("main_setup_bin_capacity_bytes", blocks.capacity_bytes());
   }
   RasterCounters totals;
   for(const auto& c : main_counters) {

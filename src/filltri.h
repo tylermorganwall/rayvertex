@@ -8,26 +8,17 @@
 #include "fragment_arena.h"
 #include "defines.h"
 #include "raster_profile.h"
-
-// static void print_vec(vec3 m);
-// static void print_vec(vec4 m);
-inline Float DifferenceOfProducts(Float a, Float b, Float c, Float d);
-inline Float edgeFunction(const vec3 &a, const vec3 &b, const vec3 &c);
+#include "triangle_setup.h"
 
 using namespace Rcpp;
 
-void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
-                     std::vector<std::vector<std::vector<vec4> >  >& ndc_verts,
-                     std::vector<std::vector<std::vector<Float> > >& ndc_inv_w,
-                     vec2 min_block_bound,
-                     vec2 max_block_bound,
+void fill_tri_blocks(const TriangleBins& bins, std::size_t tile,
                      const std::vector<IShader*>& shaders,
                      Rcpp::NumericMatrix &zbuffer, 
                      rayimage& image, 
                      rayimage& normal_buffer,
                      rayimage& position_buffer,
                      rayimage& uv_buffer,
-                     std::vector<ModelInfo> &models,
                      bool depth, 
                      FragmentArena& alpha_depths,
                      Rcpp::IntegerMatrix* material_id_buffer,

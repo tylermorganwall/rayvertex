@@ -1,100 +1,34 @@
 #include "raster_utils.h"
 #include "filltri.h"
 
-inline Float DifferenceOfProducts(Float a, Float b, Float c, Float d) {
-  Float cd = c * d;
-  Float err = std::fma(-c, d, cd);
-  Float dop = std::fma(a, b, -cd);
-  return(dop + err);
-}
-
-inline Float edgeFunction(const vec3 &a, const vec3 &b, const vec3 &c) {
-  return(DifferenceOfProducts((c.x - a.x),(b.y - a.y),(c.y - a.y),(b.x - a.x)));
-}
-
 template<bool Collect>
-void fill_tri_blocks_impl(std::vector<std::vector<int> >&  block_faces,
-                     std::vector<std::vector<std::vector<vec4> >  >& ndc_verts,
-                     std::vector<std::vector<std::vector<Float> > >& ndc_inv_w,
-                     vec2 min_block_bound,
-                     vec2 max_block_bound,
+void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
                      const std::vector<IShader*>& shaders,
                      Rcpp::NumericMatrix &zbuffer, 
                      rayimage& image, 
                      rayimage& normal_buffer,
                      rayimage& position_buffer,
                      rayimage& uv_buffer,
-                     std::vector<ModelInfo> &models,
                      bool depth, 
                      FragmentArena& alpha_depths,
                      Rcpp::IntegerMatrix* material_id_buffer,
                      RasterCounters* counters) {
-  unsigned int ny = image.height();
   bool write_material_ids = (!depth && material_id_buffer != nullptr);
-  
-  for(unsigned int model_num = 0; model_num < models.size(); model_num++ ) {
-    ModelInfo &shp = models[model_num];
-    for(unsigned int entry=0; entry < block_faces[model_num].size(); entry++) {
-      int face = block_faces[model_num][entry];
-      int global_face = shp.index_offset + face;
-      
-      vec3 v1 = ndc_verts[model_num][0][face] * ndc_inv_w[model_num][0][face];
-      vec3 v2 = ndc_verts[model_num][1][face] * ndc_inv_w[model_num][1][face];
-      vec3 v3 = ndc_verts[model_num][2][face] * ndc_inv_w[model_num][2][face];
-      
-      Float v1_ndc_inv_w = ndc_inv_w[model_num][0][face];
-      Float v2_ndc_inv_w = ndc_inv_w[model_num][1][face];
-      Float v3_ndc_inv_w = ndc_inv_w[model_num][2][face];
-
-      int mat_num = shp.materials[face] >= 0 && shp.materials[face] < (int)shaders.size() ? 
-        shp.materials[face] : (int)shaders.size()-1;
-      
-      int culling = shaders[mat_num]->get_culling();
-    
-      bool not_culled = culling == 1 ? cross(v2-v1, v3-v2).z > 0 :
-                        culling == 2 ? cross(v2-v1, v3-v2).z < 0 : true;
-      not_culled = !depth ? not_culled : true;
-      
-      if(not_culled) {
-        vec3 bound_min = vec3(fmin(v1.x,fmin(v2.x,v3.x)),
-                              fmin(v1.y,fmin(v2.y,v3.y)),
-                              fmin(v1.z,fmin(v2.z,v3.z)));
-        vec3 bound_max = vec3(fmax(v1.x,fmax(v2.x,v3.x)),
-                              fmax(v1.y,fmax(v2.y,v3.y)),
-                              fmax(v1.z,fmax(v2.z,v3.z)));
-        
-        // NOTE: if your original code had different clamp logic, keep that.
-        unsigned int xmin =  std::min(std::max((int)floor(bound_min.x),
-                                               (int)min_block_bound.x ),
-                                      (int)max_block_bound.x);
-        unsigned int xmax =  std::max(std::min((int)ceil(bound_max.x),
-                                               (int)max_block_bound.x),
-                                      (int)min_block_bound.x);
-        unsigned int ymin =  std::min(std::max((int)floor(bound_min.y),
-                                               (int)min_block_bound.y),
-                                      (int)max_block_bound.y);
-        unsigned int ymax =  std::max(std::min((int)ceil(bound_max.y),
-                                               (int)max_block_bound.y ),
-                                      (int)min_block_bound.y);
-        
-        Float area =  edgeFunction(v3, v2, v1); 
-        if(area == 0.0f) {
-          continue;
-        }
-        Float inv_area = 1.0f/area;
-        
-        vec4 color;
-        vec3 position;
-        vec3 normal;
-        
-        Float p_step_32 = -(v2.x-v3.x);
-        Float p_step_13 = -(v3.x-v1.x);
-        Float p_step_21 = -(v1.x-v2.x);
-        
-        Float pi_step_32 = (v2.y-v3.y);
-        Float pi_step_13 = (v3.y-v1.y);
-        Float pi_step_21 = (v1.y-v2.y);
-        
+  const auto min_block_bound=bins.minimum(tile), max_block_bound=bins.maximum(tile);
+  for(std::size_t entry=bins.begin(tile);entry<bins.end(tile);++entry) {
+    const auto& setup=bins.at(entry);
+    const auto& v1=setup.vertices[0]; const auto& v2=setup.vertices[1]; const auto& v3=setup.vertices[2];
+    const int mat_num=setup.material, global_face=setup.face, culling=setup.culling;
+    const Float v1_ndc_inv_w=setup.inverse_w.x, v2_ndc_inv_w=setup.inverse_w.y, v3_ndc_inv_w=setup.inverse_w.z;
+    const unsigned int xmin=std::min(std::max(setup.xmin,int(min_block_bound.x)),int(max_block_bound.x));
+    const unsigned int xmax=std::max(std::min(setup.xmax,int(max_block_bound.x)),int(min_block_bound.x));
+    const unsigned int ymin=std::min(std::max(setup.ymin,int(min_block_bound.y)),int(max_block_bound.y));
+    const unsigned int ymax=std::max(std::min(setup.ymax,int(max_block_bound.y)),int(min_block_bound.y));
+    const Float inv_area=setup.inverse_area;
+    const Float p_step_32=setup.step_y.x, p_step_13=setup.step_y.y, p_step_21=setup.step_y.z;
+    const Float pi_step_32=setup.step_x.x, pi_step_13=setup.step_x.y, pi_step_21=setup.step_x.z;
+    vec4 color;
+    vec3 position, normal;
         vec3 p  = vec3((Float)xmin + 0.5f, (Float)ymin + 0.5f, 0.0f);
         
         Float w1_init = edgeFunction(v3, v2, p);
@@ -184,27 +118,20 @@ void fill_tri_blocks_impl(std::vector<std::vector<int> >&  block_faces,
             } 
           }
         }
-      }
-    }
   }
 }
 
-void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
-                     std::vector<std::vector<std::vector<vec4> >  >& ndc_verts,
-                     std::vector<std::vector<std::vector<Float> > >& ndc_inv_w,
-                     vec2 min_block_bound,
-                     vec2 max_block_bound,
+void fill_tri_blocks(const TriangleBins& bins, std::size_t tile,
                      const std::vector<IShader*>& shaders,
                      Rcpp::NumericMatrix &zbuffer,
                      rayimage& image,
                      rayimage& normal_buffer,
                      rayimage& position_buffer,
                      rayimage& uv_buffer,
-                     std::vector<ModelInfo> &models,
                      bool depth,
                      FragmentArena& alpha_depths,
                      Rcpp::IntegerMatrix* material_id_buffer,
                      RasterCounters* counters) {
-  if(counters) fill_tri_blocks_impl<true>(block_faces, ndc_verts, ndc_inv_w, min_block_bound, max_block_bound, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, models, depth, alpha_depths, material_id_buffer, counters);
-  else fill_tri_blocks_impl<false>(block_faces, ndc_verts, ndc_inv_w, min_block_bound, max_block_bound, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, models, depth, alpha_depths, material_id_buffer, counters);
+  if(counters) fill_tri_blocks_impl<true>(bins, tile, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, depth, alpha_depths, material_id_buffer, counters);
+  else fill_tri_blocks_impl<false>(bins, tile, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, depth, alpha_depths, material_id_buffer, counters);
 }
