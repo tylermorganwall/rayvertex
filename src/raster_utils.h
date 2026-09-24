@@ -28,26 +28,31 @@ inline unsigned int ssao_noise_index(unsigned int x, unsigned int y) {
 
 // Source and destination must not alias. Preserve the asymmetric [-2, 1]
 // footprint and per-pixel boundary normalization of the original box filter.
-inline void blur_ambient(const double* source, double* dest, int width, int height,
-                         bool reverse = false) {
+inline void blur_ambient_column(const double* source, double* dest, int width, int height,
+                                int x, bool reverse = false) {
   assert(source != dest);
-  for (int ix = 0; ix < width; ++ix) {
-    int x = reverse ? width - ix - 1 : ix;
-    for (int iy = 0; iy < height; ++iy) {
-      int y = reverse ? height - iy - 1 : iy;
-      double sum = 0;
-      int count = 0;
-      for (int dx = -2; dx < 2; ++dx) {
-        for (int dy = -2; dy < 2; ++dy) {
-          int sx = x + dx, sy = y + dy;
-          if (sx >= 0 && sx < width && sy >= 0 && sy < height) {
-            sum += source[sx + static_cast<std::size_t>(width) * sy];
-            ++count;
-          }
+  for (int iy = 0; iy < height; ++iy) {
+    int y = reverse ? height - iy - 1 : iy;
+    double sum = 0;
+    int count = 0;
+    for (int dx = -2; dx < 2; ++dx) {
+      for (int dy = -2; dy < 2; ++dy) {
+        int sx = x + dx, sy = y + dy;
+        if (sx >= 0 && sx < width && sy >= 0 && sy < height) {
+          sum += source[sx + static_cast<std::size_t>(width) * sy];
+          ++count;
         }
       }
-      dest[x + static_cast<std::size_t>(width) * y] = sum / count;
     }
+    dest[x + static_cast<std::size_t>(width) * y] = sum / count;
+  }
+}
+
+inline void blur_ambient(const double* source, double* dest, int width, int height,
+                         bool reverse = false) {
+  for (int ix = 0; ix < width; ++ix) {
+    int x = reverse ? width - ix - 1 : ix;
+    blur_ambient_column(source, dest, width, height, x, reverse);
   }
 }
 #endif

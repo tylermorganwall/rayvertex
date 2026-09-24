@@ -52,6 +52,7 @@
 #include "dummythreadpool.h"
 #include "raster_scheduler.h"
 #include "texture_cache.h"
+#include "screen_view.h"
 
 #include "material.h"
 
@@ -143,8 +144,9 @@ struct JFASeed {
   int x;
   int y;
 };
+template<class Pool>
 static void
-apply_toon_outlines_jfa(std::vector<vec3> &color_buffer,
+apply_toon_outlines_jfa(Pool& pool, int workers, std::vector<vec3> &color_buffer,
                         const std::vector<OutlineGBufferPixel> &gbuffer,
                         int width, int height, Float fov_y,
                         Float ortho_view_height,
@@ -162,7 +164,7 @@ apply_toon_outlines_jfa(std::vector<vec3> &color_buffer,
   std::vector<JFASeed> seeds_curr(n);
   std::vector<JFASeed> seeds_next(n);
 
-  for (int y = 0; y < height; ++y) {
+  dispatch_screen_rows(pool, workers, height, [&](int y) {
     for (int x = 0; x < width; ++x) {
       std::size_t idx = static_cast<std::size_t>(y) * width + x;
       const OutlineGBufferPixel &px = gbuffer[idx];
@@ -206,7 +208,7 @@ apply_toon_outlines_jfa(std::vector<vec3> &color_buffer,
         seeds_curr[idx].y = y;
       }
     }
-  }
+  });
 
   // Jump Flood
   int max_dim = std::max(width, height);
@@ -223,7 +225,7 @@ apply_toon_outlines_jfa(std::vector<vec3> &color_buffer,
   };
 
   for (; step >= 1; step >>= 1) {
-    for (int y = 0; y < height; ++y) {
+    dispatch_screen_rows(pool, workers, height, [&](int y) {
       for (int x = 0; x < width; ++x) {
         std::size_t idx = static_cast<std::size_t>(y) * width + x;
 
@@ -257,7 +259,7 @@ apply_toon_outlines_jfa(std::vector<vec3> &color_buffer,
 
         seeds_next[idx] = best;
       }
-    }
+    });
     seeds_curr.swap(seeds_next);
   }
 
@@ -1375,13 +1377,20 @@ List rasterize(List mesh,
         spacefillr::sobol_owen_single(i,1,1) * 2.0f - 1.0f,
         spacefillr::sobol_owen_single(i,2,1)));
     }
-    for (int x = 0; x < nx; x++) {
+    ScreenMatrixView nxbuffer_view(nxbuffer);
+    ScreenMatrixView nybuffer_view(nybuffer);
+    ScreenMatrixView nzbuffer_view(nzbuffer);
+    ScreenMatrixView xxbuffer_view(xxbuffer);
+    ScreenMatrixView yybuffer_view(yybuffer);
+    ScreenMatrixView zzbuffer_view(zzbuffer);
+    ScreenMatrixView abuffer_view(abuffer);
+    dispatch_screen_rows(pool, workers, nx, [&](int x) {
       for (int y = 0; y < ny; y++) {
-        if (nxbuffer(x,y) == 0 && nybuffer(x,y) == 0 && nzbuffer(x,y) == 0) {
+        if (nxbuffer_view(x,y) == 0 && nybuffer_view(x,y) == 0 && nzbuffer_view(x,y) == 0) {
           continue;
         }
-        vec3 origin(xxbuffer(x,y), yybuffer(x,y), zzbuffer(x,y));
-        vec3 normal(nxbuffer(x,y), nybuffer(x,y), nzbuffer(x,y));
+        vec3 origin(xxbuffer_view(x,y), yybuffer_view(x,y), zzbuffer_view(x,y));
+        vec3 normal(nxbuffer_view(x,y), nybuffer_view(x,y), nzbuffer_view(x,y));
         normal = normalize(normal);
         normal *= dot(normal, vec3(0,0,1)) < 0 ? -1 : 1;
         vec3 rvec = noise[ssao_noise_index(x, y)];
@@ -1399,18 +1408,22 @@ List rasterize(List mesh,
           offset /= offset.w;
 
           if((int)offset.x >= 0 && (int)offset.x < nx && (int)offset.y >= 0 && (int)offset.y < ny) {
-            Float sampleDepth = zzbuffer((int)offset.x, (int)offset.y);
+            Float sampleDepth = zzbuffer_view((int)offset.x, (int)offset.y);
             // range check & accumulate:
             Float rangeCheck= std::fabs(origin.z - sampleDepth) < (Float)ambient_radius ? 1.0 : 0.0;
             occlusion += (sampleDepth >= sample.z ? 1.0 : 0.0) * rangeCheck;
           }
         }
         occlusion = 1.0 - (occlusion / (Float)kernelSize);
-        abuffer(x,y) = occlusion;
+        abuffer_view(x,y) = occlusion;
       }
-    }
+    });
     NumericMatrix abuffer_noblur = clone(abuffer);
-    blur_ambient(abuffer_noblur.begin(), abuffer.begin(), nx, ny);
+    const double* ambient_source = abuffer_noblur.begin();
+    double* ambient_output = abuffer.begin();
+    dispatch_screen_rows(pool, workers, nx, [&](int x) {
+      blur_ambient_column(ambient_source, ambient_output, nx, ny, x);
+    });
     profile.mark("ssao");
     print_time(verbose, "Calculated AO" );
     
@@ -1589,7 +1602,7 @@ List rasterize(List mesh,
       ortho_view_height = static_cast<Float>(ortho_dims(1));
     }
 
-    apply_toon_outlines_jfa(toon_color_buffer, outline_gbuffer, nx, ny,
+    apply_toon_outlines_jfa(pool, workers, toon_color_buffer, outline_gbuffer, nx, ny,
                             camera_fov_y, ortho_view_height, zbuffer, linear_depth);
 
     // Copy the modified colors back into the rayimage

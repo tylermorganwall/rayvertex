@@ -59,4 +59,22 @@ std::size_t dispatch_raster_blocks(Pool& pool, const Blocks& blocks, Task task,
   RcppThread::checkUserInterrupt();
   return batches;
 }
+
+// Each invocation is a complete screen-pass barrier. The reference override is
+// for developer parity/timing checks and does not change the public R API.
+template<class Pool, class Task>
+void dispatch_screen_rows(Pool& pool, int workers, int count, Task task) {
+  if (workers <= 1 || count < 64 || std::getenv("RAYVERTEX_REFERENCE_SCREEN")) {
+    for (int i = 0; i < count; ++i) task(i);
+    return;
+  }
+  try {
+    pool.parallelFor(0, count, task);
+    pool.wait();
+  } catch (...) {
+    try { pool.join(); } catch (...) {}
+    throw;
+  }
+  RcppThread::checkUserInterrupt();
+}
 #endif

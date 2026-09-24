@@ -188,3 +188,24 @@ test_that("coverage counters reconcile on a deliberately simple quad", {
   expect_equal(unname(counts["count_early_z_failures"]), 0)
   expect_equal(unname(counts["count_transparent_fragments"]), 0)
 })
+
+test_that("parallel SSAO and jump-flood iterations match the scalar screen passes", {
+  withr::local_options(cores = 4L)
+  scene = sphere_mesh(material = material_list(type = "toon"))
+  args = list(
+    scene = scene,
+    width = 127,
+    height = 91,
+    fsaa = 1,
+    plot = FALSE,
+    lookfrom = c(0, 0, 4),
+    lookat = c(0, 0, 0),
+    shadow_map = FALSE,
+    ssao = TRUE,
+    debug = "all"
+  )
+  withr::local_envvar(RAYVERTEX_REFERENCE_SCREEN = "1")
+  reference = do.call(rasterize_scene, args)
+  Sys.unsetenv("RAYVERTEX_REFERENCE_SCREEN")
+  expect_identical(do.call(rasterize_scene, args), reference)
+})
