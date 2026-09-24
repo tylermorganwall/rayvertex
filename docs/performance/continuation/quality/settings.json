@@ -1,0 +1,88 @@
+{
+  "before": "/tmp/rayvertex-optimization/lib-screen-final",
+  "after": "/tmp/rayvertex-optimization/lib-varying-demand",
+  "suite": "quality",
+  "jobs": [
+    [
+      "small",
+      800,
+      800,
+      2,
+      4
+    ],
+    [
+      "grid100k",
+      800,
+      800,
+      2,
+      4
+    ],
+    [
+      "alpha4",
+      800,
+      800,
+      2,
+      4
+    ],
+    [
+      "small",
+      1920,
+      1080,
+      1,
+      4
+    ],
+    [
+      "grid100k",
+      1920,
+      1080,
+      1,
+      4
+    ],
+    [
+      "alpha4",
+      1920,
+      1080,
+      1,
+      4
+    ],
+    [
+      "small",
+      1920,
+      1080,
+      2,
+      4
+    ],
+    [
+      "grid100k",
+      1920,
+      1080,
+      2,
+      4
+    ],
+    [
+      "alpha4",
+      1920,
+      1080,
+      2,
+      4
+    ],
+    [
+      "ssao",
+      1920,
+      1080,
+      2,
+      4
+    ],
+    [
+      "alpha129",
+      159,
+      241,
+      1,
+      4
+    ]
+  ],
+  "warm_samples": 3,
+  "native_samples": 3,
+  "diagnostic_samples": 1,
+  "macrotile_after": null
+}

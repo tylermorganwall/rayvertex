@@ -16,7 +16,7 @@ Three warm public calls and three isolated native samples per setting, with GC o
 
 Exact image/buffer comparisons: 153 / 153; maximum absolute difference 0. Differences include metadata, nonfinite patterns and changed-sample counts.
 
-Fresh RSS was measured separately for selected high-sample-count and deep-layer cases only. A dash means unmeasured, not zero. Whole diagnostic-process RSS includes retained outputs and profiling; it is not a fresh-render memory result. No plotting or file encoding is included.
+Fresh RSS was measured in separate one-render processes for selected settings. A dash means unmeasured, not zero. Whole diagnostic-process RSS includes retained outputs and profiling; it is not a fresh-render memory result. No plotting or file encoding is included.
 
 
 Both variants use `888c0d5`; after sets `RAYVERTEX_MACROTILE_EDGE=16`. Every task owns a spatial group of existing coverage blocks. The nominal edge rounds up to whole microblocks; public block size, coverage boundaries, sample layout, and each pixel's primitive sequence are unchanged. Empty macrotiles are not submitted. The scalar and flat-batch paths remain available. Scheduling scratch bytes, active macrotiles and task counts are recorded in phase counters; task-list construction is included in the coverage/shading wall stage.

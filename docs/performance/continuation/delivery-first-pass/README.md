@@ -1,0 +1,3 @@
+# Superseded occlusion samples
+
+Automatic Git maintenance was reported while archiving the completed attribute phase, near the occluded/overdraw portion of the fresh combined delivery run. Process inspection was sandbox-blocked. Both complete before/after cases were rerun sequentially after maintenance, with no builds/tests/other benchmarks running. The primary delivery table uses those reruns, regardless of which sample is faster. These original timings, counters, allocations, RSS and exact image differences are retained for audit. The replacement source is recorded in `../delivery/settings.json`; sample sizes are unchanged, not pooled.

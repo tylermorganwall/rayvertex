@@ -32,6 +32,6 @@ for k in sorted(rows['before'], key=lambda x: (x[0], *map(int, x[1:]))):
     lines.append(f'| {k[0]} | {k[1]}×{k[2]} / {k[3]} / {k[4]} | {pair("warm_median_ms")} / {pair("warm_p95_ms")} | {pair("native_median_ms")} / {pair("native_p95_ms")} | {pair("single_render_peak_rss_bytes",2**20)} |')
 diffs=[row for path in sorted(run.glob('*-differences.csv')) for row in read(path)]
 lines+=['',f'Exact image/buffer comparisons: {sum(row["exact"]=="TRUE" for row in diffs)} / {len(diffs)}; maximum absolute difference {max(float(row["max_absolute"]) for row in diffs):g}. Differences include metadata, nonfinite patterns and changed-sample counts.','',
-        'Fresh RSS was measured separately for selected high-sample-count and deep-layer cases only. A dash means unmeasured, not zero. Whole diagnostic-process RSS includes retained outputs and profiling; it is not a fresh-render memory result. No plotting or file encoding is included.']
+        'Fresh RSS was measured in separate one-render processes for selected settings. A dash means unmeasured, not zero. Whole diagnostic-process RSS includes retained outputs and profiling; it is not a fresh-render memory result. No plotting or file encoding is included.']
 (out/'results.md').write_text('\n'.join(lines)+'\n')
 print(out/'results.md')

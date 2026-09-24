@@ -18,7 +18,7 @@ Three warm public calls and three isolated native samples per setting, with GC o
 
 Exact image/buffer comparisons: 187 / 187; maximum absolute difference 0. Differences include metadata, nonfinite patterns and changed-sample counts.
 
-Fresh RSS was measured separately for selected high-sample-count and deep-layer cases only. A dash means unmeasured, not zero. Whole diagnostic-process RSS includes retained outputs and profiling; it is not a fresh-render memory result. No plotting or file encoding is included.
+Fresh RSS was measured in separate one-render processes for selected settings. A dash means unmeasured, not zero. Whole diagnostic-process RSS includes retained outputs and profiling; it is not a fresh-render memory result. No plotting or file encoding is included.
 
 
 All 187 image/buffer comparisons are exact. At 1920×1080/FSAA 2/four workers, this phase changes output traversal and allocation, while retaining Mitchell filtering and the native rasterizer. R output fusion materially reduces public time and fresh RSS; native differences between libraries are retained without attributing them to faster coverage/shading. In particular, SSAO native median changes 403→549 ms despite unchanged raster source; its cause requires separate repeats. Alpha129 remains an unlimited-layer stress control. See the ordinary API phase table and helper-stage measurements in `../output/` for attribution.

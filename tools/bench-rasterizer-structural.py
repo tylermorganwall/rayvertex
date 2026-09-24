@@ -20,6 +20,7 @@ cases = os.environ.get('RAYVERTEX_STRUCTURAL_CASES', 'small,grid1m,alpha4,alpha1
     'visibility': os.environ.get('RAYVERTEX_VISIBILITY'),
     'indexed_transforms': os.environ.get('RAYVERTEX_INDEXED_TRANSFORMS'),
     'prepared_after': os.environ.get('RAYVERTEX_PREPARED_AFTER'),
+    'prepared_all': os.environ.get('RAYVERTEX_PREPARED'),
 }, indent=2) + '\n')
 for i, case in enumerate(cases):
     for variant in (['before', 'after'] if i % 2 == 0 else ['after', 'before']):

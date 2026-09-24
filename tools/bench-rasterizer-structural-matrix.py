@@ -1,6 +1,6 @@
 """Sequential structural validation sweeps, comparing and releasing large RDS outputs.
 Usage: python3 tools/bench-rasterizer-structural-matrix.py BEFORE_LIB AFTER_LIB OUT SUITE
-Suites: workers, quality, visibility, bins, macrotiles, coverage. Timings keep quality fixed within each pair.
+Suites: workers, quality, visibility, bins, macrotiles, coverage, geometry. Timings keep quality fixed within each pair.
 """
 import csv
 import json
@@ -34,6 +34,9 @@ elif suite == 'macrotiles':
 elif suite == 'coverage':
     jobs = [(case, 800, 800, 1, cores) for cores in (1, 4)
             for case in ('small', 'grid100k', 'grid1m', 'alpha4', 'alpha16', 'slivers', 'shadow')]
+    jobs += [('grid100k', 1920, 1080, 2, 4)]
+elif suite == 'geometry':
+    jobs = [('grid1m', 800, 800, 1, cores) for cores in (1, 2, 4, 10)]
     jobs += [('grid100k', 1920, 1080, 2, 4)]
 else:
     raise SystemExit('Unknown suite')
@@ -70,7 +73,7 @@ for number, job in enumerate(jobs):
             subprocess.run([sys.executable, 'tools/bench-rasterizer.py', lib, str(folder),
                             *map(str, job), '3'], check=True, env=env)
         # Fresh render RSS for the highest sample count and deep portrait stress.
-        if (job[0] in ('grid100k', 'alpha129') and (job[1:4]==(1920,1080,2) or job[0]=='alpha129')) or (suite=='bins' and job==('grid1m',800,800,1,4)) or (suite=='macrotiles' and job==('alpha16',800,800,1,4)) or (suite=='coverage' and job==('slivers',800,800,1,4)):
+        if (job[0] in ('grid100k', 'alpha129') and (job[1:4]==(1920,1080,2) or job[0]=='alpha129')) or (suite in ('bins','geometry') and job==('grid1m',800,800,1,4)) or (suite=='macrotiles' and job==('alpha16',800,800,1,4)) or (suite=='coverage' and job==('slivers',800,800,1,4)):
             subprocess.run([sys.executable, 'tools/bench-rasterizer.py', '--memory', lib,
                             str(folder), *map(str, job), '3'], check=True, env=env)
     subprocess.run(['Rscript', 'tools/compare-rasterizer.R', str(root/'before'),

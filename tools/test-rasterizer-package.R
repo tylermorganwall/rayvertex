@@ -7,7 +7,13 @@ stopifnot(
     normalizePath(file.path(args[1], "rayvertex"))
 )
 Sys.setenv(NOT_CRAN = "true")
-result = testthat::test_dir("tests/testthat", stop_on_failure = TRUE)
+result = testthat::test_dir(
+  "tests/testthat",
+  package = "rayvertex",
+  load_package = "installed",
+  reporter = "summary",
+  stop_on_failure = TRUE
+)
 rows = as.data.frame(result)
 rows = rows[, !vapply(rows, is.list, logical(1))]
 write.csv(rows, args[2], row.names = FALSE)

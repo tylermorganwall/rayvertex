@@ -1,0 +1,5 @@
+"case","width","height","fsaa","cores","regime","sample","elapsed_ms"
+"alpha4",800,800,2,4,"process_cold",0,910
+"alpha4",800,800,2,4,"warm",1,749
+"alpha4",800,800,2,4,"warm",2,745
+"alpha4",800,800,2,4,"warm",3,752

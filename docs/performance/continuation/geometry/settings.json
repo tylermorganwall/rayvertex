@@ -1,0 +1,46 @@
+{
+  "before": "/tmp/rayvertex-optimization/lib-coverage-bounds",
+  "after": "/tmp/rayvertex-optimization/lib-varying-demand",
+  "suite": "geometry",
+  "jobs": [
+    [
+      "grid1m",
+      800,
+      800,
+      1,
+      1
+    ],
+    [
+      "grid1m",
+      800,
+      800,
+      1,
+      2
+    ],
+    [
+      "grid1m",
+      800,
+      800,
+      1,
+      4
+    ],
+    [
+      "grid1m",
+      800,
+      800,
+      1,
+      10
+    ],
+    [
+      "grid100k",
+      1920,
+      1080,
+      2,
+      4
+    ]
+  ],
+  "warm_samples": 3,
+  "native_samples": 3,
+  "diagnostic_samples": 1,
+  "macrotile_after": null
+}

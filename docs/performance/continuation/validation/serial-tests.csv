@@ -1,0 +1,90 @@
+"file","context","test","nb","failed","skipped","error","warning","user","system","real","passed"
+"test-cran-prep.R","cran-prep","rescale handles finite and non-finite values",4,0,FALSE,FALSE,0,0.012,0.002,0.014,4
+"test-cran-prep.R","cran-prep","rasterize_scene position debug path works",1,0,FALSE,FALSE,0,0.054,0.00899999999999999,0.069,1
+"test-cran-prep.R","cran-prep","rasterize_scene scales toon outlines for FSAA before rasterizing",2,0,FALSE,FALSE,0,0.006,0.001,0.011,2
+"test-cran-prep.R","cran-prep","mesh3d_mesh centers the supplied mesh",1,0,FALSE,FALSE,0,0.003,0.001,0.003,1
+"test-cran-prep.R","cran-prep","text3d_mesh accepts color as a deprecated alias",2,0,FALSE,FALSE,0,0.132,0.025,0.16,2
+"test-displacement_sphere.R","displacement_sphere","displacement_sphere supports cube-based sphere displacement",3,0,FALSE,FALSE,0,0.00700000000000001,0.000999999999999987,0.00700000000000001,3
+"test-draw_lathe_profile.R","draw_lathe_profile","clicks preview a closing edge from the second point and return a lathe polygon",13,0,FALSE,FALSE,0,0.023,0.006,0.029,13
+"test-draw_lathe_profile.R","draw_lathe_profile","Undo removes the last vertex, redraws closure, and allows drawing to continue",13,0,FALSE,FALSE,0,0.023,0.005,0.029,13
+"test-draw_lathe_profile.R","draw_lathe_profile","Undo can clear the drawing and is harmless when empty",12,0,FALSE,FALSE,0,0.0149999999999999,0.00499999999999999,0.02,12
+"test-draw_lathe_profile.R","draw_lathe_profile","drawing snaps axis endpoints and ignores duplicate and out-of-bounds clicks",13,0,FALSE,FALSE,0,0.021,0.005,0.0269999999999999,13
+"test-draw_lathe_profile.R","draw_lathe_profile","axis snapping can be disabled",6,0,FALSE,FALSE,0,0.01,0.003,0.013,6
+"test-draw_lathe_profile.R","draw_lathe_profile","cancelling an empty drawing returns NULL",2,0,FALSE,FALSE,0,0.005,0.001,0.00700000000000001,2
+"test-draw_lathe_profile.R","draw_lathe_profile","drawing validates bounds and requires an interactive device",23,0,FALSE,FALSE,0,0.045,0.002,0.047,23
+"test-draw_lathe_profile.R","draw_lathe_profile","axis edges are omitted with outward orientation regardless of starting point",10,0,FALSE,FALSE,0,0.011,0.00299999999999999,0.014,10
+"test-draw_lathe_profile.R","draw_lathe_profile","invalid polygons fail before producing unusable lathe profiles",4,0,FALSE,FALSE,0,0.01,0.001,0.011,4
+"test-extruded_path_mesh.R","extruded_path_mesh","closed sweeps weld their seam for both curve modes and handednesses",30,0,FALSE,FALSE,0,0.256,0.014,0.27,30
+"test-extruded_path_mesh.R","extruded_path_mesh","periodic control points have matching first and second derivatives",15,0,FALSE,FALSE,0,0.0219999999999999,0.005,0.028,15
+"test-extruded_path_mesh.R","extruded_path_mesh","trimming preserves full-path frames and evaluates exact endpoints",4,0,FALSE,FALSE,0,0.069,0.002,0.071,4
+"test-extruded_path_mesh.R","extruded_path_mesh","the final ring uses its exact twist and morphed profile",2,0,FALSE,FALSE,0,0.00700000000000012,0.001,0.00800000000000001,2
+"test-extruded_path_mesh.R","extruded_path_mesh","profile closure and representation do not change winding",10,0,FALSE,FALSE,0,0.02,0.003,0.0230000000000001,10
+"test-extruded_path_mesh.R","extruded_path_mesh","taper normals include radius and remain correct at the final ring",2,0,FALSE,FALSE,0,0.00700000000000012,0.001,0.00900000000000012,2
+"test-extruded_path_mesh.R","extruded_path_mesh","normals include profile morphing and twist derivatives and retain creases",2,0,FALSE,FALSE,0,0.006,0.001,0.0130000000000001,2
+"test-extruded_path_mesh.R","extruded_path_mesh","caps use trimmed widths, profiles and outward orientation",7,0,FALSE,FALSE,0,0.014,0.002,0.0210000000000001,7
+"test-extruded_path_mesh.R","extruded_path_mesh","zero-width tips use triangle fans with no degenerate triangles",6,0,FALSE,FALSE,0,0.012,0.002,0.014,6
+"test-extruded_path_mesh.R","extruded_path_mesh","adaptive arc sampling handles nonuniform speed and polyline corners",3,0,FALSE,FALSE,0,0.016,0.002,0.0170000000000001,3
+"test-extruded_path_mesh.R","extruded_path_mesh","invalid sweep inputs fail early without unbounded searches",16,0,FALSE,FALSE,0,0.0349999999999999,0.001,0.036,16
+"test-extruded_path_mesh.R","extruded_path_mesh","wrapped capped sweeps weld exactly across their shared seam",4,0,FALSE,FALSE,0,0.0209999999999999,0.001,0.022,4
+"test-extruded_polygon_mesh.R","extruded_polygon_mesh","every extrusion plane and reflection has outward caps and walls",294,0,FALSE,FALSE,0,0.38,0.083,0.464,294
+"test-extruded_polygon_mesh.R","extruded_polygon_mesh","ring representations, winding, duplicates and collinearity preserve the solid",144,0,FALSE,FALSE,0,0.186,0.042,0.229,144
+"test-extruded_polygon_mesh.R","extruded_polygon_mesh","multiple holes retain caps and inward cavity walls for either ring winding",24,0,FALSE,FALSE,0,0.0339999999999998,0.00800000000000001,0.0420000000000003,24
+"test-extruded_polygon_mesh.R","extruded_polygon_mesh","large translations and centering preserve geometry and orientation",22,0,FALSE,FALSE,0,0.032,0.00700000000000001,0.0390000000000001,22
+"test-extruded_polygon_mesh.R","extruded_polygon_mesh","hole indices refer to the input before redundant vertices are removed",4,0,FALSE,FALSE,0,0.006,0.001,0.00700000000000012,4
+"test-extruded_polygon_mesh.R","extruded_polygon_mesh","equal heights emit exactly one nondegenerate cap",18,0,FALSE,FALSE,0,0.0250000000000001,0.00499999999999995,0.0299999999999998,18
+"test-extruded_polygon_mesh.R","extruded_polygon_mesh","invalid polygon inputs fail before triangulation",54,0,FALSE,FALSE,0,0.16,0.004,0.164,54
+"test-extruded_polygon_mesh.R","extruded_polygon_mesh","sf preserves multipart holes, heights and XYZ geometry",12,0,FALSE,FALSE,0,0.169,0.013,0.182,12
+"test-extruded_polygon_mesh.R","extruded_polygon_mesh","sf extrusion decisions use each resolved height pair",14,0,FALSE,FALSE,0,0.0330000000000004,0.004,0.0369999999999999,14
+"test-extruded_polygon_mesh.R","extruded_polygon_mesh","SpatialPolygons work without a data frame or ring-order assumptions",16,0,FALSE,FALSE,0,0.077,0.00700000000000001,0.085,16
+"test-extrusion-api.R","extrusion-api","public sweep meshes preserve cap materials and optional parts",22,0,FALSE,FALSE,0,0.0429999999999997,0.006,0.0489999999999999,22
+"test-extrusion-api.R","extrusion-api","extrusions use rayvertex transform and material conventions",17,0,FALSE,FALSE,0,0.0999999999999996,0.004,0.104,17
+"test-extrusion-api.R","extrusion-api","extrusions rasterize and export without rayrender",10,0,FALSE,FALSE,0,0.0340000000000003,0.005,0.048,10
+"test-lathe_mesh.R","lathe_mesh","closed lathe meshes are welded, nondegenerate, and outward facing",12,0,FALSE,FALSE,0,0.016,0.003,0.0190000000000001,12
+"test-lathe_mesh.R","lathe_mesh","lathe normals follow the profile and reverse with its order",5,0,FALSE,FALSE,0,0.00800000000000001,0.001,0.00900000000000034,5
+"test-lathe_mesh.R","lathe_mesh","open profiles have continuous UVs with a separate texture seam",10,0,FALSE,FALSE,0,0.0140000000000002,0.003,0.0169999999999999,10
+"test-lathe_mesh.R","lathe_mesh","lathe meshes use standard material and transform conventions",2,0,FALSE,FALSE,0,0.00300000000000011,0.001,0.00499999999999989,2
+"test-lathe_mesh.R","lathe_mesh","invalid lathe profiles fail with useful errors",25,0,FALSE,FALSE,0,0.0499999999999998,0.001,0.0529999999999999,25
+"test-lathe_mesh.R","lathe_mesh","lathe meshes render and round-trip through OBJ",8,0,FALSE,FALSE,0,0.0129999999999999,0.002,0.0210000000000004,8
+"test-load_obj.R","load_obj","load_obj works",1,0,FALSE,FALSE,0,0.249,0.014,0.268,1
+"test-material-dedup-compat.R","material-dedup-compat","material deduplication retains the legacy unnamed material list",1,0,FALSE,FALSE,0,0.00099999999999989,0,0.00200000000000022,1
+"test-prepared-scene.R","prepared-scene","prepared geometry snapshots preserve outputs and original-list independence",12,0,FALSE,FALSE,0,0.04,0.01,0.131,12
+"test-prepared-scene.R","prepared-scene","prepared snapshots evaluate frame options and callbacks afresh",5,0,FALSE,FALSE,0,0.0299999999999998,0.005,0.056,5
+"test-prepared-scene.R","prepared-scene","prepared material assets survive source changes and rebuild explicitly",6,0,FALSE,FALSE,0,0.0129999999999999,0.004,0.0449999999999999,6
+"test-prepared-scene.R","prepared-scene","prepared handles reject serialization and release owned assets",5,0,FALSE,FALSE,0,0.607,0.00800000000000001,0.615,5
+"test-prepared-scene.R","prepared-scene","prepared handles reject use after a process fork",1,0,FALSE,FALSE,0,0.00300000000000011,0.014,0.0190000000000001,1
+"test-prepared-scene.R","prepared-scene","prepared texture owners release on collection and partial failure",22,0,FALSE,FALSE,0,0.611,0.023,0.682,22
+"test-rasterizer-correctness.R","rasterizer-correctness","presentation depth preserves the legacy NDC and background contract",6,0,FALSE,FALSE,0,0.00699999999999967,0.002,0.0129999999999999,6
+"test-rasterizer-correctness.R","rasterizer-correctness","SSAO is deterministic across repeated renders",3,0,FALSE,FALSE,0,0.00600000000000023,0.001,0.0159999999999991,3
+"test-rasterizer-correctness.R","rasterizer-correctness","steep unaliased lines stay at the same x on rectangular images",2,0,FALSE,FALSE,0,0.00199999999999978,0.001,0.00800000000000001,2
+"test-rasterizer-correctness.R","rasterizer-correctness","all debug returns and image metadata remain available",14,0,FALSE,FALSE,0,0.0250000000000004,0.00700000000000001,0.0659999999999998,14
+"test-rasterizer-correctness.R","rasterizer-correctness","gray and gray-alpha assets match RGB and RGBA rendering",5,0,FALSE,FALSE,0,0.016,0.003,0.048,5
+"test-rasterizer-correctness.R","rasterizer-correctness","vertex and object-normal shaders initialize their position transform",9,0,FALSE,FALSE,0,0.0180000000000007,0.004,0.0489999999999995,9
+"test-rasterizer-correctness.R","rasterizer-correctness","object-normal point lighting does not depend on previous fragments",1,0,FALSE,FALSE,0,0.00499999999999989,0.001,0.00999999999999979,1
+"test-rasterizer-correctness.R","rasterizer-correctness","homogeneous clipping rejects behind-camera geometry and bounds crossings",5,0,FALSE,FALSE,0,0.00999999999999979,0.002,0.0209999999999999,5
+"test-rasterizer-correctness.R","rasterizer-correctness","orthographic clipping keeps visible geometry and reports linear view depth",2,0,FALSE,FALSE,0,0.00399999999999956,0.001,0.00999999999999979,2
+"test-rasterizer-correctness.R","rasterizer-correctness","nonfinite transformed vertices fail before raster integer conversion",1,0,FALSE,FALSE,0,0.00399999999999956,0.001,0.00800000000000001,1
+"test-rasterizer-coverage-bounds.R","rasterizer-coverage-bounds","block extrema retain inclusive edges, winding, culling and debug buffers",30,0,FALSE,FALSE,0,0.0750000000000002,0.018,0.093,30
+"test-rasterizer-environment-assets.R","rasterizer-environment-assets","identical environment preparation shares variants across materials and background",4,0,FALSE,FALSE,0,0.0129999999999999,0.00299999999999995,0.0199999999999996,4
+"test-rasterizer-macrotiles.R","rasterizer-macrotiles","spatial macrotiles preserve existing microblock coverage and effects",10,0,FALSE,FALSE,0,0.0939999999999994,0.00700000000000001,0.101,10
+"test-rasterizer-optimization.R","rasterizer-optimization","material deduplication preserves first occurrence and default mapping",9,0,FALSE,FALSE,0,0.00999999999999979,0.003,0.0130000000000008,9
+"test-rasterizer-optimization.R","rasterizer-optimization","disabled shadow and outline passes allocate no pass-specific payload",2,0,FALSE,FALSE,0,0.00499999999999989,0.001,0.0110000000000001,2
+"test-rasterizer-optimization.R","rasterizer-optimization","equal-depth surfaces and line ordering are deterministic across workers",4,0,FALSE,FALSE,0,0.0149999999999997,0.003,0.024,4
+"test-rasterizer-optimization.R","rasterizer-optimization","active block batches preserve corrected scalar coverage and ties",4,0,FALSE,FALSE,0,0.0169999999999995,0.002,0.0190000000000001,4
+"test-rasterizer-optimization.R","rasterizer-optimization","main and shadow shaders share decoded canonical texture identities",2,0,FALSE,FALSE,0,0.00600000000000023,0.001,0.0129999999999999,2
+"test-rasterizer-optimization.R","rasterizer-optimization","a failed later decode releases earlier shader assets",3,0,FALSE,FALSE,0,0.0119999999999996,0.002,0.0300000000000002,3
+"test-rasterizer-optimization.R","rasterizer-optimization","coverage counters reconcile on a deliberately simple quad",4,0,FALSE,FALSE,0,0.00699999999999967,0.002,0.0129999999999999,4
+"test-rasterizer-optimization.R","rasterizer-optimization","parallel SSAO and jump-flood iterations match the scalar screen passes",1,0,FALSE,FALSE,0,0.0179999999999998,0.002,0.0209999999999999,1
+"test-rasterizer-optimization.R","rasterizer-optimization","indexed transforms preserve scalar results and R callback counts",4,0,FALSE,FALSE,0,0.0149999999999997,0.003,0.0280000000000005,4
+"test-rasterizer-optimization.R","rasterizer-optimization","scalar tangent clip counters include both matrix multiplication forms",1,0,FALSE,FALSE,0,0.00399999999999956,0.001,0.0100000000000007,1
+"test-rasterizer-optimization.R","rasterizer-optimization","sparse transparency preserves tree ties, shadows, and deep growth",4,0,FALSE,FALSE,0,0.568,0.015,0.583,4
+"test-rasterizer-optimization.R","rasterizer-optimization","triangle setup is per primitive while contiguous bins retain overlap",2,0,FALSE,FALSE,0,0.00499999999999989,0.001,0.00999999999999979,2
+"test-rasterizer-optimization.R","rasterizer-optimization","ordinary output removes unused auxiliary storage without changing images",8,0,FALSE,FALSE,0,0.048,0.01,0.0569999999999995,8
+"test-rasterizer-optimization.R","rasterizer-optimization","parallel background and outline composition match serial screen passes",1,0,FALSE,FALSE,0,0.0110000000000001,0.002,0.0129999999999999,1
+"test-rasterizer-optimization.R","rasterizer-optimization","opaque visibility shades only winners and keeps mixed-material fallback",5,0,FALSE,FALSE,0,0.0409999999999995,0.004,0.0629999999999997,5
+"test-rasterizer-optimization.R","rasterizer-optimization","unexpected shader opacity replays visibility tiles before committing color",2,0,FALSE,FALSE,0,0.00400000000000045,0.002,0.0140000000000002,2
+"test-rasterizer-output.R","rasterizer-output","fused output matches scalar decoding, orientation, alpha and metadata",23,0,FALSE,FALSE,0,0.032,0.00700000000000001,0.0389999999999997,23
+"test-rasterizer-output.R","rasterizer-output","fused output preserves effects, prepared scenes and debug results",17,0,FALSE,FALSE,0,0.15,0.015,0.166,17
+"test-rasterizer-output.R","rasterizer-output","fused output preserves encoded PNG bytes",2,0,FALSE,FALSE,0,0.00999999999999979,0.003,0.0220000000000002,2
+"test-rasterizer-parallel-bins.R","rasterizer-parallel-bins","bounded parallel bins preserve main and shadow submission order",10,0,FALSE,FALSE,0,0.0989999999999993,0.0129999999999999,0.116,10
+"test-rasterizer-shader-variants.R","rasterizer-shader-variants","Oren-Nayar snapshots preserve sidedness and mixed-light shadow results",18,0,FALSE,FALSE,0,0.0359999999999996,0.006,0.0430000000000001,18
+"test-rasterizer-varyings.R","rasterizer-varyings","common varyings are retained only for their actual consumers",96,0,FALSE,FALSE,0,0.223000000000001,0.048,0.271,96

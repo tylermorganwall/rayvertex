@@ -1,0 +1,7 @@
+NULL
+          used (Mb) gc trigger  (Mb) limit (Mb) max used (Mb)
+Ncells  651572 34.8    1329975  71.1         NA   838896 44.9
+Vcells 3710990 28.4   16531278 126.2      65536 12037816 91.9
+          used (Mb) gc trigger  (Mb) limit (Mb) max used  (Mb)
+Ncells  653252 34.9    1329975  71.1         NA   838896  44.9
+Vcells 1154727  8.9   15934027 121.6      65536 19898880 151.9

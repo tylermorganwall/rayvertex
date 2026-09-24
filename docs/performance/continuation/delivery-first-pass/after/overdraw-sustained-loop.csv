@@ -1,0 +1,2 @@
+"case","samples","total_ms","cleanup_ms","mean_with_cleanup_ms","fps_with_cleanup"
+"overdraw",5,1963,23.0000000000001,392.6,2.54712175241977

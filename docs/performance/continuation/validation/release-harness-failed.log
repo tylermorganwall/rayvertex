@@ -1,0 +1,93 @@
+NULL
+✔ | F W  S  OK | Context
+
+⠏ |          0 | cran-prep                                                      Setting `lookat` to: c(0.00, 0.00, 0.00)
+
+⠼ |          5 | cran-prep                                                      
+⠇ |          9 | cran-prep                                                      
+✔ |         10 | cran-prep
+
+⠏ |          0 | displacement_sphere                                            
+✔ |          3 | displacement_sphere
+
+⠏ |          0 | draw_lathe_profile                                             
+⠋ |         41 | draw_lathe_profile                                             Click inside the drawing limits.
+Click inside the drawing limits.
+
+⠹ | 1       82 | draw_lathe_profile                                             
+✖ | 2       82 | draw_lathe_profile
+────────────────────────────────────────────────────────────────────────────────
+Error ('test-draw_lathe_profile.R:171:7'): axis edges are omitted with outward orientation regardless of starting point
+Error in `lathe_profile_polygon(points[order, ])`: could not find function "lathe_profile_polygon"
+
+Error ('test-draw_lathe_profile.R:183:3'): invalid polygons fail before producing unusable lathe profiles
+Error in `lathe_profile_polygon(rbind(c(1, 0), c(1, 1)))`: could not find function "lathe_profile_polygon"
+Backtrace:
+    ▆
+ 1. └─testthat::expect_error(...) at test-draw_lathe_profile.R:183:3
+ 2.   └─testthat:::expect_condition_matching_(...)
+ 3.     └─testthat:::quasi_capture(...)
+ 4.       ├─testthat (local) .capture(...)
+ 5.       │ └─base::withCallingHandlers(...)
+ 6.       └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+────────────────────────────────────────────────────────────────────────────────
+
+⠏ |          0 | extruded_path_mesh                                             
+✖ | 12        0 | extruded_path_mesh
+────────────────────────────────────────────────────────────────────────────────
+Error ('test-extruded_path_mesh.R:37:7'): closed sweeps weld their seam for both curve modes and handednesses
+Error in `sweep_mesh_data(points, polygon = sweep_test_square(), closed = TRUE, closed_smooth = smooth, breaks = 40)`: could not find function "sweep_mesh_data"
+
+Error ('test-extruded_path_mesh.R:77:3'): periodic control points have matching first and second derivatives
+Error in `sweep_controls(sweep_test_loop(), TRUE, TRUE, FALSE, FALSE)`: could not find function "sweep_controls"
+
+Error ('test-extruded_path_mesh.R:99:3'): trimming preserves full-path frames and evaluates exact endpoints
+Error in `eval(code, test_env)`: object 'sweep_mesh_data' not found
+Backtrace:
+    ▆
+ 1. └─base::do.call(sweep_mesh_data, args) at test-extruded_path_mesh.R:99:3
+
+Error ('test-extruded_path_mesh.R:123:3'): the final ring uses its exact twist and morphed profile
+Error in `sweep_mesh_data(sweep_test_line(), polygon = p, twists = 0.25, breaks = 10)`: could not find function "sweep_mesh_data"
+
+Error ('test-extruded_path_mesh.R:148:3'): profile closure and representation do not change winding
+Error in `eval(code, test_env)`: object 'sweep_mesh_data' not found
+Backtrace:
+    ▆
+ 1. └─base::do.call(sweep_mesh_data, c(args, list(polygon = p))) at test-extruded_path_mesh.R:148:3
+
+Error ('test-extruded_path_mesh.R:176:3'): taper normals include radius and remain correct at the final ring
+Error in `sweep_mesh_data(sweep_test_line(), width = 1, width_end = 2, smooth_normals = TRUE, breaks = 11)`: could not find function "sweep_mesh_data"
+
+Error ('test-extruded_path_mesh.R:193:3'): normals include profile morphing and twist derivatives and retain creases
+Error in `sweep_mesh_data(sweep_test_line(), polygon = p, polygon_end = 2 * p, twists = 0.25, initial_normal = c(1, 0, 0), smooth_normals = TRUE, smooth_angle = 30, breaks = 11)`: could not find function "sweep_mesh_data"
+
+Error ('test-extruded_path_mesh.R:224:3'): caps use trimmed widths, profiles and outward orientation
+Error in `sweep_mesh_data(sweep_test_line(), width = 0, width_end = 1, u_min = 0.2, u_max = 0.6, breaks = 11)`: could not find function "sweep_mesh_data"
+
+Error ('test-extruded_path_mesh.R:247:3'): zero-width tips use triangle fans with no degenerate triangles
+Error in `sweep_mesh_data(sweep_test_line(), width = 0, width_end = 1, smooth_normals = TRUE, breaks = 11)`: could not find function "sweep_mesh_data"
+
+Error ('test-extruded_path_mesh.R:265:3'): adaptive arc sampling handles nonuniform speed and polyline corners
+Error in `sweep_mesh_data(cp, precomputed_control_points = TRUE, linear_step = TRUE, breaks = 11)`: could not find function "sweep_mesh_data"
+
+Error ('test-extruded_path_mesh.R:296:3'): invalid sweep inputs fail early without unbounded searches
+Error in `sweep_mesh_data(line, polygon = rbind(c(0, 0), c(1, 0), c(2, 0)), smooth_normals = TRUE)`: could not find function "sweep_mesh_data"
+Backtrace:
+    ▆
+ 1. └─testthat::expect_error(...) at test-extruded_path_mesh.R:296:3
+ 2.   └─testthat:::expect_condition_matching_(...)
+ 3.     └─testthat:::quasi_capture(...)
+ 4.       ├─testthat (local) .capture(...)
+ 5.       │ └─base::withCallingHandlers(...)
+ 6.       └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+
+Error ('test-extruded_path_mesh.R:329:3'): wrapped capped sweeps weld exactly across their shared seam
+Error in `sweep_mesh_data(sweep_test_loop(), polygon = sweep_test_square(), closed = TRUE, twists = 0.25, breaks = 40, u_min = 0.8, u_max = 1.2)`: could not find function "sweep_mesh_data"
+────────────────────────────────────────────────────────────────────────────────
+
+Maximum number of failures exceeded; quitting.
+ℹ Increase this number with (e.g.) `testthat::set_max_fails(Inf)` 
+Error:
+! Test failures.
+Execution halted
