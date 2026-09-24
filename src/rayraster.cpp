@@ -1102,16 +1102,14 @@ List rasterize(List mesh,
   
   
   //For alpha transparency
-  std::vector<std::map<Float, alpha_info> > alpha_depths(checked_samples(nx, ny));
+  FragmentArena alpha_depths(nx, ny, block_size);
   
   //For per-light transparent colors
-  std::vector<std::vector<std::map<Float, alpha_info> > > alpha_depths_trans;
-  for(unsigned int i = 0; i < shadowbuffers.size(); i++) {
-    std::vector<std::map<Float, alpha_info> > temp_adt(checked_samples(shadowdims(0), shadowdims(1)));
-    alpha_depths_trans.push_back(temp_adt);
-  }
-  
-  
+  std::vector<FragmentArena> alpha_depths_trans;
+  alpha_depths_trans.reserve(shadowbuffers.size());
+  for (std::size_t i=0; i<shadowbuffers.size(); ++i)
+    alpha_depths_trans.emplace_back(shadowdims(0), shadowdims(1), block_size);
+
   //Set up blocks
   int blocksize = block_size;
   
@@ -1256,7 +1254,7 @@ List rasterize(List mesh,
       
       rayimage& shadowbuff = shadowbuffers[sb];
       std::vector<IShader*>& depth_shader_single = depthshaders[sb];
-      std::vector<std::map<Float, alpha_info> >& alpha_depth_single = alpha_depths_trans[sb];
+      FragmentArena& alpha_depth_single = alpha_depths_trans[sb];
       //Calculate shadow buffer
       auto task = [&depth_shader_single, &blocks_depth, &ndc_verts_depth, &ndc_inv_w_depth,  
                    &min_block_bound_depth, &max_block_bound_depth,
@@ -1284,23 +1282,17 @@ List rasterize(List mesh,
           blocks_depth[j][model_num].clear();
         }
       }
-      //Calculate transparency buffer
-      for(int i = 0; i < shadowdims(0); i++) {
-        for(int j = 0; j < shadowdims(1); j++) {
-          for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depth_single[fragment_index(i, j, shadowdims(0), shadowdims(1))].rbegin();
-              it != alpha_depth_single[fragment_index(i, j, shadowdims(0), shadowdims(1))].rend(); ++it) {
-            if(it->first <= zbuffer_depth(i,j)) {
-              // zbuffer_depth(i,j) = it->first;
-              vec4 temp_col = it->second.color;
-              vec4 old_color = transparency_buffers[sb].get_color_a(i,j);
-              Float d = (1 - old_color.w) * (1 - temp_col.w) ;
-              old_color *= temp_col;
-              old_color.w = (1-d);
-              transparency_buffers[sb].set_color(i,j,old_color);
-            }
-          }
+      // Resolve the exact depth-keyed winners, retaining opaque equality.
+      alpha_depth_single.resolve([&](int i, int j, Float z, const alpha_info& fragment) {
+        if(z <= zbuffer_depth(i,j)) {
+          vec4 temp_col = fragment.color;
+          vec4 old_color = transparency_buffers[sb].get_color_a(i,j);
+          Float d = (1 - old_color.w) * (1 - temp_col.w);
+          old_color *= temp_col;
+          old_color.w = (1-d);
+          transparency_buffers[sb].set_color(i,j,old_color);
         }
-      }
+      });
       std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<Float>::infinity() ) ;
     }
   }
@@ -1490,25 +1482,24 @@ List rasterize(List mesh,
     }
   }
 
-  for(int i = 0; i < nx; i++) {
-    for(int j = 0; j < ny; j++) {
-      for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depths[fragment_index(i, j, nx, ny)].rbegin();
-          it != alpha_depths[fragment_index(i, j, nx, ny)].rend(); ++it) {
-        if(it->first <= zbuffer(i,j)) {
-          zbuffer(i,j) = it->first;
-          vec4 temp_col = it->second.color;
-          vec3 old_color = image.get_color(i,j);
-          vec3 new_color = vec3(temp_col)*temp_col.w + vec3(old_color)*(1-temp_col.w);
-          image.set_color(i,j,new_color);
-          normalbuffer.set_color(i,j,it->second.normal);
-          positionbuffer.set_color(i,j,it->second.position);
-          uvbuffer.set_color(i,j,it->second.uv);
-        }
-      }
+  profile.mark("lines");
+  alpha_depths.resolve([&](int i, int j, Float z, const alpha_info& fragment) {
+    if(z <= zbuffer(i,j)) {
+      zbuffer(i,j) = z;
+      vec4 temp_col = fragment.color;
+      vec3 old_color = image.get_color(i,j);
+      vec3 new_color = vec3(temp_col)*temp_col.w + vec3(old_color)*(1-temp_col.w);
+      image.set_color(i,j,new_color);
+      normalbuffer.set_color(i,j,fragment.normal);
+      positionbuffer.set_color(i,j,fragment.position);
+      uvbuffer.set_color(i,j,fragment.uv);
     }
-  }
-  
-  profile.mark("lines_and_transparency_resolve");
+  });
+
+  profile.mark("transparency_resolve");
+  profile.count("fragment_capacity_bytes", alpha_depths.capacity_bytes());
+  profile.count("maximum_layers_per_sample", alpha_depths.max_layers());
+  profile.count("transparent_touched_samples", alpha_depths.touched_samples());
   //Load/blur environment image
   if(has_environment_map) {
     if(background_sharpness != 1.0) {

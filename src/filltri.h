@@ -5,7 +5,7 @@
 #include "Rcpp.h"
 #include "shaders.h"
 #include "RcppThread.h"
-#include "alphainfo.h"
+#include "fragment_arena.h"
 #include "defines.h"
 #include "raster_profile.h"
 
@@ -29,7 +29,7 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                      rayimage& uv_buffer,
                      std::vector<ModelInfo> &models,
                      bool depth, 
-                     std::vector<std::map<Float, alpha_info> >& alpha_depths,
+                     FragmentArena& alpha_depths,
                      Rcpp::IntegerMatrix* material_id_buffer,
                      RasterCounters* counters = nullptr);
 

@@ -284,3 +284,46 @@ test_that("scalar tangent clip counters include both matrix multiplication forms
     6 * stats$value[stats$name == "count_input_triangles"]
   )
 })
+
+test_that("sparse transparency preserves tree ties, shadows, and deep growth", {
+  withr::local_options(cores = 4L)
+  scene = NULL
+  for (i in 0:129) {
+    scene = add_shape(
+      scene,
+      xy_rect_mesh(
+        position = c(0, 0, -i / 200),
+        material = material_list(
+          type = "color",
+          diffuse = if (i %% 2) "red" else "blue",
+          dissolve = 0.1,
+          culling = "none"
+        )
+      )
+    )
+  }
+  # Coplanar last-writer overwrite must apply to every auxiliary output too.
+  scene = add_shape(scene, scene)
+  for (dims in list(c(37, 25), c(25, 37))) {
+    args = list(
+      scene = scene,
+      width = dims[1],
+      height = dims[2],
+      fsaa = 1,
+      plot = FALSE,
+      lookfrom = c(0, 0, 4),
+      lookat = c(0, 0, 0),
+      shadow_map_dims = c(23, 31),
+      debug = "all"
+    )
+    withr::local_envvar(RAYVERTEX_REFERENCE_TRANSPARENCY = "1")
+    reference = do.call(rasterize_scene, args)
+    Sys.unsetenv("RAYVERTEX_REFERENCE_TRANSPARENCY")
+    for (parallel in c(FALSE, TRUE)) {
+      expect_identical(
+        do.call(rasterize_scene, c(args, list(parallel = parallel))),
+        reference
+      )
+    }
+  }
+})

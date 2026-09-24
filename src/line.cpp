@@ -5,7 +5,7 @@ void aa_line(std::vector<vec3>& line_mat_start,
              std::vector<vec3>& line_mat_end,
              std::vector<vec3>& line_color,
              Rcpp::NumericMatrix &zbuffer,
-             std::vector<std::map<Float, alpha_info> >& alpha_depths,
+             FragmentArena& alpha_depths,
              Float alpha_line, Float line_offset) {
   auto ipart = [](Float x) -> int {return int(std::floor(x));};
   // auto round = [](Float x) -> Float {return std::round(x);};
@@ -173,7 +173,7 @@ void aa_line(std::vector<vec3>& line_mat_start,
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
-          alpha_depths[fragment_index(iy, x, nx, ny)][z] = tmp_data;
+          alpha_depths.insert(iy, x, z, tmp_data);
 
           if(iy + 1 < nx) {
             alpha_info tmp_data2;
@@ -181,7 +181,7 @@ void aa_line(std::vector<vec3>& line_mat_start,
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);
-            alpha_depths[fragment_index(iy+1, x, nx, ny)][z] = tmp_data2;
+            alpha_depths.insert(iy+1, x, z, tmp_data2);
           }
         }
         counter++;
@@ -198,14 +198,14 @@ void aa_line(std::vector<vec3>& line_mat_start,
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
-          alpha_depths[fragment_index(x, iy, nx, ny)][z] = tmp_data;
+          alpha_depths.insert(x, iy, z, tmp_data);
           if(iy + 1 < ny) {
             alpha_info tmp_data2;
             tmp_data2.color = vec4(line_color[ii],fpart(intery) * alpha_line);
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);
-            alpha_depths[fragment_index(x, iy+1, nx, ny)][z] = tmp_data2;
+            alpha_depths.insert(x, iy+1, z, tmp_data2);
           }
         }
         counter++;
@@ -221,7 +221,7 @@ void noaa_line(std::vector<vec3>& line_mat_start,
                std::vector<vec3>& line_mat_end,
                std::vector<vec3>& line_color,
                Rcpp::NumericMatrix &zbuffer,
-               std::vector<std::map<Float, alpha_info> >& alpha_depths,
+               FragmentArena& alpha_depths,
                Float alpha_line, Float line_offset) { 
   int x0, y0, x1, y1;
   Float z0, z1;
@@ -282,7 +282,7 @@ void noaa_line(std::vector<vec3>& line_mat_start,
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
-          alpha_depths[fragment_index(y, x, nx, ny)][z] = tmp_data;
+          alpha_depths.insert(y, x, z, tmp_data);
         }
       } else { 
         if(y < ny && y >= 0 && x < nx && x >= 0) { 
@@ -292,7 +292,7 @@ void noaa_line(std::vector<vec3>& line_mat_start,
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
-          alpha_depths[fragment_index(x, y, nx, ny)][z] = tmp_data;
+          alpha_depths.insert(x, y, z, tmp_data);
         }
       } 
       error2 += derror2; 

@@ -26,7 +26,7 @@ void fill_tri_blocks_impl(std::vector<std::vector<int> >&  block_faces,
                      rayimage& uv_buffer,
                      std::vector<ModelInfo> &models,
                      bool depth, 
-                     std::vector<std::map<Float, alpha_info> >& alpha_depths,
+                     FragmentArena& alpha_depths,
                      Rcpp::IntegerMatrix* material_id_buffer,
                      RasterCounters* counters) {
   unsigned int ny = image.height();
@@ -151,7 +151,7 @@ void fill_tri_blocks_impl(std::vector<std::vector<int> >&  block_faces,
                     tmp_data.normal = normal;
                     tmp_data.position = position;
                     tmp_data.uv = bc_clip;
-                    alpha_depths[fragment_index(i, j, image.width(), ny)][z] = tmp_data;
+                    alpha_depths.insert(i, j, z, tmp_data);
                   }
                 } else {
                   // Main color pass.
@@ -173,7 +173,7 @@ void fill_tri_blocks_impl(std::vector<std::vector<int> >&  block_faces,
                     tmp_data.normal = normal;
                     tmp_data.position = position;
                     tmp_data.uv = bc_clip;
-                    alpha_depths[fragment_index(i, j, image.width(), ny)][z] = tmp_data;
+                    alpha_depths.insert(i, j, z, tmp_data);
                     // Note: if we want correct material IDs after blending
                     // translucent layers, we'll also need material_id in
                     // alpha_info and update material_id_buffer in the
@@ -202,7 +202,7 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                      rayimage& uv_buffer,
                      std::vector<ModelInfo> &models,
                      bool depth,
-                     std::vector<std::map<Float, alpha_info> >& alpha_depths,
+                     FragmentArena& alpha_depths,
                      Rcpp::IntegerMatrix* material_id_buffer,
                      RasterCounters* counters) {
   if(counters) fill_tri_blocks_impl<true>(block_faces, ndc_verts, ndc_inv_w, min_block_bound, max_block_bound, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, models, depth, alpha_depths, material_id_buffer, counters);

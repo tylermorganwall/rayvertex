@@ -164,7 +164,7 @@ List rasterize_lines_rcpp(NumericMatrix line_mat,
   // vec3 scene_center = (sceneboundmax+sceneboundmin)/(Float)2.0;
   
   //For alpha transparency
-  std::vector<std::map<Float, alpha_info> > alpha_depths(checked_samples(nx, ny));
+  FragmentArena alpha_depths(nx, ny);
   
   std::vector<vec3> ndc_line_verts_start;
   std::vector<vec3> ndc_line_verts_end;
@@ -190,24 +190,19 @@ List rasterize_lines_rcpp(NumericMatrix line_mat,
     }
   }
   
-  for(int i = 0; i < nx; i++) {
-    for(int j = 0; j < ny; j++) {
-      for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depths[fragment_index(i, j, nx, ny)].rbegin();
-          it != alpha_depths[fragment_index(i, j, nx, ny)].rend(); ++it) {
-        if(it->first <= zbuffer(i,j)) {
-          zbuffer(i,j) = it->first;
-          vec4 temp_col = it->second.color;
-          vec3 old_color = image.get_color(i,j);
-          vec3 new_color = vec3(temp_col)*temp_col.w + vec3(old_color)*(1-temp_col.w);
-          image.set_color(i,j,new_color);
-          normalbuffer.set_color(i,j,it->second.normal);
-          positionbuffer.set_color(i,j,it->second.position);
-          uvbuffer.set_color(i,j,it->second.uv);
-        }
-      }
+  alpha_depths.resolve([&](int i, int j, Float z, const alpha_info& fragment) {
+    if(z <= zbuffer(i,j)) {
+      zbuffer(i,j) = z;
+      vec4 temp_col = fragment.color;
+      vec3 old_color = image.get_color(i,j);
+      vec3 new_color = vec3(temp_col)*temp_col.w + vec3(old_color)*(1-temp_col.w);
+      image.set_color(i,j,new_color);
+      normalbuffer.set_color(i,j,fragment.normal);
+      positionbuffer.set_color(i,j,fragment.position);
+      uvbuffer.set_color(i,j,fragment.uv);
     }
-  }
-  
+  });
+
   return(List::create(_["r"] = r, _["g"] = g, _["b"] = b,
                       _["depth"] = zbuffer,
                       _["normalx"] = nxbuffer, _["normaly"] = nybuffer, _["normalz"] = nzbuffer,
