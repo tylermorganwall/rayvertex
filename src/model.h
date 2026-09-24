@@ -5,9 +5,29 @@
 #include "Rcpp.h"
 #include "rayimage.h"
 #include "defines.h"
+#include <vector>
+
+struct IndexedTransforms {
+  std::vector<vec4> clip;
+  std::vector<vec4> viewport_clip;
+  std::vector<vec3> view;
+};
 
 class ModelInfo {
   public:
+    const IndexedTransforms* transforms = nullptr;
+    vec4 clip_vertex(int face, int vertex_number, const Mat& mvp) {
+      if (transforms && !transforms->clip.empty()) return transforms->clip[inds(face, vertex_number)];
+      return mvp * vec4(vertex(face, vertex_number), 1.0);
+    }
+    vec4 viewport_vertex(int face, int vertex_number, const Mat& viewport, const Mat& mvp) {
+      if (transforms && !transforms->viewport_clip.empty()) return transforms->viewport_clip[inds(face, vertex_number)];
+      return viewport * mvp * vec4(vertex(face, vertex_number), 1.0);
+    }
+    vec3 view_vertex(int face, int vertex_number, const Mat& view) {
+      if (transforms && !transforms->view.empty()) return transforms->view[inds(face, vertex_number)];
+      return vec3(view * vec4(vertex(face, vertex_number), 1.0));
+    }
     ModelInfo(Rcpp::NumericMatrix &verts, Rcpp::NumericMatrix &texcoords, Rcpp::NumericMatrix &normals,
               Rcpp::IntegerMatrix inds, Rcpp::IntegerMatrix tex_inds, Rcpp::IntegerMatrix norm_inds, 
               Rcpp::LogicalVector has_vertex_tex, Rcpp::LogicalVector has_vertex_normals, 

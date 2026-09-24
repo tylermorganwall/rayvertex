@@ -1065,6 +1065,38 @@ List rasterize(List mesh,
     models.push_back(model);
     running_face_offset += n;
   }
+  // Cache only reused indexed positions. Keep the two existing multiplication
+  // orders distinct: vp*(MVP*v) and (vp*MVP)*v are not numerically interchangeable.
+  // Experimental: native wins were modest and one end-to-end workload regressed.
+  // Keep this opt-in until a broader sweep justifies enabling it by default.
+  const bool indexed = std::getenv("RAYVERTEX_INDEXED_TRANSFORMS") != nullptr && total_faces >= 1000 &&
+    static_cast<std::size_t>(mesh_verts.nrow()) < 2*static_cast<std::size_t>(total_faces) &&
+    std::getenv("RAYVERTEX_REFERENCE_TRANSFORMS") == nullptr;
+  IndexedTransforms indexed_transforms;
+  bool need_raw_clip = false, need_viewport_clip = false;
+  for(const auto* shader : shaders) {
+    need_raw_clip |= shader->uses_raw_clip();
+    need_viewport_clip |= shader->uses_viewport_clip();
+  }
+  auto prepare_indexed = [&](const Mat& mvp, const Mat& viewport_matrix,
+                             bool raw_clip, bool viewport_clip, bool view_positions) {
+    if(!indexed) return;
+    const std::size_t count = mesh_verts.nrow();
+    if(!raw_clip) std::vector<vec4>().swap(indexed_transforms.clip);
+    if(!viewport_clip) std::vector<vec4>().swap(indexed_transforms.viewport_clip);
+    indexed_transforms.clip.resize(raw_clip ? count : 0);
+    indexed_transforms.viewport_clip.resize(viewport_clip ? count : 0);
+    indexed_transforms.view.resize(view_positions ? count : 0);
+    const Mat combined = viewport_matrix * mvp;
+    const Mat view = View * Model;
+    for(std::size_t i = 0; i < count; ++i) {
+      vec4 position(mesh_verts(i,0), mesh_verts(i,1), mesh_verts(i,2), 1.0);
+      if(raw_clip) indexed_transforms.clip[i] = mvp * position;
+      if(viewport_clip) indexed_transforms.viewport_clip[i] = combined * position;
+      if(view_positions) indexed_transforms.view[i] = vec3(view * position);
+    }
+    for(auto& model : models) model.transforms = &indexed_transforms;
+  };
   profile.mark("model_setup");
   print_time(verbose, "Initialized 3D models" );
   
@@ -1175,6 +1207,8 @@ List rasterize(List mesh,
   profile.mark("bin_and_shadow_shader_allocate");
   if(has_shadow_map) {
     for(unsigned int sb = 0; sb < shadowbuffers.size(); sb++) {
+      prepare_indexed(directional_lights[sb].lightProjection * directional_lights[sb].lightView * Model,
+                      vp_shadow, false, true, false);
       
       for(unsigned int model_num = 0; model_num < models.size(); model_num++ ) {
         ModelInfo &shp = models[model_num];
@@ -1275,6 +1309,8 @@ List rasterize(List mesh,
   
   
   //Calculate Image
+  prepare_indexed(Projection * View * Model, vp, need_raw_clip, need_viewport_clip, true);
+  profile.mark("indexed_main_transforms");
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<Float>::infinity() ) ;
 
   for(unsigned int model_num = 0; model_num < models.size(); model_num++ ) {
@@ -1627,6 +1663,12 @@ List rasterize(List mesh,
     (sizeof(vec3) + 5*sizeof(std::array<vec3, 3>) + sizeof(std::array<vec4, 3>)));
   profile.count("texture_decodes", texture_cache.decodes + (has_environment_map ? 1 : 0));
   profile.count("texture_payload_bytes", texture_cache.payload_bytes);
+  profile.count("indexed_positions", indexed ? mesh_verts.nrow() : 0);
+  profile.count("main_clip_transform_evaluations", indexed ?
+    static_cast<std::size_t>(mesh_verts.nrow()) * (need_raw_clip + need_viewport_clip) :
+    3*static_cast<std::size_t>(total_faces));
+  profile.count("indexed_transform_payload_bytes", indexed_transforms.clip.capacity()*sizeof(vec4) +
+    indexed_transforms.viewport_clip.capacity()*sizeof(vec4) + indexed_transforms.view.capacity()*sizeof(vec3));
   profile.count("input_triangles", total_faces);
   profile.count("models", models.size());
   profile.count("materials", mat_info.size());

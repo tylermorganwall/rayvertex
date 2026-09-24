@@ -209,3 +209,51 @@ test_that("parallel SSAO and jump-flood iterations match the scalar screen passe
   Sys.unsetenv("RAYVERTEX_REFERENCE_SCREEN")
   expect_identical(do.call(rasterize_scene, args), reference)
 })
+
+test_that("indexed transforms preserve scalar results and R callback counts", {
+  withr::local_envvar(RAYVERTEX_INDEXED_TRANSFORMS = "1")
+  side = 24L
+  xy = expand.grid(
+    x = seq(-1, 1, length.out = side + 1L),
+    y = seq(-1, 1, length.out = side + 1L)
+  )
+  cells = expand.grid(x = 0:(side - 1L), y = 0:(side - 1L))
+  a = as.integer(cells$x + (side + 1L) * cells$y)
+  indices = rbind(
+    cbind(a, a + 1L, a + side + 1L),
+    cbind(a + 1L, a + side + 2L, a + side + 1L)
+  )
+  scene = construct_mesh(cbind(xy$x, xy$y, 0.1 * sin(xy$x)), indices)
+  calls = 0L
+  transform = function(x) {
+    calls <<- calls + 1L
+    x
+  }
+  args = list(
+    scene = scene,
+    width = 61,
+    height = 43,
+    fsaa = 1,
+    plot = FALSE,
+    lookfrom = c(0, 0, 4),
+    lookat = c(0, 0, 0),
+    shadow_map_dims = c(41, 29),
+    vertex_transform = transform,
+    debug = "all"
+  )
+  withr::local_envvar(RAYVERTEX_REFERENCE_TRANSFORMS = "1")
+  reference = do.call(rasterize_scene, args)
+  scalar_calls = calls
+  calls = 0L
+  Sys.unsetenv("RAYVERTEX_REFERENCE_TRANSFORMS")
+  path = tempfile()
+  withr::local_envvar(RAYVERTEX_PROFILE = path)
+  expect_identical(do.call(rasterize_scene, args), reference)
+  expect_identical(calls, scalar_calls)
+  stats = read.csv(path, header = FALSE, col.names = c("name", "value"))
+  expect_equal(stats$value[stats$name == "count_indexed_positions"], nrow(xy))
+  expect_equal(
+    stats$value[stats$name == "count_main_clip_transform_evaluations"],
+    nrow(xy)
+  )
+})

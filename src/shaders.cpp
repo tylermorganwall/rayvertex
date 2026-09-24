@@ -99,12 +99,12 @@ GouraudShader::~GouraudShader() {}
 vec4 GouraudShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
   vec_varying_intensity[global_face][nthvert] = 0.0;
-  vec_varying_pos[global_face][nthvert] = vec3(View * Model * vec4(model.vertex(iface, nthvert),1.0f));
+  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   vec3 vertex_normal = model.model_vertex_normals(iface) ? model.normal(iface, nthvert) :
     glm::normalize(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
                               model.vertex(iface,2)-model.vertex(iface,0)));
   vec_varying_world_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(vertex_normal,0.0f));
-  vec4 clip = vp * MVP * vec4(model.vertex(iface, nthvert),1.0f);
+  vec4 clip = model.viewport_vertex(iface, nthvert, vp, MVP);
   
   vec_varying_tri[global_face][nthvert] = clip;
   
@@ -245,10 +245,10 @@ ColorShader::ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
 
 vec4 ColorShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
-  vec4 clip = MVP * vec4(model.vertex(iface,nthvert),1.0f);
+  vec4 clip = model.clip_vertex(iface, nthvert, MVP);
   vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
   vec_varying_tri[global_face][nthvert] =  vp * clip;
-  vec_varying_pos[global_face][nthvert] = uniform_M * vec4(model.vertex(iface, nthvert),1.0f);
+  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   vec_varying_world_nrm[global_face][nthvert] = model.model_vertex_normals(iface) ?
     uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
     uniform_MIT * normalize(vec4(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
@@ -372,10 +372,10 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
 
 vec4 DiffuseShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
-  vec4 clip = MVP * vec4(model.vertex(iface,nthvert),1.0f);
+  vec4 clip = model.clip_vertex(iface, nthvert, MVP);
   vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
   vec_varying_tri[global_face][nthvert] =  vp * clip;
-  vec_varying_pos[global_face][nthvert] = uniform_M * vec4(model.vertex(iface, nthvert),1.0f);
+  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   
   vec_varying_world_nrm[global_face][nthvert] = model.model_vertex_normals(iface) ?
     uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
@@ -552,10 +552,10 @@ OrenNayerShader::OrenNayerShader(Mat& Model, Mat& Projection, Mat& View, vec4& v
 
 vec4 OrenNayerShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
-  vec4 clip = MVP * vec4(model.vertex(iface,nthvert),1.0f);
+  vec4 clip = model.clip_vertex(iface, nthvert, MVP);
   vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
   vec_varying_tri[global_face][nthvert] =  vp * clip;
-  vec_varying_pos[global_face][nthvert] = uniform_M * vec4(model.vertex(iface, nthvert),1.0f);
+  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   
   vec_varying_world_nrm[global_face][nthvert] = model.model_vertex_normals(iface) ?
   uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
@@ -793,10 +793,10 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
 vec4 DiffuseNormalShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
   vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
-  vec_varying_pos[global_face][nthvert] = vec3(View * Model * vec4(model.vertex(iface, nthvert),1.0f));
+  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   vec_varying_world_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   
-  vec4 clip = vp * MVP * vec4(model.vertex(iface,nthvert),1.0f);
+  vec4 clip = model.viewport_vertex(iface, nthvert, vp, MVP);
   vec_varying_tri[global_face][nthvert] = clip;
   
   
@@ -961,14 +961,13 @@ vec4 DiffuseShaderTangent::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
   vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
   vec_varying_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
-  vec_varying_pos[global_face][nthvert] = vec3(uniform_M * vec4(model.vertex(iface, nthvert),1.0f));
+  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   vec_varying_world_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   
-  vec3 gl_Vertex = model.vertex(iface,nthvert);
 
-  vec4 ndc = MVP  * vec4(gl_Vertex, 1.0f);
+  vec4 ndc = model.clip_vertex(iface, nthvert, MVP);
   vec_varying_ndc_tri[global_face][nthvert] = vec3(ndc/ndc.w);
-  vec4 clip = vp * MVP * vec4(gl_Vertex, 1.0f);
+  vec4 clip = model.viewport_vertex(iface, nthvert, vp, MVP);
   vec_varying_tri[global_face][nthvert] = clip;
   
   
@@ -1147,8 +1146,8 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
 vec4 PhongShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
   vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
-  vec_varying_pos[global_face][nthvert] = uniform_M * vec4(model.vertex(iface, nthvert),1.0f);
-  vec4 clip = vp * MVP * vec4(model.vertex(iface,nthvert),1.0f);
+  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
+  vec4 clip = model.viewport_vertex(iface, nthvert, vp, MVP);
   vec_varying_tri[global_face][nthvert] = clip;
   
   vec_varying_world_nrm[global_face][nthvert] = model.model_vertex_normals(iface) ?
@@ -1322,11 +1321,10 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
 vec4 PhongNormalShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
   vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
-  vec_varying_pos[global_face][nthvert] = vec3(View * Model * vec4(model.vertex(iface, nthvert),1.0f));
+  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   vec_varying_world_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   
-  vec3 gl_Vertex = model.vertex(iface,nthvert);
-  vec4 clip = vp * MVP * vec4(gl_Vertex, 1.0f);
+  vec4 clip = model.viewport_vertex(iface, nthvert, vp, MVP);
   vec_varying_tri[global_face][nthvert] = clip;
   
   
@@ -1501,11 +1499,10 @@ vec4 PhongShaderTangent::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
   vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
   vec_varying_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
-  vec_varying_pos[global_face][nthvert] = vec3(uniform_M * vec4(model.vertex(iface, nthvert),1.0f));
+  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   vec_varying_world_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   
-  vec3 gl_Vertex = model.vertex(iface,nthvert);
-  vec4 clip = MVP * vec4(gl_Vertex,1.0f);
+  vec4 clip = model.clip_vertex(iface, nthvert, MVP);
   vec_varying_ndc_tri[global_face][nthvert] = clip/clip.w;
   clip = vp * clip;
   vec_varying_tri[global_face][nthvert] = clip;
@@ -1644,8 +1641,7 @@ DepthShader::DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
 
 vec4 DepthShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
-  vec3 gl_Vertex = model.vertex(iface,nthvert);
-  vec4 clip = vp * MVP * vec4(gl_Vertex,1.0);
+  vec4 clip = model.viewport_vertex(iface, nthvert, vp, MVP);
   vec_varying_tri[global_face][nthvert] = clip;
   vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
   
@@ -1741,10 +1737,10 @@ ToonShader::~ToonShader() {}
 
 vec4 ToonShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
-  vec4 clip = MVP * vec4(model.vertex(iface,nthvert),1.0f);
+  vec4 clip = model.clip_vertex(iface, nthvert, MVP);
   vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
   vec_varying_tri[global_face][nthvert] =  vp * clip;
-  vec_varying_pos[global_face][nthvert] = uniform_M * vec4(model.vertex(iface, nthvert),1.0f);
+  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   
   vec_varying_world_nrm[global_face][nthvert] = model.model_vertex_normals(iface) ?
   uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
@@ -1888,8 +1884,8 @@ ToonShaderPhong::~ToonShaderPhong() {}
 vec4 ToonShaderPhong::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
   vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
-  vec_varying_pos[global_face][nthvert] = uniform_M * vec4(model.vertex(iface, nthvert),1.0f);
-  vec4 clip = vp * MVP * vec4(model.vertex(iface,nthvert),1.0f);
+  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
+  vec4 clip = model.viewport_vertex(iface, nthvert, vp, MVP);
   vec_varying_tri[global_face][nthvert] = clip;
   
   vec_varying_world_nrm[global_face][nthvert] = model.model_vertex_normals(iface) ?

@@ -31,6 +31,8 @@ class IShader {
     virtual ~IShader();
     virtual int get_culling() = 0;
     virtual bool is_translucent() = 0;
+    virtual bool uses_raw_clip() const { return false; }
+    virtual bool uses_viewport_clip() const { return !uses_raw_clip(); }
 };
 
 
@@ -155,6 +157,7 @@ class ColorShader : public IShader {
                 reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
     ~ColorShader();
     
+    virtual bool uses_raw_clip() const { return true; }
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
     virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
@@ -244,6 +247,7 @@ class DiffuseShader : public IShader {
            bool two_sided);
     ~DiffuseShader();
     
+    virtual bool uses_raw_clip() const { return true; }
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
     virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
@@ -346,7 +350,8 @@ public:
                 bool two_sided);
   ~OrenNayerShader();
   
-  virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
+  virtual bool uses_raw_clip() const { return true; }
+    virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
     return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
@@ -576,6 +581,8 @@ class DiffuseShaderTangent : public IShader {
     bool is_translucent() {
       return(material.translucent);
     }
+    virtual bool uses_raw_clip() const { return true; }
+    virtual bool uses_viewport_clip() const { return true; }
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
     virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     
@@ -845,7 +852,8 @@ public:
                      reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~PhongShaderTangent();
   
-  virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
+  virtual bool uses_raw_clip() const { return true; }
+    virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
     return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  
@@ -993,7 +1001,8 @@ public:
                 reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~ToonShader();
   
-  virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
+  virtual bool uses_raw_clip() const { return true; }
+    virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
     return(has_specular_texture ? material.specular_intensity * trivalue(uv.x,uv.y,specular_texture, nx_st, ny_st, nn_st) :  material.specular_intensity * material.specular);
