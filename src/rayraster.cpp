@@ -1664,9 +1664,24 @@ List rasterize(List mesh,
   profile.count("texture_decodes", texture_cache.decodes + (has_environment_map ? 1 : 0));
   profile.count("texture_payload_bytes", texture_cache.payload_bytes);
   profile.count("indexed_positions", indexed ? mesh_verts.nrow() : 0);
-  profile.count("main_clip_transform_evaluations", indexed ?
-    static_cast<std::size_t>(mesh_verts.nrow()) * (need_raw_clip + need_viewport_clip) :
-    3*static_cast<std::size_t>(total_faces));
+  if (profile.enabled()) {
+    std::size_t clip_evaluations = indexed ?
+      static_cast<std::size_t>(mesh_verts.nrow()) * (need_raw_clip + need_viewport_clip) : 0;
+    if (!indexed) {
+      // Some shaders evaluate both clip forms for every corner. Count the
+      // actual face's shader, including fallback materials, outside hot loops.
+      for (auto& model : models) {
+        for (int face = 0; face < model.num_indices; ++face) {
+          int material = model.materials[face];
+          if (material < 0 || material >= static_cast<int>(shaders.size()))
+            material = static_cast<int>(shaders.size()) - 1;
+          IShader* shader = shaders[material];
+          clip_evaluations += 3 * (shader->uses_raw_clip() + shader->uses_viewport_clip());
+        }
+      }
+    }
+    profile.count("main_clip_transform_evaluations", clip_evaluations);
+  }
   profile.count("indexed_transform_payload_bytes", indexed_transforms.clip.capacity()*sizeof(vec4) +
     indexed_transforms.viewport_clip.capacity()*sizeof(vec4) + indexed_transforms.view.capacity()*sizeof(vec3));
   profile.count("input_triangles", total_faces);

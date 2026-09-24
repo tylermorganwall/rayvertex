@@ -257,3 +257,30 @@ test_that("indexed transforms preserve scalar results and R callback counts", {
     nrow(xy)
   )
 })
+
+test_that("scalar tangent clip counters include both matrix multiplication forms", {
+  texture = tempfile(fileext = ".ppm")
+  output = tempfile()
+  on.exit(unlink(c(texture, output)))
+  writeBin(c(charToRaw("P6\n1 1\n255\n"), as.raw(c(128, 128, 255))), texture)
+  withr::local_envvar(
+    RAYVERTEX_PROFILE = output,
+    RAYVERTEX_INDEXED_TRANSFORMS = NA_character_
+  )
+  rasterize_scene(
+    sphere_mesh(material = material_list(normal_texture_location = texture)),
+    width = 19,
+    height = 17,
+    fsaa = 1,
+    plot = FALSE,
+    parallel = FALSE,
+    lookfrom = c(0, 0, 4),
+    lookat = c(0, 0, 0),
+    shadow_map = FALSE
+  )
+  stats = read.csv(output, header = FALSE, col.names = c("name", "value"))
+  expect_equal(
+    stats$value[stats$name == "count_main_clip_transform_evaluations"],
+    6 * stats$value[stats$name == "count_input_triangles"]
+  )
+})
