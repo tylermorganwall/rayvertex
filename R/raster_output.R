@@ -1,8 +1,20 @@
 #' Assemble the renderer's planar channels into an oriented linear image
 #' @param imagelist Native render buffers.
+#' @param background Default `NULL`. Optional background RGB values.
+#' @param ambient Default `NULL`. Optional already exponentiated ambient factors.
 #' @keywords internal
-raster_output_image = function(imagelist) {
+raster_output_image = function(imagelist, background = NULL, ambient = NULL) {
   if (nzchar(Sys.getenv("RAYVERTEX_REFERENCE_OUTPUT"))) {
+    if (!is.null(ambient)) {
+      imagelist$r = imagelist$r * ambient
+      imagelist$g = imagelist$g * ambient
+      imagelist$b = imagelist$b * ambient
+    }
+    if (!is.null(background)) {
+      imagelist$r[imagelist$depth == 1] = background[1]
+      imagelist$g[imagelist$depth == 1] = background[2]
+      imagelist$b[imagelist$depth == 1] = background[3]
+    }
     image = array(0, dim = c(dim(imagelist$r)[1:2], 4))
     image[,, 1] = imagelist$r
     image[,, 2] = imagelist$g
@@ -19,12 +31,19 @@ raster_output_image = function(imagelist) {
       flipx = TRUE
     ))
   }
-  image = assemble_raster_output(
-    imagelist$r,
-    imagelist$g,
-    imagelist$b,
-    imagelist$a
-  )
+  image = if (is.null(background) && is.null(ambient)) {
+    assemble_raster_output(imagelist$r, imagelist$g, imagelist$b, imagelist$a)
+  } else {
+    compose_raster_output(
+      imagelist$r,
+      imagelist$g,
+      imagelist$b,
+      imagelist$a,
+      imagelist$depth,
+      ambient,
+      background
+    )
+  }
   rayimage::ray_read_image(
     image,
     assume_colorspace = rayimage::CS_SRGB,

@@ -556,11 +556,16 @@ rasterize_scene = function(
   )
   print_time(verbose, "Rasterized image")
 
+  fuse_composition = debug == "none" &&
+    !nzchar(Sys.getenv("RAYVERTEX_REFERENCE_COMPOSITION")) &&
+    !nzchar(Sys.getenv("RAYVERTEX_REFERENCE_OUTPUT"))
   if (ssao) {
     imagelist$amb = (imagelist$amb)^ssao_intensity
-    imagelist$r = imagelist$r * imagelist$amb
-    imagelist$g = imagelist$g * imagelist$amb
-    imagelist$b = imagelist$b * imagelist$amb
+    if (!fuse_composition) {
+      imagelist$r = imagelist$r * imagelist$amb
+      imagelist$g = imagelist$g * imagelist$amb
+      imagelist$b = imagelist$b * imagelist$amb
+    }
   }
   if (debug == "normals") {
     norm_array = array(0, dim = c(dim(imagelist$r)[1:2], 3))
@@ -666,13 +671,21 @@ rasterize_scene = function(
     }
     return(invisible(uv_array))
   }
-  if (environment_map == "") {
+  if (environment_map == "" && !fuse_composition) {
     imagelist$r[imagelist$depth == 1] = bg_color[1]
     imagelist$g[imagelist$depth == 1] = bg_color[2]
     imagelist$b[imagelist$depth == 1] = bg_color[3]
   }
 
-  final_image = raster_output_image(imagelist)
+  final_image = raster_output_image(
+    imagelist,
+    background = if (fuse_composition && environment_map == "") {
+      bg_color
+    } else {
+      NULL
+    },
+    ambient = if (fuse_composition && ssao) imagelist$amb else NULL
+  )
   print_time(verbose, "Assembled output")
   if (tonemap != "raw") {
     final_image = rayimage::render_tonemap(final_image, method = tonemap)

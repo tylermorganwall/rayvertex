@@ -150,6 +150,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compose_raster_output
+Rcpp::NumericVector compose_raster_output(Rcpp::NumericMatrix red, Rcpp::NumericMatrix green, Rcpp::NumericMatrix blue, Rcpp::NumericMatrix alpha, Rcpp::NumericMatrix depth, Rcpp::Nullable<Rcpp::NumericMatrix> ambient, Rcpp::Nullable<Rcpp::NumericVector> background);
+RcppExport SEXP _rayvertex_compose_raster_output(SEXP redSEXP, SEXP greenSEXP, SEXP blueSEXP, SEXP alphaSEXP, SEXP depthSEXP, SEXP ambientSEXP, SEXP backgroundSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type red(redSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type green(greenSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type blue(blueSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type depth(depthSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type ambient(ambientSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type background(backgroundSEXP);
+    rcpp_result_gen = Rcpp::wrap(compose_raster_output(red, green, blue, alpha, depth, ambient, background));
+    return rcpp_result_gen;
+END_RCPP
+}
 // clamp_raster_output
 Rcpp::NumericVector clamp_raster_output(Rcpp::NumericVector image);
 RcppExport SEXP _rayvertex_clamp_raster_output(SEXP imageSEXP) {
@@ -286,6 +303,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rayvertex_prepared_scene_info", (DL_FUNC) &_rayvertex_prepared_scene_info, 1},
     {"_rayvertex_prepared_scene_lifetime", (DL_FUNC) &_rayvertex_prepared_scene_lifetime, 0},
     {"_rayvertex_assemble_raster_output", (DL_FUNC) &_rayvertex_assemble_raster_output, 4},
+    {"_rayvertex_compose_raster_output", (DL_FUNC) &_rayvertex_compose_raster_output, 7},
     {"_rayvertex_clamp_raster_output", (DL_FUNC) &_rayvertex_clamp_raster_output, 1},
     {"_rayvertex_rasterize_lines_rcpp", (DL_FUNC) &_rayvertex_rasterize_lines_rcpp, 15},
     {"_rayvertex_rasterize", (DL_FUNC) &_rayvertex_rasterize, 51},

@@ -4,10 +4,14 @@
 \alias{raster_output_image}
 \title{Assemble the renderer's planar channels into an oriented linear image}
 \usage{
-raster_output_image(imagelist)
+raster_output_image(imagelist, background = NULL, ambient = NULL)
 }
 \arguments{
 \item{imagelist}{Native render buffers.}
+
+\item{background}{Default \code{NULL}. Optional background RGB values.}
+
+\item{ambient}{Default \code{NULL}. Optional already exponentiated ambient factors.}
 }
 \description{
 Assemble the renderer's planar channels into an oriented linear image

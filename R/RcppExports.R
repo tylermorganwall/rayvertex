@@ -45,6 +45,10 @@ assemble_raster_output <- function(red, green, blue, alpha) {
     .Call(`_rayvertex_assemble_raster_output`, red, green, blue, alpha)
 }
 
+compose_raster_output <- function(red, green, blue, alpha, depth, ambient, background) {
+    .Call(`_rayvertex_compose_raster_output`, red, green, blue, alpha, depth, ambient, background)
+}
+
 clamp_raster_output <- function(image) {
     .Call(`_rayvertex_clamp_raster_output`, image)
 }
