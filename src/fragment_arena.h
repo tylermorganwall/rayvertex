@@ -57,8 +57,8 @@ public:
     tile.max_layers = tile.touched = 0;
     if (!reference_.empty()) {
       const int x0 = (index/rows_)*block_, y0 = (index%rows_)*block_;
-      for (int x=x0; x<std::min(x0+block_, width_); ++x)
-        for (int y=y0; y<std::min(y0+block_, height_); ++y) {
+      for (int x=x0; x<raster_block_end(x0,block_,width_); ++x)
+        for (int y=y0; y<raster_block_end(y0,block_,height_); ++y) {
           const auto& sample = reference_[fragment_index(x,y,width_,height_)];
           tile.touched += !sample.empty();
           tile.max_layers = std::max(tile.max_layers, sample.size());

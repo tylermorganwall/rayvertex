@@ -57,7 +57,7 @@ public:
   vec2 minimum(std::size_t tile) const { return vec2((tile/rows_)*block_,(tile%rows_)*block_); }
   vec2 maximum(std::size_t tile) const {
     auto lo=minimum(tile);
-    return vec2(std::min(int(lo.x)+block_,width_),std::min(int(lo.y)+block_,height_));
+    return vec2(raster_block_end(int(lo.x),block_,width_),raster_block_end(int(lo.y),block_,height_));
   }
   void add_clipped(const std::array<vec4,3>& clip, int face, int material, int culling, bool depth) {
     ++input_primitives;
@@ -92,6 +92,7 @@ public:
     Float area=edgeFunction(c,b,a);
     if(area==0.0f || !std::isfinite(area)) { ++culled; return; }
     t.inverse_area=1.0f/area;
+    if(!std::isfinite(t.inverse_area)) { ++culled; return; }
     t.step_y=vec3(-(b.x-c.x),-(c.x-a.x),-(a.x-b.x));
     t.step_x=vec3(b.y-c.y,c.y-a.y,a.y-b.y);
     // Clamp before integer conversion, including excessively large projections.

@@ -16,5 +16,13 @@ int main() {
   empty.add({vec4(0,0,0,1),vec4(0,0,0,1),vec4(0,0,0,1)},0,0,1,false);
   empty.build();
   assert(!empty.active(0));
+  const int limit=std::numeric_limits<int>::max();
+  TriangleBins huge(limit,1,limit/2+1);
+  assert(huge.size()==2);
+  assert(huge.maximum(1).x==limit);
+  assert(raster_block_end(limit-1,4,limit)==limit);
+  TriangleBins subnormal(2,2,1);
+  subnormal.add({vec4(0,0,0,1),vec4(1e-160,0,0,1),vec4(0,1e-160,0,1)},0,0,3,false);
+  assert(subnormal.triangles.empty());
   std::cout << "triangle bins: single setup, arbitrary overlap, exact submission order, odd dimensions and culling passed\n";
 }

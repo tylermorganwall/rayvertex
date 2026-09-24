@@ -2,6 +2,7 @@
 #define RAYVERTEX_RASTER_UTILS_H
 
 #include <cassert>
+#include <algorithm>
 #include <cstddef>
 #include <limits>
 #include <stdexcept>
@@ -12,6 +13,13 @@ inline std::size_t checked_samples(int width, int height) {
                                         static_cast<std::size_t>(height))
     throw std::invalid_argument("Invalid raster dimensions");
   return static_cast<std::size_t>(width) * static_cast<std::size_t>(height);
+}
+
+// Clamp the span before addition: start+block may exceed INT_MAX even when
+// both the origin and the final image boundary are representable.
+inline int raster_block_end(int start, int block, int limit) {
+  assert(start>=0 && start<=limit && block>0);
+  return start+std::min(block,limit-start);
 }
 
 // Legacy transparency layout: y varies fastest. R matrices use a different

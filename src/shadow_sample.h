@@ -2,6 +2,7 @@
 #define RAYVERTEX_SHADOW_SAMPLE_H
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 
 // R matrices use x + width*y. Keep x-outer/y-inner reference accumulation,
 // inclusive depth equality, all 25 taps, and clamp each border tap independently.
@@ -13,8 +14,8 @@ inline double shadow_pcf25(const double* depth, int width, int height,
       sum += depth[i+x+std::size_t(width)*(j+y)]>threshold ? 1.0 : shadow_intensity;
   } else {
     for(int x=-2;x<=2;++x) for(int y=-2;y<=2;++y) {
-      const int xx=std::max(0,std::min(width-1,i+x));
-      const int yy=std::max(0,std::min(height-1,j+y));
+      const int xx=int(std::max<std::int64_t>(0,std::min<std::int64_t>(width-1,std::int64_t(i)+x)));
+      const int yy=int(std::max<std::int64_t>(0,std::min<std::int64_t>(height-1,std::int64_t(j)+y)));
       sum += depth[xx+std::size_t(width)*yy]>threshold ? 1.0 : shadow_intensity;
     }
   }
