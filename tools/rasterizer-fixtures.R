@@ -4,7 +4,9 @@ rasterizer_grid = function(
   layers = 1L,
   alpha = 1,
   type = "diffuse",
-  reverse = FALSE
+  reverse = FALSE,
+  normal_mode = "none",
+  texture_coordinates = FALSE
 ) {
   side = max(1L, as.integer(ceiling(sqrt(triangles / (2 * layers)))))
   xy = expand.grid(
@@ -39,6 +41,20 @@ rasterizer_grid = function(
   construct_mesh(
     vertices,
     indices,
+    normals = switch(
+      normal_mode,
+      shared = matrix(c(0.1, 0.2, 2), 1),
+      indexed = cbind(0.1 * cos(vertices[, 1]), 0.2 * sin(vertices[, 2]), 2),
+      NULL
+    ),
+    norm_indices = switch(
+      normal_mode,
+      shared = matrix(0L, nrow(indices), 3),
+      indexed = indices,
+      NULL
+    ),
+    texcoords = if (texture_coordinates) vertices[, 1:2] / 2 + 0.5 else NULL,
+    tex_indices = if (texture_coordinates) indices else NULL,
     material = material_list(
       diffuse = c(0.7, 0.35, 0.15),
       dissolve = alpha,
@@ -55,6 +71,14 @@ rasterizer_fixture = function(name) {
     grid100k = list(scene = rasterizer_grid(100000L)),
     grid500k = list(scene = rasterizer_grid(500000L)),
     grid1m = list(scene = rasterizer_grid(1000000L)),
+    normal_shared = list(
+      scene = rasterizer_grid(1000000L, type = "phong", normal_mode = "shared")
+    ),
+    normal_indexed = list(
+      scene = rasterizer_grid(1000000L, type = "phong", normal_mode = "indexed")
+    ),
+    tangent = rasterizer_tangent(),
+    tangent_overdraw = rasterizer_tangent(16L),
     occluded = list(scene = rasterizer_grid(100000L, 16L, type = "phong")),
     overdraw = list(
       scene = rasterizer_grid(100000L, 16L, type = "phong", reverse = TRUE)
@@ -98,6 +122,26 @@ rasterizer_fixture = function(name) {
     ),
     stop("Unknown fixture: ", name)
   )
+}
+
+rasterizer_tangent = function(layers = 1L) {
+  texture = tempfile(fileext = ".ppm")
+  writeBin(
+    c(
+      charToRaw("P6\n2 2\n255\n"),
+      as.raw(c(128, 128, 255, 180, 128, 240, 80, 128, 230, 128, 180, 240))
+    ),
+    texture
+  )
+  scene = rasterizer_grid(
+    512L,
+    layers,
+    type = "phong",
+    reverse = TRUE,
+    normal_mode = "shared",
+    texture_coordinates = TRUE
+  )
+  list(scene = change_material(scene, normal_texture_location = texture))
 }
 
 rasterizer_slivers = function() {
