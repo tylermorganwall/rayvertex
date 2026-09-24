@@ -1,7 +1,7 @@
 #include "raster_utils.h"
 #include "filltri.h"
 
-template<bool Collect, bool Visibility>
+template<bool Collect, bool Visibility, bool Depth>
 void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
                      const std::vector<IShader*>& shaders,
                      Rcpp::NumericMatrix &zbuffer, 
@@ -9,10 +9,10 @@ void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
                      rayimage& normal_buffer,
                      rayimage& position_buffer,
                      rayimage& uv_buffer,
-                     bool depth, 
                      FragmentArena& alpha_depths,
                      Rcpp::IntegerMatrix* material_id_buffer,
                      RasterCounters* counters) {
+  constexpr bool depth=Depth;
   using Clock=std::chrono::steady_clock;
   Clock::time_point stage_start;
   if constexpr(Collect && Visibility) stage_start=Clock::now();
@@ -185,8 +185,8 @@ void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
         ++counters->visibility_fallbacks;
         counters->visibility_shading_ms+=std::chrono::duration<double,std::milli>(Clock::now()-stage_start).count();
       }
-      fill_tri_blocks_impl<Collect,false>(bins,tile,shaders,zbuffer,image,normal_buffer,
-        position_buffer,uv_buffer,depth,alpha_depths,material_id_buffer,counters);
+      fill_tri_blocks_impl<Collect,false,Depth>(bins,tile,shaders,zbuffer,image,normal_buffer,
+        position_buffer,uv_buffer,alpha_depths,material_id_buffer,counters);
       return;
     }
     if constexpr(Collect) ++counters->visibility_tiles;
@@ -218,7 +218,12 @@ void fill_tri_blocks(const TriangleBins& bins, std::size_t tile,
                      FragmentArena& alpha_depths,
                      Rcpp::IntegerMatrix* material_id_buffer,
                      RasterCounters* counters, bool visibility) {
-  if(visibility && !depth) {
+  if(depth) {
+    if(counters) fill_tri_blocks_impl<true,false,true>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,alpha_depths,material_id_buffer,counters);
+    else fill_tri_blocks_impl<false,false,true>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,alpha_depths,material_id_buffer,counters);
+    return;
+  }
+  if(visibility) {
     auto lo=bins.minimum(tile), hi=bins.maximum(tile);
     visibility=(hi.x-lo.x)*(hi.y-lo.y)<=64;
   } else visibility=false;
@@ -227,10 +232,10 @@ void fill_tri_blocks(const TriangleBins& bins, std::size_t tile,
       if(!shaders[bins.at(entry).material]->guaranteed_opaque()) { visibility=false; break; }
   }
   if(visibility) {
-    if(counters) fill_tri_blocks_impl<true,true>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,depth,alpha_depths,material_id_buffer,counters);
-    else fill_tri_blocks_impl<false,true>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,depth,alpha_depths,material_id_buffer,counters);
+    if(counters) fill_tri_blocks_impl<true,true,false>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,alpha_depths,material_id_buffer,counters);
+    else fill_tri_blocks_impl<false,true,false>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,alpha_depths,material_id_buffer,counters);
     return;
   }
-  if(counters) fill_tri_blocks_impl<true,false>(bins, tile, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, depth, alpha_depths, material_id_buffer, counters);
-  else fill_tri_blocks_impl<false,false>(bins, tile, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, depth, alpha_depths, material_id_buffer, counters);
+  if(counters) fill_tri_blocks_impl<true,false,false>(bins, tile, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, alpha_depths, material_id_buffer, counters);
+  else fill_tri_blocks_impl<false,false,false>(bins, tile, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, alpha_depths, material_id_buffer, counters);
 }

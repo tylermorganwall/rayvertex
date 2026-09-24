@@ -37,6 +37,7 @@
 #undef STB_IMAGE_IMPLEMENTATION
 #include "stbimageheaders/stb_image_resize2.h"
 #include <memory>
+#include <map>
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
 #include "defines.h"
@@ -403,7 +404,8 @@ List rasterize(List mesh,
   int nx_r = 0, ny_r = 0, nn_r = 0;
   std::vector<reflection_map_info> reflection_maps;
   reflection_map_info main_reflection_map;
-  std::vector<std::unique_ptr<float[]>> reflection_data;
+  std::map<std::pair<int,int>,std::unique_ptr<float[]>> reflection_variants;
+  std::size_t environment_variant_bytes=0, environment_variant_requests=0;
   
   
   if(has_environment_map) {
@@ -424,46 +426,32 @@ List rasterize(List mesh,
     main_reflection_map.nn = nn_r;
   }
   
-  for(unsigned int i = 0; i < has_reflection_map.size(); i++) {
-    if(has_reflection_map(i) || has_refraction(i)) {
-      List single_material = as<List>(materials(i));
-      double reflection_sharpness = as<double>(single_material["reflection_sharpness"]);
-      
-      int nx_r_resize = std::max(1, (int)((double)nx_r * reflection_sharpness));
-      int ny_r_resize = std::max(1, (int)((double)ny_r * reflection_sharpness));
-      auto reflection_variant = std::make_unique<float[]>(checked_samples(nx_r, ny_r) * nn_r);
-      float* reflection_map_data_new = reflection_variant.get();
-      if(reflection_sharpness < 1.0 && reflection_sharpness > 0.0) {
-        auto reflection_temp = std::make_unique<float[]>(checked_samples(nx_r_resize, ny_r_resize) * nn_r);
-      float* reflection_map_data_temp = reflection_temp.get();
-        resize_reflection_map(reflection_map_data, nx_r, ny_r,
-                              reflection_map_data_temp, nx_r_resize, ny_r_resize,
-                              nn_r);
-        
-        resize_reflection_map(reflection_map_data_temp, nx_r_resize, ny_r_resize,
-                              reflection_map_data_new, nx_r, ny_r,
-                              nn_r);
-
-      } else {
-        memcpy(reflection_map_data_new, main_reflection_map.reflection, sizeof(float) * nx_r * ny_r * nn_r);
-      }
-      reflection_data.push_back(std::move(reflection_variant));
-      reflection_map_info reflection_map {
-        reflection_map_data_new,
-        nx_r,
-        ny_r,
-        nn_r
-      };
-      reflection_maps.push_back(reflection_map);
-    } else {
-      reflection_map_info reflection_map {
-        nullptr,
-        nx_r,
-        ny_r,
-        nn_r
-      };
-      reflection_maps.push_back(reflection_map);
+  // One immutable source, with the exact existing down/up resize per unique
+  // dimension pair. Background blur gets its own variant and never mutates a
+  // source shared by reflective or refractive materials.
+  auto environment_variant=[&](double sharpness, bool blur) -> reflection_map_info {
+    ++environment_variant_requests;
+    if(!blur) return main_reflection_map;
+    const int width=std::max(1,int(double(nx_r)*sharpness));
+    const int height=std::max(1,int(double(ny_r)*sharpness));
+    const auto key=std::make_pair(width,height);
+    auto found=reflection_variants.find(key);
+    if(found==reflection_variants.end()) {
+      auto pixels=std::make_unique<float[]>(checked_samples(nx_r,ny_r)*nn_r);
+      auto scratch=std::make_unique<float[]>(checked_samples(width,height)*nn_r);
+      resize_reflection_map(reflection_map_data,nx_r,ny_r,scratch.get(),width,height,nn_r);
+      resize_reflection_map(scratch.get(),width,height,pixels.get(),nx_r,ny_r,nn_r);
+      environment_variant_bytes+=checked_samples(nx_r,ny_r)*nn_r*sizeof(float);
+      found=reflection_variants.emplace(key,std::move(pixels)).first;
     }
+    return {found->second.get(),nx_r,ny_r,nn_r};
+  };
+  for(unsigned int i=0;i<has_reflection_map.size();++i) {
+    if(has_reflection_map(i) || has_refraction(i)) {
+      List single_material=materials(i);
+      double sharpness=as<double>(single_material["reflection_sharpness"]);
+      reflection_maps.push_back(environment_variant(sharpness,sharpness<1.0 && sharpness>0.0));
+    } else reflection_maps.push_back({nullptr,nx_r,ny_r,nn_r});
   }
   profile.mark("environment_decode");
   print_time(verbose, "Loaded environment maps" );
@@ -1349,22 +1337,8 @@ List rasterize(List mesh,
   profile.mark("transparency_resolve");
   //Load/blur environment image
   if(has_environment_map) {
-    if(background_sharpness != 1.0) {
-      int nx_r_resize = std::max(1, (int)((double)nx_r * background_sharpness));
-      int ny_r_resize = std::max(1, (int)((double)ny_r * background_sharpness));
-      
-      auto reflection_temp = std::make_unique<float[]>(checked_samples(nx_r_resize, ny_r_resize) * nn_r);
-      float* reflection_map_data_temp = reflection_temp.get();
-      
-      resize_reflection_map(main_reflection_map.reflection, nx_r, ny_r,
-                            reflection_map_data_temp, nx_r_resize, ny_r_resize,
-                            nn_r);
-      
-      resize_reflection_map(reflection_map_data_temp, nx_r_resize, ny_r_resize,
-                            main_reflection_map.reflection, nx_r, ny_r,
-                            nn_r);
-
-    }
+    const reflection_map_info background_map=environment_variant(background_sharpness,
+                                                                 background_sharpness!=1.0);
     Float theta = fov * M_PI/180;
     Float half_height = tan(theta/2);
     Float half_width = Float(nx)/Float(ny) * half_height;
@@ -1385,7 +1359,7 @@ List rasterize(List mesh,
           get_sphere_uv(dir,uv);
           uv.x = 1 - uv.x;
           uv.x += 0.25;
-          vec3 ref_color = trivalue(uv.x,uv.y,main_reflection_map);
+          vec3 ref_color = trivalue(uv.x,uv.y,background_map);
           image.set_color(i,j,ref_color);
         }
       }
@@ -1507,6 +1481,9 @@ List rasterize(List mesh,
     ((vertex_intensity ? sizeof(vec3) : 0) + (3+2*tangent_attributes)*sizeof(std::array<vec3, 3>) + sizeof(std::array<vec4, 3>)));
   profile.count("auxiliary_matrix_payload_bytes", checked_samples(nx,ny)*sizeof(double)*
     (3*need_normals+3*need_positions+3*need_uv+need_linear_depth+need_ambient));
+  profile.count("environment_variant_requests",environment_variant_requests);
+  profile.count("environment_resize_variants",reflection_variants.size());
+  profile.count("environment_variant_bytes",environment_variant_bytes);
   profile.count("texture_decodes", texture_cache.decodes + (has_environment_map ? 1 : 0));
   profile.count("texture_payload_bytes", texture_cache.payload_bytes);
   profile.count("prepared_texture_hits",texture_cache.hits);

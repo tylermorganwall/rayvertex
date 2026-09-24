@@ -429,7 +429,8 @@ bool DiffuseShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int
   
   
   for(unsigned int i = 0; i < plights.size(); i++) {
-    color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
+    const auto point_sample=plights[i].sample(pos);
+    color += diffuse_color * vec4(point_sample.attenuation,0.0f) * fmax(0.0f,dot(normal, point_sample.direction));
   }
   //Emissive and ambient terms
   color += emissive(uv);
@@ -661,14 +662,15 @@ bool OrenNayerShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, i
   color = diffuse_color * vec4(light_color, 1.0f);
   
   for (unsigned int i = 0; i < plights.size(); i++) {
-    vec3 L = plights[i].CalcLightDir(pos_view);     // assumed normalized (as before)
+    const auto point_sample=plights[i].sample(pos_view);
+    vec3 L = point_sample.direction;     // assumed normalized (as before)
     Float ndl_raw = glm::dot(normal, L);
     vec3 Nf = (two_sided && ndl_raw < 0.0f) ? -normal : normal;
     Float cosThetaI = std::max(0.0, glm::dot(Nf, L));
     
     Float on = oren_nayar(Nf, V, L);
     
-    vec3 Li = plights[i].CalcPointLightAtten(pos_view); // your existing attenuation * color
+    vec3 Li = point_sample.attenuation; // your existing attenuation * color
     color += diffuse_color * vec4(Li * (on * cosThetaI), 0.0f);
   }
   //Emissive and ambient terms
@@ -831,7 +833,8 @@ bool DiffuseNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& norma
   normal = n;
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   for(unsigned int i = 0; i < plights.size(); i++) {
-    color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
+    const auto point_sample=plights[i].sample(pos);
+    color += diffuse_color * vec4(point_sample.attenuation,0.0f) * fmax(0.0f,dot(normal, point_sample.direction));
   }
   
   //Emissive and ambient terms
@@ -1013,8 +1016,9 @@ bool DiffuseShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& norm
   //Directional light contribution
   color = diffuse_color * dir_shadow_int;
   for(unsigned int i = 0; i < plights.size(); i++) {
-    vec3 p_light_dir = vec4(plights[i].CalcLightDir(pos),0.0f);
-    color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f, dot(norm, p_light_dir));
+    const auto point_sample=plights[i].sample(pos);
+    vec3 p_light_dir = vec4(point_sample.direction,0.0f);
+    color += diffuse_color * vec4(point_sample.attenuation,0.0f) * fmax(0.0f, dot(norm, p_light_dir));
   }
   
   
@@ -1186,11 +1190,12 @@ bool PhongShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int i
   color = clamp( diffuse_color*shadow_vec + spec_total,(Float)0.0,(Float)1.0);
   
   for(unsigned int i = 0; i < plights.size(); i++) {
-    vec3 l_p = vec4(plights[i].CalcLightDir(pos),0.0f);
+    const auto point_sample=plights[i].sample(pos);
+    vec3 l_p = vec4(point_sample.direction,0.0f);
     vec3 r = normalize(2.0f*dot(normal,l_p)*normal - l_p);
     vec4 spec = vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
-    color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),(Float)0.0) * fmax(0.0f, dot(normal, l_p)) +
-      vec4(plights[i].CalcPointLightAtten(pos),0.0f) * spec, (Float)0.0,(Float)1.0);
+    color += clamp(diffuse_color * vec4(point_sample.attenuation,(Float)0.0) * fmax(0.0f, dot(normal, l_p)) +
+      vec4(point_sample.attenuation,0.0f) * spec, (Float)0.0,(Float)1.0);
   }
   color += amb;
   color += emit;
@@ -1355,11 +1360,12 @@ bool PhongNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal,
 
   
   for(unsigned int i = 0; i < plights.size(); i++) {
-    vec3 l_p = vec4(plights[i].CalcLightDir(pos),0.0f);
+    const auto point_sample=plights[i].sample(pos);
+    vec3 l_p = vec4(point_sample.direction,0.0f);
     vec3 r = normalize(2.0f*dot(normal,l_p)*normal - l_p);
     vec4 spec = vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
-    color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),(Float)0.0) * fmax(0.0f, dot(normal, l_p)) +
-      vec4(plights[i].CalcPointLightAtten(pos),0.0f) * spec, (Float)0.0,(Float)1.0);
+    color += clamp(diffuse_color * vec4(point_sample.attenuation,(Float)0.0) * fmax(0.0f, dot(normal, l_p)) +
+      vec4(point_sample.attenuation,0.0f) * spec, (Float)0.0,(Float)1.0);
   }
   color += vec4(ambient,0.0f);
   color += emit;
@@ -1544,11 +1550,12 @@ bool PhongShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal
   
 
   for(unsigned int i = 0; i < plights.size(); i++) {
-    vec3 l_p = vec4(plights[i].CalcLightDir(pos),0.0f);
+    const auto point_sample=plights[i].sample(pos);
+    vec3 l_p = vec4(point_sample.direction,0.0f);
     vec3 r = normalize(2.0f*dot(normal,l_p)*normal - l_p);
     vec4 spec = vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
-    color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),(Float)0.0) * fmax(0.0f, dot(normal, l_p)) +
-      vec4(plights[i].CalcPointLightAtten(pos),0.0f) * spec, (Float)0.0,(Float)1.0);
+    color += clamp(diffuse_color * vec4(point_sample.attenuation,(Float)0.0) * fmax(0.0f, dot(normal, l_p)) +
+      vec4(point_sample.attenuation,0.0f) * spec, (Float)0.0,(Float)1.0);
   }
   color += amb;
   color += emit;
@@ -1759,7 +1766,8 @@ bool ToonShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int if
   
   
   for(unsigned int i = 0; i < plights.size(); i++) {
-    color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
+    const auto point_sample=plights[i].sample(pos);
+    color += diffuse_color * vec4(point_sample.attenuation,0.0f) * fmax(0.0f,dot(normal, point_sample.direction));
   }
   //Emissive and ambient terms
   color += emissive(uv);
@@ -1908,11 +1916,12 @@ bool ToonShaderPhong::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, i
   color = clamp( diffuse_color*shadow_vec + spec_total,(Float)0.0,(Float)1.0);
   
   for(unsigned int i = 0; i < plights.size(); i++) {
-    vec3 l_p = vec4(plights[i].CalcLightDir(pos),0.0f);
+    const auto point_sample=plights[i].sample(pos);
+    vec3 l_p = vec4(point_sample.direction,0.0f);
     vec3 r = normalize(2.0f*dot(normal,l_p)*normal - l_p);
     vec4 spec = vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f);
-    color += clamp(diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),(Float)0.0) * fmax(0.0f, dot(normal, l_p)) +
-      vec4(plights[i].CalcPointLightAtten(pos),0.0f) * spec, (Float)0.0,(Float)1.0);
+    color += clamp(diffuse_color * vec4(point_sample.attenuation,(Float)0.0) * fmax(0.0f, dot(normal, l_p)) +
+      vec4(point_sample.attenuation,0.0f) * spec, (Float)0.0,(Float)1.0);
   }
   color += amb;
   color += emit;

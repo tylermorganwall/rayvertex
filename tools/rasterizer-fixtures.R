@@ -80,6 +80,21 @@ rasterizer_fixture = function(name) {
     toon = list(scene = sphere_mesh(material = material_list(type = "toon"))),
     shared_textures = rasterizer_shared_textures(),
     environment = rasterizer_environment(),
+    environment_shared = rasterizer_environment_shared(),
+    point_lights = list(
+      scene = sphere_mesh(material = material_list(type = "phong")),
+      light_info = do.call(
+        rbind,
+        lapply(1:8, function(i) {
+          point_light(
+            position = c(2 * cos(i), 2 * sin(i), 3),
+            falloff = 0.2,
+            falloff_quad = 0.05,
+            intensity = 0.3
+          )
+        })
+      )
+    ),
     stop("Unknown fixture: ", name)
   )
 }
@@ -128,4 +143,38 @@ rasterizer_environment = function() {
     environment_map = texture,
     background_sharpness = 0.75
   )
+}
+
+
+rasterizer_environment_shared = function() {
+  texture = tempfile(fileext = ".ppm")
+  xy = expand.grid(x = 0:1023, y = 0:511)
+  pixels = as.raw(as.vector(t(cbind(
+    xy$x %% 256,
+    xy$y %% 256,
+    (xy$x + xy$y) %% 256
+  ))))
+  writeBin(c(charToRaw("P6\n1024 512\n255\n"), pixels), texture)
+  scene = NULL
+  for (i in 0:15) {
+    scene = add_shape(
+      scene,
+      cube_mesh(
+        position = c((i %% 4 - 1.5) * 0.55, (i %/% 4 - 1.5) * 0.55, 0),
+        scale = 0.4,
+        material = material_list(
+          reflection_intensity = 0.2 + i / 32,
+          reflection_sharpness = if (i %% 4 == 0) {
+            1
+          } else if (i %% 2 == 0) {
+            0.5001
+          } else {
+            0.5
+          },
+          ior = if (i %% 3 == 0) 1.5 else 1
+        )
+      )
+    )
+  }
+  list(scene = scene, environment_map = texture, background_sharpness = 0.5)
 }

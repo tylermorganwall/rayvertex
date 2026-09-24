@@ -30,7 +30,8 @@ for i, case in enumerate(cases):
         out.mkdir(exist_ok=True)
         for memory in [False, True]:
             key = f'{case}-800-800-1-1' + ('-render-only' if memory else '')
-            if (out / (key + '-rss.json')).exists():
+            status = out / (key + '-rss.json')
+            if status.exists() and json.loads(status.read_text()).get('exit_code') == 0:
                 continue
             subprocess.run([sys.executable, 'tools/bench-rasterizer.py'] +
                            (['--memory'] if memory else []) +

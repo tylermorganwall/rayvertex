@@ -20,6 +20,17 @@ public:
   Float quadratic;  
   Float intensity;
   
+  struct Sample { vec3 direction, attenuation; };
+  Sample sample(vec3 fragPos) const {
+    const vec3 displacement=position-fragPos;
+    const Float distance=glm::length(displacement);
+    // Keep the legacy exceptional normalization path at zero distance; changing
+    // its undefined direction is a separate numerical correction.
+    const vec3 direction=distance==0 ? glm::normalize(displacement) :
+      displacement*(1.0/distance);
+    const Float attenuation=1.0/(constant+linear*distance+quadratic*(distance*distance));
+    return {direction,attenuation*color};
+  }
   vec3 CalcPointLightAtten(vec3 fragPos);
   vec3 CalcLightDir(vec3 fragPos);
   
