@@ -1,7 +1,7 @@
 #include "raster_utils.h"
 #include "filltri.h"
 
-template<bool Collect>
+template<bool Collect, bool Visibility>
 void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
                      const std::vector<IShader*>& shaders,
                      Rcpp::NumericMatrix &zbuffer, 
@@ -13,8 +13,22 @@ void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
                      FragmentArena& alpha_depths,
                      Rcpp::IntegerMatrix* material_id_buffer,
                      RasterCounters* counters) {
+  using Clock=std::chrono::steady_clock;
+  Clock::time_point stage_start;
+  if constexpr(Collect && Visibility) stage_start=Clock::now();
   bool write_material_ids = (!depth && material_id_buffer != nullptr);
   const auto min_block_bound=bins.minimum(tile), max_block_bound=bins.maximum(tile);
+  const int tile_width=max_block_bound.x-min_block_bound.x;
+  const int tile_height=max_block_bound.y-min_block_bound.y;
+  struct Winner { std::size_t reference; vec3 bc; Float prior_depth; };
+  std::array<Winner,64> winners;
+  if constexpr(Visibility) {
+    for(int x=0;x<tile_width;++x) for(int y=0;y<tile_height;++y) {
+      auto& winner=winners[x*tile_height+y];
+      winner.reference=std::numeric_limits<std::size_t>::max();
+      winner.prior_depth=zbuffer(x+min_block_bound.x,y+min_block_bound.y);
+    }
+  }
   for(std::size_t entry=bins.begin(tile);entry<bins.end(tile);++entry) {
     const auto& setup=bins.at(entry);
     const auto& v1=setup.vertices[0]; const auto& v2=setup.vertices[1]; const auto& v3=setup.vertices[2];
@@ -61,6 +75,13 @@ void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
                 if constexpr (Collect) ++counters->early_z;
                 continue;
               }
+              if constexpr(Visibility) {
+                zbuffer(i,j)=z;
+                auto& winner=winners[(i-int(min_block_bound.x))*tile_height+j-int(min_block_bound.y)];
+                winner.reference=entry;
+                winner.bc=bc;
+                continue;
+              }
               vec3 bc_clip = vec3(bc.x*v1_ndc_inv_w,
                                   bc.y*v2_ndc_inv_w,
                                   bc.z*v3_ndc_inv_w);
@@ -71,7 +92,11 @@ void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
               }
 
               if constexpr (Collect) ++counters->shaded;
-              bool discard = shaders[mat_num]->fragment(bc_clip, color, position, normal, global_face);
+              FragmentResult result;
+              shaders[mat_num]->shade({bc_clip,global_face},result);
+              bool discard=result.discard;
+              if(discard) continue;
+              color=result.color; position=result.position; normal=result.normal; bc_clip=result.uv;
               bool is_translucent = shaders[mat_num]->is_translucent();
               if(!discard) {
                 if constexpr (Collect) { if(color.w < 1.0f) ++counters->transparent; }
@@ -123,6 +148,57 @@ void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
           }
         }
   }
+  if constexpr(Visibility) {
+    if constexpr(Collect) {
+      auto now=Clock::now();
+      counters->visibility_coverage_ms+=std::chrono::duration<double,std::milli>(now-stage_start).count();
+      stage_start=now;
+    }
+    std::array<FragmentResult,64> results;
+    bool valid=true;
+    for(int slot=0;slot<tile_width*tile_height;++slot) {
+      const auto& winner=winners[slot];
+      if(winner.reference==std::numeric_limits<std::size_t>::max()) continue;
+      const auto& setup=bins.at(winner.reference);
+      vec3 bc_clip=winner.bc*setup.inverse_w;
+      bc_clip/=(bc_clip.x+bc_clip.y+bc_clip.z);
+      if(setup.clip_weights>=0) {
+        const auto& weights=bins.clip_weights[setup.clip_weights];
+        bc_clip=weights[0]*bc_clip.x+weights[1]*bc_clip.y+weights[2]*bc_clip.z;
+      }
+      shaders[setup.material]->shade({bc_clip,setup.face},results[slot]);
+      if constexpr(Collect) ++counters->shaded;
+      if(results[slot].discard || !(results[slot].color.w>=1.0)) { valid=false; break; }
+    }
+    if(!valid) {
+      // Numeric exceptional values can defeat an opacity proof. No colors or
+      // auxiliary outputs have been committed yet; restore depth and replay.
+      for(int x=0;x<tile_width;++x) for(int y=0;y<tile_height;++y)
+        zbuffer(x+min_block_bound.x,y+min_block_bound.y)=winners[x*tile_height+y].prior_depth;
+      if constexpr(Collect) {
+        ++counters->visibility_fallbacks;
+        counters->visibility_shading_ms+=std::chrono::duration<double,std::milli>(Clock::now()-stage_start).count();
+      }
+      fill_tri_blocks_impl<Collect,false>(bins,tile,shaders,zbuffer,image,normal_buffer,
+        position_buffer,uv_buffer,depth,alpha_depths,material_id_buffer,counters);
+      return;
+    }
+    if constexpr(Collect) ++counters->visibility_tiles;
+    for(int x=0;x<tile_width;++x) for(int y=0;y<tile_height;++y) {
+      const int slot=x*tile_height+y;
+      if(winners[slot].reference==std::numeric_limits<std::size_t>::max()) continue;
+      const auto& result=results[slot];
+      const int i=x+min_block_bound.x,j=y+min_block_bound.y;
+      image.set_color(i,j,result.color);
+      normal_buffer.set_color(i,j,result.normal);
+      position_buffer.set_color(i,j,result.position);
+      uv_buffer.set_color(i,j,result.uv);
+      if(write_material_ids) (*material_id_buffer)(i,j)=bins.at(winners[slot].reference).material;
+    }
+    if constexpr(Collect)
+      counters->visibility_shading_ms+=std::chrono::duration<double,std::milli>(Clock::now()-stage_start).count();
+  }
+
 }
 
 void fill_tri_blocks(const TriangleBins& bins, std::size_t tile,
@@ -135,7 +211,20 @@ void fill_tri_blocks(const TriangleBins& bins, std::size_t tile,
                      bool depth,
                      FragmentArena& alpha_depths,
                      Rcpp::IntegerMatrix* material_id_buffer,
-                     RasterCounters* counters) {
-  if(counters) fill_tri_blocks_impl<true>(bins, tile, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, depth, alpha_depths, material_id_buffer, counters);
-  else fill_tri_blocks_impl<false>(bins, tile, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, depth, alpha_depths, material_id_buffer, counters);
+                     RasterCounters* counters, bool visibility) {
+  if(visibility && !depth) {
+    auto lo=bins.minimum(tile), hi=bins.maximum(tile);
+    visibility=(hi.x-lo.x)*(hi.y-lo.y)<=64;
+  } else visibility=false;
+  if(visibility) {
+    for(std::size_t entry=bins.begin(tile);entry<bins.end(tile);++entry)
+      if(!shaders[bins.at(entry).material]->guaranteed_opaque()) { visibility=false; break; }
+  }
+  if(visibility) {
+    if(counters) fill_tri_blocks_impl<true,true>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,depth,alpha_depths,material_id_buffer,counters);
+    else fill_tri_blocks_impl<false,true>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,depth,alpha_depths,material_id_buffer,counters);
+    return;
+  }
+  if(counters) fill_tri_blocks_impl<true,false>(bins, tile, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, depth, alpha_depths, material_id_buffer, counters);
+  else fill_tri_blocks_impl<false,false>(bins, tile, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, depth, alpha_depths, material_id_buffer, counters);
 }

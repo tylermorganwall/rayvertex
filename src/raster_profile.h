@@ -9,8 +9,9 @@
 #include <utility>
 #include <vector>
 
-// Developer-only instrumentation. No file access or clocks in workers, and no
-// public return-value changes. A render emits its records after the last barrier.
+// Developer-only instrumentation. No worker file access or public return-value
+// changes. Optional visibility-stage clocks accumulate into tile-local counters.
+// A render emits its records after the last barrier.
 class RasterProfile {
   using Clock = std::chrono::steady_clock;
   const char* path;
@@ -53,6 +54,8 @@ private:
 
 struct RasterCounters {
   std::size_t candidates = 0, covered = 0, early_z = 0, shaded = 0, transparent = 0;
+  std::size_t visibility_tiles=0, visibility_fallbacks=0;
+  double visibility_coverage_ms=0, visibility_shading_ms=0;
 };
 
 #endif

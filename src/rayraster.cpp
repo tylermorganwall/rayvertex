@@ -370,6 +370,7 @@ List rasterize(List mesh,
   if(output_mask<0 || output_mask>31) throw std::invalid_argument("Invalid raster output mask");
   const bool reference_scheduler = std::getenv("RAYVERTEX_REFERENCE_SCHEDULER") != nullptr;
   const std::size_t batch_size = raster_batch_size();
+  const bool visibility=std::getenv("RAYVERTEX_VISIBILITY")!=nullptr;
   List materials = as<List>(mesh["materials"]);
   int number_materials = materials.size();
   struct FrameRequirements { bool shadows = false, outlines = false; } requirements;
@@ -1211,7 +1212,7 @@ List rasterize(List mesh,
   auto task = [&](unsigned int i) {
     fill_tri_blocks(blocks,i,shaders,zbuffer,image,normalbuffer,positionbuffer,uvbuffer,
                     false,alpha_depths,requirements.outlines ? &material_id_buffer : nullptr,
-                    main_counters.empty() ? nullptr : &main_counters[i]);
+                    main_counters.empty() ? nullptr : &main_counters[i],visibility);
   };
 
   main_tasks = dispatch_raster_blocks(pool, blocks, task, workers, batch_size,
@@ -1545,12 +1546,20 @@ List rasterize(List mesh,
     totals.candidates += c.candidates; totals.covered += c.covered;
     totals.early_z += c.early_z; totals.shaded += c.shaded;
     totals.transparent += c.transparent;
+    totals.visibility_tiles+=c.visibility_tiles;
+    totals.visibility_fallbacks+=c.visibility_fallbacks;
+    totals.visibility_coverage_ms+=c.visibility_coverage_ms;
+    totals.visibility_shading_ms+=c.visibility_shading_ms;
   }
   profile.count("coverage_candidates", totals.candidates);
   profile.count("covered_samples", totals.covered);
   profile.count("early_z_failures", totals.early_z);
   profile.count("shader_calls", totals.shaded);
   profile.count("transparent_fragments", totals.transparent);
+  profile.count("visibility_tiles",totals.visibility_tiles);
+  profile.count("visibility_fallbacks",totals.visibility_fallbacks);
+  profile.count("visibility_coverage_worker_ms",totals.visibility_coverage_ms);
+  profile.count("visibility_shading_worker_ms",totals.visibility_shading_ms);
   NumericMatrix presentation_depth = clone(zbuffer);
   for(auto& value : presentation_depth) value = std::isinf(value) ? 1.0 : 2*value - 1;
   List output = List::create(_["r"] = r, _["g"] = g, _["b"] = b, _["a"] = a,

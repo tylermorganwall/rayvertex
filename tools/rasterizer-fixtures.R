@@ -3,7 +3,8 @@ rasterizer_grid = function(
   triangles = 100000L,
   layers = 1L,
   alpha = 1,
-  type = "diffuse"
+  type = "diffuse",
+  reverse = FALSE
 ) {
   side = max(1L, as.integer(ceiling(sqrt(triangles / (2 * layers)))))
   xy = expand.grid(
@@ -32,6 +33,9 @@ rasterizer_grid = function(
       indices + (i - 1L) * nv
     })
   )
+  if (reverse) {
+    indices = indices[rev(seq_len(nrow(indices))), , drop = FALSE]
+  }
   construct_mesh(
     vertices,
     indices,
@@ -52,6 +56,9 @@ rasterizer_fixture = function(name) {
     grid500k = list(scene = rasterizer_grid(500000L)),
     grid1m = list(scene = rasterizer_grid(1000000L)),
     occluded = list(scene = rasterizer_grid(100000L, 16L, type = "phong")),
+    overdraw = list(
+      scene = rasterizer_grid(100000L, 16L, type = "phong", reverse = TRUE)
+    ),
     alpha4 = list(scene = rasterizer_grid(512L, 4L, 0.3)),
     alpha16 = list(scene = rasterizer_grid(512L, 16L, 0.15)),
     alpha64 = list(scene = rasterizer_grid(512L, 64L, 0.05)),

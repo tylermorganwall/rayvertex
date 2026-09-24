@@ -2,6 +2,7 @@
 Usage: python3 tools/bench-rasterizer-structural.py BEFORE_LIB AFTER_LIB OUTPUT
 Each case alternates variant order; ordinary/native/diagnostic runs stay separate.
 """
+import json
 import os
 import pathlib
 import subprocess
@@ -13,6 +14,12 @@ libs = dict(zip(['before', 'after'], sys.argv[1:3]))
 root = pathlib.Path(sys.argv[3])
 root.mkdir(parents=True, exist_ok=True)
 cases = os.environ.get('RAYVERTEX_STRUCTURAL_CASES', 'small,grid1m,alpha4,alpha16,alpha64,shadow').split(',')
+(root / 'settings.json').write_text(json.dumps({
+    'libraries': libs, 'cases': cases, 'width': 800, 'height': 800,
+    'fsaa': 1, 'cores': 1, 'warm_samples': 3, 'sustained_frames': 5,
+    'visibility': os.environ.get('RAYVERTEX_VISIBILITY'),
+    'indexed_transforms': os.environ.get('RAYVERTEX_INDEXED_TRANSFORMS'),
+}, indent=2) + '\n')
 for i, case in enumerate(cases):
     for variant in (['before', 'after'] if i % 2 == 0 else ['after', 'before']):
         out = root / variant

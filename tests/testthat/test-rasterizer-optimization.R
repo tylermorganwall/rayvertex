@@ -407,3 +407,74 @@ test_that("parallel background and outline composition match serial screen passe
   Sys.unsetenv("RAYVERTEX_REFERENCE_SCREEN")
   expect_identical(do.call(rasterize_scene, args), reference)
 })
+
+test_that("opaque visibility shades only winners and keeps mixed-material fallback", {
+  scene = NULL
+  for (i in 0:15) {
+    scene = add_shape(
+      scene,
+      xy_rect_mesh(
+        position = c(0, 0, i / 100),
+        material = material_list(
+          type = "phong",
+          diffuse = if (i %% 2) "red" else "blue",
+          culling = "none"
+        )
+      )
+    )
+  }
+  args = list(
+    scene = scene,
+    width = 37,
+    height = 25,
+    fsaa = 1,
+    plot = FALSE,
+    lookfrom = c(0, 0, 4),
+    lookat = c(0, 0, 0),
+    shadow_map = FALSE,
+    debug = "all"
+  )
+  withr::local_envvar(RAYVERTEX_VISIBILITY = NA_character_)
+  reference = do.call(rasterize_scene, args)
+  path = tempfile()
+  withr::local_envvar(RAYVERTEX_PROFILE = path, RAYVERTEX_VISIBILITY = "1")
+  expect_identical(do.call(rasterize_scene, args), reference)
+  stats = read.csv(path, header = FALSE, col.names = c("name", "value"))
+  counts = setNames(stats$value, stats$name)
+  expect_lte(unname(counts["count_shader_calls"]), 37 * 25)
+  expect_gt(unname(counts["count_visibility_tiles"]), 0)
+  expect_equal(unname(counts["count_visibility_fallbacks"]), 0)
+  args$scene = add_shape(
+    scene,
+    xy_rect_mesh(material = material_list(type = "color", dissolve = 0.4))
+  )
+  Sys.unsetenv("RAYVERTEX_VISIBILITY")
+  reference = do.call(rasterize_scene, args)
+  Sys.setenv(RAYVERTEX_VISIBILITY = "1")
+  expect_identical(do.call(rasterize_scene, args), reference)
+})
+
+test_that("unexpected shader opacity replays visibility tiles before committing color", {
+  args = list(
+    scene = xy_rect_mesh(
+      material = material_list(type = "phong", culling = "none")
+    ),
+    width = 37,
+    height = 25,
+    fsaa = 1,
+    plot = FALSE,
+    parallel = FALSE,
+    lookfrom = c(0, 0, 4),
+    lookat = c(0, 0, 0),
+    light_info = directional_light(intensity = Inf),
+    shadow_map = FALSE,
+    debug = "normals"
+  )
+  withr::local_envvar(RAYVERTEX_VISIBILITY = NA_character_)
+  reference = do.call(rasterize_scene, args)
+  path = tempfile()
+  withr::local_envvar(RAYVERTEX_PROFILE = path, RAYVERTEX_VISIBILITY = "1")
+  expect_identical(do.call(rasterize_scene, args), reference)
+  stats = read.csv(path, header = FALSE, col.names = c("name", "value"))
+  expect_gt(stats$value[stats$name == "count_visibility_fallbacks"], 0)
+})
