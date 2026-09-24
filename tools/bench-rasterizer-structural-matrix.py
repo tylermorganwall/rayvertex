@@ -1,6 +1,6 @@
 """Sequential structural validation sweeps, comparing and releasing large RDS outputs.
 Usage: python3 tools/bench-rasterizer-structural-matrix.py BEFORE_LIB AFTER_LIB OUT SUITE
-Suites: workers, quality, visibility. Timings keep quality fixed within each pair.
+Suites: workers, quality, visibility, bins. Timings keep quality fixed within each pair.
 """
 import csv
 import json
@@ -23,6 +23,10 @@ elif suite == 'quality':
 elif suite == 'visibility':
     jobs = [('overdraw', 800, 800, 1, cores) for cores in (1, 2, 4, 10)]
     jobs += [('overdraw', 1920, 1080, 2, 4), ('small', 800, 800, 1, 4)]
+elif suite == 'bins':
+    jobs = [('grid1m', 800, 800, 1, cores) for cores in (1, 2, 4, 10)]
+    jobs += [(case, 800, 800, 1, 4) for case in ('small', 'grid100k', 'grid500k', 'overdraw')]
+    jobs += [('grid100k', 1920, 1080, 2, 4)]
 else:
     raise SystemExit('Unknown suite')
 (root / 'settings.json').write_text(json.dumps(dict(before=before, after=after,
@@ -40,12 +44,16 @@ for number, job in enumerate(jobs):
             env.pop('RAYVERTEX_VISIBILITY', None)
             if variant == 'after':
                 env['RAYVERTEX_VISIBILITY'] = '1'
+        if suite == 'bins':
+            env.pop('RAYVERTEX_PARALLEL_BINS', None)
+            if variant == 'after':
+                env['RAYVERTEX_PARALLEL_BINS'] = '1'
         status = folder / (key+'-rss.json')
         if not status.exists() or json.loads(status.read_text())['exit_code'] != 0:
             subprocess.run([sys.executable, 'tools/bench-rasterizer.py', lib, str(folder),
                             *map(str, job), '3'], check=True, env=env)
         # Fresh render RSS for the highest sample count and deep portrait stress.
-        if job[0] in ('grid100k', 'alpha129') and (job[1:4]==(1920,1080,2) or job[0]=='alpha129'):
+        if (job[0] in ('grid100k', 'alpha129') and (job[1:4]==(1920,1080,2) or job[0]=='alpha129')) or (suite=='bins' and job==('grid1m',800,800,1,4)):
             subprocess.run([sys.executable, 'tools/bench-rasterizer.py', '--memory', lib,
                             str(folder), *map(str, job), '3'], check=True, env=env)
     subprocess.run(['Rscript', 'tools/compare-rasterizer.R', str(root/'before'),

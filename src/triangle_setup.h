@@ -45,6 +45,8 @@ public:
   std::vector<std::array<vec3,3>> clip_weights;
   std::size_t input_primitives = 0;
   std::size_t attempted = 0, culled = 0;
+  std::size_t build_scratch_bytes = 0;
+  int build_workers = 1;
   TriangleBins(int width, int height, int block)
     : width_(width), height_(height), block_(block),
       columns_(block_count(width,block)), rows_(block_count(height,block)),
@@ -113,6 +115,8 @@ public:
         visit(y+static_cast<std::size_t>(rows_)*x);
   }
   void build() {
+    build_workers=1;
+    build_scratch_bytes=offsets_.size()*sizeof(std::size_t);
     std::fill(offsets_.begin(),offsets_.end(),0);
     for(const auto& triangle:triangles) tiles(triangle,[&](std::size_t tile) {
       if(offsets_[tile+1]==std::numeric_limits<std::size_t>::max())
@@ -130,6 +134,54 @@ public:
     // tile retains original model/face order, including equal-depth winners.
     for(std::size_t i=0;i<triangles.size();++i)
       tiles(triangles[i],[&](std::size_t tile) { references_[cursor[tile]++]=i; });
+  }
+  template<class Pool>
+  void build_parallel(Pool& pool, int workers, std::size_t budget=32*1024*1024) {
+    // Contiguous primitive chunks preserve submission order. Bound histogram
+    // memory independently of resolution and the requested worker count.
+    const std::size_t chunks=workers>1 ? std::min({std::size_t(workers),
+      triangles.size()/16384, budget/sizeof(std::size_t)/size()}) : 0;
+    if(chunks<2) { build(); return; }
+    std::vector<std::size_t> cursor(chunks*size(),0);
+    build_workers=static_cast<int>(chunks);
+    build_scratch_bytes=cursor.size()*sizeof(std::size_t);
+    auto boundary=[&](std::size_t chunk) {
+      return (triangles.size()/chunks)*chunk+std::min(triangles.size()%chunks,chunk);
+    };
+    auto run=[&](auto task) {
+      try {
+        pool.parallelFor(0,build_workers,task,chunks);
+        pool.wait();
+      } catch(...) {
+        // Histogram/closures must outlive even partially submitted work.
+        try { pool.join(); } catch(...) {}
+        throw;
+      }
+    };
+    run([&](int chunk) {
+      auto* counts=cursor.data()+std::size_t(chunk)*size();
+      for(std::size_t i=boundary(chunk);i<boundary(chunk+1);++i)
+        tiles(triangles[i],[&](std::size_t tile) { ++counts[tile]; });
+    });
+    std::size_t total=0;
+    for(std::size_t tile=0;tile<size();++tile) {
+      offsets_[tile]=total;
+      for(std::size_t chunk=0;chunk<chunks;++chunk) {
+        auto& count=cursor[chunk*size()+tile];
+        const std::size_t next=count;
+        count=total;
+        if(next>std::numeric_limits<std::size_t>::max()-total)
+          throw std::overflow_error("Too many raster references");
+        total+=next;
+      }
+    }
+    offsets_.back()=total;
+    references_.resize(total);
+    run([&](int chunk) {
+      auto* positions=cursor.data()+std::size_t(chunk)*size();
+      for(std::size_t i=boundary(chunk);i<boundary(chunk+1);++i)
+        tiles(triangles[i],[&](std::size_t tile) { references_[positions[tile]++]=i; });
+    });
   }
   std::size_t references() const { return references_.size(); }
   std::size_t capacity_bytes() const {

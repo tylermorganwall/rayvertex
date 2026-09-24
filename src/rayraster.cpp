@@ -1142,8 +1142,11 @@ List rasterize(List mesh,
         }
       }
       profile.mark("shadow_" + std::to_string(sb) + "_transform_setup");
-      blocks_depth.build();
+      if(std::getenv("RAYVERTEX_PARALLEL_BINS")) blocks_depth.build_parallel(pool,workers);
+      else blocks_depth.build();
       profile.mark("shadow_" + std::to_string(sb) + "_bin_build");
+      profile.count("shadow_"+std::to_string(sb)+"_bin_workers",blocks_depth.build_workers);
+      profile.count("shadow_"+std::to_string(sb)+"_bin_scratch_bytes",blocks_depth.build_scratch_bytes);
       rayimage& shadowbuff = shadowbuffers[sb];
       std::vector<IShader*>& depth_shader_single = depthshaders[sb];
       FragmentArena& alpha_depth_single = alpha_depths_trans[sb];
@@ -1200,8 +1203,11 @@ List rasterize(List mesh,
     }
   }
   profile.mark("main_transform_setup");
-  blocks.build();
+  if(std::getenv("RAYVERTEX_PARALLEL_BINS")) blocks.build_parallel(pool,workers);
+  else blocks.build();
   profile.mark("main_bin_build");
+  profile.count("main_bin_workers",blocks.build_workers);
+  profile.count("main_bin_scratch_bytes",blocks.build_scratch_bytes);
   auto task = [&](unsigned int i) {
     fill_tri_blocks(blocks,i,shaders,zbuffer,image,normalbuffer,positionbuffer,uvbuffer,
                     false,alpha_depths,requirements.outlines ? &material_id_buffer : nullptr,
