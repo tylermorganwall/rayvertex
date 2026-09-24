@@ -133,6 +133,7 @@ diagnostic_reps = as.integer(Sys.getenv(
 ))
 profiled_ms = numeric(diagnostic_reps)
 for (i in seq_len(diagnostic_reps)) {
+  gc()
   start = proc.time()[["elapsed"]]
   invisible(do.call(rayvertex:::rasterize, bench_native_args))
   profiled_ms[i] = (proc.time()[["elapsed"]] - start) * 1000

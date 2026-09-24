@@ -31,6 +31,12 @@ for path in sorted(root.glob("*-times.csv")):
                fps=1000/statistics.median(warm), native_median_ms=statistics.median(native),
                native_p95_ms=percentile(native, .95), peak_rss_bytes=rss["peak_process_rss_bytes"],
                R_allocation_bytes=alloc["R_allocation_bytes"])
+    overhead = root / (key + "-profile-overhead.csv")
+    profiled = [float(r["profiled_ms"]) for r in csv.DictReader(overhead.open())] if overhead.exists() else []
+    row["profiled_native_median_ms"] = statistics.median(profiled) if profiled else ""
+    row["profiled_native_samples"] = len(profiled)
+    render_rss = root / (key + "-render-only-rss.json")
+    row["single_render_peak_rss_bytes"] = json.loads(render_rss.read_text())["peak_process_rss_bytes"] if render_rss.exists() else ""
     rows.append(row)
     profile = root / (key + "-native-phases.csv")
     if profile.exists():
