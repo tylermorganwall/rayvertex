@@ -99,7 +99,10 @@ vec4 GouraudShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
   vec_varying_intensity[global_face][nthvert] = 0.0;
   vec_varying_pos[global_face][nthvert] = vec3(View * Model * vec4(model.vertex(iface, nthvert),1.0f));
-  vec_varying_world_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
+  vec3 vertex_normal = model.model_vertex_normals(iface) ? model.normal(iface, nthvert) :
+    glm::normalize(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
+                              model.vertex(iface,2)-model.vertex(iface,0)));
+  vec_varying_world_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(vertex_normal,0.0f));
   vec4 clip = vp * MVP * vec4(model.vertex(iface, nthvert),1.0f);
   
   vec_varying_tri[global_face][nthvert] = clip;
@@ -840,6 +843,7 @@ bool DiffuseNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& norma
       (1-trans_color.w) *  directional_lights[ii].color * directional_lights[ii].intensity) * shadow * intensity;
   }
   
+  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   for(unsigned int i = 0; i < plights.size(); i++) {
     color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
   }
@@ -848,7 +852,6 @@ bool DiffuseNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& norma
   color += emissive(uv);
   color += ambient(uv);
   
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   normal = n;
   if(has_reflection && !has_refraction) {
     vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
@@ -1647,6 +1650,7 @@ vec4 DepthShader::vertex(int iface, int nthvert, ModelInfo& model) {
 }
 
 bool DepthShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
+  normal = vec3(0.0);
   vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;

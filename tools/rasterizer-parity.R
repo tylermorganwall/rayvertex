@@ -109,6 +109,11 @@ cases$normal_phong = list(
   scene = change_material(quad, type = "phong"),
   tangent_space_normals = FALSE
 )
+cases$normal_point = list(
+  scene = quad,
+  tangent_space_normals = FALSE,
+  light_info = point_light(c(1, 1, 3))
+)
 cases$refraction = list(
   scene = sphere_mesh(material = material_list(ior = 1.5)),
   environment_map = texture,

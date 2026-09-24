@@ -134,3 +134,27 @@ test_that("vertex and object-normal shaders initialize their position transform"
     expect_true(all(a$positionz[occupied] < -2 & a$positionz[occupied] > -5))
   }
 })
+
+test_that("object-normal point lighting does not depend on previous fragments", {
+  texture = write_raster_texture(c(128L, 128L, 255L))
+  on.exit(unlink(texture))
+  scene = sphere_mesh(
+    material = material_list(normal_texture_location = texture)
+  )
+  args = list(
+    scene = scene,
+    width = 39,
+    height = 25,
+    fsaa = 1,
+    plot = FALSE,
+    lookfrom = c(0, 0, 4),
+    lookat = c(0, 0, 0),
+    shadow_map = FALSE,
+    tangent_space_normals = FALSE,
+    light_info = point_light(c(1, 1, 3)),
+    debug = "all"
+  )
+  serial = do.call(rasterize_scene, c(args, list(parallel = FALSE)))
+  withr::local_options(cores = 4L)
+  expect_identical(do.call(rasterize_scene, args), serial)
+})
