@@ -1,6 +1,6 @@
 #include "rayimage.h"
 
-vec4 trivalue(Float uu, Float vv,  float* data, 
+vec4 trivalue(Float uu, Float vv,  const float* data, 
               int nx, int ny, int channels) {
   // Wrap to [0,1]
   uu = uu - floor(uu);
@@ -19,11 +19,11 @@ vec4 trivalue(Float uu, Float vv,  float* data,
   Float ty = y - (Float)y0;
   
   auto sample = [&](int xi, int yi) -> vec4 {
-    int idx = channels*xi + channels*nx*yi;
+    std::size_t idx = static_cast<std::size_t>(channels) * (xi + static_cast<std::size_t>(nx)*yi);
     Float r = data[idx];
-    Float g = data[idx + 1];
-    Float b = data[idx + 2];
-    Float a = channels == 4 ? data[idx + 3] : 1.0f;
+    Float g = channels < 3 ? r : data[idx + 1];
+    Float b = channels < 3 ? r : data[idx + 2];
+    Float a = channels == 2 ? data[idx + 1] : channels == 4 ? data[idx + 3] : 1.0f;
     return vec4(r,g,b,a);
   };
   
@@ -61,10 +61,10 @@ vec4 trivalue(Float uu, Float vv, reflection_map_info ref) {
   Float ty = y - (Float)y0;
   
   auto sample = [&](int xi, int yi) -> vec4 {
-    int idx = channels*xi + channels*nx*yi;
+    std::size_t idx = static_cast<std::size_t>(channels) * (xi + static_cast<std::size_t>(nx)*yi);
     Float r = ref.reflection[idx];
-    Float g = ref.reflection[idx + 1];
-    Float b = ref.reflection[idx + 2];
+    Float g = channels < 3 ? r : ref.reflection[idx + 1];
+    Float b = channels < 3 ? r : ref.reflection[idx + 2];
     return vec4(r,g,b,1.0f);
   };
   

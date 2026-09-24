@@ -11,6 +11,7 @@
 #include "rayimage.h"
 
 #include "material.h"
+#include "image_owner.h"
 
 static void get_sphere_uv(const vec3& dir, vec2& uv) {
   Float phi = atan2(dir.z, dir.x);
@@ -30,6 +31,13 @@ class IShader {
 };
 
 
+
+inline void own_shader(std::vector<std::unique_ptr<IShader>>& owners,
+                       std::vector<IShader*>& views, IShader* value) {
+  std::unique_ptr<IShader> owner(value);
+  views.push_back(value);
+  owners.push_back(std::move(owner));
+}
 
 class GouraudShader : public IShader {
   public:
@@ -103,11 +111,11 @@ class GouraudShader : public IShader {
     material_info material;
     
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
-    float* texture;
-    float* ambient_texture;
-    float* normal_texture;
-    float* specular_texture;
-    float* emissive_texture;
+    ImageOwner texture;
+    ImageOwner ambient_texture;
+    ImageOwner normal_texture;
+    ImageOwner specular_texture;
+    ImageOwner emissive_texture;
     
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
@@ -195,11 +203,11 @@ class ColorShader : public IShader {
     material_info material;
 
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
-    float* texture;
-    float* ambient_texture;
-    float* normal_texture;
-    float* specular_texture;
-    float* emissive_texture;
+    ImageOwner texture;
+    ImageOwner ambient_texture;
+    ImageOwner normal_texture;
+    ImageOwner specular_texture;
+    ImageOwner emissive_texture;
 
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     
@@ -288,11 +296,11 @@ class DiffuseShader : public IShader {
     material_info material;
     
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
-    float* texture;
-    float* ambient_texture;
-    float* normal_texture;
-    float* specular_texture;
-    float* emissive_texture;
+    ImageOwner texture;
+    ImageOwner ambient_texture;
+    ImageOwner normal_texture;
+    ImageOwner specular_texture;
+    ImageOwner emissive_texture;
 
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
@@ -390,11 +398,11 @@ public:
   material_info material;
   
   int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
-  float* texture;
-  float* ambient_texture;
-  float* normal_texture;
-  float* specular_texture;
-  float* emissive_texture;
+  ImageOwner texture;
+  ImageOwner ambient_texture;
+  ImageOwner normal_texture;
+  ImageOwner specular_texture;
+  ImageOwner emissive_texture;
   
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
@@ -488,11 +496,11 @@ public:
   
   
   int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
-  float* texture;
-  float* ambient_texture;
-  float* normal_texture;
-  float* specular_texture;
-  float* emissive_texture;
+  ImageOwner texture;
+  ImageOwner ambient_texture;
+  ImageOwner normal_texture;
+  ImageOwner specular_texture;
+  ImageOwner emissive_texture;
 
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
@@ -587,11 +595,11 @@ class DiffuseShaderTangent : public IShader {
     material_info material;
     
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
-    float* texture;
-    float* ambient_texture;
-    float* normal_texture;
-    float* specular_texture;
-    float* emissive_texture;
+    ImageOwner texture;
+    ImageOwner ambient_texture;
+    ImageOwner normal_texture;
+    ImageOwner specular_texture;
+    ImageOwner emissive_texture;
 
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
@@ -688,11 +696,11 @@ class PhongShader : public IShader {
     material_info material;
     
     int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
-    float* texture;
-    float* ambient_texture;
-    float* normal_texture;
-    float* specular_texture;
-    float* emissive_texture;
+    ImageOwner texture;
+    ImageOwner ambient_texture;
+    ImageOwner normal_texture;
+    ImageOwner specular_texture;
+    ImageOwner emissive_texture;
 
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     bool has_normals;
@@ -788,11 +796,11 @@ public:
   material_info material;
   
   int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
-  float* texture;
-  float* ambient_texture;
-  float* normal_texture;
-  float* specular_texture;
-  float* emissive_texture;
+  ImageOwner texture;
+  ImageOwner ambient_texture;
+  ImageOwner normal_texture;
+  ImageOwner specular_texture;
+  ImageOwner emissive_texture;
 
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
@@ -888,11 +896,11 @@ public:
   material_info material;
   
   int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
-  float* texture;
-  float* ambient_texture;
-  float* normal_texture;
-  float* specular_texture;
-  float* emissive_texture;
+  ImageOwner texture;
+  ImageOwner ambient_texture;
+  ImageOwner normal_texture;
+  ImageOwner specular_texture;
+  ImageOwner emissive_texture;
 
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
@@ -950,7 +958,7 @@ public:
   vec4 viewport;
   
   int nx_t, ny_t, nn_t;
-  float* texture;
+  ImageOwner texture;
   
   material_info material;
   
@@ -1036,11 +1044,11 @@ public:
   material_info material;
   
   int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
-  float* texture;
-  float* ambient_texture;
-  float* normal_texture;
-  float* specular_texture;
-  float* emissive_texture;
+  ImageOwner texture;
+  ImageOwner ambient_texture;
+  ImageOwner normal_texture;
+  ImageOwner specular_texture;
+  ImageOwner emissive_texture;
 
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;
@@ -1135,11 +1143,11 @@ public:
   material_info material;
   
   int nx_t, ny_t, nn_t, nx_a, ny_a, nn_a,  nx_nt, ny_nt, nn_nt, nx_st, ny_st, nn_st, nx_et, ny_et, nn_et;
-  float* texture;
-  float* ambient_texture;
-  float* normal_texture;
-  float* specular_texture;
-  float* emissive_texture;
+  ImageOwner texture;
+  ImageOwner ambient_texture;
+  ImageOwner normal_texture;
+  ImageOwner specular_texture;
+  ImageOwner emissive_texture;
 
   bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
   bool has_normals;

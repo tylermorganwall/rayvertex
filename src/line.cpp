@@ -1,3 +1,4 @@
+#include "raster_utils.h"
 #include "line.h" 
 
 void aa_line(std::vector<vec3>& line_mat_start,
@@ -172,7 +173,7 @@ void aa_line(std::vector<vec3>& line_mat_start,
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
-          alpha_depths[x + ny * iy][z] = tmp_data;
+          alpha_depths[fragment_index(iy, x, nx, ny)][z] = tmp_data;
 
           if(iy + 1 < nx) {
             alpha_info tmp_data2;
@@ -180,7 +181,7 @@ void aa_line(std::vector<vec3>& line_mat_start,
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);
-            alpha_depths[x + ny * (iy+1)][z] = tmp_data2;
+            alpha_depths[fragment_index(iy+1, x, nx, ny)][z] = tmp_data2;
           }
         }
         counter++;
@@ -197,14 +198,14 @@ void aa_line(std::vector<vec3>& line_mat_start,
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
-          alpha_depths[iy + ny * x][z] = tmp_data;
+          alpha_depths[fragment_index(x, iy, nx, ny)][z] = tmp_data;
           if(iy + 1 < ny) {
             alpha_info tmp_data2;
             tmp_data2.color = vec4(line_color[ii],fpart(intery) * alpha_line);
             tmp_data2.normal = vec3(0.);
             tmp_data2.position = vec3(0.);
             tmp_data2.uv = vec3(0.);
-            alpha_depths[(iy + 1) + ny * x][z] = tmp_data2;
+            alpha_depths[fragment_index(x, iy+1, nx, ny)][z] = tmp_data2;
           }
         }
         counter++;
@@ -281,7 +282,7 @@ void noaa_line(std::vector<vec3>& line_mat_start,
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
-          alpha_depths[x + nx * y][z] = tmp_data;
+          alpha_depths[fragment_index(y, x, nx, ny)][z] = tmp_data;
         }
       } else { 
         if(y < ny && y >= 0 && x < nx && x >= 0) { 
@@ -291,7 +292,7 @@ void noaa_line(std::vector<vec3>& line_mat_start,
           tmp_data.normal = vec3(0.);
           tmp_data.position = vec3(0.);
           tmp_data.uv = vec3(0.);
-          alpha_depths[y + ny * x][z] = tmp_data;
+          alpha_depths[fragment_index(x, y, nx, ny)][z] = tmp_data;
         }
       } 
       error2 += derror2; 

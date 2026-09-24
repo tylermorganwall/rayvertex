@@ -4,6 +4,10 @@ args = commandArgs(TRUE)
 stopifnot(length(args) == 8L)
 .libPaths(c(args[1], .libPaths()))
 suppressPackageStartupMessages(library(rayvertex))
+stopifnot(
+  normalizePath(find.package("rayvertex")) ==
+    normalizePath(file.path(args[1], "rayvertex"))
+)
 source("tools/rasterizer-fixtures.R")
 out = args[2]
 dir.create(out, recursive = TRUE, showWarnings = FALSE)

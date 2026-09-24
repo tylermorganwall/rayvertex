@@ -1,3 +1,4 @@
+#include "raster_utils.h"
 #include "filltri.h"
 
 inline Float DifferenceOfProducts(Float a, Float b, Float c, Float d) {
@@ -142,7 +143,7 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                     tmp_data.normal = normal;
                     tmp_data.position = position;
                     tmp_data.uv = bc_clip;
-                    alpha_depths[j + ny*i][z] = tmp_data;
+                    alpha_depths[fragment_index(i, j, image.width(), ny)][z] = tmp_data;
                   }
                 } else {
                   // Main color pass.
@@ -164,7 +165,7 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                     tmp_data.normal = normal;
                     tmp_data.position = position;
                     tmp_data.uv = bc_clip;
-                    alpha_depths[j + ny*i][z] = tmp_data;
+                    alpha_depths[fragment_index(i, j, image.width(), ny)][z] = tmp_data;
                     // Note: if we want correct material IDs after blending
                     // translucent layers, we'll also need material_id in
                     // alpha_info and update material_id_buffer in the

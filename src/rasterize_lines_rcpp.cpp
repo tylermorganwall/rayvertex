@@ -23,6 +23,7 @@
 #include "rayimage.h"
 
 #include "line.h"
+#include "raster_utils.h"
 
 // typedef glm::dvec4 vec4;
 // typedef glm::dvec3 vec3;
@@ -163,7 +164,7 @@ List rasterize_lines_rcpp(NumericMatrix line_mat,
   // vec3 scene_center = (sceneboundmax+sceneboundmin)/(Float)2.0;
   
   //For alpha transparency
-  std::vector<std::map<Float, alpha_info> > alpha_depths(nx*ny);
+  std::vector<std::map<Float, alpha_info> > alpha_depths(checked_samples(nx, ny));
   
   std::vector<vec3> ndc_line_verts_start;
   std::vector<vec3> ndc_line_verts_end;
@@ -191,8 +192,8 @@ List rasterize_lines_rcpp(NumericMatrix line_mat,
   
   for(int i = 0; i < nx; i++) {
     for(int j = 0; j < ny; j++) {
-      for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depths[j + ny*i].rbegin();
-          it != alpha_depths[j + ny*i].rend(); ++it) {
+      for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depths[fragment_index(i, j, nx, ny)].rbegin();
+          it != alpha_depths[fragment_index(i, j, nx, ny)].rend(); ++it) {
         if(it->first <= zbuffer(i,j)) {
           zbuffer(i,j) = it->first;
           vec4 temp_col = it->second.color;

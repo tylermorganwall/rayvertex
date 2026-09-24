@@ -1,3 +1,4 @@
+#include "raster_utils.h"
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 
@@ -31,6 +32,7 @@
 #include <algorithm>
 #include <utility>
 #include "stbimageheaders/stb_image.h"
+#undef STB_IMAGE_IMPLEMENTATION
 #include "stbimageheaders/stb_image_resize2.h"
 #include <memory>
 #include "glm.hpp"
@@ -369,16 +371,18 @@ List rasterize(List mesh,
   stbi_ldr_to_hdr_gamma(1.0f);
   
   //Resize reflection map for different roughness materials
+  std::unique_ptr<float, StbiDeleter> environment_owner;
   float* reflection_map_data = nullptr;
   int nx_r = 0, ny_r = 0, nn_r = 0;
   std::vector<reflection_map_info> reflection_maps;
   reflection_map_info main_reflection_map;
-  std::vector<float* > reflection_data;
+  std::vector<std::unique_ptr<float[]>> reflection_data;
   
   
   if(has_environment_map) {
-    reflection_map_data = stbi_loadf(reflection_map_file.get_cstring(), &nx_r, &ny_r, &nn_r, 0);
-    if(nx_r == 0 || ny_r == 0 || nn_r == 0) {
+    environment_owner.reset(stbi_loadf(reflection_map_file.get_cstring(), &nx_r, &ny_r, &nn_r, 0));
+    reflection_map_data = environment_owner.get();
+    if(!reflection_map_data || nx_r == 0 || ny_r == 0 || nn_r == 0) {
       throw std::runtime_error("Reflection map loading failed");
     }
     if(environment_map_hdr) {
@@ -398,11 +402,13 @@ List rasterize(List mesh,
       List single_material = as<List>(materials(i));
       double reflection_sharpness = as<double>(single_material["reflection_sharpness"]);
       
-      int nx_r_resize = (double)nx_r * reflection_sharpness;
-      int ny_r_resize = (double)ny_r * reflection_sharpness;
-      float* reflection_map_data_new = new float[nx_r * ny_r * nn_r];
+      int nx_r_resize = std::max(1, (int)((double)nx_r * reflection_sharpness));
+      int ny_r_resize = std::max(1, (int)((double)ny_r * reflection_sharpness));
+      auto reflection_variant = std::make_unique<float[]>(checked_samples(nx_r, ny_r) * nn_r);
+      float* reflection_map_data_new = reflection_variant.get();
       if(reflection_sharpness < 1.0 && reflection_sharpness > 0.0) {
-        float* reflection_map_data_temp = new float[nx_r_resize * ny_r_resize * nn_r];
+        auto reflection_temp = std::make_unique<float[]>(checked_samples(nx_r_resize, ny_r_resize) * nn_r);
+      float* reflection_map_data_temp = reflection_temp.get();
         resize_reflection_map(reflection_map_data, nx_r, ny_r,
                               reflection_map_data_temp, nx_r_resize, ny_r_resize,
                               nn_r);
@@ -410,11 +416,11 @@ List rasterize(List mesh,
         resize_reflection_map(reflection_map_data_temp, nx_r_resize, ny_r_resize,
                               reflection_map_data_new, nx_r, ny_r,
                               nn_r);
-        delete[] reflection_map_data_temp;
+
       } else {
         memcpy(reflection_map_data_new, main_reflection_map.reflection, sizeof(float) * nx_r * ny_r * nn_r);
       }
-      reflection_data.push_back(reflection_map_data_new);
+      reflection_data.push_back(std::move(reflection_variant));
       reflection_map_info reflection_map {
         reflection_map_data_new,
         nx_r,
@@ -628,6 +634,7 @@ List rasterize(List mesh,
   
   //Start by generating a shader for every material
   std::vector<material_info> mat_info;
+  std::vector<std::unique_ptr<IShader>> shader_owners;
   std::vector<IShader*> shaders;
 
   // Count total faces across all shapes so we can size varying buffers correctly
@@ -888,7 +895,7 @@ List rasterize(List mesh,
     } else {
       throw std::runtime_error("shader not recognized");
     }
-    shaders.push_back(shader);
+    own_shader(shader_owners, shaders, shader);
   }
 
   reflection_map_info reflection_map_default {
@@ -934,7 +941,7 @@ List rasterize(List mesh,
   
   //Add default shader to vector
   if(typevals(0) == 1) {
-    shaders.push_back(new GouraudShader(Model, Projection, View, viewport,
+    own_shader(shader_owners, shaders, new GouraudShader(Model, Projection, View, viewport,
                                has_shadow_map,
                                shadow_map_bias,mat_info.back(), point_lights,
                                directional_lights, 
@@ -947,7 +954,7 @@ List rasterize(List mesh,
                                vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
                                reflection_map_default, false, false));
   } else if (typevals(0) == 2 || typevals(0) == 4 || typevals(0) == 5) {
-    shaders.push_back(new DiffuseShader(Model, Projection, View, viewport,
+    own_shader(shader_owners, shaders, new DiffuseShader(Model, Projection, View, viewport,
                                has_shadow_map,
                                shadow_map_bias,mat_info.back(), point_lights,
                                directional_lights, 
@@ -960,7 +967,7 @@ List rasterize(List mesh,
                                vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
                                reflection_map_default, false, false, false));
   } else if (typevals(0) == 3 || typevals(0) == 6 || typevals(0) == 7) {
-    shaders.push_back(new PhongShader(Model, Projection, View, viewport,
+    own_shader(shader_owners, shaders, new PhongShader(Model, Projection, View, viewport,
                              has_shadow_map,
                              shadow_map_bias,mat_info.back(), point_lights,
                              directional_lights, 
@@ -973,7 +980,7 @@ List rasterize(List mesh,
                              vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
                              reflection_map_default, false, false));
   } else if (typevals(0) == 8) {
-    shaders.push_back(new ColorShader(Model, Projection, View, viewport,mat_info.back(),
+    own_shader(shader_owners, shaders, new ColorShader(Model, Projection, View, viewport,mat_info.back(),
                                       vec_varying_intensity,
                                       vec_varying_uv,
                                       vec_varying_tri,
@@ -981,7 +988,7 @@ List rasterize(List mesh,
                                       vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
                                       reflection_map_default, false, false));
   } else if (typevals(0) == 9) {
-    shaders.push_back(new ToonShader(Model, Projection, View, viewport,
+    own_shader(shader_owners, shaders, new ToonShader(Model, Projection, View, viewport,
                                      has_shadow_map,
                                      shadow_map_bias,mat_info.back(), point_lights,
                                      directional_lights, 
@@ -994,7 +1001,7 @@ List rasterize(List mesh,
                                      vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
                                      reflection_map_default, false, false));
   } else if (typevals(0) == 10) {
-    shaders.push_back(new ToonShaderPhong(Model, Projection, View, viewport,
+    own_shader(shader_owners, shaders, new ToonShaderPhong(Model, Projection, View, viewport,
                                  has_shadow_map,
                                  shadow_map_bias,mat_info.back(), point_lights,
                                  directional_lights, 
@@ -1058,12 +1065,12 @@ List rasterize(List mesh,
   
   
   //For alpha transparency
-  std::vector<std::map<Float, alpha_info> > alpha_depths(nx*ny);
+  std::vector<std::map<Float, alpha_info> > alpha_depths(checked_samples(nx, ny));
   
   //For per-light transparent colors
   std::vector<std::vector<std::map<Float, alpha_info> > > alpha_depths_trans;
   for(unsigned int i = 0; i < shadowbuffers.size(); i++) {
-    std::vector<std::map<Float, alpha_info> > temp_adt(shadowdims(0) * shadowdims(1));
+    std::vector<std::map<Float, alpha_info> > temp_adt(checked_samples(shadowdims(0), shadowdims(1)));
     alpha_depths_trans.push_back(temp_adt);
   }
   
@@ -1142,7 +1149,7 @@ List rasterize(List mesh,
   std::vector<std::vector<IShader*> > depthshaders(directional_lights.size());
   for(unsigned int j = 0; j < directional_lights.size(); j++) {
     for(int i = 0; i < number_materials+1; i++ ) {
-      depthshaders[j].push_back(new DepthShader(Model, directional_lights[j].lightProjection, 
+      own_shader(shader_owners, depthshaders[j], new DepthShader(Model, directional_lights[j].lightProjection, 
                                                 directional_lights[j].lightView, viewport_depth,
                                                 mat_info[i],
                                                 max_indices,
@@ -1239,8 +1246,8 @@ List rasterize(List mesh,
       //Calculate transparency buffer
       for(int i = 0; i < shadowdims(0); i++) {
         for(int j = 0; j < shadowdims(1); j++) {
-          for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depth_single[j + shadowdims(1)*i].rbegin();
-              it != alpha_depth_single[j + shadowdims(1)*i].rend(); ++it) {
+          for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depth_single[fragment_index(i, j, shadowdims(0), shadowdims(1))].rbegin();
+              it != alpha_depth_single[fragment_index(i, j, shadowdims(0), shadowdims(1))].rend(); ++it) {
             if(it->first <= zbuffer_depth(i,j)) {
               // zbuffer_depth(i,j) = it->first;
               vec4 temp_col = it->second.color;
@@ -1361,7 +1368,7 @@ List rasterize(List mesh,
       kernel[i] *= scale;
     }
 
-    constexpr unsigned int noiseSize=16;
+    constexpr unsigned int noiseSize = ssao_noise_dimension * ssao_noise_dimension;
     vec3 noise[noiseSize];
     for (unsigned int i = 0; i < noiseSize; ++i) {
       noise[i] = normalize(vec3(
@@ -1378,9 +1385,7 @@ List rasterize(List mesh,
         vec3 normal(nxbuffer(x,y), nybuffer(x,y), nzbuffer(x,y));
         normal = normalize(normal);
         normal *= dot(normal, vec3(0,0,1)) < 0 ? -1 : 1;
-        int noisex = x % 4;
-        int noisey = y % 4;
-        vec3 rvec = noise[noisex + 8*noisey];
+        vec3 rvec = noise[ssao_noise_index(x, y)];
         vec3 tangent = normalize(rvec - normal * dot(rvec, normal));
         vec3 bitangent = cross(normal, tangent);
         glm::mat3 tbn{tangent, bitangent, normal};
@@ -1405,27 +1410,8 @@ List rasterize(List mesh,
         abuffer(x,y) = occlusion;
       }
     }
-    NumericMatrix abuffer_noblur = abuffer;
-    for (int x = 0; x < nx; x++) {
-      for (int y = 0; y < ny; y++) {
-        int uBlurSize = 4;
-        Float result = 0.0;
-        int counter = 0;
-        vec2 hlim = vec2(Float(-uBlurSize) * 0.5);
-        for (int i = 0; i < uBlurSize; ++i) {
-          for (int j = 0; j < uBlurSize; ++j) {
-            vec2 offset = (hlim + vec2((Float)i,(Float)j) + vec2(Float(x), Float(y)));
-            if((int)offset.x >= 0 && (int)offset.x < nx && (int)offset.y >= 0 && (int)offset.y < ny) {
-              result += abuffer_noblur((int)offset.x,(int)offset.y);
-              counter++;
-            }
-          }
-        }
-        if(counter > 0) {
-          abuffer(x,y) = result / Float(counter);
-        }
-      }
-    }
+    NumericMatrix abuffer_noblur = clone(abuffer);
+    blur_ambient(abuffer_noblur.begin(), abuffer.begin(), nx, ny);
     profile.mark("ssao");
     print_time(verbose, "Calculated AO" );
     
@@ -1458,8 +1444,8 @@ List rasterize(List mesh,
 
   for(int i = 0; i < nx; i++) {
     for(int j = 0; j < ny; j++) {
-      for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depths[j + ny*i].rbegin();
-          it != alpha_depths[j + ny*i].rend(); ++it) {
+      for(std::map<Float, alpha_info>::reverse_iterator it = alpha_depths[fragment_index(i, j, nx, ny)].rbegin();
+          it != alpha_depths[fragment_index(i, j, nx, ny)].rend(); ++it) {
         if(it->first <= zbuffer(i,j)) {
           zbuffer(i,j) = it->first;
           vec4 temp_col = it->second.color;
@@ -1478,10 +1464,11 @@ List rasterize(List mesh,
   //Load/blur environment image
   if(has_environment_map) {
     if(background_sharpness != 1.0) {
-      int nx_r_resize = (double)nx_r * background_sharpness;
-      int ny_r_resize = (double)ny_r * background_sharpness;
+      int nx_r_resize = std::max(1, (int)((double)nx_r * background_sharpness));
+      int ny_r_resize = std::max(1, (int)((double)ny_r * background_sharpness));
       
-      float* reflection_map_data_temp = new float[nx_r_resize * ny_r_resize * nn_r];
+      auto reflection_temp = std::make_unique<float[]>(checked_samples(nx_r_resize, ny_r_resize) * nn_r);
+      float* reflection_map_data_temp = reflection_temp.get();
       
       resize_reflection_map(main_reflection_map.reflection, nx_r, ny_r,
                             reflection_map_data_temp, nx_r_resize, ny_r_resize,
@@ -1490,7 +1477,7 @@ List rasterize(List mesh,
       resize_reflection_map(reflection_map_data_temp, nx_r_resize, ny_r_resize,
                             main_reflection_map.reflection, nx_r, ny_r,
                             nn_r);
-      delete[] reflection_map_data_temp;
+
     }
     Float theta = fov * M_PI/180;
     Float half_height = tan(theta/2);
@@ -1521,26 +1508,9 @@ List rasterize(List mesh,
     print_time(verbose, "Blurred environment map" );
   }
   
-  if(has_environment_map) {
-    stbi_image_free(main_reflection_map.reflection);
-  }
-  
-  for(unsigned int j = 0; j < directional_lights.size(); j++) {
-    for(int i = 0; i < depthshaders[j].size(); i++) {
-      delete depthshaders[j][i];
-    }
-  }
-  for(unsigned int i = 0; i < shaders.size(); i++) {
-    delete shaders[i];
-  }
-  
-  for(unsigned int i = 0; i < has_reflection_map.size(); i++) {
-    if(has_reflection_map(i)) {
-      delete[] reflection_maps[i].reflection;
-    }
-  }
-  
-  NumericMatrix linear_depth = zbuffer;
+  // Raster depth remains [0,1], with infinity for uncovered samples.
+  // Exported depth retains the legacy [-1,1], background=1 convention.
+  NumericMatrix linear_depth = clone(zbuffer);
   for(unsigned int i = 0; i < linear_depth.nrow(); i++) {
     for(unsigned int j= 0; j < linear_depth.ncol(); j++) {
       if(std::isinf(linear_depth(i,j))) {
@@ -1660,9 +1630,11 @@ List rasterize(List mesh,
     profile.count("main_active_blocks", active);
     profile.count("main_bin_references", refs);
   }
+  NumericMatrix presentation_depth = clone(zbuffer);
+  for(auto& value : presentation_depth) value = std::isinf(value) ? 1.0 : 2*value - 1;
   profile.finish();
   return(List::create(_["r"] = r, _["g"] = g, _["b"] = b, _["a"] = a,
-                      _["amb"] = abuffer, _["depth"] = zbuffer, _["linear_depth"] = linear_depth,
+                      _["amb"] = abuffer, _["depth"] = presentation_depth, _["linear_depth"] = linear_depth,
                       _["normalx"] = nxbuffer, _["normaly"] = nybuffer, _["normalz"] = nzbuffer,
                       _["positionx"] = xxbuffer, _["positiony"] = yybuffer, _["positionz"] = zzbuffer,
                       _["uvx"] = uvxbuffer, _["uvy"] = uvybuffer, _["uvz"] = uvzbuffer));
