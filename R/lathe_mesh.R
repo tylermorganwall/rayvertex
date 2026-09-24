@@ -34,6 +34,7 @@
 #'
 #' @return A `ray_mesh` object, usable with [rasterize_scene()],
 #' [add_shape()], and [write_scene_to_obj()].
+#' @seealso [draw_lathe_profile()] to draw a profile interactively.
 #' @export
 #' @examples
 #' # A closed bottle, specified as (radius, height) pairs.

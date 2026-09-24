@@ -35,6 +35,7 @@ reference:
       - starts_with("segment")
       - starts_with("cylinder")
       - lathe_mesh
+      - draw_lathe_profile
       - starts_with("obj")
       - starts_with("mesh3d")
       - starts_with("cone")

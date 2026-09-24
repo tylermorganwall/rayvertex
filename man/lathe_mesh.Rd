@@ -80,3 +80,6 @@ rasterize_scene(tumbler, lookfrom = c(5, 5, 7), lookat = c(0, 1.5, 0),
                 fov = 30, light_info = directional_light(c(1, 2, 3)),
                 shadow_map = FALSE)
 }
+\seealso{
+\code{\link[=draw_lathe_profile]{draw_lathe_profile()}} to draw a profile interactively.
+}

@@ -1,3 +1,10 @@
+# rayvertex 0.16.1
+
+* Added `draw_lathe_profile()` to draw radius/height polygons with base R
+  mouse input, a live closing-edge preview, an Undo button, and profiles ready
+  for `lathe_mesh()`.
+
+
 # rayvertex 0.16.0
 
 * Added `extruded_path_mesh()` and `extruded_polygon_mesh()`, moving sweep and
