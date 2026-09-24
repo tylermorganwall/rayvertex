@@ -1,0 +1,5 @@
+"case","width","height","fsaa","cores","regime","sample","elapsed_ms"
+"shadow",800,800,1,1,"process_cold",0,348
+"shadow",800,800,1,1,"warm",1,249
+"shadow",800,800,1,1,"warm",2,221
+"shadow",800,800,1,1,"warm",3,239
