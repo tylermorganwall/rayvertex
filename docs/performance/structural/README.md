@@ -53,3 +53,8 @@ This path is opt-in with `RAYVERTEX_VISIBILITY=1`; it remains disabled by defaul
 ## Profile-guided geometry views
 
 `b448d6b` replaces repeated Rcpp matrix/index access with checked stable geometry views acquired on the main thread. Rcpp ownership remains, all independent indices and flag addressing are preserved, and no packed geometry copy is added. A native profile justified this phase before lower-level experiments. [Measurements](geometry/results.md) show a one-million-triangle native median of 303→216 ms and sustained public mean of 498→412.2 ms; small and other regressions/variation are retained. The 245 scalar-reference outputs and 102 measured image/buffer comparisons are exact.
+
+
+## Extreme-bound correctness follow-up
+
+`811143b` fixes a UBSan-reproduced tile-end signed overflow, widens PCF border offsets before addition, and rejects nonfinite area reciprocals. [Costs and unchanged ordinary images](bounds/results.md) are reported separately from optimizations. The final scalar checkpoint is retained in `codex/raster-final-scalar-reference`; its explicitly scalar corpus matches the clipped scalar corpus, and the default/combined experimental paths match it.

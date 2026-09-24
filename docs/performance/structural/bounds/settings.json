@@ -1,0 +1,20 @@
+{
+  "libraries": {
+    "before": "/tmp/rayvertex-optimization/lib-views",
+    "after": "/tmp/rayvertex-optimization/lib-complete"
+  },
+  "cases": [
+    "small",
+    "near_crossing",
+    "shadow"
+  ],
+  "width": 800,
+  "height": 800,
+  "fsaa": 1,
+  "cores": 1,
+  "warm_samples": 3,
+  "sustained_frames": 5,
+  "visibility": null,
+  "indexed_transforms": null,
+  "prepared_after": null
+}

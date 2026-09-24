@@ -9,7 +9,9 @@ The original clean checkout is pinned at `b09385978f40f976e7e97286191d64d16184b7
 - `codex/raster-scalar-reference` at `7f72368`: scalar implementation after ownership/indexing/initialization corrections, before performance work. Golden corpus: `reference/parity-reference.rds`.
 - `codex/raster-clipped-scalar-reference` at `e512c02`: scalar coverage and corrected clipping/depth, with prior structural representations. Golden corpus: `structural/clipping-reference/reference.rds`, generated with one worker, tree transparency and serial screen passes. Subsequent equivalent phases compare with this corrected contract.
 
-Both references preserve inclusive shared edges, affine screen-depth interpolation, perspective-correct attributes, later-wins opaque equality, transparent equal-depth last-write-wins, triangle-before-line order, and unlimited layer growth. Clipping intentionally changes near-crossing geometry and orthographic depth. The existing scene-derived perspective far distance remains; the public far-distance argument’s prior behavior is not silently redefined.
+- `codex/raster-final-scalar-reference` at `811143b`: final portable scalar checkpoint with the extreme-bound follow-up. Generated with one worker, tree transparency, full buffers and scalar screen passes; corpus in `structural/final-reference/reference.rds`. This retains the structural representations while disabling the optional visibility/indexed experiments.
+
+All references preserve inclusive shared edges, affine screen-depth interpolation, perspective-correct attributes, later-wins opaque equality, transparent equal-depth last-write-wins, triangle-before-line order, and unlimited layer growth. Clipping intentionally changes near-crossing geometry and orthographic depth. The existing scene-derived perspective far distance remains; the public far-distance argument’s prior behavior is not silently redefined.
 
 ## Measurements and reproducibility
 
@@ -26,6 +28,8 @@ The [prepared-scene report](structural/prepared/results.md) documents measured r
 This does not implement every proposed experiment. Bins use deterministic serial count/prefix/fill; normal transforms are not cached; object/submesh bounds and a separate spatial macrotile layout are absent. Native geometry views use the existing column-major arrays, without a persistent fully packed prepared geometry copy. Image, outline and tile layouts retain explicit existing conversions rather than adopting a universal new layout.
 
 The visibility experiment proves opacity only for a conservative subset of untextured shaders. Unknown/mixed tiles fall back. It has no depth-prepass comparison or near-first reordering. Whole-block coverage extrema, hierarchical depth, ISA-specific SIMD and mixed precision remain unimplemented. No numerical tangent-inversion replacement or changed tangent coordinate convention is enabled. Coincident point-light directions retain their legacy exceptional normalization behavior; changing that convention needs a separate correctness phase. Plotting/encoding, disk-cache cold, hardware counters, Windows/Linux and actual Emscripten execution are not measured.
+
+Phase diagnostics still combine material decode with shader construction and default forward coverage with shading; R postprocessing boundaries are coarse, and no shadow-tap counter or total native allocation tracer is supplied. Visibility instrumentation separates summed tile-worker coverage/shading time, which is not multiworker wall time.
 
 The finite release corpus cannot prove every extreme-coordinate, degenerate UV, allocation-failure, or interrupt path. The historical upstream resize alignment UBSan report remains an explicit validation limitation, and macOS LeakSanitizer is unavailable. See the structural validation report for the final tests actually run and their outcomes.
 

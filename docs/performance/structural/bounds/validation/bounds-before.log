@@ -1,0 +1,2 @@
+src/triangle_setup.h:60:35: runtime error: signed integer overflow: 1073741824 + 1073741824 cannot be represented in type 'int'
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior src/triangle_setup.h:60:35 in 
