@@ -667,9 +667,27 @@ List rasterize(List mesh,
   bool tangent_attributes=reference_buffers, vertex_intensity=reference_buffers;
   for(int type:typevals) { tangent_attributes |= type==5 || type==7; vertex_intensity |= type==1; }
   std::vector<vec3> vec_varying_intensity(vertex_intensity ? total_faces : 0, vec3(0.0));
-  TriangleAttributes<vec3> vec_varying_uv(total_faces);
-  TriangleAttributes<vec4> vec_varying_tri(total_faces);
-  TriangleAttributes<vec3> vec_varying_pos(total_faces);
+  // Frame-wide unions are conservative for mixed materials. Debug consumers,
+  // point lights, environment shading and Oren-Nayar retain their inputs.
+  const bool reference_varyings=reference_buffers || std::getenv("RAYVERTEX_REFERENCE_VARYINGS");
+  auto any_flag=[](const LogicalVector& flags) {
+    return std::any_of(flags.begin(),flags.end(),[](int value) { return value!=0; });
+  };
+  bool uv_attributes=reference_varyings || need_uv || any_flag(has_texture) ||
+    any_flag(has_ambient_texture) || any_flag(has_normal_texture) ||
+    any_flag(has_specular_texture) || any_flag(has_emissive_texture);
+  bool position_attributes=reference_varyings || need_positions || !point_lights.empty() ||
+    any_flag(has_reflection_map) || any_flag(has_refraction);
+  for(int i=0;i<number_materials;++i) {
+    uv_attributes |= typevals[i]>=4 && typevals[i]<=7;
+    List material=materials[i];
+    // Match the shader-selection branch even for exceptional sigma values.
+    position_attributes |= typevals[i]==2 && !(as<double>(material["sigma"])<=0);
+  }
+  const bool clip_attributes=reference_varyings || has_shadow_map;
+  TriangleAttributes<vec3> vec_varying_uv(uv_attributes ? total_faces : 0);
+  TriangleAttributes<vec4> vec_varying_tri(clip_attributes ? total_faces : 0);
+  TriangleAttributes<vec3> vec_varying_pos(position_attributes ? total_faces : 0);
   TriangleAttributes<vec3> vec_varying_world_nrm(total_faces);
   TriangleAttributes<vec3> vec_varying_ndc_tri(tangent_attributes ? total_faces : 0);
   TriangleAttributes<vec3> vec_varying_nrm(tangent_attributes ? total_faces : 0);
@@ -1190,7 +1208,7 @@ List rasterize(List mesh,
   
   
   //Calculate Image
-  prepare_indexed(Projection * View * Model, vp, need_raw_clip, need_viewport_clip, true);
+  prepare_indexed(Projection * View * Model, vp, need_raw_clip, need_viewport_clip, position_attributes);
   profile.mark("indexed_main_transforms");
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<Float>::infinity() ) ;
 
@@ -1494,7 +1512,9 @@ List rasterize(List mesh,
   profile.count("shadow_matrix_payload_bytes", has_shadow_map ?
     checked_samples(nx_d, ny_d) * sizeof(double) * (1 + 5*directional_lights.size()) : 0);
   profile.count("varying_payload_bytes", static_cast<std::size_t>(total_faces) *
-    ((vertex_intensity ? sizeof(vec3) : 0) + (3+2*tangent_attributes)*sizeof(std::array<vec3, 3>) + sizeof(std::array<vec4, 3>)));
+    ((vertex_intensity ? sizeof(vec3) : 0) +
+     (1+uv_attributes+position_attributes+2*tangent_attributes)*sizeof(std::array<vec3, 3>) +
+     (clip_attributes ? sizeof(std::array<vec4, 3>) : 0)));
   profile.count("auxiliary_matrix_payload_bytes", checked_samples(nx,ny)*sizeof(double)*
     (3*need_normals+3*need_positions+3*need_uv+need_linear_depth+need_ambient));
   profile.count("environment_variant_requests",environment_variant_requests);
@@ -1525,6 +1545,9 @@ List rasterize(List mesh,
   }
   profile.count("indexed_transform_payload_bytes", indexed_transforms.clip.capacity()*sizeof(vec4) +
     indexed_transforms.viewport_clip.capacity()*sizeof(vec4) + indexed_transforms.view.capacity()*sizeof(vec3));
+  profile.count("varying_uv_payload_bytes",vec_varying_uv.size()*sizeof(std::array<vec3,3>));
+  profile.count("varying_position_payload_bytes",vec_varying_pos.size()*sizeof(std::array<vec3,3>));
+  profile.count("varying_clip_payload_bytes",vec_varying_tri.size()*sizeof(std::array<vec4,3>));
   profile.count("input_triangles", total_faces);
   profile.count("models", models.size());
   profile.count("materials", mat_info.size());

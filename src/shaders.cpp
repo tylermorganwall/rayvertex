@@ -99,14 +99,14 @@ GouraudShader::~GouraudShader() {}
 vec4 GouraudShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
   vec_varying_intensity[global_face][nthvert] = 0.0;
-  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
+  if(!vec_varying_pos.empty()) vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   vec3 vertex_normal = model.model_vertex_normals(iface) ? model.normal(iface, nthvert) :
     glm::normalize(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
                               model.vertex(iface,2)-model.vertex(iface,0)));
   vec_varying_world_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(vertex_normal,0.0f));
   vec4 clip = model.viewport_vertex(iface, nthvert, vp, MVP);
   
-  vec_varying_tri[global_face][nthvert] = clip;
+  if(!vec_varying_tri.empty()) vec_varying_tri[global_face][nthvert] = clip;
   
   return (clip);
 }
@@ -146,7 +146,7 @@ bool GouraudShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int
   }
   // color = vec4(light_color * material.diffuse,1.0f);
   color = light_color; 
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
+  pos =  (vec_varying_pos.empty() ? vec3(0.0) : vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z);
   if(has_reflection && !has_refraction) {
     vec3 dir = uniform_M_inv * vec4(glm::normalize(pos),0.0f);
     vec3 normal_w =  uniform_MIT_inv * vec4(glm::normalize(normal),0.0f);
@@ -242,22 +242,23 @@ ColorShader::ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
 vec4 ColorShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
   vec4 clip = model.clip_vertex(iface, nthvert, MVP);
-  vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
-  vec_varying_tri[global_face][nthvert] =  vp * clip;
-  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
+  if(!vec_varying_uv.empty()) vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
+  const vec4 viewport_clip=vp*clip;
+  if(!vec_varying_tri.empty()) vec_varying_tri[global_face][nthvert]=viewport_clip;
+  if(!vec_varying_pos.empty()) vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   vec_varying_world_nrm[global_face][nthvert] = model.model_vertex_normals(iface) ?
     uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
     uniform_MIT * normalize(vec4(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
                                             model.vertex(iface,2)-model.vertex(iface,0)),0.0f));
-  return (vec_varying_tri[global_face][nthvert]);
+  return viewport_clip;
 }
 
 bool ColorShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec3 uv = (vec_varying_uv.empty() ? vec3(0.0) : vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z);
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
   
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
+  pos =  (vec_varying_pos.empty() ? vec3(0.0) : vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z);
   normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;
   bc = uv;
   color = diffuse_color;
@@ -369,20 +370,21 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
 vec4 DiffuseShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
   vec4 clip = model.clip_vertex(iface, nthvert, MVP);
-  vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
-  vec_varying_tri[global_face][nthvert] =  vp * clip;
-  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
+  if(!vec_varying_uv.empty()) vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
+  const vec4 viewport_clip=vp*clip;
+  if(!vec_varying_tri.empty()) vec_varying_tri[global_face][nthvert]=viewport_clip;
+  if(!vec_varying_pos.empty()) vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   
   vec_varying_world_nrm[global_face][nthvert] = model.model_vertex_normals(iface) ?
     uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
     uniform_MIT * normalize(vec4(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
                                             model.vertex(iface,2)-model.vertex(iface,0)),0.0f));
   
-  return (vec_varying_tri[global_face][nthvert]);
+  return viewport_clip;
 }
 
 bool DiffuseShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec3 uv = (vec_varying_uv.empty() ? vec3(0.0) : vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z);
   vec4 diffuse_color = diffuse(uv);
 
   if(diffuse_color.w == 0.0) return true;
@@ -423,7 +425,7 @@ bool DiffuseShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int
   }
 
 
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
+  pos =  (vec_varying_pos.empty() ? vec3(0.0) : vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z);
   //Directional light contribution
   color = diffuse_color * vec4(light_color,1.0);
   
@@ -546,16 +548,17 @@ OrenNayerShader::OrenNayerShader(Mat& Model, Mat& Projection, Mat& View, vec4& v
 vec4 OrenNayerShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
   vec4 clip = model.clip_vertex(iface, nthvert, MVP);
-  vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
-  vec_varying_tri[global_face][nthvert] =  vp * clip;
-  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
+  if(!vec_varying_uv.empty()) vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
+  const vec4 viewport_clip=vp*clip;
+  if(!vec_varying_tri.empty()) vec_varying_tri[global_face][nthvert]=viewport_clip;
+  if(!vec_varying_pos.empty()) vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   
   vec_varying_world_nrm[global_face][nthvert] = model.model_vertex_normals(iface) ?
   uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
     uniform_MIT * normalize(vec4(glm::cross(model.vertex(iface,1)-model.vertex(iface,0),
                                             model.vertex(iface,2)-model.vertex(iface,0)),0.0f));
   
-  return (vec_varying_tri[global_face][nthvert]);
+  return viewport_clip;
 }
 
 // Clamp helper
@@ -586,7 +589,7 @@ bool OrenNayerShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, i
     }
     return (A + B * cosPhiDiff * sinAlpha * tanBeta);
   };
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec3 uv = (vec_varying_uv.empty() ? vec3(0.0) : vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z);
   vec4 diffuse_color = diffuse(uv);
   
   if(diffuse_color.w == 0.0) return true;
@@ -781,19 +784,19 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
 
 vec4 DiffuseNormalShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
-  vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
-  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
+  if(!vec_varying_uv.empty()) vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
+  if(!vec_varying_pos.empty()) vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   vec_varying_world_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   
   vec4 clip = model.viewport_vertex(iface, nthvert, vp, MVP);
-  vec_varying_tri[global_face][nthvert] = clip;
+  if(!vec_varying_tri.empty()) vec_varying_tri[global_face][nthvert] = clip;
   
   
   return (clip);
 }
 
 bool DiffuseNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec3 uv = (vec_varying_uv.empty() ? vec3(0.0) : vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z);
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
   vec3 n = normalize(vec3(uniform_MIT * vec4(normal_uv(uv), 0.0f)));
@@ -831,7 +834,7 @@ bool DiffuseNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& norma
   
   color = diffuse_color * vec4(light_color, 1.0);
   normal = n;
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
+  pos =  (vec_varying_pos.empty() ? vec3(0.0) : vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z);
   for(unsigned int i = 0; i < plights.size(); i++) {
     const auto point_sample=plights[i].sample(pos);
     color += diffuse_color * vec4(point_sample.attenuation,0.0f) * fmax(0.0f,dot(normal, point_sample.direction));
@@ -945,23 +948,23 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
 
 vec4 DiffuseShaderTangent::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
-  vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
+  if(!vec_varying_uv.empty()) vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
   vec_varying_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
-  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
+  if(!vec_varying_pos.empty()) vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   vec_varying_world_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   
 
   vec4 ndc = model.clip_vertex(iface, nthvert, MVP);
   vec_varying_ndc_tri[global_face][nthvert] = vec3(ndc/ndc.w);
   vec4 clip = model.viewport_vertex(iface, nthvert, vp, MVP);
-  vec_varying_tri[global_face][nthvert] = clip;
+  if(!vec_varying_tri.empty()) vec_varying_tri[global_face][nthvert] = clip;
   
   
   return clip;
 }
 
 bool DiffuseShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec3 uv = (vec_varying_uv.empty() ? vec3(0.0) : vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z);
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
   
@@ -1010,7 +1013,7 @@ bool DiffuseShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& norm
     light_color += (vec3(trans_color) * trans_color.w * directional_lights[ii].intensity + 
       (1-trans_color.w) *  directional_lights[ii].color * directional_lights[ii].intensity) * shadow * intensity;
   }
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
+  pos =  (vec_varying_pos.empty() ? vec3(0.0) : vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z);
   
   vec4 dir_shadow_int = vec4(light_color, 1.0f);
   //Directional light contribution
@@ -1128,10 +1131,10 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
 
 vec4 PhongShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
-  vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
-  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
+  if(!vec_varying_uv.empty()) vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
+  if(!vec_varying_pos.empty()) vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   vec4 clip = model.viewport_vertex(iface, nthvert, vp, MVP);
-  vec_varying_tri[global_face][nthvert] = clip;
+  if(!vec_varying_tri.empty()) vec_varying_tri[global_face][nthvert] = clip;
   
   vec_varying_world_nrm[global_face][nthvert] = model.model_vertex_normals(iface) ?
     uniform_MIT * normalize(vec4(model.normal(iface, nthvert),0.0f)) : 
@@ -1142,7 +1145,7 @@ vec4 PhongShader::vertex(int iface, int nthvert, ModelInfo& model) {
 }
 
 bool PhongShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec3 uv = (vec_varying_uv.empty() ? vec3(0.0) : vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z);
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
   normal =  (vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z);
@@ -1182,7 +1185,7 @@ bool PhongShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int i
     vec3 r = normalize(2.0f*dot(normal,l_dir)*normal - l_dir);
     spec_total += vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f) * (shadow) * directional_lights[ii].intensity; 
   }
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
+  pos =  (vec_varying_pos.empty() ? vec3(0.0) : vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z);
   
   vec4 amb = ambient(uv);
   vec4 emit = emissive(uv);
@@ -1299,19 +1302,19 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
 
 vec4 PhongNormalShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
-  vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
-  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
+  if(!vec_varying_uv.empty()) vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
+  if(!vec_varying_pos.empty()) vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   vec_varying_world_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   
   vec4 clip = model.viewport_vertex(iface, nthvert, vp, MVP);
-  vec_varying_tri[global_face][nthvert] = clip;
+  if(!vec_varying_tri.empty()) vec_varying_tri[global_face][nthvert] = clip;
   
   
   return clip;
 }
 
 bool PhongNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec3 uv = (vec_varying_uv.empty() ? vec3(0.0) : vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z);
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
   normal = normalize(vec3(uniform_MIT * vec4(normal_uv(uv),0.0f)));
@@ -1351,7 +1354,7 @@ bool PhongNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal,
     vec3 r = normalize(2.0f*dot(normal,l_dir)*normal - l_dir);
     spec_total += vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f) * (shadow) * directional_lights[ii].intensity; 
   }
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
+  pos =  (vec_varying_pos.empty() ? vec3(0.0) : vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z);
   
   vec3 ambient = material.ambient;
   vec4 emit = emissive(uv);
@@ -1472,22 +1475,22 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
 
 vec4 PhongShaderTangent::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
-  vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
+  if(!vec_varying_uv.empty()) vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
   vec_varying_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
-  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
+  if(!vec_varying_pos.empty()) vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   vec_varying_world_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   
   vec4 clip = model.clip_vertex(iface, nthvert, MVP);
   vec_varying_ndc_tri[global_face][nthvert] = clip/clip.w;
   clip = vp * clip;
-  vec_varying_tri[global_face][nthvert] = clip;
+  if(!vec_varying_tri.empty()) vec_varying_tri[global_face][nthvert] = clip;
   
   
   return clip;
 }
 
 bool PhongShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec3 uv = (vec_varying_uv.empty() ? vec3(0.0) : vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z);
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
   
@@ -1541,7 +1544,7 @@ bool PhongShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal
     spec_total += vec4(spec_uv * std::pow(std::fmax(r.z, 0.0f), material.shininess),0.0f) * (shadow) * directional_lights[ii].intensity; 
   }
   
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
+  pos =  (vec_varying_pos.empty() ? vec3(0.0) : vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z);
   
   vec4 amb = ambient(uv);
   vec4 emit = emissive(uv);
@@ -1613,15 +1616,15 @@ DepthShader::DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
 vec4 DepthShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
   vec4 clip = model.viewport_vertex(iface, nthvert, vp, MVP);
-  vec_varying_tri[global_face][nthvert] = clip;
-  vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
+  if(!vec_varying_tri.empty()) vec_varying_tri[global_face][nthvert] = clip;
+  if(!vec_varying_uv.empty()) vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
   
   return  clip;
 }
 
 bool DepthShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
   normal = vec3(0.0);
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec3 uv = (vec_varying_uv.empty() ? vec3(0.0) : vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z);
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
   
@@ -1709,9 +1712,10 @@ ToonShader::~ToonShader() {}
 vec4 ToonShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
   vec4 clip = model.clip_vertex(iface, nthvert, MVP);
-  vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
-  vec_varying_tri[global_face][nthvert] =  vp * clip;
-  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
+  if(!vec_varying_uv.empty()) vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
+  const vec4 viewport_clip=vp*clip;
+  if(!vec_varying_tri.empty()) vec_varying_tri[global_face][nthvert]=viewport_clip;
+  if(!vec_varying_pos.empty()) vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   
   vec_varying_world_nrm[global_face][nthvert] = model.model_vertex_normals(iface) ?
   uniform_MIT * vec4(model.normal(iface, nthvert),0.0f) : 
@@ -1719,11 +1723,11 @@ vec4 ToonShader::vertex(int iface, int nthvert, ModelInfo& model) {
                                             model.vertex(iface,2)-model.vertex(iface,0)),0.0f));
   
   
-  return (vec_varying_tri[global_face][nthvert]);
+  return viewport_clip;
 }
 
 bool ToonShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec3 uv = (vec_varying_uv.empty() ? vec3(0.0) : vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z);
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
   normal =  vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z;
@@ -1760,7 +1764,7 @@ bool ToonShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int if
       (1-trans_color.w) *  directional_lights[ii].color) * 
       (Float)round(material.toon_levels * directional_lights[ii].intensity * shadow * intensity)/material.toon_levels;
   }
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
+  pos =  (vec_varying_pos.empty() ? vec3(0.0) : vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z);
   //Directional light contribution
   color = diffuse_color * vec4(light_color,1.0);
   
@@ -1851,10 +1855,10 @@ ToonShaderPhong::~ToonShaderPhong() {}
 
 vec4 ToonShaderPhong::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
-  vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
-  vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
+  if(!vec_varying_uv.empty()) vec_varying_uv[global_face][nthvert] = model.tex(iface,nthvert);
+  if(!vec_varying_pos.empty()) vec_varying_pos[global_face][nthvert] = model.view_vertex(iface, nthvert, uniform_M);
   vec4 clip = model.viewport_vertex(iface, nthvert, vp, MVP);
-  vec_varying_tri[global_face][nthvert] = clip;
+  if(!vec_varying_tri.empty()) vec_varying_tri[global_face][nthvert] = clip;
   
   vec_varying_world_nrm[global_face][nthvert] = model.model_vertex_normals(iface) ?
   uniform_MIT * normalize(vec4(model.normal(iface, nthvert),0.0f)) : 
@@ -1865,7 +1869,7 @@ vec4 ToonShaderPhong::vertex(int iface, int nthvert, ModelInfo& model) {
 }
 
 bool ToonShaderPhong::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) {
-  vec3 uv = vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z;
+  vec3 uv = (vec_varying_uv.empty() ? vec3(0.0) : vec_varying_uv[iface][0] * bc.x + vec_varying_uv[iface][1] * bc.y + vec_varying_uv[iface][2] * bc.z);
   vec4 diffuse_color = diffuse(uv);
   if(diffuse_color.w == 0.0) return true;
   normal =  (vec_varying_world_nrm[iface][0] * bc.x + vec_varying_world_nrm[iface][1] * bc.y + vec_varying_world_nrm[iface][2] * bc.z);
@@ -1908,7 +1912,7 @@ bool ToonShaderPhong::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, i
     spec_total += vec4(spec_uv * 
     (Float)round(material.toon_levels * std::pow(std::fmax(r.z, 0.0f), material.shininess) * shadow * directional_lights[ii].intensity)/material.toon_levels,0.0f); 
   }
-  pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
+  pos =  (vec_varying_pos.empty() ? vec3(0.0) : vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z);
   
   vec4 amb = ambient(uv);
   vec4 emit = emissive(uv);
