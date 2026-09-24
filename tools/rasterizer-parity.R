@@ -8,7 +8,7 @@ stopifnot(
     normalizePath(file.path(args[1], "rayvertex"))
 )
 source("tools/rasterizer-fixtures.R")
-options(cores = 4L)
+options(cores = as.integer(Sys.getenv("RAYVERTEX_PARITY_CORES", "4")))
 base = list(
   width = 47,
   height = 33,

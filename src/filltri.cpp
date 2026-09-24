@@ -65,6 +65,10 @@ void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
                                   bc.y*v2_ndc_inv_w,
                                   bc.z*v3_ndc_inv_w);
               bc_clip /= (bc_clip.x + bc_clip.y + bc_clip.z);
+              if(setup.clip_weights>=0) {
+                const auto& weights=bins.clip_weights[setup.clip_weights];
+                bc_clip=weights[0]*bc_clip.x+weights[1]*bc_clip.y+weights[2]*bc_clip.z;
+              }
 
               if constexpr (Collect) ++counters->shaded;
               bool discard = shaders[mat_num]->fragment(bc_clip, color, position, normal, global_face);

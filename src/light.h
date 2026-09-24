@@ -32,7 +32,10 @@ public:
                    Float intensity_) : 
     direction(direction), color(color)  {
     lightProjection = glm::ortho(-scene_diag/2, scene_diag/2, -scene_diag/2, scene_diag/2, 
-                                 0.1, scene_diag);
+                                 0.1, 2.0*scene_diag);
+    // The eye is one diagonal from the center; contain the far half too.
+    // Preserve the existing bias in world-distance units under this remapping.
+    shadow_bias_scale=(scene_diag-0.1)/(2.0*scene_diag-0.1);
     lightView = glm::lookAt(scene_center + direction * scene_diag,
                             scene_center,
                             light_up);
@@ -45,6 +48,7 @@ public:
   vec3 color;
   Float intensity;
   
+  Float shadow_bias_scale;
   Mat lightProjection;
   Mat lightView;
   Mat M;

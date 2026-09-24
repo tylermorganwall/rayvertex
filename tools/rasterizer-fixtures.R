@@ -55,6 +55,19 @@ rasterizer_fixture = function(name) {
     alpha4 = list(scene = rasterizer_grid(512L, 4L, 0.3)),
     alpha16 = list(scene = rasterizer_grid(512L, 16L, 0.15)),
     alpha64 = list(scene = rasterizer_grid(512L, 64L, 0.05)),
+    alpha129 = list(scene = rasterizer_grid(512L, 129L, 0.025)),
+    orthographic = list(
+      scene = sphere_mesh(),
+      fov = 0,
+      ortho_dimensions = c(3, 2)
+    ),
+    near_crossing = list(
+      scene = construct_mesh(
+        rbind(c(-0.2, -0.2, 3.95), c(0.4, -0.2, 3), c(0, 0.4, 3)),
+        matrix(0:2, 1),
+        material = material_list(culling = "none")
+      )
+    ),
     ssao = list(scene = sphere_mesh(), ssao = TRUE),
     shadow = list(scene = sphere_mesh(), shadow_map = TRUE),
     toon = list(scene = sphere_mesh(material = material_list(type = "toon"))),

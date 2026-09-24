@@ -158,3 +158,47 @@ test_that("object-normal point lighting does not depend on previous fragments", 
   withr::local_options(cores = 4L)
   expect_identical(do.call(rasterize_scene, args), serial)
 })
+
+test_that("homogeneous clipping rejects behind-camera geometry and bounds crossings", {
+  material = material_list(type = "color", culling = "none")
+  behind = construct_mesh(
+    rbind(c(-0.2, -0.2, 5), c(0.4, -0.2, 5), c(0, 0.4, 5)),
+    matrix(0:2, 1),
+    material = material
+  )
+  out = render_regression(behind, debug = "all")
+  expect_true(all(out$depth == 1))
+  crossing = construct_mesh(
+    rbind(c(-0.2, -0.2, 4.1), c(0.4, -0.2, 3), c(0, 0.4, 3)),
+    matrix(0:2, 1),
+    material = material
+  )
+  out = render_regression(crossing, debug = "all")
+  expect_true(any(out$depth < 1))
+  expect_true(all(is.finite(out$depth)))
+  expect_true(all(out$depth >= -1 - 1e-12 & out$depth <= 1 + 1e-12))
+  expect_true(all(is.finite(out$r)))
+})
+
+test_that("orthographic clipping keeps visible geometry and reports linear view depth", {
+  out = render_regression(
+    xy_rect_mesh(material = material_list(type = "color", culling = "none")),
+    fov = 0,
+    ortho_dimensions = c(3, 3),
+    debug = "all"
+  )
+  covered = out$depth < 1
+  expect_true(any(covered))
+  expect_equal(
+    out$linear_depth[covered],
+    rep(4, sum(covered)),
+    tolerance = 1e-12
+  )
+})
+
+test_that("nonfinite transformed vertices fail before raster integer conversion", {
+  expect_error(
+    render_regression(vertex_transform = function(x) x * NaN),
+    "transformed vertices should be finite"
+  )
+})

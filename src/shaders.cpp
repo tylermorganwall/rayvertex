@@ -126,6 +126,7 @@ bool GouraudShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
         Float bias = std::fmax(shadow_map_bias*10.0 * (1.0 - intensity),shadow_map_bias);
+        bias *= directional_lights[ii].shadow_bias_scale;
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
@@ -407,6 +408,7 @@ bool DiffuseShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int
       
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
         Float bias = std::fmax(shadow_map_bias*10.0 * (1.0 - intensity),shadow_map_bias);
+        bias *= directional_lights[ii].shadow_bias_scale;
 
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
@@ -639,6 +641,7 @@ bool OrenNayerShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, i
       if (sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() &&
           sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
         Float bias = std::fmax(shadow_map_bias*10.0f * (1.0f - intensity), shadow_map_bias);
+        bias *= directional_lights[ii].shadow_bias_scale;
         int i = int(sb_p[0]), j = int(sb_p[1]);
         for (int x = -2; x <= 2; ++x) {
           for (int y = -2; y <= 2; ++y) {
@@ -821,6 +824,7 @@ bool DiffuseNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& norma
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
         Float bias = std::fmax(shadow_map_bias*10.0 * (1.0 - intensity),shadow_map_bias);
+        bias *= directional_lights[ii].shadow_bias_scale;
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
@@ -1006,6 +1010,7 @@ bool DiffuseShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& norm
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
         Float bias = std::fmax(shadow_map_bias*10.0 * (1.0 - intensity),shadow_map_bias);
+        bias *= directional_lights[ii].shadow_bias_scale;
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
@@ -1180,6 +1185,7 @@ bool PhongShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int i
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
         Float bias = std::fmax(shadow_map_bias*10.0 * (1.0 - intensity),shadow_map_bias);
+        bias *= directional_lights[ii].shadow_bias_scale;
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
@@ -1353,6 +1359,7 @@ bool PhongNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal,
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
         Float bias = std::fmax(shadow_map_bias*10.0 * (1.0 - intensity),shadow_map_bias);
+        bias *= directional_lights[ii].shadow_bias_scale;
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
@@ -1546,6 +1553,7 @@ bool PhongShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
         Float bias = std::fmax(shadow_map_bias*10.0 * (1.0 - intensity),shadow_map_bias);
+        bias *= directional_lights[ii].shadow_bias_scale;
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
@@ -1770,6 +1778,7 @@ bool ToonShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int if
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
         Float bias = std::fmax(shadow_map_bias*10.0 * (1.0 - intensity),shadow_map_bias);
+        bias *= directional_lights[ii].shadow_bias_scale;
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
@@ -1919,6 +1928,7 @@ bool ToonShaderPhong::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, i
       sb_p = sb_p/sb_p.w;
       if(sb_p[0] >= 0 && sb_p[0] < shadowbuffers[ii].width() && sb_p[1] >= 0 && sb_p[1] < shadowbuffers[ii].height()) {
         Float bias = std::fmax(shadow_map_bias*10.0 * (1.0 - intensity),shadow_map_bias);
+        bias *= directional_lights[ii].shadow_bias_scale;
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);

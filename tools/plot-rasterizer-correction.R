@@ -30,8 +30,8 @@ for (i in 1:3) {
   }
   rasterImage(as.raster(panel), 0, 0, 1, 1, interpolate = FALSE)
   title(c(
-    "Original SSAO",
-    "Corrected scalar SSAO",
+    if (length(args) >= 4) args[4] else "Original SSAO",
+    if (length(args) >= 5) args[5] else "Corrected scalar SSAO",
     "Maximum channel absolute error"
   )[i])
 }

@@ -12,7 +12,7 @@ if len(sys.argv) != 4:
 libs = dict(zip(['before', 'after'], sys.argv[1:3]))
 root = pathlib.Path(sys.argv[3])
 root.mkdir(parents=True, exist_ok=True)
-cases = ['small', 'grid1m', 'alpha4', 'alpha16', 'alpha64', 'shadow']
+cases = os.environ.get('RAYVERTEX_STRUCTURAL_CASES', 'small,grid1m,alpha4,alpha16,alpha64,shadow').split(',')
 for i, case in enumerate(cases):
     for variant in (['before', 'after'] if i % 2 == 0 else ['after', 'before']):
         out = root / variant

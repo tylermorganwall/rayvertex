@@ -487,7 +487,7 @@ List rasterize(List mesh,
                                     (Float)nx / (Float)ny, 
                                     (Float)near_clip, 
                                     (Float)far_clip) :
-    glm::ortho(-(Float)ortho_dims(0)/2, (Float)ortho_dims(0)/2, -(Float)ortho_dims(1)/2, (Float)ortho_dims(1)/2);
+    glm::ortho(-(Float)ortho_dims(0)/2, (Float)ortho_dims(0)/2, -(Float)ortho_dims(1)/2, (Float)ortho_dims(1)/2, (Float)near_clip, (Float)far_clip);
   vec4 viewport(0.0f, 0.0f, (Float)nx-1, (Float)ny-1);
   vec4 viewport_depth(0.0f, 0.0f, (Float)shadowdims(0)-1, (Float)shadowdims(1)-1);
   int nx_d = shadowdims(0);
@@ -1137,7 +1137,7 @@ List rasterize(List mesh,
           
           std::array<vec4,3> clip;
           for(int k=0;k<3;++k) clip[k]=depthshaders[sb][mat_num]->vertex(i,k,shp);
-          blocks_depth.add(clip,shp.index_offset+i,mat_num,depthshaders[sb][mat_num]->get_culling(),true);
+          blocks_depth.add_clipped(clip,shp.index_offset+i,mat_num,depthshaders[sb][mat_num]->get_culling(),true);
         }
       }
       profile.mark("shadow_" + std::to_string(sb) + "_transform_setup");
@@ -1188,11 +1188,8 @@ List rasterize(List mesh,
       std::array<vec4,3> clip;
       for(int k=0;k<3;++k) {
         clip[k]=shaders[mat_num]->vertex(i,k,shp);
-        // Retain legacy clamping here; homogeneous clipping is a separate correction.
-        clip[k].w=clip[k].w<near_clip ? near_clip : clip[k].w;
-        clip[k].w=clip[k].w>far_clip ? far_clip : clip[k].w;
       }
-      blocks.add(clip,shp.index_offset+i,mat_num,shaders[mat_num]->get_culling(),false);
+      blocks.add_clipped(clip,shp.index_offset+i,mat_num,shaders[mat_num]->get_culling(),false);
     }
   }
   profile.mark("main_transform_setup");
@@ -1385,7 +1382,10 @@ List rasterize(List mesh,
       linear_depth(i,j) = 2*linear_depth(i,j) - 1;
     }
   }
-  linear_depth = 2*near_clip*far_clip/(far_clip + near_clip - linear_depth * (far_clip-near_clip));
+  if(fov!=0.0)
+    linear_depth = 2*near_clip*far_clip/(far_clip + near_clip - linear_depth * (far_clip-near_clip));
+  else
+    linear_depth = near_clip+(linear_depth+1.0)*0.5*(far_clip-near_clip);
   profile.mark("depth_conversion");
   print_time(verbose, "Calculated linear depth" );
 
@@ -1513,6 +1513,8 @@ List rasterize(List mesh,
     profile.count("main_active_blocks", active);
     profile.count("main_bin_references", blocks.references());
     profile.count("main_setup_count", blocks.attempted);
+    profile.count("main_post_clip_triangles", blocks.attempted);
+    profile.count("main_clipped_triangles", blocks.clip_weights.size());
     profile.count("main_culled_primitives", blocks.culled);
     profile.count("main_setup_bin_capacity_bytes", blocks.capacity_bytes());
   }
