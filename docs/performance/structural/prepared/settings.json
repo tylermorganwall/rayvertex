@@ -1,0 +1,23 @@
+{
+  "libraries": {
+    "before": "/tmp/rayvertex-optimization/lib-prepared",
+    "after": "/tmp/rayvertex-optimization/lib-prepared"
+  },
+  "cases": [
+    "small",
+    "grid1m",
+    "shared_textures",
+    "shadow",
+    "alpha16",
+    "environment"
+  ],
+  "width": 800,
+  "height": 800,
+  "fsaa": 1,
+  "cores": 1,
+  "warm_samples": 3,
+  "sustained_frames": 5,
+  "visibility": null,
+  "indexed_transforms": null,
+  "prepared_after": "1"
+}
