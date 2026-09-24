@@ -1133,8 +1133,8 @@ List rasterize(List mesh,
       for(unsigned int model_num = 0; model_num < models.size(); model_num++ ) {
         ModelInfo &shp = models[model_num];
         for(int i = 0; i < shp.num_indices; i++) {
-          int mat_num = shp.materials[i] >= 0 && shp.materials[i] < (int)shaders.size() ? 
-            shp.materials[i] : shaders.size()-1;
+          int mat_num = shp.material(i) >= 0 && shp.material(i) < (int)shaders.size() ?
+            shp.material(i) : shaders.size()-1;
           
           std::array<vec4,3> clip;
           for(int k=0;k<3;++k) clip[k]=depthshaders[sb][mat_num]->vertex(i,k,shp);
@@ -1190,8 +1190,8 @@ List rasterize(List mesh,
     ModelInfo &shp = models[model_num];
     for(int i = 0; i < shp.num_indices; i++) {
 
-      int mat_num = shp.materials[i] >= 0 && shp.materials[i] < (int)shaders.size() ?
-        shp.materials[i] : shaders.size()-1;
+      int mat_num = shp.material(i) >= 0 && shp.material(i) < (int)shaders.size() ?
+        shp.material(i) : shaders.size()-1;
       std::array<vec4,3> clip;
       for(int k=0;k<3;++k) {
         clip[k]=shaders[mat_num]->vertex(i,k,shp);
