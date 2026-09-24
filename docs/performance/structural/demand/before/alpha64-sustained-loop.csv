@@ -1,0 +1,2 @@
+"case","samples","total_ms","cleanup_ms","mean_with_cleanup_ms","fps_with_cleanup"
+"alpha64",5,11275,28.9999999999999,2255,0.443458980044346
