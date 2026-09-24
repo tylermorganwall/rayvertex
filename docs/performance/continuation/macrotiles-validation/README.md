@@ -1,0 +1,3 @@
+# Spatial macrotiles validation
+
+`888c0d5`: standalone ASan/UBSan checks prove complete disjoint active-block ownership over rectangular, partial, empty and arbitrary-microblock grids. The package test passes 28 assertions covering 16/32/64 edges over 3/4/7 microblocks with SSAO, toon outlines, alpha and shadows. The 245-result scalar corpus remains exact with macrotiles, prepared scenes, visibility and parallel bins combined at ten workers. Each of the three measured sweeps has 153/153 exact image/buffer comparisons. Package TSan and native no-thread validation are part of the final combined checks.

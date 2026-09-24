@@ -1,0 +1,116 @@
+{
+  "before": "/tmp/rayvertex-optimization/lib-coverage-bounds",
+  "after": "/tmp/rayvertex-optimization/lib-coverage-bounds",
+  "suite": "coverage",
+  "jobs": [
+    [
+      "small",
+      800,
+      800,
+      1,
+      1
+    ],
+    [
+      "grid100k",
+      800,
+      800,
+      1,
+      1
+    ],
+    [
+      "grid1m",
+      800,
+      800,
+      1,
+      1
+    ],
+    [
+      "alpha4",
+      800,
+      800,
+      1,
+      1
+    ],
+    [
+      "alpha16",
+      800,
+      800,
+      1,
+      1
+    ],
+    [
+      "slivers",
+      800,
+      800,
+      1,
+      1
+    ],
+    [
+      "shadow",
+      800,
+      800,
+      1,
+      1
+    ],
+    [
+      "small",
+      800,
+      800,
+      1,
+      4
+    ],
+    [
+      "grid100k",
+      800,
+      800,
+      1,
+      4
+    ],
+    [
+      "grid1m",
+      800,
+      800,
+      1,
+      4
+    ],
+    [
+      "alpha4",
+      800,
+      800,
+      1,
+      4
+    ],
+    [
+      "alpha16",
+      800,
+      800,
+      1,
+      4
+    ],
+    [
+      "slivers",
+      800,
+      800,
+      1,
+      4
+    ],
+    [
+      "shadow",
+      800,
+      800,
+      1,
+      4
+    ],
+    [
+      "grid100k",
+      1920,
+      1080,
+      2,
+      4
+    ]
+  ],
+  "warm_samples": 3,
+  "native_samples": 3,
+  "diagnostic_samples": 1,
+  "macrotile_after": null
+}

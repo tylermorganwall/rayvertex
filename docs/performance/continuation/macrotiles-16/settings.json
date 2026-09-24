@@ -1,0 +1,74 @@
+{
+  "before": "/tmp/rayvertex-optimization/lib-macrotiles",
+  "after": "/tmp/rayvertex-optimization/lib-macrotiles",
+  "suite": "macrotiles",
+  "jobs": [
+    [
+      "grid1m",
+      800,
+      800,
+      1,
+      4
+    ],
+    [
+      "alpha16",
+      800,
+      800,
+      1,
+      4
+    ],
+    [
+      "overdraw",
+      800,
+      800,
+      1,
+      4
+    ],
+    [
+      "grid1m",
+      800,
+      800,
+      1,
+      10
+    ],
+    [
+      "alpha16",
+      800,
+      800,
+      1,
+      10
+    ],
+    [
+      "overdraw",
+      800,
+      800,
+      1,
+      10
+    ],
+    [
+      "small",
+      800,
+      800,
+      1,
+      4
+    ],
+    [
+      "shadow",
+      800,
+      800,
+      1,
+      4
+    ],
+    [
+      "ssao",
+      800,
+      800,
+      1,
+      4
+    ]
+  ],
+  "warm_samples": 3,
+  "native_samples": 3,
+  "diagnostic_samples": 1,
+  "macrotile_after": "16"
+}
