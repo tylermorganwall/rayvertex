@@ -37,7 +37,7 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
                              TriangleAttributes<vec3>& vec_varying_ndc_tri,
                              TriangleAttributes<vec3>& vec_varying_nrm,
                              reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
-  Projection(Projection), View(View), viewport(viewport),
+  Model(Model), Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
@@ -97,7 +97,7 @@ GouraudShader::~GouraudShader() {}
 
 vec4 GouraudShader::vertex(int iface, int nthvert, ModelInfo& model) {
   int global_face = model.index_offset + iface;
-  vec_varying_intensity[global_face][nthvert] = std::fmax(0.f, dot(model.normal(iface, nthvert),light_dir));
+  vec_varying_intensity[global_face][nthvert] = 0.0;
   vec_varying_pos[global_face][nthvert] = vec3(View * Model * vec4(model.vertex(iface, nthvert),1.0f));
   vec_varying_world_nrm[global_face][nthvert] = vec3(uniform_MIT * vec4(model.normal(iface, nthvert),0.0f));
   vec4 clip = vp * MVP * vec4(model.vertex(iface, nthvert),1.0f);
@@ -186,7 +186,7 @@ ColorShader::ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                          TriangleAttributes<vec3>& vec_varying_ndc_tri,
                          TriangleAttributes<vec3>& vec_varying_nrm,
                          reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
-  Projection(Projection), View(View), viewport(viewport), material(mat_info),
+  Model(Model), Projection(Projection), View(View), viewport(viewport), material(mat_info),
   vec_varying_uv(vec_varying_uv),
   vec_varying_tri(vec_varying_tri), vec_varying_pos(vec_varying_pos), vec_varying_world_nrm(vec_varying_world_nrm),
   reflection_map(reflection_map), has_reflection(has_reflection), has_refraction(has_refraction)   {
@@ -309,7 +309,7 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
               TriangleAttributes<vec3>& vec_varying_nrm,
               reflection_map_info reflection_map, bool has_reflection, bool has_refraction,
               bool two_sided) :
-    Projection(Projection), View(View), viewport(viewport),
+    Model(Model), Projection(Projection), View(View), viewport(viewport),
     has_shadow_map(has_shadow_map),
     shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
     directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
@@ -485,7 +485,7 @@ OrenNayerShader::OrenNayerShader(Mat& Model, Mat& Projection, Mat& View, vec4& v
                              TriangleAttributes<vec3>& vec_varying_nrm,
                              reflection_map_info reflection_map, bool has_reflection, bool has_refraction,
                              bool two_sided) :
-  Projection(Projection), View(View), viewport(viewport),
+  Model(Model), Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
@@ -728,7 +728,7 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
              TriangleAttributes<vec3>& vec_varying_ndc_tri,
              TriangleAttributes<vec3>& vec_varying_nrm,
              reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
-  Projection(Projection), View(View), viewport(viewport),
+  Model(Model), Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
@@ -894,7 +894,7 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
                                        TriangleAttributes<vec3>& vec_varying_ndc_tri,
                                        TriangleAttributes<vec3>& vec_varying_nrm,
                                        reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
-  Projection(Projection), View(View), viewport(viewport),
+  Model(Model), Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
@@ -1081,7 +1081,7 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                                      TriangleAttributes<vec3>& vec_varying_ndc_tri,
                                      TriangleAttributes<vec3>& vec_varying_nrm,
                                      reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
-  Projection(Projection), View(View), viewport(viewport),
+  Model(Model), Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
@@ -1258,7 +1258,7 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
             TriangleAttributes<vec3>& vec_varying_ndc_tri,
             TriangleAttributes<vec3>& vec_varying_nrm,
             reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
-  Projection(Projection), View(View), viewport(viewport),
+  Model(Model), Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
@@ -1434,7 +1434,7 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
                          TriangleAttributes<vec3>& vec_varying_ndc_tri,
                          TriangleAttributes<vec3>& vec_varying_nrm,
                          reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
-  Projection(Projection), View(View), viewport(viewport),
+  Model(Model), Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
@@ -1619,7 +1619,7 @@ DepthShader::DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                           TriangleAttributes<vec3>& vec_varying_uv,
                           TriangleAttributes<vec4>& vec_varying_tri
                           ) :
-  Projection(Projection), View(View), viewport(viewport),
+  Model(Model), Projection(Projection), View(View), viewport(viewport),
   material(mat_info), vec_varying_uv(vec_varying_uv), vec_varying_tri(vec_varying_tri)
   {
   MVP = Projection * View * Model;
@@ -1674,7 +1674,7 @@ ToonShader::ToonShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                              TriangleAttributes<vec3>& vec_varying_ndc_tri,
                              TriangleAttributes<vec3>& vec_varying_nrm,
                              reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
-  Projection(Projection), View(View), viewport(viewport),
+  Model(Model), Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
@@ -1820,7 +1820,7 @@ ToonShaderPhong::ToonShaderPhong(Mat& Model, Mat& Projection, Mat& View, vec4& v
                        TriangleAttributes<vec3>& vec_varying_ndc_tri,
                        TriangleAttributes<vec3>& vec_varying_nrm,
                        reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
-  Projection(Projection), View(View), viewport(viewport),
+  Model(Model), Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
   shadow_map_bias(shadow_map_bias), material(mat_info), plights(point_lights), 
   directional_lights(directional_lights), shadowbuffers(shadowbuffers), transparency_buffers(transparency_buffers),
