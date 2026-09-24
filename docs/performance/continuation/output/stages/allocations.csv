@@ -1,0 +1,5 @@
+"stage","variant","R_allocation_bytes"
+"assemble_decode_orient","reference",279086680
+"assemble_decode_orient","fused",40960096
+"clamp","reference",153679296
+"clamp","fused",40960096

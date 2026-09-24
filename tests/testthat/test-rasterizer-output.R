@@ -32,10 +32,16 @@ test_that("fused output matches scalar decoding, orientation, alpha and metadata
     expect_identical(actual, reference)
     expect_identical(channels, snapshot)
     if (any(dims == 1)) {
-      # The dependency currently errors after dropping these dimensions. Keep
-      # this pre-existing behavior out of an equivalent-output optimization.
-      expect_error(rayimage::render_clamp(reference), "dim")
-      expect_error(rayvertex:::clamp_raster_image(actual), "dim")
+      # Delegate singleton behavior to the installed dependency, including its
+      # current dimension-dropping error or a future correction there.
+      scalar = tryCatch(rayimage::render_clamp(reference), error = identity)
+      fused = tryCatch(rayvertex:::clamp_raster_image(actual), error = identity)
+      if (inherits(scalar, "error")) {
+        expect_s3_class(fused, "error")
+        expect_identical(conditionMessage(fused), conditionMessage(scalar))
+      } else {
+        expect_identical(fused, scalar)
+      }
     } else {
       expect_identical(
         rayvertex:::clamp_raster_image(actual),
@@ -65,6 +71,22 @@ test_that("fused output matches scalar decoding, orientation, alpha and metadata
     ),
     "identical dimensions"
   )
+  hdr = rayimage::ray_read_image(
+    array(
+      rep(c(NA_real_, NaN, -Inf, Inf, -0, -1, 2), length.out = 3 * 5 * 4),
+      c(3, 5, 4)
+    ),
+    source_linear = TRUE,
+    assume_colorspace = rayimage::CS_SRGB
+  )
+  attr(hdr, "exposure") = 3
+  attr(hdr, "iso") = 400
+  snapshot = unserialize(serialize(hdr, NULL))
+  expect_identical(
+    rayvertex:::clamp_raster_image(hdr),
+    rayimage::render_clamp(hdr)
+  )
+  expect_identical(hdr, snapshot)
 })
 
 test_that("fused output preserves effects, prepared scenes and debug results", {

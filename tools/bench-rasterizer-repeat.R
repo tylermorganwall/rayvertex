@@ -1,5 +1,5 @@
 # Short repeat diagnostic, without debug serialization or allocation profiling.
-# Usage: Rscript tools/bench-rasterizer-repeat.R LIB OUT_CSV CASE CORES REPS
+# Usage: Rscript tools/bench-rasterizer-repeat.R LIB OUT_CSV CASE CORES REPS [WIDTH HEIGHT FSAA]
 args = commandArgs(TRUE)
 .libPaths(c(args[1], .libPaths()))
 library(rayvertex)
@@ -13,9 +13,9 @@ reps = as.integer(args[5])
 options(cores = cores)
 params = modifyList(
   list(
-    width = 800,
-    height = 800,
-    fsaa = 1,
+    width = if (length(args) >= 8L) as.integer(args[6]) else 800L,
+    height = if (length(args) >= 8L) as.integer(args[7]) else 800L,
+    fsaa = if (length(args) >= 8L) as.integer(args[8]) else 1L,
     plot = FALSE,
     parallel = cores > 1,
     lookfrom = c(0, 0, 4),
@@ -52,6 +52,9 @@ for (regime in c("warm", "native")) {
     rows[[length(rows) + 1L]] = data.frame(
       case = args[3],
       cores,
+      width = params$width,
+      height = params$height,
+      fsaa = params$fsaa,
       regime,
       sample = i,
       elapsed_ms = 1000 * (proc.time()[["elapsed"]] - start)

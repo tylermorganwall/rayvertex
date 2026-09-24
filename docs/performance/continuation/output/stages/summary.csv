@@ -1,0 +1,5 @@
+"stage","variant","ms.median","ms.p95"
+"assemble_decode_orient","fused", 16.0, 17.5
+"clamp","fused",  5.0,  5.5
+"assemble_decode_orient","reference",105.0,110.0
+"clamp","reference", 41.0, 42.5
