@@ -843,6 +843,8 @@ bool DiffuseNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& norma
       (1-trans_color.w) *  directional_lights[ii].color * directional_lights[ii].intensity) * shadow * intensity;
   }
   
+  color = diffuse_color * vec4(light_color, 1.0);
+  normal = n;
   pos =  vec_varying_pos[iface][0] * bc.x + vec_varying_pos[iface][1] * bc.y + vec_varying_pos[iface][2] * bc.z;
   for(unsigned int i = 0; i < plights.size(); i++) {
     color += diffuse_color * vec4(plights[i].CalcPointLightAtten(pos),0.0f) * fmax(0.0f,dot(normal, plights[i].CalcLightDir(pos)));
