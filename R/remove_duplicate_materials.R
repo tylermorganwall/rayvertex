@@ -1,6 +1,6 @@
 #'@title Remove Duplicates
 #'
-#'@param scene The scene
+#' @param scene The scene.
 #'@return Scene with shape added.
 #'
 #'@keywords internal
@@ -14,7 +14,7 @@ remove_duplicate_materials = function(scene) {
   ids = scene$shapes[[1]]$material_ids
   ids[ids == -1L] = 0L
   scene$shapes[[1]]$material_ids = new_ids[ids + 1L]
-  scene$materials = scene$materials[representatives]
+  scene$materials = lapply(representatives, function(i) scene$materials[[i]])
   attr(scene, "material_hashes") = unique_materials
   class(scene) = c("ray_mesh", "list")
 
