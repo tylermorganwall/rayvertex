@@ -1,0 +1,32 @@
+{
+  "before": "/tmp/rayvertex-optimization/lib-normal-cache",
+  "after": "/tmp/rayvertex-optimization/lib-composition",
+  "suite": "composition",
+  "jobs": [
+    [
+      "small",
+      1920,
+      1080,
+      2,
+      4
+    ],
+    [
+      "grid100k",
+      1920,
+      1080,
+      2,
+      4
+    ],
+    [
+      "ssao",
+      1920,
+      1080,
+      2,
+      4
+    ]
+  ],
+  "warm_samples": 3,
+  "native_samples": 3,
+  "diagnostic_samples": 1,
+  "macrotile_after": null
+}

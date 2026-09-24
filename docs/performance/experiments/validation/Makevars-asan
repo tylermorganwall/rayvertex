@@ -1,0 +1,5 @@
+CXX = $(CXX17) $(CXX17STD)
+CXXFLAGS = -Wall -g -O1 -fsanitize=address,undefined -fno-omit-frame-pointer
+SHLIB_CXXLD = $(CXX) -fsanitize=address,undefined
+CCACHE =
+MAKEFLAGS = -j4

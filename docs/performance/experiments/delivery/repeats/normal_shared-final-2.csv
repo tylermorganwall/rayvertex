@@ -1,0 +1,11 @@
+"case","cores","width","height","fsaa","regime","sample","elapsed_ms"
+"normal_shared",1,800,800,1,"warm",1,253
+"normal_shared",1,800,800,1,"warm",2,251
+"normal_shared",1,800,800,1,"warm",3,256
+"normal_shared",1,800,800,1,"warm",4,257
+"normal_shared",1,800,800,1,"warm",5,252
+"normal_shared",1,800,800,1,"native",1,196
+"normal_shared",1,800,800,1,"native",2,198
+"normal_shared",1,800,800,1,"native",3,200
+"normal_shared",1,800,800,1,"native",4,196
+"normal_shared",1,800,800,1,"native",5,196.000000000001

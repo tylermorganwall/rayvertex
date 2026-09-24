@@ -1,0 +1,2 @@
+"case","samples","total_ms","cleanup_ms","mean_with_cleanup_ms","fps_with_cleanup"
+"tangent_overdraw",5,3072,23.0000000000006,614.4,1.62760416666667

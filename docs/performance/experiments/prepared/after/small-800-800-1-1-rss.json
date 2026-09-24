@@ -1,0 +1,5 @@
+{
+  "peak_process_rss_bytes": 382550016,
+  "includes": "startup, fixtures, warm calls, retained output, allocation and diagnostic runs",
+  "exit_code": 0
+}

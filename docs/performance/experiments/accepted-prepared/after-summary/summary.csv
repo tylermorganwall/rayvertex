@@ -1,0 +1,4 @@
+case,width,height,fsaa,cores,samples,cold_ms,warm_median_ms,warm_p95_ms,fps,native_median_ms,native_p95_ms,peak_rss_bytes,R_allocation_bytes,profiled_native_median_ms,profiled_native_samples,single_render_peak_rss_bytes
+normal_shared,800,800,1,1,3,319,239.0,250.7,4.184100418410042,199.0,199.9,1133133824,205044560,204.0,3,685867008
+small,800,800,1,1,3,98,16.0,17.8,62.5,7.00000000000001,7.90000000000001,373702656,112641728,8.00000000000001,3,195969024
+ssao,800,800,1,1,3,216,147.0,148.8,6.802721088435374,108.0,108.9,512737280,158799344,108.0,3,242057216

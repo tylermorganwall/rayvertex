@@ -1,0 +1,11 @@
+"case","cores","width","height","fsaa","regime","sample","elapsed_ms"
+"grid1m",1,800,800,1,"warm",1,234
+"grid1m",1,800,800,1,"warm",2,235
+"grid1m",1,800,800,1,"warm",3,242
+"grid1m",1,800,800,1,"warm",4,232
+"grid1m",1,800,800,1,"warm",5,237
+"grid1m",1,800,800,1,"native",1,177
+"grid1m",1,800,800,1,"native",2,178
+"grid1m",1,800,800,1,"native",3,179
+"grid1m",1,800,800,1,"native",4,185
+"grid1m",1,800,800,1,"native",5,178

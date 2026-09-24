@@ -1,0 +1,5 @@
+{
+  "peak_process_rss_bytes": 215662592,
+  "includes": "startup, fixture creation, one render",
+  "exit_code": 0
+}

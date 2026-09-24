@@ -21,3 +21,11 @@ Phase median/p95 timings and diagnostic counters are in `before-summary/phases.c
 The shared-normal fixture records one cache miss and 3,007,583 hits in 25 bytes. This removes redundant transforms but does not establish a substantial public-call gain: 256 → 254 ms warm, 269.4 → 272.0 ms sustained. Indexed-normal sustained timing similarly regresses 278.6 → 283.4 ms. The geometric grid improves 176 → 171 ms native, while SSAO regresses 106 → 108 ms. The tangent-overdraw native p95 outlier (904.3 ms) and sustained regression are retained. Small/RSS variation is not assigned a proven cause. These results justify leaving the experiment opt-in.
 
 All 74 focused assertions, 245 corrected scalar outputs and 44 additional shader/debug outputs pass exactly. Focused tests include non-unit normals, separate normal indices, mixed geometric/indexed faces, unused zero normals, mixed shader normalization conventions and prepared scenes. All 119 phase image/buffer comparisons are exact. Logs are in [validation](validation/).
+
+| Case | Main transform/setup diagnostic median ms | Cache allocation ms (after) |
+|---|---:|---:|
+| grid1m | 72.633 → 68.869 | 0.001 |
+| normal_shared | 84.005 → 83.370 | 0.002 |
+| normal_indexed | 85.956 → 85.547 | 0.141 |
+
+Cache hit/miss/reuse counters are part of this opt-in prototype even when phase profiling is disabled; their cost is included in its ordinary and native timing samples. `RAYVERTEX_PROFILE` adds the separately measured phase reporting and broader renderer instrumentation. The default renderer performs no cache-hit accounting because the cache is disabled.

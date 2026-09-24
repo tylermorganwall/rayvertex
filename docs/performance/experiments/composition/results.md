@@ -18,3 +18,14 @@ Phase median/p95 timings and diagnostic counters are in `before-summary/phases.c
 The normal reuse experiment is disabled in both variants. The ordinary SSAO/background composition is fused after the unchanged R exponentiation and before the unchanged sRGB decode. Reference and debug routes preserve the old operations. This reduces R RGB intermediates and full-image background writes without changing tone mapping, bloom, FSAA, or output attributes. Native raster time is not expected to improve from this phase. The grid native median increases in this run despite no raster change, and toon sustained time increases; those results are retained rather than explained away.
 
 Validation before measurement: 28 new composition assertions, 42 existing output assertions, and all 245 corrected scalar results pass exactly. A separate HD/FSAA-2 comparison follows.
+
+| Scene | Assembly boundary ms (one diagnostic) | R allocations MiB (one public call) |
+|---|---:|---:|
+| environment | 25.0 → 25.0 | 107.6 → 107.6 |
+| grid1m | 15.0 → 11.0 | 271.5 → 252.9 |
+| shadow | 14.0 → 9.0 | 129.7 → 110.6 |
+| small | 11.0 → 6.0 | 128.3 → 107.4 |
+| ssao | 19.0 → 13.0 | 185.3 → 151.5 |
+| toon | 18.0 → 12.0 | 163.2 → 144.2 |
+
+The assembly boundary includes SSAO/background R work, native assembly/decode and rayimage metadata; it is a single instrumented interval, not a warm distribution. Allocation totals include the entire public call, not just this boundary.
