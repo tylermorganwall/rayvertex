@@ -47,6 +47,8 @@ class IShader {
       result.discard=fragment(result.uv,result.color,result.position,result.normal,input.face);
     }
     virtual bool guaranteed_opaque() const { return false; }
+    virtual const Mat* normal_transform_matrix() const { return nullptr; }
+    virtual bool normalizes_input() const { return false; }
     virtual ~IShader();
     virtual int get_culling() = 0;
     virtual bool is_translucent() = 0;
@@ -81,6 +83,7 @@ class GouraudShader : public IShader {
                   reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
     ~GouraudShader();
     
+    virtual const Mat* normal_transform_matrix() const { return &uniform_MIT; }
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
     virtual bool fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
@@ -181,6 +184,7 @@ class ColorShader : public IShader {
       return material.dissolve==1.0 && !has_texture && !has_emissive_texture &&
         !material.has_ambient_texture && !has_reflection && !has_refraction;
     }
+    virtual const Mat* normal_transform_matrix() const { return &uniform_MIT; }
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
     virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
@@ -275,6 +279,7 @@ class DiffuseShader : public IShader {
       return material.dissolve==1.0 && !has_texture && !has_emissive_texture &&
         !material.has_ambient_texture && !has_reflection && !has_refraction;
     }
+    virtual const Mat* normal_transform_matrix() const { return &uniform_MIT; }
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
     virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
@@ -378,6 +383,7 @@ public:
   ~OrenNayerShader();
   
   virtual bool uses_raw_clip() const { return true; }
+    virtual const Mat* normal_transform_matrix() const { return &uniform_MIT; }
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
@@ -478,6 +484,7 @@ public:
                TriangleAttributes<vec3>& vec_varying_nrm,
                reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~DiffuseNormalShader();
+    virtual const Mat* normal_transform_matrix() const { return &uniform_MIT; }
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
@@ -610,6 +617,7 @@ class DiffuseShaderTangent : public IShader {
     }
     virtual bool uses_raw_clip() const { return true; }
     virtual bool uses_viewport_clip() const { return true; }
+    virtual const Mat* normal_transform_matrix() const { return &uniform_MIT; }
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
     virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     
@@ -683,6 +691,8 @@ class PhongShader : public IShader {
       return material.dissolve==1.0 && !has_texture && !has_emissive_texture &&
         !material.has_ambient_texture && !has_reflection && !has_refraction;
     }
+    virtual const Mat* normal_transform_matrix() const { return &uniform_MIT; }
+    virtual bool normalizes_input() const { return true; }
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
     virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
     vec3 specular(vec3 uv) {
@@ -785,6 +795,7 @@ public:
                reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~PhongNormalShader();
   
+    virtual const Mat* normal_transform_matrix() const { return &uniform_MIT; }
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
@@ -884,6 +895,7 @@ public:
   ~PhongShaderTangent();
   
   virtual bool uses_raw_clip() const { return true; }
+    virtual const Mat* normal_transform_matrix() const { return &uniform_MIT; }
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
@@ -1038,6 +1050,7 @@ public:
   ~ToonShader();
   
   virtual bool uses_raw_clip() const { return true; }
+    virtual const Mat* normal_transform_matrix() const { return &uniform_MIT; }
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {
@@ -1137,6 +1150,8 @@ public:
              reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~ToonShaderPhong();
   
+    virtual const Mat* normal_transform_matrix() const { return &uniform_MIT; }
+    virtual bool normalizes_input() const { return true; }
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
   vec3 specular(vec3 uv) {

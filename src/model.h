@@ -5,6 +5,7 @@
 #include "Rcpp.h"
 #include "rayimage.h"
 #include "defines.h"
+#include "normal_cache.h"
 #include <vector>
 #include <stdexcept>
 
@@ -17,6 +18,32 @@ struct IndexedTransforms {
 class ModelInfo {
   public:
     const IndexedTransforms* transforms = nullptr;
+    NormalTransformCache* normal_transforms = nullptr;
+    bool cache_face_normals = false;
+    std::size_t geometric_normal_reuses = 0;
+    bool reuse_face_normal(int face,int vertex_number) {
+      if(!cache_face_normals || vertex_number==0 || model_vertex_normals(face)) return false;
+      ++geometric_normal_reuses;
+      return true;
+    }
+    vec3 transformed_normal(int face,int vertex_number,const Mat& transform,bool normalized=false) {
+      const int index=normal_indices[face+std::size_t(num_indices)*vertex_number];
+      // Preserve lazy validation: unused/missing normal indices remain legal.
+      if(index<0 || index>=normal_rows || !normal_columns_valid)
+        throw std::out_of_range("Invalid raster normal index");
+      if(normal_transforms && normal_transforms->valid[index]) {
+        ++normal_transforms->hits;
+        return normal_transforms->values[index];
+      }
+      const vec4 input(normals_data[index],normals_data[index+normal_rows],normals_data[index+2*normal_rows],0.0);
+      const vec3 result=vec3(transform*(normalized ? glm::normalize(input) : input));
+      if(normal_transforms) {
+        normal_transforms->values[index]=result;
+        normal_transforms->valid[index]=1;
+        ++normal_transforms->misses;
+      }
+      return result;
+    }
     vec4 clip_vertex(int face, int vertex_number, const Mat& mvp) {
       if (transforms && !transforms->clip.empty()) return transforms->clip[position_indices[face+std::size_t(num_indices)*vertex_number]];
       return mvp * vec4(vertex(face, vertex_number), 1.0);

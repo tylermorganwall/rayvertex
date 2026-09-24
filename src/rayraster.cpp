@@ -1208,6 +1208,28 @@ List rasterize(List mesh,
   
   
   //Calculate Image
+  const bool normal_cache_enabled=std::getenv("RAYVERTEX_NORMAL_CACHE")!=nullptr;
+  std::vector<std::unique_ptr<NormalTransformCache>> normal_caches;
+  std::vector<NormalTransformCache*> shader_normal_caches(shaders.size(),nullptr);
+  std::size_t normal_cache_bytes=0;
+  constexpr std::size_t normal_cache_budget=64*1024*1024;
+  if(normal_cache_enabled) {
+    for(auto& model:models) model.cache_face_normals=true;
+    const std::size_t count=mesh_normals.nrow();
+    for(std::size_t i=0;i<shaders.size() && count>0;++i) {
+      const Mat* matrix=shaders[i]->normal_transform_matrix();
+      if(!matrix) continue;
+      for(auto& cache:normal_caches)
+        if(cache->matches(*matrix,shaders[i]->normalizes_input())) {
+          shader_normal_caches[i]=cache.get(); break;
+        }
+      if(shader_normal_caches[i] || count>(normal_cache_budget-normal_cache_bytes)/(sizeof(vec3)+1)) continue;
+      normal_caches.emplace_back(new NormalTransformCache(*matrix,shaders[i]->normalizes_input(),count));
+      shader_normal_caches[i]=normal_caches.back().get();
+      normal_cache_bytes+=normal_caches.back()->payload_bytes();
+    }
+  }
+  profile.mark("normal_cache_allocate");
   prepare_indexed(Projection * View * Model, vp, need_raw_clip, need_viewport_clip, position_attributes);
   profile.mark("indexed_main_transforms");
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<Float>::infinity() ) ;
@@ -1218,6 +1240,7 @@ List rasterize(List mesh,
 
       int mat_num = shp.material(i) >= 0 && shp.material(i) < (int)shaders.size() ?
         shp.material(i) : shaders.size()-1;
+      shp.normal_transforms=shader_normal_caches[mat_num];
       std::array<vec4,3> clip;
       for(int k=0;k<3;++k) {
         clip[k]=shaders[mat_num]->vertex(i,k,shp);
@@ -1226,6 +1249,13 @@ List rasterize(List mesh,
     }
   }
   profile.mark("main_transform_setup");
+  std::size_t normal_hits=0,normal_misses=0,geometric_reuses=0;
+  for(const auto& cache:normal_caches) { normal_hits+=cache->hits; normal_misses+=cache->misses; }
+  for(const auto& model:models) geometric_reuses+=model.geometric_normal_reuses;
+  profile.count("normal_cache_payload_bytes",normal_cache_bytes);
+  profile.count("normal_cache_hits",normal_hits);
+  profile.count("normal_cache_misses",normal_misses);
+  profile.count("geometric_normal_reuses",geometric_reuses);
   if(std::getenv("RAYVERTEX_PARALLEL_BINS")) blocks.build_parallel(pool,workers);
   else blocks.build();
   profile.mark("main_bin_build");
