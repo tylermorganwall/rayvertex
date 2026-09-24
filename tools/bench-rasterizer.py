@@ -16,7 +16,9 @@ out = pathlib.Path(args[1])
 out.mkdir(parents=True, exist_ok=True)
 key = "-".join(args[2:7])
 with (out / (key + "-process.log")).open("w") as log:
-    result = subprocess.run(["Rscript", "tools/bench-rasterizer.R", *args],
+    # source() parses the entire file before executing, so edits to developer
+    # scripts during a long run cannot change a partially evaluated program.
+    result = subprocess.run(["Rscript", "-e", 'source("tools/bench-rasterizer.R")', *args],
                             stdout=log, stderr=subprocess.STDOUT)
 usage = resource.getrusage(resource.RUSAGE_CHILDREN)
 rss_bytes = usage.ru_maxrss * (1 if sys.platform == "darwin" else 1024)

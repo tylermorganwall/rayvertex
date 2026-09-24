@@ -362,6 +362,14 @@ List rasterize(List mesh,
   RasterProfile profile;
   List materials = as<List>(mesh["materials"]);
   int number_materials = materials.size();
+  struct FrameRequirements { bool shadows = false, outlines = false; } requirements;
+  requirements.shadows = has_shadow_map && is_true(any(is_dir_light));
+  for(int i = 0; i < number_materials; ++i) {
+    List material = materials[i];
+    requirements.outlines |= (typevals[i] == 9 || typevals[i] == 10) &&
+      as<double>(material["toon_outline_width"]) > 0;
+  }
+  has_shadow_map = requirements.shadows;
   
   Environment pkg = Environment::namespace_env("rayvertex");
   
@@ -504,8 +512,8 @@ List rasterize(List mesh,
   
   //Depth buffer
   NumericMatrix zbuffer(nx,ny);
-  NumericMatrix sbuffer(shadowdims(0),shadowdims(1));
-  NumericMatrix zbuffer_depth(shadowdims(0),shadowdims(1));
+  NumericMatrix zbuffer_depth(has_shadow_map ? shadowdims(0) : 0,
+                              has_shadow_map ? shadowdims(1) : 0);
   
   NumericMatrix abuffer(nx,ny);
   
@@ -519,7 +527,7 @@ List rasterize(List mesh,
   NumericMatrix zzbuffer(nx,ny);
 
   // Material ID buffer (topmost visible material index per pixel)
-  IntegerMatrix material_id_buffer(nx, ny);
+  IntegerMatrix material_id_buffer(requirements.outlines ? nx : 0, requirements.outlines ? ny : 0);
   std::fill(material_id_buffer.begin(), material_id_buffer.end(), -1);
   
   
@@ -534,7 +542,6 @@ List rasterize(List mesh,
   NumericMatrix uvzbuffer(nx,ny);
 
   //Initialize rayimage buffers
-  rayimage shadowbuffer(sbuffer, shadowdims(0), shadowdims(1),shadow_map_intensity);
   rayimage ambientbuffer(abuffer, nx, ny);
   rayimage positionbuffer(xxbuffer,yybuffer,zzbuffer,nx,ny);
   rayimage normalbuffer(nxbuffer,nybuffer,nzbuffer,nx,ny);
@@ -570,14 +577,16 @@ List rasterize(List mesh,
   std::vector<DirectionalLight> directional_lights;
   for(unsigned int i = 0; i < is_dir_light.length(); i++) {
     if(is_dir_light(i)) {
-      shadowbuffer_mats.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
-      std::fill(shadowbuffer_mats.back().begin(), shadowbuffer_mats.back().end(), 
-                std::numeric_limits<double>::infinity() ) ;
-      
-      rayimage shadowbuffer_temp(shadowbuffer_mats.back(),shadowdims(0),shadowdims(1),shadow_map_intensity);
-      
-      shadowbuffers.push_back(shadowbuffer_temp);
-      
+      if(has_shadow_map) {
+        shadowbuffer_mats.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
+        std::fill(shadowbuffer_mats.back().begin(), shadowbuffer_mats.back().end(),
+                  std::numeric_limits<double>::infinity() ) ;
+
+        rayimage shadowbuffer_temp(shadowbuffer_mats.back(),shadowdims(0),shadowdims(1),shadow_map_intensity);
+
+        shadowbuffers.push_back(shadowbuffer_temp);
+
+      }
       vec3 light_dir_temp = glm::normalize(vec3(lightinfo(i,0),lightinfo(i,1),lightinfo(i,2)));
       vec3 light_up_dir = vec3(0.,1.,0.);
       if(glm::length(glm::cross(light_dir_temp,light_up_dir)) == 0) {
@@ -602,7 +611,7 @@ List rasterize(List mesh,
   std::vector<Rcpp::NumericMatrix> transparency_buffer_mats_a;
   
   for(int i = 0; i < is_dir_light.length(); i++) {
-    if(is_dir_light(i)) {
+    if(has_shadow_map && is_dir_light(i)) {
       transparency_buffer_mats_r.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
       transparency_buffer_mats_g.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
       transparency_buffer_mats_b.push_back(NumericMatrix(shadowdims(0),shadowdims(1)));
@@ -642,33 +651,18 @@ List rasterize(List mesh,
   for(int i = 0; i < number_shapes; i++) {
     List single_shape = as<List>(shapes(i));
     IntegerMatrix shape_inds = as<IntegerMatrix>(single_shape["indices"]);
+    if(shape_inds.nrow() > std::numeric_limits<int>::max() - total_faces)
+      throw std::overflow_error("Too many raster triangles");
     total_faces += shape_inds.nrow();
   }
-  std::vector<vec3> vec_varying_intensity;
-  std::vector<std::vector<vec3> > vec_varying_uv;
-  std::vector<std::vector<vec4> > vec_varying_tri;
-  std::vector<std::vector<vec3> > vec_varying_pos;
-  std::vector<std::vector<vec3> > vec_varying_world_nrm;
-  std::vector<std::vector<vec3> > vec_varying_ndc_tri;
-  std::vector<std::vector<vec3> > vec_varying_nrm;
-  
-  for(int i = 0; i < total_faces; i++ ) {
-    vec_varying_intensity.push_back(vec3(0.0f));
-    std::vector<vec3> tempuv(3);
-    std::vector<vec4> temptri(3);
-    std::vector<vec3> temppos(3);
-    std::vector<vec3> tempnrm(3);
-    std::vector<vec3> tempndc(3);
-    std::vector<vec3> tempnrm2(3);
+  std::vector<vec3> vec_varying_intensity(total_faces, vec3(0.0));
+  TriangleAttributes<vec3> vec_varying_uv(total_faces);
+  TriangleAttributes<vec4> vec_varying_tri(total_faces);
+  TriangleAttributes<vec3> vec_varying_pos(total_faces);
+  TriangleAttributes<vec3> vec_varying_world_nrm(total_faces);
+  TriangleAttributes<vec3> vec_varying_ndc_tri(total_faces);
+  TriangleAttributes<vec3> vec_varying_nrm(total_faces);
 
-    vec_varying_uv.push_back(tempuv);
-    vec_varying_tri.push_back(temptri);
-    vec_varying_pos.push_back(temppos);
-    vec_varying_world_nrm.push_back(tempnrm);
-    vec_varying_ndc_tri.push_back(tempndc);
-    vec_varying_nrm.push_back(tempnrm2);
-  }
-  
   for(int i = 0; i < number_materials; i++) {
     List single_material = as<List>(materials(i));
     NumericVector ambient = as<NumericVector>(single_material["ambient"]);
@@ -1117,13 +1111,13 @@ List rasterize(List mesh,
   
   std::vector<vec2> min_block_bound_depth;
   std::vector<vec2> max_block_bound_depth;
-  int nx_blocks_depth = ceil((Float)nx_d/(Float)blocksize);
-  int ny_blocks_depth = ceil((Float)ny_d/(Float)blocksize);
+  int nx_blocks_depth = has_shadow_map ? ceil((Float)nx_d/(Float)blocksize) : 0;
+  int ny_blocks_depth = has_shadow_map ? ceil((Float)ny_d/(Float)blocksize) : 0;
   
   std::vector<std::vector<int> > single_model_blocks_depth;
   
   //Generate block bounds
-  for(int i = 0; i < nx_d; i += blocksize) {
+  for(int i = 0; has_shadow_map && i < nx_d; i += blocksize) {
     for(int j = 0; j < ny_d; j += blocksize) {
       min_block_bound_depth.push_back(vec2(i,j));
       max_block_bound_depth.push_back(vec2(std::min(i+blocksize,nx_d),std::min(j+blocksize,ny_d)));
@@ -1146,10 +1140,10 @@ List rasterize(List mesh,
     }
   }
   
-  std::vector<std::vector<IShader*> > depthshaders(directional_lights.size());
-  for(unsigned int j = 0; j < directional_lights.size(); j++) {
+  std::vector<std::vector<IShader*> > depthshaders(has_shadow_map ? directional_lights.size() : 0);
+  for(unsigned int j = 0; j < depthshaders.size(); j++) {
     for(int i = 0; i < number_materials+1; i++ ) {
-      own_shader(shader_owners, depthshaders[j], new DepthShader(Model, directional_lights[j].lightProjection, 
+      own_shader(shader_owners, depthshaders[j], new DepthShader(Model, directional_lights[j].lightProjection,
                                                 directional_lights[j].lightView, viewport_depth,
                                                 mat_info[i],
                                                 max_indices,
@@ -1323,7 +1317,7 @@ List rasterize(List mesh,
 
   profile.mark("main_transform_setup_bins");
   auto task = [&shaders, &models, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
-               &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer, &material_id_buffer,
+               &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer, &material_id_buffer, &requirements,
                &alpha_depths] (unsigned int i) {
     fill_tri_blocks(blocks[i],
                     ndc_verts,
@@ -1338,7 +1332,7 @@ List rasterize(List mesh,
                     uvbuffer,
                     models, false,
                     alpha_depths,
-					&material_id_buffer);
+					requirements.outlines ? &material_id_buffer : nullptr);
   };
   
   #ifdef HAVE_THREADS
@@ -1523,76 +1517,67 @@ List rasterize(List mesh,
   profile.mark("depth_conversion");
   print_time(verbose, "Calculated linear depth" );
 
-  // Build color buffer and outline g-buffer for JFA
-  std::size_t pix_count =
-      static_cast<std::size_t>(nx) * static_cast<std::size_t>(ny);
-  std::vector<vec3> toon_color_buffer(pix_count);
-  std::vector<OutlineGBufferPixel> outline_gbuffer(pix_count);
+  if (requirements.outlines) {
+    // Build color buffer and outline g-buffer for JFA
+    std::size_t pix_count =
+        static_cast<std::size_t>(nx) * static_cast<std::size_t>(ny);
+    std::vector<vec3> toon_color_buffer(pix_count);
+    std::vector<OutlineGBufferPixel> outline_gbuffer(pix_count);
 
-  for (int x = 0; x < nx; ++x) {
-    for (int y = 0; y < ny; ++y) {
-      std::size_t idx =
-          static_cast<std::size_t>(y) * static_cast<std::size_t>(nx) + x;
+    for (int x = 0; x < nx; ++x) {
+      for (int y = 0; y < ny; ++y) {
+        std::size_t idx =
+            static_cast<std::size_t>(y) * static_cast<std::size_t>(nx) + x;
 
-      toon_color_buffer[idx] = image.get_color(x, y);
-      OutlineGBufferPixel &px = outline_gbuffer[idx];
+        toon_color_buffer[idx] = image.get_color(x, y);
+        OutlineGBufferPixel &px = outline_gbuffer[idx];
 
-      // --- Decide if this pixel has geometry ---
-      bool z_is_inf = std::isinf(zbuffer(x, y));
+        // --- Decide if this pixel has geometry ---
+        bool z_is_inf = std::isinf(zbuffer(x, y));
 
-      int raw_mat_id = -1;
-      if (material_id_buffer.nrow() == nx && material_id_buffer.ncol() == ny) {
-        raw_mat_id = material_id_buffer(x, y);
+        int raw_mat_id = -1;
+        if (material_id_buffer.nrow() == nx && material_id_buffer.ncol() == ny) {
+          raw_mat_id = material_id_buffer(x, y);
+        }
+        bool has_material =
+            (raw_mat_id >= 0 && raw_mat_id < (int)mat_info.size());
+
+        bool has_normal = (nxbuffer(x, y) != 0.0 || nybuffer(x, y) != 0.0 ||
+                           nzbuffer(x, y) != 0.0);
+
+        bool has_geom = !z_is_inf && has_material && has_normal;
+
+        if (!has_geom) {
+          // Background: no geometry
+          px.normal_view = vec3(0.0);
+          px.depth_view = std::numeric_limits<Float>::infinity();
+          px.material_id = 0u;
+          px.outline_width = 0.0;
+          px.outline_color = vec3(0.0);
+          px.has_outline = false;
+          continue;
+        }
+
+        int mat_id = raw_mat_id;
+        if (mat_id < 0 || mat_id >= (int)mat_info.size()) {
+          mat_id = 0;
+        }
+
+        px.normal_view = vec3(nxbuffer(x, y), nybuffer(x, y), nzbuffer(x, y));
+        px.depth_view = linear_depth(x, y);
+        px.material_id = static_cast<std::uint32_t>(mat_id);
+
+        const material_info &m = mat_info[mat_id];
+
+        Float outline_width = m.toon_outline_width;
+        vec3 outline_color = m.toon_outline_color;
+
+        px.outline_width = outline_width;
+        px.outline_color = outline_color;
+        px.has_outline = (outline_width > (Float)0.0);
       }
-      bool has_material =
-          (raw_mat_id >= 0 && raw_mat_id < (int)mat_info.size());
-
-      bool has_normal = (nxbuffer(x, y) != 0.0 || nybuffer(x, y) != 0.0 ||
-                         nzbuffer(x, y) != 0.0);
-
-      bool has_geom = !z_is_inf && has_material && has_normal;
-
-      if (!has_geom) {
-        // Background: no geometry
-        px.normal_view = vec3(0.0);
-        px.depth_view = std::numeric_limits<Float>::infinity();
-        px.material_id = 0u;
-        px.outline_width = 0.0;
-        px.outline_color = vec3(0.0);
-        px.has_outline = false;
-        continue;
-      }
-
-      int mat_id = raw_mat_id;
-      if (mat_id < 0 || mat_id >= (int)mat_info.size()) {
-        mat_id = 0;
-      }
-
-      px.normal_view = vec3(nxbuffer(x, y), nybuffer(x, y), nzbuffer(x, y));
-      px.depth_view = linear_depth(x, y); 
-      px.material_id = static_cast<std::uint32_t>(mat_id);
-
-      const material_info &m = mat_info[mat_id];
-
-      Float outline_width = m.toon_outline_width; 
-      vec3 outline_color = m.toon_outline_color;
-
-      px.outline_width = outline_width;
-      px.outline_color = outline_color;
-      px.has_outline = (outline_width > (Float)0.0);
     }
-  }
 
-  // Check if we even have any toon materials that want outlines
-  bool any_toon_outline = false;
-  for (std::size_t i = 0; i < mat_info.size(); ++i) {
-    if (mat_info[i].toon_outline_width > (Float)0.0) {
-      any_toon_outline = true;
-      break;
-    }
-  }
-
-  if (any_toon_outline) {
     Float camera_fov_y = fov != 0.0 ? glm::radians((Float)fov) : (Float)0.0;
     Float ortho_view_height = 0.0;
     if (fov == 0.0 && ortho_dims.size() > 1) {
@@ -1616,6 +1601,12 @@ List rasterize(List mesh,
   }
 
   profile.mark("remaining_output_setup");
+  profile.count("outline_scratch_payload_bytes", requirements.outlines ?
+    checked_samples(nx, ny) * (2*sizeof(vec3) + sizeof(OutlineGBufferPixel) + 2*sizeof(JFASeed)) : 0);
+  profile.count("shadow_matrix_payload_bytes", has_shadow_map ?
+    checked_samples(nx_d, ny_d) * sizeof(double) * (1 + 5*directional_lights.size()) : 0);
+  profile.count("varying_payload_bytes", static_cast<std::size_t>(total_faces) *
+    (sizeof(vec3) + 5*sizeof(std::array<vec3, 3>) + sizeof(std::array<vec4, 3>)));
   profile.count("input_triangles", total_faces);
   profile.count("models", models.size());
   profile.count("materials", mat_info.size());

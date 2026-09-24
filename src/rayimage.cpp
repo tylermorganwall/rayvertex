@@ -1,6 +1,6 @@
 #include "rayimage.h"
 
-vec4 trivalue(Float uu, Float vv,  const float* data, 
+vec4 trivalue(Float uu, Float vv,  const float* data,
               int nx, int ny, int channels) {
   // Wrap to [0,1]
   uu = uu - floor(uu);

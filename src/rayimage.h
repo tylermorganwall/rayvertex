@@ -11,7 +11,7 @@
 // typedef glm::vec2 vec2;
 // typedef glm::dmat4x4 Mat;
 
-vec4 trivalue(Float uu, Float vv,  const float* data, 
+vec4 trivalue(Float uu, Float vv,  const float* data,
               int nx, int ny, int channels);
 
 vec4 trivalue(Float uu, Float vv, reflection_map_info ref);

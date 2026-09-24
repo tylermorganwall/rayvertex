@@ -17,7 +17,7 @@ h = as.integer(args[5])
 fsaa = as.integer(args[6])
 cores = as.integer(args[7])
 reps = as.integer(args[8])
-options(cores = cores, rayvertex.cores = cores)
+options(cores = cores)
 fixture = rasterizer_fixture(case)
 params = modifyList(
   list(

@@ -12,6 +12,9 @@
 
 #include "material.h"
 #include "image_owner.h"
+#include <array>
+
+template<class T> using TriangleAttributes = std::vector<std::array<T, 3>>;
 
 static void get_sphere_uv(const vec3& dir, vec2& uv) {
   Float phi = atan2(dir.z, dir.x);
@@ -48,12 +51,12 @@ class GouraudShader : public IShader {
                   std::vector<rayimage>& shadowbuffers,
                   std::vector<rayimage>& transparency_buffers,
                   std::vector<vec3>& vec_varying_intensity,
-                  std::vector<std::vector<vec3> >& vec_varying_uv,
-                  std::vector<std::vector<vec4> >& vec_varying_tri,
-                  std::vector<std::vector<vec3> >& vec_varying_pos,
-                  std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                  std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                  std::vector<std::vector<vec3> >& vec_varying_nrm,
+                  TriangleAttributes<vec3>& vec_varying_uv,
+                  TriangleAttributes<vec4>& vec_varying_tri,
+                  TriangleAttributes<vec3>& vec_varying_pos,
+                  TriangleAttributes<vec3>& vec_varying_world_nrm,
+                  TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                  TriangleAttributes<vec3>& vec_varying_nrm,
                   reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
     ~GouraudShader();
     
@@ -126,10 +129,10 @@ class GouraudShader : public IShader {
     std::vector<rayimage>& transparency_buffers;
     
     std::vector<vec3>& vec_varying_intensity;
-    std::vector<std::vector<vec3> >& vec_varying_uv;
-    std::vector<std::vector<vec4> >& vec_varying_tri;
-    std::vector<std::vector<vec3> >& vec_varying_pos;
-    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+    TriangleAttributes<vec3>& vec_varying_uv;
+    TriangleAttributes<vec4>& vec_varying_tri;
+    TriangleAttributes<vec3>& vec_varying_pos;
+    TriangleAttributes<vec3>& vec_varying_world_nrm;
     
     reflection_map_info reflection_map;
     bool has_reflection;
@@ -143,12 +146,12 @@ class ColorShader : public IShader {
     ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                 material_info mat_info,
                 std::vector<vec3>& vec_varying_intensity,
-                std::vector<std::vector<vec3> >& vec_varying_uv,
-                std::vector<std::vector<vec4> >& vec_varying_tri,
-                std::vector<std::vector<vec3> >& vec_varying_pos,
-                std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                std::vector<std::vector<vec3> >& vec_varying_nrm,
+                TriangleAttributes<vec3>& vec_varying_uv,
+                TriangleAttributes<vec4>& vec_varying_tri,
+                TriangleAttributes<vec3>& vec_varying_pos,
+                TriangleAttributes<vec3>& vec_varying_world_nrm,
+                TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                TriangleAttributes<vec3>& vec_varying_nrm,
                 reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
     ~ColorShader();
     
@@ -211,10 +214,10 @@ class ColorShader : public IShader {
 
     bool has_texture, has_normal_texture, has_specular_texture, has_emissive_texture;
     
-    std::vector<std::vector<vec3> >& vec_varying_uv;
-    std::vector<std::vector<vec4> >& vec_varying_tri;
-    std::vector<std::vector<vec3> >& vec_varying_pos;
-    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+    TriangleAttributes<vec3>& vec_varying_uv;
+    TriangleAttributes<vec4>& vec_varying_tri;
+    TriangleAttributes<vec3>& vec_varying_pos;
+    TriangleAttributes<vec3>& vec_varying_world_nrm;
     
     reflection_map_info reflection_map;
     bool has_reflection;
@@ -231,12 +234,12 @@ class DiffuseShader : public IShader {
            std::vector<rayimage>& shadowbuffers,
            std::vector<rayimage>& transparency_buffers,
            std::vector<vec3>& vec_varying_intensity,
-           std::vector<std::vector<vec3> >& vec_varying_uv,
-           std::vector<std::vector<vec4> >& vec_varying_tri,
-           std::vector<std::vector<vec3> >& vec_varying_pos,
-           std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-           std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-           std::vector<std::vector<vec3> >& vec_varying_nrm,
+           TriangleAttributes<vec3>& vec_varying_uv,
+           TriangleAttributes<vec4>& vec_varying_tri,
+           TriangleAttributes<vec3>& vec_varying_pos,
+           TriangleAttributes<vec3>& vec_varying_world_nrm,
+           TriangleAttributes<vec3>& vec_varying_ndc_tri,
+           TriangleAttributes<vec3>& vec_varying_nrm,
            reflection_map_info reflection_map, bool has_reflection, bool has_refraction,
            bool two_sided);
     ~DiffuseShader();
@@ -311,10 +314,10 @@ class DiffuseShader : public IShader {
     std::vector<rayimage>& transparency_buffers;
     
     std::vector<vec3>& vec_varying_intensity;
-    std::vector<std::vector<vec3> >& vec_varying_uv;
-    std::vector<std::vector<vec4> >& vec_varying_tri;
-    std::vector<std::vector<vec3> >& vec_varying_pos;
-    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+    TriangleAttributes<vec3>& vec_varying_uv;
+    TriangleAttributes<vec4>& vec_varying_tri;
+    TriangleAttributes<vec3>& vec_varying_pos;
+    TriangleAttributes<vec3>& vec_varying_world_nrm;
     
     
     reflection_map_info reflection_map;
@@ -333,12 +336,12 @@ public:
                 std::vector<rayimage>& shadowbuffers,
                 std::vector<rayimage>& transparency_buffers,
                 std::vector<vec3>& vec_varying_intensity,
-                std::vector<std::vector<vec3> >& vec_varying_uv,
-                std::vector<std::vector<vec4> >& vec_varying_tri,
-                std::vector<std::vector<vec3> >& vec_varying_pos,
-                std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                std::vector<std::vector<vec3> >& vec_varying_nrm,
+                TriangleAttributes<vec3>& vec_varying_uv,
+                TriangleAttributes<vec4>& vec_varying_tri,
+                TriangleAttributes<vec3>& vec_varying_pos,
+                TriangleAttributes<vec3>& vec_varying_world_nrm,
+                TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                TriangleAttributes<vec3>& vec_varying_nrm,
                 reflection_map_info reflection_map, bool has_reflection, bool has_refraction,
                 bool two_sided);
   ~OrenNayerShader();
@@ -413,10 +416,10 @@ public:
   std::vector<rayimage>& transparency_buffers;
   
   std::vector<vec3>& vec_varying_intensity;
-  std::vector<std::vector<vec3> >& vec_varying_uv;
-  std::vector<std::vector<vec4> >& vec_varying_tri;
-  std::vector<std::vector<vec3> >& vec_varying_pos;
-  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+  TriangleAttributes<vec3>& vec_varying_uv;
+  TriangleAttributes<vec4>& vec_varying_tri;
+  TriangleAttributes<vec3>& vec_varying_pos;
+  TriangleAttributes<vec3>& vec_varying_world_nrm;
   
   
   reflection_map_info reflection_map;
@@ -435,12 +438,12 @@ public:
                std::vector<rayimage>& shadowbuffers,
                std::vector<rayimage>& transparency_buffers,
                std::vector<vec3>& vec_varying_intensity,
-               std::vector<std::vector<vec3> >& vec_varying_uv,
-               std::vector<std::vector<vec4> >& vec_varying_tri,
-               std::vector<std::vector<vec3> >& vec_varying_pos,
-               std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-               std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-               std::vector<std::vector<vec3> >& vec_varying_nrm,
+               TriangleAttributes<vec3>& vec_varying_uv,
+               TriangleAttributes<vec4>& vec_varying_tri,
+               TriangleAttributes<vec3>& vec_varying_pos,
+               TriangleAttributes<vec3>& vec_varying_world_nrm,
+               TriangleAttributes<vec3>& vec_varying_ndc_tri,
+               TriangleAttributes<vec3>& vec_varying_nrm,
                reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~DiffuseNormalShader();
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
@@ -510,10 +513,10 @@ public:
   std::vector<rayimage>& shadowbuffers;
   std::vector<rayimage>& transparency_buffers;
   
-  std::vector<std::vector<vec3> >& vec_varying_uv;
-  std::vector<std::vector<vec4> >& vec_varying_tri;
-  std::vector<std::vector<vec3> >& vec_varying_pos;
-  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+  TriangleAttributes<vec3>& vec_varying_uv;
+  TriangleAttributes<vec4>& vec_varying_tri;
+  TriangleAttributes<vec3>& vec_varying_pos;
+  TriangleAttributes<vec3>& vec_varying_world_nrm;
   
   
   reflection_map_info reflection_map;
@@ -532,12 +535,12 @@ class DiffuseShaderTangent : public IShader {
                        std::vector<rayimage>& shadowbuffers,
                        std::vector<rayimage>& transparency_buffers,
                        std::vector<vec3>& vec_varying_intensity,
-                       std::vector<std::vector<vec3> >& vec_varying_uv,
-                       std::vector<std::vector<vec4> >& vec_varying_tri,
-                       std::vector<std::vector<vec3> >& vec_varying_pos,
-                       std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                       std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                       std::vector<std::vector<vec3> >& vec_varying_nrm,
+                       TriangleAttributes<vec3>& vec_varying_uv,
+                       TriangleAttributes<vec4>& vec_varying_tri,
+                       TriangleAttributes<vec3>& vec_varying_pos,
+                       TriangleAttributes<vec3>& vec_varying_world_nrm,
+                       TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                       TriangleAttributes<vec3>& vec_varying_nrm,
                        reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
     ~DiffuseShaderTangent();
     vec3 specular(vec3 uv) {
@@ -610,12 +613,12 @@ class DiffuseShaderTangent : public IShader {
     std::vector<rayimage>& transparency_buffers;
     
     std::vector<vec3>& vec_varying_intensity;
-    std::vector<std::vector<vec3> >& vec_varying_uv;
-    std::vector<std::vector<vec4> >& vec_varying_tri;
-    std::vector<std::vector<vec3> >& vec_varying_pos;
-    std::vector<std::vector<vec3> >& vec_varying_ndc_tri;
-    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
-    std::vector<std::vector<vec3> >& vec_varying_nrm;
+    TriangleAttributes<vec3>& vec_varying_uv;
+    TriangleAttributes<vec4>& vec_varying_tri;
+    TriangleAttributes<vec3>& vec_varying_pos;
+    TriangleAttributes<vec3>& vec_varying_ndc_tri;
+    TriangleAttributes<vec3>& vec_varying_world_nrm;
+    TriangleAttributes<vec3>& vec_varying_nrm;
     
     
     reflection_map_info reflection_map;
@@ -633,12 +636,12 @@ class PhongShader : public IShader {
                       std::vector<rayimage>& shadowbuffers,
                       std::vector<rayimage>& transparency_buffers,
                       std::vector<vec3>& vec_varying_intensity,
-                      std::vector<std::vector<vec3> >& vec_varying_uv,
-                      std::vector<std::vector<vec4> >& vec_varying_tri,
-                      std::vector<std::vector<vec3> >& vec_varying_pos,
-                      std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                      std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                      std::vector<std::vector<vec3> >& vec_varying_nrm,
+                      TriangleAttributes<vec3>& vec_varying_uv,
+                      TriangleAttributes<vec4>& vec_varying_tri,
+                      TriangleAttributes<vec3>& vec_varying_pos,
+                      TriangleAttributes<vec3>& vec_varying_world_nrm,
+                      TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                      TriangleAttributes<vec3>& vec_varying_nrm,
                       reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
     ~PhongShader();
     
@@ -711,11 +714,11 @@ class PhongShader : public IShader {
     std::vector<rayimage>& transparency_buffers;
     
     std::vector<vec3>& vec_varying_intensity;
-    std::vector<std::vector<vec3> >& vec_varying_uv;
-    std::vector<std::vector<vec4> >& vec_varying_tri;
-    std::vector<std::vector<vec3> >& vec_varying_nrm;
-    std::vector<std::vector<vec3> >& vec_varying_pos;
-    std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+    TriangleAttributes<vec3>& vec_varying_uv;
+    TriangleAttributes<vec4>& vec_varying_tri;
+    TriangleAttributes<vec3>& vec_varying_nrm;
+    TriangleAttributes<vec3>& vec_varying_pos;
+    TriangleAttributes<vec3>& vec_varying_world_nrm;
     
     
     reflection_map_info reflection_map;
@@ -735,12 +738,12 @@ public:
                std::vector<rayimage>& shadowbuffers,
                std::vector<rayimage>& transparency_buffers,
                std::vector<vec3>& vec_varying_intensity,
-               std::vector<std::vector<vec3> >& vec_varying_uv,
-               std::vector<std::vector<vec4> >& vec_varying_tri,
-               std::vector<std::vector<vec3> >& vec_varying_pos,
-               std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-               std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-               std::vector<std::vector<vec3> >& vec_varying_nrm,
+               TriangleAttributes<vec3>& vec_varying_uv,
+               TriangleAttributes<vec4>& vec_varying_tri,
+               TriangleAttributes<vec3>& vec_varying_pos,
+               TriangleAttributes<vec3>& vec_varying_world_nrm,
+               TriangleAttributes<vec3>& vec_varying_ndc_tri,
+               TriangleAttributes<vec3>& vec_varying_nrm,
                reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~PhongNormalShader();
   
@@ -810,10 +813,10 @@ public:
   std::vector<rayimage>& shadowbuffers;
   std::vector<rayimage>& transparency_buffers;
   
-  std::vector<std::vector<vec3> >& vec_varying_uv;
-  std::vector<std::vector<vec4> >& vec_varying_tri;
-  std::vector<std::vector<vec3> >& vec_varying_pos;
-  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+  TriangleAttributes<vec3>& vec_varying_uv;
+  TriangleAttributes<vec4>& vec_varying_tri;
+  TriangleAttributes<vec3>& vec_varying_pos;
+  TriangleAttributes<vec3>& vec_varying_world_nrm;
   
   
   reflection_map_info reflection_map;
@@ -833,12 +836,12 @@ public:
                      std::vector<rayimage>& shadowbuffers,
                      std::vector<rayimage>& transparency_buffers,
                      std::vector<vec3>& vec_varying_intensity,
-                     std::vector<std::vector<vec3> >& vec_varying_uv,
-                     std::vector<std::vector<vec4> >& vec_varying_tri,
-                     std::vector<std::vector<vec3> >& vec_varying_pos,
-                     std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                     std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                     std::vector<std::vector<vec3> >& vec_varying_nrm,
+                     TriangleAttributes<vec3>& vec_varying_uv,
+                     TriangleAttributes<vec4>& vec_varying_tri,
+                     TriangleAttributes<vec3>& vec_varying_pos,
+                     TriangleAttributes<vec3>& vec_varying_world_nrm,
+                     TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                     TriangleAttributes<vec3>& vec_varying_nrm,
                      reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~PhongShaderTangent();
   
@@ -910,12 +913,12 @@ public:
   std::vector<rayimage>& shadowbuffers;
   std::vector<rayimage>& transparency_buffers;
   
-  std::vector<std::vector<vec3> >& vec_varying_uv;
-  std::vector<std::vector<vec4> >& vec_varying_tri;
-  std::vector<std::vector<vec3> >& vec_varying_pos;
-  std::vector<std::vector<vec3> >& vec_varying_ndc_tri;
-  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
-  std::vector<std::vector<vec3> >& vec_varying_nrm;
+  TriangleAttributes<vec3>& vec_varying_uv;
+  TriangleAttributes<vec4>& vec_varying_tri;
+  TriangleAttributes<vec3>& vec_varying_pos;
+  TriangleAttributes<vec3>& vec_varying_ndc_tri;
+  TriangleAttributes<vec3>& vec_varying_world_nrm;
+  TriangleAttributes<vec3>& vec_varying_nrm;
   
   
   reflection_map_info reflection_map;
@@ -932,8 +935,8 @@ class DepthShader : public IShader {
 public:
   DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
               material_info mat_info, int mat_ind,
-              std::vector<std::vector<vec3> >& vec_varying_uv,
-              std::vector<std::vector<vec4> >& vec_varying_tri
+              TriangleAttributes<vec3>& vec_varying_uv,
+              TriangleAttributes<vec4>& vec_varying_tri
               );
   ~DepthShader();
   
@@ -965,8 +968,8 @@ public:
   Float shadow_map_bias;
   bool has_texture;
   
-  std::vector<std::vector<vec3> >& vec_varying_uv;
-  std::vector<std::vector<vec4> >& vec_varying_tri;
+  TriangleAttributes<vec3>& vec_varying_uv;
+  TriangleAttributes<vec4>& vec_varying_tri;
   
   
 };
@@ -981,12 +984,12 @@ public:
                 std::vector<rayimage>& shadowbuffers,
                 std::vector<rayimage>& transparency_buffers,
                 std::vector<vec3>& vec_varying_intensity,
-                std::vector<std::vector<vec3> >& vec_varying_uv,
-                std::vector<std::vector<vec4> >& vec_varying_tri,
-                std::vector<std::vector<vec3> >& vec_varying_pos,
-                std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                std::vector<std::vector<vec3> >& vec_varying_nrm,
+                TriangleAttributes<vec3>& vec_varying_uv,
+                TriangleAttributes<vec4>& vec_varying_tri,
+                TriangleAttributes<vec3>& vec_varying_pos,
+                TriangleAttributes<vec3>& vec_varying_world_nrm,
+                TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                TriangleAttributes<vec3>& vec_varying_nrm,
                 reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~ToonShader();
   
@@ -1059,10 +1062,10 @@ public:
   std::vector<rayimage>& transparency_buffers;
   
   std::vector<vec3>& vec_varying_intensity;
-  std::vector<std::vector<vec3> >& vec_varying_uv;
-  std::vector<std::vector<vec4> >& vec_varying_tri;
-  std::vector<std::vector<vec3> >& vec_varying_pos;
-  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+  TriangleAttributes<vec3>& vec_varying_uv;
+  TriangleAttributes<vec4>& vec_varying_tri;
+  TriangleAttributes<vec3>& vec_varying_pos;
+  TriangleAttributes<vec3>& vec_varying_world_nrm;
   
   
   reflection_map_info reflection_map;
@@ -1080,12 +1083,12 @@ public:
              std::vector<rayimage>& shadowbuffers,
              std::vector<rayimage>& transparency_buffers,
              std::vector<vec3>& vec_varying_intensity,
-             std::vector<std::vector<vec3> >& vec_varying_uv,
-             std::vector<std::vector<vec4> >& vec_varying_tri,
-             std::vector<std::vector<vec3> >& vec_varying_pos,
-             std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-             std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-             std::vector<std::vector<vec3> >& vec_varying_nrm,
+             TriangleAttributes<vec3>& vec_varying_uv,
+             TriangleAttributes<vec4>& vec_varying_tri,
+             TriangleAttributes<vec3>& vec_varying_pos,
+             TriangleAttributes<vec3>& vec_varying_world_nrm,
+             TriangleAttributes<vec3>& vec_varying_ndc_tri,
+             TriangleAttributes<vec3>& vec_varying_nrm,
              reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
   ~ToonShaderPhong();
   
@@ -1158,10 +1161,10 @@ public:
   std::vector<rayimage>& transparency_buffers;
   
   std::vector<vec3>& vec_varying_intensity;
-  std::vector<std::vector<vec3> >& vec_varying_uv;
-  std::vector<std::vector<vec4> >& vec_varying_tri;
-  std::vector<std::vector<vec3> >& vec_varying_pos;
-  std::vector<std::vector<vec3> >& vec_varying_world_nrm;
+  TriangleAttributes<vec3>& vec_varying_uv;
+  TriangleAttributes<vec4>& vec_varying_tri;
+  TriangleAttributes<vec3>& vec_varying_pos;
+  TriangleAttributes<vec3>& vec_varying_world_nrm;
   
   
   reflection_map_info reflection_map;

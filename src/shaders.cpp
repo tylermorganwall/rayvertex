@@ -30,12 +30,12 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
                              std::vector<rayimage>& shadowbuffers,
                              std::vector<rayimage>& transparency_buffers,
                              std::vector<vec3>& vec_varying_intensity,
-                             std::vector<std::vector<vec3> >& vec_varying_uv,
-                             std::vector<std::vector<vec4> >& vec_varying_tri,
-                             std::vector<std::vector<vec3> >& vec_varying_pos,
-                             std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                             std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                             std::vector<std::vector<vec3> >& vec_varying_nrm,
+                             TriangleAttributes<vec3>& vec_varying_uv,
+                             TriangleAttributes<vec4>& vec_varying_tri,
+                             TriangleAttributes<vec3>& vec_varying_pos,
+                             TriangleAttributes<vec3>& vec_varying_world_nrm,
+                             TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                             TriangleAttributes<vec3>& vec_varying_nrm,
                              reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
@@ -179,12 +179,12 @@ ColorShader::~ColorShader() {}
 ColorShader::ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                          material_info mat_info,
                          std::vector<vec3>& vec_varying_intensity,
-                         std::vector<std::vector<vec3> >& vec_varying_uv,
-                         std::vector<std::vector<vec4> >& vec_varying_tri,
-                         std::vector<std::vector<vec3> >& vec_varying_pos,
-                         std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                         std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                         std::vector<std::vector<vec3> >& vec_varying_nrm,
+                         TriangleAttributes<vec3>& vec_varying_uv,
+                         TriangleAttributes<vec4>& vec_varying_tri,
+                         TriangleAttributes<vec3>& vec_varying_pos,
+                         TriangleAttributes<vec3>& vec_varying_world_nrm,
+                         TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                         TriangleAttributes<vec3>& vec_varying_nrm,
                          reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport), material(mat_info),
   vec_varying_uv(vec_varying_uv),
@@ -301,12 +301,12 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
               std::vector<rayimage>& shadowbuffers,
               std::vector<rayimage>& transparency_buffers,
               std::vector<vec3>& vec_varying_intensity,
-              std::vector<std::vector<vec3> >& vec_varying_uv,
-              std::vector<std::vector<vec4> >& vec_varying_tri,
-              std::vector<std::vector<vec3> >& vec_varying_pos,
-              std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-              std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-              std::vector<std::vector<vec3> >& vec_varying_nrm,
+              TriangleAttributes<vec3>& vec_varying_uv,
+              TriangleAttributes<vec4>& vec_varying_tri,
+              TriangleAttributes<vec3>& vec_varying_pos,
+              TriangleAttributes<vec3>& vec_varying_world_nrm,
+              TriangleAttributes<vec3>& vec_varying_ndc_tri,
+              TriangleAttributes<vec3>& vec_varying_nrm,
               reflection_map_info reflection_map, bool has_reflection, bool has_refraction,
               bool two_sided) :
     Projection(Projection), View(View), viewport(viewport),
@@ -477,12 +477,12 @@ OrenNayerShader::OrenNayerShader(Mat& Model, Mat& Projection, Mat& View, vec4& v
                              std::vector<rayimage>& shadowbuffers,
                              std::vector<rayimage>& transparency_buffers,
                              std::vector<vec3>& vec_varying_intensity,
-                             std::vector<std::vector<vec3> >& vec_varying_uv,
-                             std::vector<std::vector<vec4> >& vec_varying_tri,
-                             std::vector<std::vector<vec3> >& vec_varying_pos,
-                             std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                             std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                             std::vector<std::vector<vec3> >& vec_varying_nrm,
+                             TriangleAttributes<vec3>& vec_varying_uv,
+                             TriangleAttributes<vec4>& vec_varying_tri,
+                             TriangleAttributes<vec3>& vec_varying_pos,
+                             TriangleAttributes<vec3>& vec_varying_world_nrm,
+                             TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                             TriangleAttributes<vec3>& vec_varying_nrm,
                              reflection_map_info reflection_map, bool has_reflection, bool has_refraction,
                              bool two_sided) :
   Projection(Projection), View(View), viewport(viewport),
@@ -721,12 +721,12 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
              std::vector<rayimage>& shadowbuffers,
              std::vector<rayimage>& transparency_buffers,
              std::vector<vec3>& vec_varying_intensity,
-             std::vector<std::vector<vec3> >& vec_varying_uv,
-             std::vector<std::vector<vec4> >& vec_varying_tri,
-             std::vector<std::vector<vec3> >& vec_varying_pos,
-             std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-             std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-             std::vector<std::vector<vec3> >& vec_varying_nrm,
+             TriangleAttributes<vec3>& vec_varying_uv,
+             TriangleAttributes<vec4>& vec_varying_tri,
+             TriangleAttributes<vec3>& vec_varying_pos,
+             TriangleAttributes<vec3>& vec_varying_world_nrm,
+             TriangleAttributes<vec3>& vec_varying_ndc_tri,
+             TriangleAttributes<vec3>& vec_varying_nrm,
              reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
@@ -887,12 +887,12 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
                                        std::vector<rayimage>& shadowbuffers,
                                        std::vector<rayimage>& transparency_buffers,
                                        std::vector<vec3>& vec_varying_intensity,
-                                       std::vector<std::vector<vec3> >& vec_varying_uv,
-                                       std::vector<std::vector<vec4> >& vec_varying_tri,
-                                       std::vector<std::vector<vec3> >& vec_varying_pos,
-                                       std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                                       std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                                       std::vector<std::vector<vec3> >& vec_varying_nrm,
+                                       TriangleAttributes<vec3>& vec_varying_uv,
+                                       TriangleAttributes<vec4>& vec_varying_tri,
+                                       TriangleAttributes<vec3>& vec_varying_pos,
+                                       TriangleAttributes<vec3>& vec_varying_world_nrm,
+                                       TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                                       TriangleAttributes<vec3>& vec_varying_nrm,
                                        reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
@@ -1074,12 +1074,12 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                                      std::vector<rayimage>& shadowbuffers,
                                      std::vector<rayimage>& transparency_buffers,
                                      std::vector<vec3>& vec_varying_intensity,
-                                     std::vector<std::vector<vec3> >& vec_varying_uv,
-                                     std::vector<std::vector<vec4> >& vec_varying_tri,
-                                     std::vector<std::vector<vec3> >& vec_varying_pos,
-                                     std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                                     std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                                     std::vector<std::vector<vec3> >& vec_varying_nrm,
+                                     TriangleAttributes<vec3>& vec_varying_uv,
+                                     TriangleAttributes<vec4>& vec_varying_tri,
+                                     TriangleAttributes<vec3>& vec_varying_pos,
+                                     TriangleAttributes<vec3>& vec_varying_world_nrm,
+                                     TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                                     TriangleAttributes<vec3>& vec_varying_nrm,
                                      reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
@@ -1168,7 +1168,7 @@ bool PhongShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int i
     Float shadow = 1.0f;
     vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
-    Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
+    Float shadow_int = has_shadow_map ? shadowbuffers[ii].get_shadow_intensity() : 0.0;
     if(has_shadow_map && intensity != 0.0) {
       shadow = 0.0f;
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
@@ -1251,12 +1251,12 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
             std::vector<rayimage>& shadowbuffers,
             std::vector<rayimage>& transparency_buffers,
             std::vector<vec3>& vec_varying_intensity,
-            std::vector<std::vector<vec3> >& vec_varying_uv,
-            std::vector<std::vector<vec4> >& vec_varying_tri,
-            std::vector<std::vector<vec3> >& vec_varying_pos,
-            std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-            std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-            std::vector<std::vector<vec3> >& vec_varying_nrm,
+            TriangleAttributes<vec3>& vec_varying_uv,
+            TriangleAttributes<vec4>& vec_varying_tri,
+            TriangleAttributes<vec3>& vec_varying_pos,
+            TriangleAttributes<vec3>& vec_varying_world_nrm,
+            TriangleAttributes<vec3>& vec_varying_ndc_tri,
+            TriangleAttributes<vec3>& vec_varying_nrm,
             reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
@@ -1342,7 +1342,7 @@ bool PhongNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal,
     Float shadow = 1.0f;
     vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
-    Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
+    Float shadow_int = has_shadow_map ? shadowbuffers[ii].get_shadow_intensity() : 0.0;
     if(has_shadow_map && intensity != 0.0) {
       shadow = 0.0f;
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
@@ -1427,12 +1427,12 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
                          std::vector<rayimage>& shadowbuffers,
                          std::vector<rayimage>& transparency_buffers,
                          std::vector<vec3>& vec_varying_intensity,
-                         std::vector<std::vector<vec3> >& vec_varying_uv,
-                         std::vector<std::vector<vec4> >& vec_varying_tri,
-                         std::vector<std::vector<vec3> >& vec_varying_pos,
-                         std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                         std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                         std::vector<std::vector<vec3> >& vec_varying_nrm,
+                         TriangleAttributes<vec3>& vec_varying_uv,
+                         TriangleAttributes<vec4>& vec_varying_tri,
+                         TriangleAttributes<vec3>& vec_varying_pos,
+                         TriangleAttributes<vec3>& vec_varying_world_nrm,
+                         TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                         TriangleAttributes<vec3>& vec_varying_nrm,
                          reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
@@ -1536,7 +1536,7 @@ bool PhongShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal
     Float shadow = 1.0f;
     vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
-    Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
+    Float shadow_int = has_shadow_map ? shadowbuffers[ii].get_shadow_intensity() : 0.0;
     if(has_shadow_map && intensity != 0.0) {
       shadow = 0.0f;
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
@@ -1616,8 +1616,8 @@ DepthShader::~DepthShader() {}
 
 DepthShader::DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                           material_info mat_info, int mat_ind,
-                          std::vector<std::vector<vec3> >& vec_varying_uv,
-                          std::vector<std::vector<vec4> >& vec_varying_tri
+                          TriangleAttributes<vec3>& vec_varying_uv,
+                          TriangleAttributes<vec4>& vec_varying_tri
                           ) :
   Projection(Projection), View(View), viewport(viewport),
   material(mat_info), vec_varying_uv(vec_varying_uv), vec_varying_tri(vec_varying_tri)
@@ -1667,12 +1667,12 @@ ToonShader::ToonShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
                              std::vector<rayimage>& shadowbuffers,
                              std::vector<rayimage>& transparency_buffers,
                              std::vector<vec3>& vec_varying_intensity,
-                             std::vector<std::vector<vec3> >& vec_varying_uv,
-                             std::vector<std::vector<vec4> >& vec_varying_tri,
-                             std::vector<std::vector<vec3> >& vec_varying_pos,
-                             std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                             std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                             std::vector<std::vector<vec3> >& vec_varying_nrm,
+                             TriangleAttributes<vec3>& vec_varying_uv,
+                             TriangleAttributes<vec4>& vec_varying_tri,
+                             TriangleAttributes<vec3>& vec_varying_pos,
+                             TriangleAttributes<vec3>& vec_varying_world_nrm,
+                             TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                             TriangleAttributes<vec3>& vec_varying_nrm,
                              reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
@@ -1813,12 +1813,12 @@ ToonShaderPhong::ToonShaderPhong(Mat& Model, Mat& Projection, Mat& View, vec4& v
                        std::vector<rayimage>& shadowbuffers,
                        std::vector<rayimage>& transparency_buffers,
                        std::vector<vec3>& vec_varying_intensity,
-                       std::vector<std::vector<vec3> >& vec_varying_uv,
-                       std::vector<std::vector<vec4> >& vec_varying_tri,
-                       std::vector<std::vector<vec3> >& vec_varying_pos,
-                       std::vector<std::vector<vec3> >& vec_varying_world_nrm,
-                       std::vector<std::vector<vec3> >& vec_varying_ndc_tri,
-                       std::vector<std::vector<vec3> >& vec_varying_nrm,
+                       TriangleAttributes<vec3>& vec_varying_uv,
+                       TriangleAttributes<vec4>& vec_varying_tri,
+                       TriangleAttributes<vec3>& vec_varying_pos,
+                       TriangleAttributes<vec3>& vec_varying_world_nrm,
+                       TriangleAttributes<vec3>& vec_varying_ndc_tri,
+                       TriangleAttributes<vec3>& vec_varying_nrm,
                        reflection_map_info reflection_map, bool has_reflection, bool has_refraction) :
   Projection(Projection), View(View), viewport(viewport),
   has_shadow_map(has_shadow_map),
@@ -1908,7 +1908,7 @@ bool ToonShaderPhong::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, i
     Float shadow = 1.0f;
     vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
-    Float shadow_int = shadowbuffers[ii].get_shadow_intensity();
+    Float shadow_int = has_shadow_map ? shadowbuffers[ii].get_shadow_intensity() : 0.0;
     if(has_shadow_map && intensity != 0.0) {
       shadow = 0.0f;
       
