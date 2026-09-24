@@ -1,0 +1,3 @@
+b73810f7bb8eb1febb1b82537698047f663fa21220e79d3ac3a0dceb77666295  shader-parity-reference.rds
+b73810f7bb8eb1febb1b82537698047f663fa21220e79d3ac3a0dceb77666295  shader-parity-final.rds
+b73810f7bb8eb1febb1b82537698047f663fa21220e79d3ac3a0dceb77666295  shader-parity-prepared.rds

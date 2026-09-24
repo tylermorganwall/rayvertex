@@ -2,6 +2,8 @@
 
 Continuation starts at `f15efde`, whose renderer is `18751b4`. The original starting commit and corrected scalar reference remain pinned in the parent report. Comparison libraries are isolated under `/tmp/rayvertex-optimization`; no quality settings changed.
 
+Final renderer: `d48a259`. The [14-workload delivery table](delivery/results.md), [workload interpretation](delivery/interpretation.md), [regression repeats](regression-loops/results.md), and [validation report](validation.md) consolidate the result. These supplement, rather than replace, the individual phase evidence below.
+
 ## Sparse exact transparency
 
 `FragmentArena` replaces per-sample trees with tile-owned contiguous records. Explicit tile-local submission sequence preserves equal-depth last-write-wins, triangles before serial lines, and the original back-to-front operation and auxiliary-buffer source. Both line algorithms, standalone line renders, main triangles, and transparent shadows use it. Capacity grows without a layer cap and dies with the frame. `RAYVERTEX_REFERENCE_TRANSPARENCY=1` selects trees for developer comparisons.
@@ -20,7 +22,7 @@ All 245 corrected-reference outputs and the source test suite pass. The standalo
 
 This correctness phase clips viewport-composed homogeneous coordinates against all six frustum planes and positive w, triangulates deterministically, and carries original primitive interpolation weights. Independent UV/normal indices remain in original shader attributes. Unchanged triangles take the exact old projection/edge arithmetic. Out-of-frustum geometry and near-plane intersections intentionally change. Nonfinite positions fail before integer conversion, and projected bounds clamp before narrowing. Orthographic projection now specifies the depth interval and exports linear view depth. The existing scene-derived far distance is retained; this does not change the currently ignored user far-distance behavior. Shadow clipping uses each light's own projection, with no main-pass near-w clamp accidentally targeting the wrong vertex array. Light frusta now extend to twice the scene diagonal: the old eye-to-center distance equaled the far distance and excluded the back half once clipping was enforced. Bias is scaled by the old/new depth range to retain its world-distance magnitude.
 
-The earlier scalar reference and its golden files remain retained for correction diffs. The new scalar golden corpus is `clipping-reference/reference.rds` (one worker, tree transparency and scalar screen passes), with a SHA-256 checksum. All 245 multiworker outputs match it exactly. Compared with the previous scalar corpus, 24 of 770 image/buffer comparisons change, confined to orthographic depth and near-crossing cases. No attributes or nonfinite classifications change. The focused ASan/UBSan clip test covers every plane, negative/zero w crossings, reconstructed original attributes, huge coordinates, invalid coordinates, and full light-frustum containment. The source suite passes. A near-crossing before/after/error figure and per-buffer correction metrics are retained.
+The earlier scalar reference and its golden files remain retained for correction diffs. The new scalar golden corpus is `clipping-reference/reference.rds` (one worker, tree transparency and scalar screen passes), with a SHA-256 checksum. All 245 multiworker outputs match it exactly. Compared with the previous scalar corpus, 24 of 770 image/buffer comparisons change, confined to orthographic depth and near-crossing cases. No attributes or nonfinite classifications change. The focused ASan/UBSan clip test covers every plane, negative/zero w crossings, reconstructed original attributes, huge coordinates, invalid coordinates, and full light-frustum containment. The source suite passes. A near-crossing before/after/error figure and per-buffer correction metrics are retained. [Measured correction costs](clipped/results.md) are separate from speedup comparisons.
 
 ## Output demand and independent screen work
 
@@ -58,3 +60,13 @@ This path is opt-in with `RAYVERTEX_VISIBILITY=1`; it remains disabled by defaul
 ## Extreme-bound correctness follow-up
 
 `811143b` fixes a UBSan-reproduced tile-end signed overflow, widens PCF border offsets before addition, and rejects nonfinite area reciprocals. [Costs and unchanged ordinary images](bounds/results.md) are reported separately from optimizations. The final scalar checkpoint is retained in `codex/raster-final-scalar-reference`; its explicitly scalar corpus matches the clipped scalar corpus, and the default/combined experimental paths match it.
+
+
+## SSAO projection invariant
+
+`d48a259` responds to a measured SSAO regression discovered during the expanded sweep. It composes the existing projection product once per frame, preserving multiplication order, 64 samples, noise and blur. [Measured before/after results](ssao-projection/results.md) show native median 612→106 ms and sustained public mean 478.6→285.6 ms, with exact outputs and unchanged quality. The full validation/sweeps were restarted; the interrupted older sweep is diagnostic evidence only.
+
+
+## Final sweeps and boundaries
+
+The [worker sweep](workers/results.md) covers 1/2/4/10 workers at fixed 800×800/FSAA 1. The [quality sweep](quality/results.md) covers 800×800 and 1920×1080 with FSAA 1/2 separately, plus a portrait 129-layer stress case. The [expanded visibility sweep](visibility-expanded/results.md) measures the opt-in path against the same final build with it disabled. Default batching remains 64 existing blocks, following the earlier batch sweep; indexed transforms and visibility remain opt-in. See [remaining implementation and validation boundaries](remaining.md) for precise omissions rather than treating every proposal as complete.

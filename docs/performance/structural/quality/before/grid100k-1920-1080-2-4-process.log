@@ -1,0 +1,6 @@
+NULL
+Tracing function "print_time" in package "namespace:rayvertex"
+Tracing function "rasterize" in package "namespace:rayvertex"
+Untracing function "print_time" in package "namespace:rayvertex"
+Untracing function "rasterize" in package "namespace:rayvertex"
+grid100k-1920-1080-2-4 median warm ms: 2305 

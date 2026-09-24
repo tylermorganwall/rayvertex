@@ -1,0 +1,52 @@
+{
+  "before": "/tmp/rayvertex-optimization/lib-screen-final",
+  "after": "/tmp/rayvertex-optimization/lib-screen-final",
+  "suite": "visibility",
+  "jobs": [
+    [
+      "overdraw",
+      800,
+      800,
+      1,
+      1
+    ],
+    [
+      "overdraw",
+      800,
+      800,
+      1,
+      2
+    ],
+    [
+      "overdraw",
+      800,
+      800,
+      1,
+      4
+    ],
+    [
+      "overdraw",
+      800,
+      800,
+      1,
+      10
+    ],
+    [
+      "overdraw",
+      1920,
+      1080,
+      2,
+      4
+    ],
+    [
+      "small",
+      800,
+      800,
+      1,
+      4
+    ]
+  ],
+  "warm_samples": 3,
+  "native_samples": 3,
+  "diagnostic_samples": 1
+}

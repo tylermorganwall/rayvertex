@@ -1,5 +1,18 @@
 # rayvertex 0.16.1
 
+* Added `prepare_scene()` and `update_prepared_scene()` for explicit reusable
+  geometry/material-texture snapshots. Camera, lighting, callbacks, effects,
+  shadows, and environment preparation remain per render.
+* Corrected homogeneous triangle clipping and orthographic/shadow depth ranges.
+  Near-plane intersections, geometry outside the frustum, and orthographic depth
+  can change. Extreme tile bounds and nonfinite area reciprocals are guarded.
+* Added shared triangle setup, contiguous bins, unlimited sparse transparency,
+  demand-driven auxiliary buffers, parallel resolve/background/outline work,
+  exact shadow/light specialization, shared environment variants, stable geometry
+  views, and one SSAO projection composition per frame. The conservative visibility
+  experiment remains disabled by default. Per-phase timings, memory, correctness
+  changes, regressions, and exact image comparisons are in `docs/performance/`.
+
 * Fixed SSAO indexing and blur ownership, rectangular unaliased line indexing,
   grayscale texture sampling, shader initialization, and environment image
   lifetime. SSAO images can change as a result of these correctness fixes.

@@ -1,0 +1,705 @@
+"case","buffer","exact","max_absolute","mean_absolute","changed_samples","nonfinite_mismatch","attributes_identical"
+"vertex FALSE","r",TRUE,0,0,0,0,TRUE
+"vertex FALSE","g",TRUE,0,0,0,0,TRUE
+"vertex FALSE","b",TRUE,0,0,0,0,TRUE
+"vertex FALSE","a",TRUE,0,0,0,0,TRUE
+"vertex FALSE","amb",TRUE,0,0,0,0,TRUE
+"vertex FALSE","depth",TRUE,0,0,0,0,TRUE
+"vertex FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"vertex FALSE","normalx",TRUE,0,0,0,0,TRUE
+"vertex FALSE","normaly",TRUE,0,0,0,0,TRUE
+"vertex FALSE","normalz",TRUE,0,0,0,0,TRUE
+"vertex FALSE","positionx",TRUE,0,0,0,0,TRUE
+"vertex FALSE","positiony",TRUE,0,0,0,0,TRUE
+"vertex FALSE","positionz",TRUE,0,0,0,0,TRUE
+"vertex FALSE","uvx",TRUE,0,0,0,0,TRUE
+"vertex FALSE","uvy",TRUE,0,0,0,0,TRUE
+"vertex FALSE","uvz",TRUE,0,0,0,0,TRUE
+"vertex TRUE","r",TRUE,0,0,0,0,TRUE
+"vertex TRUE","g",TRUE,0,0,0,0,TRUE
+"vertex TRUE","b",TRUE,0,0,0,0,TRUE
+"vertex TRUE","a",TRUE,0,0,0,0,TRUE
+"vertex TRUE","amb",TRUE,0,0,0,0,TRUE
+"vertex TRUE","depth",TRUE,0,0,0,0,TRUE
+"vertex TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"vertex TRUE","normalx",TRUE,0,0,0,0,TRUE
+"vertex TRUE","normaly",TRUE,0,0,0,0,TRUE
+"vertex TRUE","normalz",TRUE,0,0,0,0,TRUE
+"vertex TRUE","positionx",TRUE,0,0,0,0,TRUE
+"vertex TRUE","positiony",TRUE,0,0,0,0,TRUE
+"vertex TRUE","positionz",TRUE,0,0,0,0,TRUE
+"vertex TRUE","uvx",TRUE,0,0,0,0,TRUE
+"vertex TRUE","uvy",TRUE,0,0,0,0,TRUE
+"vertex TRUE","uvz",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","r",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","g",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","b",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","a",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","amb",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","depth",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","normalx",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","normaly",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","normalz",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","positionx",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","positiony",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","positionz",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","uvx",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","uvy",TRUE,0,0,0,0,TRUE
+"vertex_alpha FALSE","uvz",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","r",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","g",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","b",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","a",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","amb",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","depth",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","normalx",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","normaly",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","normalz",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","positionx",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","positiony",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","positionz",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","uvx",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","uvy",TRUE,0,0,0,0,TRUE
+"vertex_alpha TRUE","uvz",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","r",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","g",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","b",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","a",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","amb",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","depth",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","normalx",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","normaly",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","normalz",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","positionx",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","positiony",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","positionz",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","uvx",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","uvy",TRUE,0,0,0,0,TRUE
+"diffuse FALSE","uvz",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","r",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","g",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","b",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","a",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","amb",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","depth",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","normalx",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","normaly",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","normalz",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","positionx",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","positiony",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","positionz",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","uvx",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","uvy",TRUE,0,0,0,0,TRUE
+"diffuse TRUE","uvz",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","r",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","g",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","b",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","a",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","amb",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","depth",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","normalx",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","normaly",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","normalz",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","positionx",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","positiony",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","positionz",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","uvx",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","uvy",TRUE,0,0,0,0,TRUE
+"diffuse_alpha FALSE","uvz",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","r",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","g",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","b",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","a",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","amb",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","depth",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","normalx",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","normaly",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","normalz",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","positionx",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","positiony",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","positionz",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","uvx",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","uvy",TRUE,0,0,0,0,TRUE
+"diffuse_alpha TRUE","uvz",TRUE,0,0,0,0,TRUE
+"phong FALSE","r",TRUE,0,0,0,0,TRUE
+"phong FALSE","g",TRUE,0,0,0,0,TRUE
+"phong FALSE","b",TRUE,0,0,0,0,TRUE
+"phong FALSE","a",TRUE,0,0,0,0,TRUE
+"phong FALSE","amb",TRUE,0,0,0,0,TRUE
+"phong FALSE","depth",TRUE,0,0,0,0,TRUE
+"phong FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"phong FALSE","normalx",TRUE,0,0,0,0,TRUE
+"phong FALSE","normaly",TRUE,0,0,0,0,TRUE
+"phong FALSE","normalz",TRUE,0,0,0,0,TRUE
+"phong FALSE","positionx",TRUE,0,0,0,0,TRUE
+"phong FALSE","positiony",TRUE,0,0,0,0,TRUE
+"phong FALSE","positionz",TRUE,0,0,0,0,TRUE
+"phong FALSE","uvx",TRUE,0,0,0,0,TRUE
+"phong FALSE","uvy",TRUE,0,0,0,0,TRUE
+"phong FALSE","uvz",TRUE,0,0,0,0,TRUE
+"phong TRUE","r",TRUE,0,0,0,0,TRUE
+"phong TRUE","g",TRUE,0,0,0,0,TRUE
+"phong TRUE","b",TRUE,0,0,0,0,TRUE
+"phong TRUE","a",TRUE,0,0,0,0,TRUE
+"phong TRUE","amb",TRUE,0,0,0,0,TRUE
+"phong TRUE","depth",TRUE,0,0,0,0,TRUE
+"phong TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"phong TRUE","normalx",TRUE,0,0,0,0,TRUE
+"phong TRUE","normaly",TRUE,0,0,0,0,TRUE
+"phong TRUE","normalz",TRUE,0,0,0,0,TRUE
+"phong TRUE","positionx",TRUE,0,0,0,0,TRUE
+"phong TRUE","positiony",TRUE,0,0,0,0,TRUE
+"phong TRUE","positionz",TRUE,0,0,0,0,TRUE
+"phong TRUE","uvx",TRUE,0,0,0,0,TRUE
+"phong TRUE","uvy",TRUE,0,0,0,0,TRUE
+"phong TRUE","uvz",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","r",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","g",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","b",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","a",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","amb",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","depth",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","normalx",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","normaly",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","normalz",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","positionx",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","positiony",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","positionz",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","uvx",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","uvy",TRUE,0,0,0,0,TRUE
+"phong_alpha FALSE","uvz",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","r",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","g",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","b",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","a",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","amb",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","depth",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","normalx",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","normaly",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","normalz",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","positionx",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","positiony",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","positionz",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","uvx",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","uvy",TRUE,0,0,0,0,TRUE
+"phong_alpha TRUE","uvz",TRUE,0,0,0,0,TRUE
+"color FALSE","r",TRUE,0,0,0,0,TRUE
+"color FALSE","g",TRUE,0,0,0,0,TRUE
+"color FALSE","b",TRUE,0,0,0,0,TRUE
+"color FALSE","a",TRUE,0,0,0,0,TRUE
+"color FALSE","amb",TRUE,0,0,0,0,TRUE
+"color FALSE","depth",TRUE,0,0,0,0,TRUE
+"color FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"color FALSE","normalx",TRUE,0,0,0,0,TRUE
+"color FALSE","normaly",TRUE,0,0,0,0,TRUE
+"color FALSE","normalz",TRUE,0,0,0,0,TRUE
+"color FALSE","positionx",TRUE,0,0,0,0,TRUE
+"color FALSE","positiony",TRUE,0,0,0,0,TRUE
+"color FALSE","positionz",TRUE,0,0,0,0,TRUE
+"color FALSE","uvx",TRUE,0,0,0,0,TRUE
+"color FALSE","uvy",TRUE,0,0,0,0,TRUE
+"color FALSE","uvz",TRUE,0,0,0,0,TRUE
+"color TRUE","r",TRUE,0,0,0,0,TRUE
+"color TRUE","g",TRUE,0,0,0,0,TRUE
+"color TRUE","b",TRUE,0,0,0,0,TRUE
+"color TRUE","a",TRUE,0,0,0,0,TRUE
+"color TRUE","amb",TRUE,0,0,0,0,TRUE
+"color TRUE","depth",TRUE,0,0,0,0,TRUE
+"color TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"color TRUE","normalx",TRUE,0,0,0,0,TRUE
+"color TRUE","normaly",TRUE,0,0,0,0,TRUE
+"color TRUE","normalz",TRUE,0,0,0,0,TRUE
+"color TRUE","positionx",TRUE,0,0,0,0,TRUE
+"color TRUE","positiony",TRUE,0,0,0,0,TRUE
+"color TRUE","positionz",TRUE,0,0,0,0,TRUE
+"color TRUE","uvx",TRUE,0,0,0,0,TRUE
+"color TRUE","uvy",TRUE,0,0,0,0,TRUE
+"color TRUE","uvz",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","r",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","g",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","b",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","a",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","amb",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","depth",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","normalx",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","normaly",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","normalz",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","positionx",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","positiony",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","positionz",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","uvx",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","uvy",TRUE,0,0,0,0,TRUE
+"color_alpha FALSE","uvz",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","r",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","g",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","b",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","a",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","amb",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","depth",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","normalx",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","normaly",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","normalz",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","positionx",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","positiony",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","positionz",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","uvx",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","uvy",TRUE,0,0,0,0,TRUE
+"color_alpha TRUE","uvz",TRUE,0,0,0,0,TRUE
+"toon FALSE","r",TRUE,0,0,0,0,TRUE
+"toon FALSE","g",TRUE,0,0,0,0,TRUE
+"toon FALSE","b",TRUE,0,0,0,0,TRUE
+"toon FALSE","a",TRUE,0,0,0,0,TRUE
+"toon FALSE","amb",TRUE,0,0,0,0,TRUE
+"toon FALSE","depth",TRUE,0,0,0,0,TRUE
+"toon FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"toon FALSE","normalx",TRUE,0,0,0,0,TRUE
+"toon FALSE","normaly",TRUE,0,0,0,0,TRUE
+"toon FALSE","normalz",TRUE,0,0,0,0,TRUE
+"toon FALSE","positionx",TRUE,0,0,0,0,TRUE
+"toon FALSE","positiony",TRUE,0,0,0,0,TRUE
+"toon FALSE","positionz",TRUE,0,0,0,0,TRUE
+"toon FALSE","uvx",TRUE,0,0,0,0,TRUE
+"toon FALSE","uvy",TRUE,0,0,0,0,TRUE
+"toon FALSE","uvz",TRUE,0,0,0,0,TRUE
+"toon TRUE","r",TRUE,0,0,0,0,TRUE
+"toon TRUE","g",TRUE,0,0,0,0,TRUE
+"toon TRUE","b",TRUE,0,0,0,0,TRUE
+"toon TRUE","a",TRUE,0,0,0,0,TRUE
+"toon TRUE","amb",TRUE,0,0,0,0,TRUE
+"toon TRUE","depth",TRUE,0,0,0,0,TRUE
+"toon TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"toon TRUE","normalx",TRUE,0,0,0,0,TRUE
+"toon TRUE","normaly",TRUE,0,0,0,0,TRUE
+"toon TRUE","normalz",TRUE,0,0,0,0,TRUE
+"toon TRUE","positionx",TRUE,0,0,0,0,TRUE
+"toon TRUE","positiony",TRUE,0,0,0,0,TRUE
+"toon TRUE","positionz",TRUE,0,0,0,0,TRUE
+"toon TRUE","uvx",TRUE,0,0,0,0,TRUE
+"toon TRUE","uvy",TRUE,0,0,0,0,TRUE
+"toon TRUE","uvz",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","r",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","g",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","b",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","a",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","amb",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","depth",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","normalx",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","normaly",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","normalz",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","positionx",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","positiony",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","positionz",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","uvx",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","uvy",TRUE,0,0,0,0,TRUE
+"toon_alpha FALSE","uvz",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","r",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","g",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","b",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","a",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","amb",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","depth",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","normalx",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","normaly",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","normalz",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","positionx",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","positiony",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","positionz",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","uvx",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","uvy",TRUE,0,0,0,0,TRUE
+"toon_alpha TRUE","uvz",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","r",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","g",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","b",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","a",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","amb",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","depth",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","normalx",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","normaly",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","normalz",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","positionx",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","positiony",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","positionz",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","uvx",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","uvy",TRUE,0,0,0,0,TRUE
+"toon_phong FALSE","uvz",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","r",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","g",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","b",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","a",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","amb",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","depth",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","normalx",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","normaly",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","normalz",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","positionx",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","positiony",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","positionz",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","uvx",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","uvy",TRUE,0,0,0,0,TRUE
+"toon_phong TRUE","uvz",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","r",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","g",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","b",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","a",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","amb",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","depth",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","normalx",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","normaly",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","normalz",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","positionx",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","positiony",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","positionz",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","uvx",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","uvy",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha FALSE","uvz",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","r",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","g",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","b",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","a",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","amb",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","depth",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","normalx",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","normaly",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","normalz",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","positionx",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","positiony",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","positionz",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","uvx",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","uvy",TRUE,0,0,0,0,TRUE
+"toon_phong_alpha TRUE","uvz",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","r",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","g",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","b",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","a",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","amb",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","depth",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","normalx",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","normaly",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","normalz",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","positionx",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","positiony",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","positionz",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","uvx",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","uvy",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE FALSE","uvz",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","r",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","g",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","b",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","a",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","amb",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","depth",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","normalx",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","normaly",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","normalz",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","positionx",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","positiony",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","positionz",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","uvx",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","uvy",TRUE,0,0,0,0,TRUE
+"oren 1 FALSE TRUE","uvz",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","r",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","g",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","b",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","a",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","amb",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","depth",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","normalx",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","normaly",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","normalz",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","positionx",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","positiony",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","positionz",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","uvx",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","uvy",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE FALSE","uvz",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","r",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","g",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","b",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","a",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","amb",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","depth",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","normalx",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","normaly",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","normalz",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","positionx",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","positiony",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","positionz",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","uvx",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","uvy",TRUE,0,0,0,0,TRUE
+"oren 45 FALSE TRUE","uvz",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","r",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","g",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","b",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","a",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","amb",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","depth",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","normalx",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","normaly",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","normalz",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","positionx",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","positiony",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","positionz",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","uvx",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","uvy",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE FALSE","uvz",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","r",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","g",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","b",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","a",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","amb",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","depth",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","normalx",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","normaly",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","normalz",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","positionx",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","positiony",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","positionz",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","uvx",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","uvy",TRUE,0,0,0,0,TRUE
+"oren 90 FALSE TRUE","uvz",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","r",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","g",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","b",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","a",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","amb",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","depth",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","normalx",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","normaly",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","normalz",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","positionx",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","positiony",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","positionz",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","uvx",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","uvy",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE FALSE","uvz",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","r",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","g",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","b",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","a",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","amb",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","depth",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","normalx",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","normaly",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","normalz",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","positionx",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","positiony",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","positionz",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","uvx",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","uvy",TRUE,0,0,0,0,TRUE
+"oren 1 TRUE TRUE","uvz",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","r",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","g",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","b",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","a",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","amb",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","depth",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","normalx",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","normaly",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","normalz",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","positionx",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","positiony",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","positionz",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","uvx",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","uvy",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE FALSE","uvz",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","r",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","g",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","b",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","a",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","amb",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","depth",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","normalx",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","normaly",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","normalz",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","positionx",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","positiony",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","positionz",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","uvx",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","uvy",TRUE,0,0,0,0,TRUE
+"oren 45 TRUE TRUE","uvz",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","r",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","g",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","b",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","a",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","amb",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","depth",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","normalx",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","normaly",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","normalz",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","positionx",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","positiony",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","positionz",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","uvx",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","uvy",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE FALSE","uvz",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","r",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","g",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","b",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","a",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","amb",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","depth",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","normalx",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","normaly",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","normalz",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","positionx",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","positiony",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","positionz",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","uvx",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","uvy",TRUE,0,0,0,0,TRUE
+"oren 90 TRUE TRUE","uvz",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","r",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","g",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","b",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","a",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","amb",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","depth",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","normalx",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","normaly",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","normalz",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","positionx",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","positiony",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","positionz",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","uvx",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","uvy",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE FALSE","uvz",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","r",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","g",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","b",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","a",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","amb",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","depth",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","normalx",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","normaly",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","normalz",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","positionx",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","positiony",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","positionz",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","uvx",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","uvy",TRUE,0,0,0,0,TRUE
+"diffuse normal FALSE TRUE","uvz",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","r",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","g",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","b",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","a",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","amb",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","depth",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","normalx",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","normaly",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","normalz",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","positionx",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","positiony",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","positionz",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","uvx",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","uvy",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE FALSE","uvz",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","r",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","g",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","b",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","a",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","amb",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","depth",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","normalx",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","normaly",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","normalz",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","positionx",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","positiony",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","positionz",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","uvx",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","uvy",TRUE,0,0,0,0,TRUE
+"diffuse normal TRUE TRUE","uvz",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","r",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","g",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","b",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","a",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","amb",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","depth",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","normalx",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","normaly",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","normalz",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","positionx",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","positiony",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","positionz",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","uvx",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","uvy",TRUE,0,0,0,0,TRUE
+"phong normal FALSE FALSE","uvz",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","r",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","g",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","b",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","a",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","amb",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","depth",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","normalx",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","normaly",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","normalz",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","positionx",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","positiony",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","positionz",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","uvx",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","uvy",TRUE,0,0,0,0,TRUE
+"phong normal FALSE TRUE","uvz",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","r",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","g",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","b",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","a",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","amb",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","depth",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","linear_depth",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","normalx",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","normaly",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","normalz",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","positionx",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","positiony",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","positionz",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","uvx",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","uvy",TRUE,0,0,0,0,TRUE
+"phong normal TRUE FALSE","uvz",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","r",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","g",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","b",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","a",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","amb",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","depth",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","linear_depth",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","normalx",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","normaly",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","normalz",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","positionx",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","positiony",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","positionz",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","uvx",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","uvy",TRUE,0,0,0,0,TRUE
+"phong normal TRUE TRUE","uvz",TRUE,0,0,0,0,TRUE

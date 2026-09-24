@@ -1,0 +1,31 @@
+{
+  "libraries": {
+    "before": "/tmp/rayvertex-optimization/lib-clipped",
+    "after": "/tmp/rayvertex-optimization/lib-screen-final"
+  },
+  "cases": [
+    "small",
+    "grid100k",
+    "grid500k",
+    "grid1m",
+    "alpha4",
+    "alpha16",
+    "alpha64",
+    "shadow",
+    "ssao",
+    "toon",
+    "shared_textures",
+    "environment",
+    "environment_shared",
+    "point_lights"
+  ],
+  "width": 800,
+  "height": 800,
+  "fsaa": 1,
+  "cores": 1,
+  "warm_samples": 3,
+  "sustained_frames": 5,
+  "visibility": null,
+  "indexed_transforms": null,
+  "prepared_after": null
+}

@@ -1,0 +1,2 @@
+"case","samples","total_ms","cleanup_ms","mean_with_cleanup_ms","fps_with_cleanup"
+"ssao",5,1428,32,285.6,3.50140056022409

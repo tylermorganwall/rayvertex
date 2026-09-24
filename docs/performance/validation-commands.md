@@ -1,5 +1,9 @@
 # Validation commands
 
+These commands belong to the initial implementation before homogeneous clipping.
+For the current renderer and its corrected reference, use the
+[structural validation report](structural/validation.md).
+
 Run from the repository root, using separate installed libraries. The logs in
 `validation/` record actual results; see README for the upstream UBSan failure
 and platform limitations. The release package is 0.16.1; the system library also
