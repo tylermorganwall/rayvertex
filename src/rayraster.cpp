@@ -1243,6 +1243,7 @@ List rasterize(List mesh,
     ScreenMatrixView yybuffer_view(yybuffer);
     ScreenMatrixView zzbuffer_view(zzbuffer);
     ScreenMatrixView abuffer_view(abuffer);
+    const Mat ssao_projection=vp*Projection;
     dispatch_screen_rows(pool, workers, nx, [&](int x) {
       for (int y = 0; y < ny; y++) {
         if (nxbuffer_view(x,y) == 0 && nybuffer_view(x,y) == 0 && nzbuffer_view(x,y) == 0) {
@@ -1263,7 +1264,7 @@ List rasterize(List mesh,
           sample = sample * (Float)ambient_radius + origin;
           // project sample position:
           vec4 offset = vec4(sample, 1.0);
-          offset = vp * Projection * offset;
+          offset = ssao_projection * offset;
           offset /= offset.w;
 
           if((int)offset.x >= 0 && (int)offset.x < nx && (int)offset.y >= 0 && (int)offset.y < ny) {
