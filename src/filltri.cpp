@@ -1,7 +1,8 @@
 #include "raster_utils.h"
 #include "filltri.h"
+#include "coverage_bounds.h"
 
-template<bool Collect, bool Visibility, bool Depth>
+template<bool Collect, bool Visibility, bool Depth, bool Coverage>
 void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
                      const std::vector<IShader*>& shaders,
                      Rcpp::NumericMatrix &zbuffer, 
@@ -50,6 +51,26 @@ void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
         Float w2_init = edgeFunction(v1, v3, p);
         Float w3_init = edgeFunction(v2, v1, p);
         
+        bool full_coverage=false;
+        if constexpr(Coverage) {
+          const std::size_t samples=std::size_t(xmax-xmin)*(ymax-ymin);
+          if(samples>=16) {
+            if constexpr(Collect) ++counters->coverage_block_tests;
+            const auto coverage=raster_block_coverage({w1_init,w2_init,w3_init},
+              {pi_step_32,pi_step_13,pi_step_21},{p_step_32,p_step_13,p_step_21},
+              xmax-xmin,ymax-ymin,culling);
+            if(coverage==RasterBlockCoverage::outside) {
+              if constexpr(Collect) {
+                ++counters->coverage_rejected_blocks;
+                counters->candidates+=samples;
+              }
+              continue;
+            }
+            full_coverage=coverage==RasterBlockCoverage::inside;
+            if constexpr(Collect) if(full_coverage) ++counters->coverage_full_blocks;
+          }
+        }
+
         //This updates w1_p and w1 from their base value--repeated addition results in
         //tearing of polygons due to loss of precision.
         for (uint32_t i = xmin; i < xmax; i++) {
@@ -61,11 +82,14 @@ void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
             Float w2 = w2_p + (j-ymin) * p_step_13;
             Float w3 = w3_p + (j-ymin) * p_step_21;
             
-            if constexpr (Collect) ++counters->candidates;
-            bool inside = culling == 1 ? (w1 >= 0 && w2 >= 0 && w3 >= 0) : 
+            if constexpr (Collect) {
+              ++counters->candidates;
+              if(!full_coverage) ++counters->coverage_edge_samples;
+            }
+            bool inside = full_coverage || (culling == 1 ? (w1 >= 0 && w2 >= 0 && w3 >= 0) :
                           culling == 2 ? (w1 <= 0 && w2 <= 0 && w3 <= 0) :
                           ((w1 >= 0 && w2 >= 0 && w3 >= 0) ||
-                           (w1 <= 0 && w2 <= 0 && w3 <= 0));
+                           (w1 <= 0 && w2 <= 0 && w3 <= 0)));
             if (inside) {
               if constexpr (Collect) ++counters->covered;
               vec3 bc       = vec3(w1, w2, w3)*inv_area;
@@ -185,7 +209,7 @@ void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
         ++counters->visibility_fallbacks;
         counters->visibility_shading_ms+=std::chrono::duration<double,std::milli>(Clock::now()-stage_start).count();
       }
-      fill_tri_blocks_impl<Collect,false,Depth>(bins,tile,shaders,zbuffer,image,normal_buffer,
+      fill_tri_blocks_impl<Collect,false,Depth,Coverage>(bins,tile,shaders,zbuffer,image,normal_buffer,
         position_buffer,uv_buffer,alpha_depths,material_id_buffer,counters);
       return;
     }
@@ -207,7 +231,8 @@ void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
 
 }
 
-void fill_tri_blocks(const TriangleBins& bins, std::size_t tile,
+template<bool Coverage>
+void dispatch_fill_tri_blocks(const TriangleBins& bins, std::size_t tile,
                      const std::vector<IShader*>& shaders,
                      Rcpp::NumericMatrix &zbuffer,
                      rayimage& image,
@@ -219,8 +244,8 @@ void fill_tri_blocks(const TriangleBins& bins, std::size_t tile,
                      Rcpp::IntegerMatrix* material_id_buffer,
                      RasterCounters* counters, bool visibility) {
   if(depth) {
-    if(counters) fill_tri_blocks_impl<true,false,true>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,alpha_depths,material_id_buffer,counters);
-    else fill_tri_blocks_impl<false,false,true>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,alpha_depths,material_id_buffer,counters);
+    if(counters) fill_tri_blocks_impl<true,false,true,Coverage>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,alpha_depths,material_id_buffer,counters);
+    else fill_tri_blocks_impl<false,false,true,Coverage>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,alpha_depths,material_id_buffer,counters);
     return;
   }
   if(visibility) {
@@ -232,10 +257,25 @@ void fill_tri_blocks(const TriangleBins& bins, std::size_t tile,
       if(!shaders[bins.at(entry).material]->guaranteed_opaque()) { visibility=false; break; }
   }
   if(visibility) {
-    if(counters) fill_tri_blocks_impl<true,true,false>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,alpha_depths,material_id_buffer,counters);
-    else fill_tri_blocks_impl<false,true,false>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,alpha_depths,material_id_buffer,counters);
+    if(counters) fill_tri_blocks_impl<true,true,false,Coverage>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,alpha_depths,material_id_buffer,counters);
+    else fill_tri_blocks_impl<false,true,false,Coverage>(bins,tile,shaders,zbuffer,image,normal_buffer,position_buffer,uv_buffer,alpha_depths,material_id_buffer,counters);
     return;
   }
-  if(counters) fill_tri_blocks_impl<true,false,false>(bins, tile, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, alpha_depths, material_id_buffer, counters);
-  else fill_tri_blocks_impl<false,false,false>(bins, tile, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, alpha_depths, material_id_buffer, counters);
+  if(counters) fill_tri_blocks_impl<true,false,false,Coverage>(bins, tile, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, alpha_depths, material_id_buffer, counters);
+  else fill_tri_blocks_impl<false,false,false,Coverage>(bins, tile, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, alpha_depths, material_id_buffer, counters);
+}
+
+void fill_tri_blocks(const TriangleBins& bins, std::size_t tile,
+                     const std::vector<IShader*>& shaders,
+                     Rcpp::NumericMatrix& zbuffer, rayimage& image,
+                     rayimage& normal_buffer, rayimage& position_buffer,
+                     rayimage& uv_buffer, bool depth, FragmentArena& alpha_depths,
+                     Rcpp::IntegerMatrix* material_id_buffer,
+                     RasterCounters* counters, bool visibility, bool block_coverage) {
+  if(block_coverage)
+    dispatch_fill_tri_blocks<true>(bins,tile,shaders,zbuffer,image,normal_buffer,
+      position_buffer,uv_buffer,depth,alpha_depths,material_id_buffer,counters,visibility);
+  else
+    dispatch_fill_tri_blocks<false>(bins,tile,shaders,zbuffer,image,normal_buffer,
+      position_buffer,uv_buffer,depth,alpha_depths,material_id_buffer,counters,visibility);
 }

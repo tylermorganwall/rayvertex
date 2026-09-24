@@ -22,7 +22,8 @@ void fill_tri_blocks(const TriangleBins& bins, std::size_t tile,
                      bool depth, 
                      FragmentArena& alpha_depths,
                      Rcpp::IntegerMatrix* material_id_buffer,
-                     RasterCounters* counters = nullptr, bool visibility = false);
+                     RasterCounters* counters = nullptr, bool visibility = false,
+                     bool block_coverage = false);
 
 
 #endif

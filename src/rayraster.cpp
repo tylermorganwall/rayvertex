@@ -374,6 +374,7 @@ List rasterize(List mesh,
   const bool reference_scheduler = std::getenv("RAYVERTEX_REFERENCE_SCHEDULER") != nullptr;
   const std::size_t batch_size = raster_batch_size();
   const bool visibility=std::getenv("RAYVERTEX_VISIBILITY")!=nullptr;
+  const bool block_coverage=std::getenv("RAYVERTEX_BLOCK_COVERAGE")!=nullptr;
   List materials = as<List>(mesh["materials"]);
   int number_materials = materials.size();
   struct FrameRequirements { bool shadows = false, outlines = false; } requirements;
@@ -1153,7 +1154,7 @@ List rasterize(List mesh,
       //Calculate shadow buffer
       auto task = [&](unsigned int i) {
         fill_tri_blocks(blocks_depth,i,depth_shader_single,zbuffer_depth,shadowbuff,
-                        normalbuffer,positionbuffer,uvbuffer,true,alpha_depth_single,nullptr);
+                        normalbuffer,positionbuffer,uvbuffer,true,alpha_depth_single,nullptr,nullptr,false,block_coverage);
       };
       RasterScheduleStats shadow_schedule;
       shadow_tasks += dispatch_raster_blocks(pool, blocks_depth, task, workers,
@@ -1215,7 +1216,7 @@ List rasterize(List mesh,
   auto task = [&](unsigned int i) {
     fill_tri_blocks(blocks,i,shaders,zbuffer,image,normalbuffer,positionbuffer,uvbuffer,
                     false,alpha_depths,requirements.outlines ? &material_id_buffer : nullptr,
-                    main_counters.empty() ? nullptr : &main_counters[i],visibility);
+                    main_counters.empty() ? nullptr : &main_counters[i],visibility,block_coverage);
   };
 
   RasterScheduleStats main_schedule;
@@ -1545,11 +1546,19 @@ List rasterize(List mesh,
     totals.candidates += c.candidates; totals.covered += c.covered;
     totals.early_z += c.early_z; totals.shaded += c.shaded;
     totals.transparent += c.transparent;
+    totals.coverage_block_tests+=c.coverage_block_tests;
+    totals.coverage_rejected_blocks+=c.coverage_rejected_blocks;
+    totals.coverage_full_blocks+=c.coverage_full_blocks;
+    totals.coverage_edge_samples+=c.coverage_edge_samples;
     totals.visibility_tiles+=c.visibility_tiles;
     totals.visibility_fallbacks+=c.visibility_fallbacks;
     totals.visibility_coverage_ms+=c.visibility_coverage_ms;
     totals.visibility_shading_ms+=c.visibility_shading_ms;
   }
+  profile.count("coverage_block_tests",totals.coverage_block_tests);
+  profile.count("coverage_rejected_blocks",totals.coverage_rejected_blocks);
+  profile.count("coverage_full_blocks",totals.coverage_full_blocks);
+  profile.count("coverage_edge_samples",totals.coverage_edge_samples);
   profile.count("coverage_candidates", totals.candidates);
   profile.count("covered_samples", totals.covered);
   profile.count("early_z_failures", totals.early_z);

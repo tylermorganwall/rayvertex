@@ -56,6 +56,8 @@ struct RasterCounters {
   std::size_t candidates = 0, covered = 0, early_z = 0, shaded = 0, transparent = 0;
   std::size_t visibility_tiles=0, visibility_fallbacks=0;
   double visibility_coverage_ms=0, visibility_shading_ms=0;
+  std::size_t coverage_block_tests=0, coverage_rejected_blocks=0;
+  std::size_t coverage_full_blocks=0, coverage_edge_samples=0;
 };
 
 #endif

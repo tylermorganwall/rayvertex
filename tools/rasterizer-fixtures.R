@@ -63,6 +63,7 @@ rasterizer_fixture = function(name) {
     alpha16 = list(scene = rasterizer_grid(512L, 16L, 0.15)),
     alpha64 = list(scene = rasterizer_grid(512L, 64L, 0.05)),
     alpha129 = list(scene = rasterizer_grid(512L, 129L, 0.025)),
+    slivers = rasterizer_slivers(),
     orthographic = list(
       scene = sphere_mesh(),
       fov = 0,
@@ -96,6 +97,27 @@ rasterizer_fixture = function(name) {
       )
     ),
     stop("Unknown fixture: ", name)
+  )
+}
+
+rasterizer_slivers = function() {
+  vertices = do.call(
+    rbind,
+    lapply(seq_len(64), function(i) {
+      offset = (i - 32) / 64
+      rbind(
+        c(-1, -1 + offset, 0),
+        c(1, 1 + offset, 0),
+        c(1, 1 + offset + 0.006, 0)
+      )
+    })
+  )
+  list(
+    scene = construct_mesh(
+      vertices,
+      matrix(seq_len(nrow(vertices)) - 1L, ncol = 3, byrow = TRUE),
+      material = material_list(culling = "none")
+    )
   )
 }
 
