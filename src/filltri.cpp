@@ -120,19 +120,18 @@ void fill_tri_blocks_impl(std::vector<std::vector<int> >&  block_faces,
             if (inside) {
               if constexpr (Collect) ++counters->covered;
               vec3 bc       = vec3(w1, w2, w3)*inv_area;
-              vec3 bc_clip  = vec3(bc.x*v1_ndc_inv_w,
-                                   bc.y*v2_ndc_inv_w,
-                                   bc.z*v3_ndc_inv_w);
-              bc_clip      /= (bc_clip.x + bc_clip.y + bc_clip.z);
-              
-              //Using bc_clip results in wrong zbuffer values here--bug?
-              // Float z = v1.z * bc_clip.x + v2.z * bc_clip.y + v3.z * bc_clip.z;
+              // Screen depth is affine; reject before perspective normalization.
+              // Keep equality eligible so the later submitted fragment wins.
               Float z = v1.z * bc.x + v2.z * bc.y + v3.z * bc.z;
               if(z > zbuffer(i,j)) {
                 if constexpr (Collect) ++counters->early_z;
                 continue;
               }
-              
+              vec3 bc_clip = vec3(bc.x*v1_ndc_inv_w,
+                                  bc.y*v2_ndc_inv_w,
+                                  bc.z*v3_ndc_inv_w);
+              bc_clip /= (bc_clip.x + bc_clip.y + bc_clip.z);
+
               if constexpr (Collect) ++counters->shaded;
               bool discard = shaders[mat_num]->fragment(bc_clip, color, position, normal, global_face);
               bool is_translucent = shaders[mat_num]->is_translucent();
