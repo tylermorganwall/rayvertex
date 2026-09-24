@@ -1,0 +1,5 @@
+"case","width","height","fsaa","cores","regime","sample","elapsed_ms"
+"point_lights",800,800,1,1,"process_cold",0,321
+"point_lights",800,800,1,1,"warm",1,288
+"point_lights",800,800,1,1,"warm",2,238
+"point_lights",800,800,1,1,"warm",3,237
