@@ -175,7 +175,7 @@ class ColorShader : public IShader {
     ~ColorShader();
     
     virtual bool uses_raw_clip() const { return true; }
-    bool guaranteed_opaque() const override {
+    virtual bool guaranteed_opaque() const {
       return material.dissolve==1.0 && !has_texture && !has_emissive_texture &&
         !material.has_ambient_texture && !has_reflection && !has_refraction;
     }
@@ -269,7 +269,7 @@ class DiffuseShader : public IShader {
     ~DiffuseShader();
     
     virtual bool uses_raw_clip() const { return true; }
-    bool guaranteed_opaque() const override {
+    virtual bool guaranteed_opaque() const {
       return material.dissolve==1.0 && !has_texture && !has_emissive_texture &&
         !material.has_ambient_texture && !has_reflection && !has_refraction;
     }
@@ -677,7 +677,7 @@ class PhongShader : public IShader {
                       reflection_map_info reflection_map, bool has_reflection, bool has_refraction);
     ~PhongShader();
     
-    bool guaranteed_opaque() const override {
+    virtual bool guaranteed_opaque() const {
       return material.dissolve==1.0 && !has_texture && !has_emissive_texture &&
         !material.has_ambient_texture && !has_reflection && !has_refraction;
     }

@@ -17,12 +17,25 @@ struct CachedTexture {
 // channel count, float storage and the renderer's gamma=1 setting. If another
 // decode/color-space option is introduced, it must become part of this key.
 class TextureCache {
-  const bool enabled = std::getenv("RAYVERTEX_REFERENCE_ASSETS") == nullptr;
+  const bool enabled;
+  const TextureCache* parent;
   std::unordered_map<std::string, std::string> identities;
   std::unordered_map<std::string, CachedTexture> textures;
 public:
+  explicit TextureCache(const TextureCache* snapshot=nullptr, bool immutable=false)
+    : enabled(immutable || std::getenv("RAYVERTEX_REFERENCE_ASSETS")==nullptr), parent(snapshot) {}
+  std::size_t hits=0;
   std::size_t decodes = 0, payload_bytes = 0;
   std::shared_ptr<float> load(const char* filename, int* width, int* height, int* channels) {
+    // Prepared paths are canonical. A hit never consults a changed source file.
+    if(parent) {
+      auto found=parent->textures.find(filename);
+      if(found!=parent->textures.end()) {
+        ++hits;
+        *width=found->second.width; *height=found->second.height; *channels=found->second.channels;
+        return found->second.pixels;
+      }
+    }
     if (!enabled) {
       *width = *height = *channels = 0;
       std::shared_ptr<float> pixels(stbi_loadf(filename, width, height, channels, 0), StbiDeleter());

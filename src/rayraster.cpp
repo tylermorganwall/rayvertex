@@ -52,6 +52,7 @@
 #include "dummythreadpool.h"
 #include "raster_scheduler.h"
 #include "texture_cache.h"
+#include "prepared_scene.h"
 #include "screen_view.h"
 
 #include "material.h"
@@ -362,9 +363,10 @@ List rasterize(List mesh,
                LogicalVector has_refraction, bool environment_map_hdr,
                bool has_environment_map, NumericVector bg_color,
                bool transparent_background,
-               bool verbose, int output_mask = 31) {
+               bool verbose, int output_mask = 31, SEXP prepared_scene = R_NilValue) {
   RasterProfile profile;
-  TextureCache texture_cache;
+  const TextureCache* prepared_assets=prepared_scene==R_NilValue ? nullptr : &prepared_scene_owner(prepared_scene).textures;
+  TextureCache texture_cache(prepared_assets);
   const bool reference_buffers=std::getenv("RAYVERTEX_REFERENCE_BUFFERS")!=nullptr;
   if(reference_buffers) output_mask=31;
   if(output_mask<0 || output_mask>31) throw std::invalid_argument("Invalid raster output mask");
@@ -1504,6 +1506,8 @@ List rasterize(List mesh,
     (3*need_normals+3*need_positions+3*need_uv+need_linear_depth+need_ambient));
   profile.count("texture_decodes", texture_cache.decodes + (has_environment_map ? 1 : 0));
   profile.count("texture_payload_bytes", texture_cache.payload_bytes);
+  profile.count("prepared_texture_hits",texture_cache.hits);
+  profile.count("prepared_texture_payload_bytes",prepared_assets ? prepared_assets->payload_bytes : 0);
   profile.count("indexed_positions", indexed ? mesh_verts.nrow() : 0);
   if (profile.enabled()) {
     std::size_t clip_evaluations = indexed ?

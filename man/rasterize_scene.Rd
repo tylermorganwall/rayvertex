@@ -50,7 +50,7 @@ rasterize_scene(
 )
 }
 \arguments{
-\item{scene}{The scene object.}
+\item{scene}{The scene object or a snapshot from \code{\link[=prepare_scene]{prepare_scene()}}.}
 
 \item{filename}{Default \code{NULL}. Filename to save the image. If \code{NULL}, the image will be plotted.}
 

@@ -24,6 +24,9 @@ params = modifyList(
   ),
   rasterizer_fixture(args[3])
 )
+if (Sys.getenv("RAYVERTEX_PREPARED") == "1") {
+  params$scene = prepare_scene(params$scene)
+}
 invisible(do.call(rasterize_scene, params))
 gc()
 reps = as.integer(args[4])

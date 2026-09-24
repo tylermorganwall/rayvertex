@@ -36,11 +36,33 @@ params = modifyList(
 )
 key = paste(case, w, h, fsaa, cores, sep = "-")
 rows = vector("list", reps + 1L)
-for (i in 0:reps) {
+prepared_mode = Sys.getenv("RAYVERTEX_PREPARED") == "1"
+if (prepared_mode) {
   gc()
+  prepare_start = proc.time()[["elapsed"]]
+  params$scene = prepare_scene(params$scene)
+  preparation_ms = 1000 * (proc.time()[["elapsed"]] - prepare_start)
+}
+for (i in 0:reps) {
+  if (!(prepared_mode && i == 0L)) {
+    gc()
+  }
   start = proc.time()[["elapsed"]]
   result = do.call(rasterize_scene, params)
   elapsed = (proc.time()[["elapsed"]] - start) * 1000
+  if (prepared_mode && i == 0L) {
+    prepare_plus_first_ms = 1000 * (proc.time()[["elapsed"]] - prepare_start)
+    write.csv(
+      data.frame(
+        case,
+        preparation_ms,
+        first_render_ms = elapsed,
+        prepare_plus_first_ms
+      ),
+      file.path(out, paste0(key, "-preparation.csv")),
+      row.names = FALSE
+    )
+  }
   rows[[i + 1L]] = data.frame(
     case,
     width = w,

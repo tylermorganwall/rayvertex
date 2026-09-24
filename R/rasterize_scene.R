@@ -2,7 +2,7 @@
 #'
 #'@description Render a 3D scene with meshes, lights, and lines using a software rasterizer.
 #'
-#'@param scene The scene object.
+#'@param scene The scene object or a snapshot from [prepare_scene()].
 #'@param filename Default `NULL`. Filename to save the image. If `NULL`, the image will be plotted.
 #'@param width Default `400`. Width of the rendered image.
 #'@param height Default `400`. Width of the rendered image.
@@ -156,6 +156,14 @@ rasterize_scene = function(
   validate_scene = TRUE,
   transparent_background = FALSE
 ) {
+  prepared_handle = if (inherits(scene, "rayvertex_prepared_scene")) {
+    scene
+  } else {
+    NULL
+  }
+  if (!is.null(prepared_handle)) {
+    scene = prepared_scene_snapshot(prepared_handle)
+  }
   init_time()
   if (!is.null(attr(scene, "cornell"))) {
     corn_message = "Setting default values for Cornell box: "
@@ -197,15 +205,21 @@ rasterize_scene = function(
     }
   }
   print_time(verbose, "Validating Mesh")
-  if (validate_scene) {
+  if (validate_scene && is.null(prepared_handle)) {
     validate_mesh(scene)
   }
   #Get the scene down to one vertex/texcoord/normal matrix, and adjust indices to match
   print_time(verbose, "Pre-processing scene")
-  scene = merge_scene(scene, flatten_materials = TRUE)
+  if (is.null(prepared_handle)) {
+    scene = merge_scene(scene, flatten_materials = TRUE)
+  }
   #Remove duplicate materials
   print_time(verbose, "Pre-processed  scene")
-  obj = remove_duplicate_materials(scene)
+  obj = if (is.null(prepared_handle)) {
+    remove_duplicate_materials(scene)
+  } else {
+    scene
+  }
   print_time(verbose, "Removed duplicate materials")
 
   fsaa = as.integer(fsaa)
@@ -537,7 +551,8 @@ rasterize_scene = function(
         2L * as.integer(debug == "position") +
         4L * as.integer(debug == "uv") +
         8L * as.integer(debug %in% c("depth", "raw_depth"))
-    }
+    },
+    prepared_scene = prepared_handle
   )
   print_time(verbose, "Rasterized image")
 

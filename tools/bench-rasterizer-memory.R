@@ -24,5 +24,8 @@ params = modifyList(
   ),
   rasterizer_fixture(args[3])
 )
+if (Sys.getenv("RAYVERTEX_PREPARED") == "1") {
+  params$scene = prepare_scene(params$scene)
+}
 result = do.call(rasterize_scene, params)
 stopifnot(all(dim(result) == c(as.integer(args[5]), as.integer(args[4]), 4L)))

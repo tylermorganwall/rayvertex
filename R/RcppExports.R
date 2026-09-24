@@ -25,12 +25,28 @@ LoopSubdivide <- function(mesh, shape_i, nLevels, verbose, simple_subdivision = 
     .Call(`_rayvertex_LoopSubdivide`, mesh, shape_i, nLevels, verbose, simple_subdivision)
 }
 
+prepare_scene_rcpp <- function(scene) {
+    .Call(`_rayvertex_prepare_scene_rcpp`, scene)
+}
+
+prepared_scene_snapshot <- function(handle) {
+    .Call(`_rayvertex_prepared_scene_snapshot`, handle)
+}
+
+prepared_scene_info <- function(handle) {
+    .Call(`_rayvertex_prepared_scene_info`, handle)
+}
+
+prepared_scene_lifetime <- function() {
+    .Call(`_rayvertex_prepared_scene_lifetime`)
+}
+
 rasterize_lines_rcpp <- function(line_mat, nx, ny, model_color, lookfrom, lookat, fov, near_clip, far_clip, bounds, camera_up, alpha_line, line_offset, ortho_dims, aa_lines) {
     .Call(`_rayvertex_rasterize_lines_rcpp`, line_mat, nx, ny, model_color, lookfrom, lookat, fov, near_clip, far_clip, bounds, camera_up, alpha_line, line_offset, ortho_dims, aa_lines)
 }
 
-rasterize <- function(mesh, lightinfo, line_mat, nx, ny, model_color, lookfrom, lookat, fov, typevals, has_shadow_map, calc_ambient, tbn, ambient_radius, shadow_map_bias, numbercores, max_indices, has_normals_vec, has_tex_vec, has_texture, has_ambient_texture, has_bump_texture, has_normal_texture, has_specular_texture, has_emissive_texture, block_size, use_default_material, near_clip, far_clip, shadow_map_intensity, bounds, shadowdims, camera_up, alpha_line, line_offset, ortho_dims, is_dir_light, aa_lines, has_vertex_tex, has_vertex_normals, has_reflection_map, reflection_map_file, background_sharpness, has_refraction, environment_map_hdr, has_environment_map, bg_color, transparent_background, verbose, output_mask = 31L) {
-    .Call(`_rayvertex_rasterize`, mesh, lightinfo, line_mat, nx, ny, model_color, lookfrom, lookat, fov, typevals, has_shadow_map, calc_ambient, tbn, ambient_radius, shadow_map_bias, numbercores, max_indices, has_normals_vec, has_tex_vec, has_texture, has_ambient_texture, has_bump_texture, has_normal_texture, has_specular_texture, has_emissive_texture, block_size, use_default_material, near_clip, far_clip, shadow_map_intensity, bounds, shadowdims, camera_up, alpha_line, line_offset, ortho_dims, is_dir_light, aa_lines, has_vertex_tex, has_vertex_normals, has_reflection_map, reflection_map_file, background_sharpness, has_refraction, environment_map_hdr, has_environment_map, bg_color, transparent_background, verbose, output_mask)
+rasterize <- function(mesh, lightinfo, line_mat, nx, ny, model_color, lookfrom, lookat, fov, typevals, has_shadow_map, calc_ambient, tbn, ambient_radius, shadow_map_bias, numbercores, max_indices, has_normals_vec, has_tex_vec, has_texture, has_ambient_texture, has_bump_texture, has_normal_texture, has_specular_texture, has_emissive_texture, block_size, use_default_material, near_clip, far_clip, shadow_map_intensity, bounds, shadowdims, camera_up, alpha_line, line_offset, ortho_dims, is_dir_light, aa_lines, has_vertex_tex, has_vertex_normals, has_reflection_map, reflection_map_file, background_sharpness, has_refraction, environment_map_hdr, has_environment_map, bg_color, transparent_background, verbose, output_mask = 31L, prepared_scene = NULL) {
+    .Call(`_rayvertex_rasterize`, mesh, lightinfo, line_mat, nx, ny, model_color, lookfrom, lookat, fov, typevals, has_shadow_map, calc_ambient, tbn, ambient_radius, shadow_map_bias, numbercores, max_indices, has_normals_vec, has_tex_vec, has_texture, has_ambient_texture, has_bump_texture, has_normal_texture, has_specular_texture, has_emissive_texture, block_size, use_default_material, near_clip, far_clip, shadow_map_intensity, bounds, shadowdims, camera_up, alpha_line, line_offset, ortho_dims, is_dir_light, aa_lines, has_vertex_tex, has_vertex_normals, has_reflection_map, reflection_map_file, background_sharpness, has_refraction, environment_map_hdr, has_environment_map, bg_color, transparent_background, verbose, output_mask, prepared_scene)
 }
 
 smooth_normals_mesh_rcpp <- function(mesh_input, override_existing = FALSE) {

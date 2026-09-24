@@ -122,6 +122,9 @@ cases$refraction = list(
 results = list()
 for (name in names(cases)) {
   params = modifyList(base, cases[[name]])
+  if (Sys.getenv("RAYVERTEX_PARITY_PREPARED") == "1") {
+    params$scene = prepare_scene(params$scene)
+  }
   for (debug in c(
     "none",
     "all",
