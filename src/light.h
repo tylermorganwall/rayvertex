@@ -45,6 +45,7 @@ public:
   }
   
   vec3 direction;
+  vec3 view_direction; // View * Model direction, prepared once without renormalizing.
   vec3 color;
   Float intensity;
   

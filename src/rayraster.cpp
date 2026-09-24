@@ -617,6 +617,7 @@ List rasterize(List mesh,
                                                     near_plane, far_plane,
                                                     vp_shadow, Model, shadow_inv,
                                                     lightinfo(i,9)));
+      directional_lights.back().view_direction=vec3((View * Model) * vec4(light_dir_temp,0.0));
     }
   }
   profile.mark("lights_shadow_allocate");
@@ -1180,6 +1181,8 @@ List rasterize(List mesh,
       dispatch_fragment_tiles(pool,workers,alpha_depth_single,resolve_shadow);
       if(profile.enabled())
         profile.count("shadow_"+std::to_string(sb)+"_fragment_capacity_bytes",alpha_depth_single.capacity_bytes());
+      transparency_buffers[sb].has_transparent_samples=alpha_depth_single.touched_samples()!=0;
+      profile.count("shadow_"+std::to_string(sb)+"_has_transparent_samples",transparency_buffers[sb].has_transparent_samples);
       alpha_depth_single.release();
       profile.mark("shadow_" + std::to_string(sb) + "_transparency_resolve");
       std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<Float>::infinity() ) ;

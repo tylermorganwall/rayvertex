@@ -41,6 +41,7 @@ void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
     const Float inv_area=setup.inverse_area;
     const Float p_step_32=setup.step_y.x, p_step_13=setup.step_y.y, p_step_21=setup.step_y.z;
     const Float pi_step_32=setup.step_x.x, pi_step_13=setup.step_x.y, pi_step_21=setup.step_x.z;
+    const bool opaque_depth=depth && shaders[mat_num]->opaque_depth();
     vec4 color;
     vec3 position, normal;
         vec3 p  = vec3((Float)xmin + 0.5f, (Float)ymin + 0.5f, 0.0f);
@@ -91,6 +92,11 @@ void fill_tri_blocks_impl(const TriangleBins& bins, std::size_t tile,
                 bc_clip=weights[0]*bc_clip.x+weights[1]*bc_clip.y+weights[2]*bc_clip.z;
               }
 
+              if(opaque_depth) {
+                zbuffer(i,j)=z;
+                image.set_depth(i,j,shaders[mat_num]->depth_value(bc_clip,global_face));
+                continue;
+              }
               if constexpr (Collect) ++counters->shaded;
               FragmentResult result;
               shaders[mat_num]->shade({bc_clip,global_face},result);

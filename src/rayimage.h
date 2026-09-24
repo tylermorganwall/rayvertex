@@ -4,6 +4,7 @@
 #include "glm.hpp"
 #include "Rcpp.h"
 #include "defines.h"
+#include "shadow_sample.h"
 
 
 // typedef glm::vec4 vec4;
@@ -18,6 +19,8 @@ vec4 trivalue(Float uu, Float vv, reflection_map_info ref);
 
 class rayimage {
   public:
+    // Set on the main thread after the shadow resolve barrier.
+    bool has_transparent_samples=true;
     rayimage(Rcpp::NumericMatrix &r_, Rcpp::NumericMatrix &g_, Rcpp::NumericMatrix &b_,
              int nx, int ny, Float shadow_map_intensity = 0.0f) : r(r_), g(g_), b(b_), nx(nx), ny(ny),
              shadow_map_intensity(shadow_map_intensity), enabled(r_.size()!=0) {};
@@ -60,6 +63,10 @@ class rayimage {
       j = j < 0 ? 0 : j;
       return(vec4(r(i,j),g(i,j),b(i,j),a(i,j)));
     }
+    Float pcf25(int i, int j, Float threshold) {
+      return shadow_pcf25(r.begin(),nx,ny,i,j,threshold,shadow_map_intensity);
+    }
+    void set_depth(int i, int j, Float value) { r(i,j)=value; }
     int width() {
       return(nx);
     }

@@ -120,7 +120,7 @@ bool GouraudShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
     Float shadow = 0.0f;
-    Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
+    Float intensity = std::fmax(dot(normal, directional_lights[ii].view_direction),0.0);
     if(has_shadow_map && intensity != 0.0) {
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
       sb_p = sb_p/sb_p.w;
@@ -130,13 +130,8 @@ bool GouraudShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
-        for(int x = -2; x <= 2; ++x) {
-          for(int y = -2; y <= 2; ++y) {
-            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0f : shadowbuffers[ii].get_shadow_intensity();    
-          }    
-        }
-        shadow /= 25;
-        if(diffuse_color.w == 1.0) {
+        shadow = shadowbuffers[ii].pcf25(i,j,sb_p[2]-bias);
+        if(diffuse_color.w == 1.0 && transparency_buffers[ii].has_transparent_samples) {
           for(int x = -2; x <= 2; ++x) {
             for(int y = -2; y <= 2; ++y) {
               trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
@@ -398,7 +393,7 @@ bool DiffuseShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int
   for(unsigned int ii = 0; ii < directional_lights.size(); ii++) {
     vec4 trans_color(0.0,0.0,0.0,0.0);
     Float shadow = 1.0f;
-    Float dot_prod = dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0)));
+    Float dot_prod = dot(normal, directional_lights[ii].view_direction);
     dot_prod *= two_sided && dot_prod < 0 ? -1 : 1;
     Float intensity = std::fmax(dot_prod,0.0);
     if(has_shadow_map && intensity != 0.0) {
@@ -412,13 +407,8 @@ bool DiffuseShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int
 
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
-        for(int x = -2; x <= 2; ++x) {
-          for(int y = -2; y <= 2; ++y) {
-            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0f : shadowbuffers[ii].get_shadow_intensity();    
-          }    
-        }
-        shadow /= 25;
-        if(diffuse_color.w == 1.0) {
+        shadow = shadowbuffers[ii].pcf25(i,j,sb_p[2]-bias);
+        if(diffuse_color.w == 1.0 && transparency_buffers[ii].has_transparent_samples) {
           for(int x = -2; x <= 2; ++x) {
             for(int y = -2; y <= 2; ++y) {
               trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
@@ -621,7 +611,7 @@ bool OrenNayerShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, i
     Float shadow = 1.0f;
     
     // Light direction in view space (normalize!)
-    vec3 L = glm::normalize(vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0f)));
+    vec3 L = glm::normalize(directional_lights[ii].view_direction);
     
     // Two-sided handling: flip N if needed so cosThetaI is positive when allowed
     Float ndl_raw = glm::dot(normal, L);
@@ -643,15 +633,9 @@ bool OrenNayerShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, i
         Float bias = std::fmax(shadow_map_bias*10.0f * (1.0f - intensity), shadow_map_bias);
         bias *= directional_lights[ii].shadow_bias_scale;
         int i = int(sb_p[0]), j = int(sb_p[1]);
-        for (int x = -2; x <= 2; ++x) {
-          for (int y = -2; y <= 2; ++y) {
-            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ?
-          1.0f : shadowbuffers[ii].get_shadow_intensity();
-          }
-        }
-        shadow /= 25.0f;
+        shadow = shadowbuffers[ii].pcf25(i,j,sb_p[2]-bias);
         
-        if (diffuse_color.w == 1.0f) {
+        if(diffuse_color.w == 1.0 && transparency_buffers[ii].has_transparent_samples) {
           for (int x = -2; x <= 2; ++x)
             for (int y = -2; y <= 2; ++y)
               trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
@@ -817,7 +801,7 @@ bool DiffuseNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& norma
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
     Float shadow = 1.0f;
-    Float intensity = std::fmax(dot(n, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
+    Float intensity = std::fmax(dot(n, directional_lights[ii].view_direction),0.0);
     if(has_shadow_map && intensity != 0.0) {
       shadow = 0.0f;
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
@@ -828,13 +812,8 @@ bool DiffuseNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& norma
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
-        for(int x = -2; x <= 2; ++x) {
-          for(int y = -2; y <= 2; ++y) {
-            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0f : shadowbuffers[ii].get_shadow_intensity();    
-          }    
-        }
-        shadow /= 25;
-        if(diffuse_color.w == 1.0) {
+        shadow = shadowbuffers[ii].pcf25(i,j,sb_p[2]-bias);
+        if(diffuse_color.w == 1.0 && transparency_buffers[ii].has_transparent_samples) {
           for(int x = -2; x <= 2; ++x) {
             for(int y = -2; y <= 2; ++y) {
               trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
@@ -1002,7 +981,7 @@ bool DiffuseShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& norm
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
     Float shadow = 1.0f;
-    Float intensity = std::fmax(dot(norm, vec3(uniform_M * vec4(directional_lights[ii].direction,0.0))),0.0);
+    Float intensity = std::fmax(dot(norm, directional_lights[ii].view_direction),0.0);
     if(has_shadow_map && intensity != 0.0) {
       shadow = 0.0f;
       
@@ -1014,13 +993,8 @@ bool DiffuseShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& norm
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
-        for(int x = -2; x <= 2; ++x) {
-          for(int y = -2; y <= 2; ++y) {
-            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0f : shadowbuffers[ii].get_shadow_intensity();    
-          }    
-        }
-        shadow /= 25;
-        if(diffuse_color.w == 1.0) {
+        shadow = shadowbuffers[ii].pcf25(i,j,sb_p[2]-bias);
+        if(diffuse_color.w == 1.0 && transparency_buffers[ii].has_transparent_samples) {
           for(int x = -2; x <= 2; ++x) {
             for(int y = -2; y <= 2; ++y) {
               trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
@@ -1176,9 +1150,8 @@ bool PhongShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int i
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
     Float shadow = 1.0f;
-    vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
+    vec3 l_dir = directional_lights[ii].view_direction;
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
-    Float shadow_int = has_shadow_map ? shadowbuffers[ii].get_shadow_intensity() : 0.0;
     if(has_shadow_map && intensity != 0.0) {
       shadow = 0.0f;
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
@@ -1189,13 +1162,8 @@ bool PhongShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int i
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
-        for(int x = -2; x <= 2; ++x) {
-          for(int y = -2; y <= 2; ++y) {
-            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0 : shadow_int;    
-          }    
-        }
-        shadow /= 25;
-        if(diffuse_color.w == 1.0) {
+        shadow = shadowbuffers[ii].pcf25(i,j,sb_p[2]-bias);
+        if(diffuse_color.w == 1.0 && transparency_buffers[ii].has_transparent_samples) {
           for(int x = -2; x <= 2; ++x) {
             for(int y = -2; y <= 2; ++y) {
               trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
@@ -1350,9 +1318,8 @@ bool PhongNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal,
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
     Float shadow = 1.0f;
-    vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
+    vec3 l_dir = directional_lights[ii].view_direction;
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
-    Float shadow_int = has_shadow_map ? shadowbuffers[ii].get_shadow_intensity() : 0.0;
     if(has_shadow_map && intensity != 0.0) {
       shadow = 0.0f;
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
@@ -1363,13 +1330,8 @@ bool PhongNormalShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal,
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
-        for(int x = -2; x <= 2; ++x) {
-          for(int y = -2; y <= 2; ++y) {
-            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0 : shadow_int;    
-          }    
-        }
-        shadow /= 25;
-        if(diffuse_color.w == 1.0) {
+        shadow = shadowbuffers[ii].pcf25(i,j,sb_p[2]-bias);
+        if(diffuse_color.w == 1.0 && transparency_buffers[ii].has_transparent_samples) {
           for(int x = -2; x <= 2; ++x) {
             for(int y = -2; y <= 2; ++y) {
               trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
@@ -1544,9 +1506,8 @@ bool PhongShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
     Float shadow = 1.0f;
-    vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
+    vec3 l_dir = directional_lights[ii].view_direction;
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
-    Float shadow_int = has_shadow_map ? shadowbuffers[ii].get_shadow_intensity() : 0.0;
     if(has_shadow_map && intensity != 0.0) {
       shadow = 0.0f;
       vec4 sb_p = directional_lights[ii].uniform_Mshadow_ * (vec_varying_tri[iface][0] * bc.x + vec_varying_tri[iface][1] * bc.y + vec_varying_tri[iface][2] * bc.z);
@@ -1557,13 +1518,8 @@ bool PhongShaderTangent::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
-        for(int x = -2; x <= 2; ++x) {
-          for(int y = -2; y <= 2; ++y) {
-            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0 : shadow_int;    
-          }    
-        }
-        shadow /= 25;
-        if(diffuse_color.w == 1.0) {
+        shadow = shadowbuffers[ii].pcf25(i,j,sb_p[2]-bias);
+        if(diffuse_color.w == 1.0 && transparency_buffers[ii].has_transparent_samples) {
           for(int x = -2; x <= 2; ++x) {
             for(int y = -2; y <= 2; ++y) {
               trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
@@ -1770,7 +1726,7 @@ bool ToonShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int if
   for(unsigned int ii = 0; ii < directional_lights.size(); ii++) {
     vec4 trans_color(0.0,0.0,0.0,0.0);
     Float shadow = 1.0f;
-    Float intensity = std::fmax(dot(normal, vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0))),0.0);
+    Float intensity = std::fmax(dot(normal, directional_lights[ii].view_direction),0.0);
     if(has_shadow_map && intensity != 0.0) {
       shadow = 0.0f;
       
@@ -1782,13 +1738,8 @@ bool ToonShader::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int if
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
-        for(int x = -2; x <= 2; ++x) {
-          for(int y = -2; y <= 2; ++y) {
-            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0f : shadowbuffers[ii].get_shadow_intensity();    
-          }    
-        }
-        shadow /= 25;
-        if(diffuse_color.w == 1.0) {
+        shadow = shadowbuffers[ii].pcf25(i,j,sb_p[2]-bias);
+        if(diffuse_color.w == 1.0 && transparency_buffers[ii].has_transparent_samples) {
           for(int x = -2; x <= 2; ++x) {
             for(int y = -2; y <= 2; ++y) {
               trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);
@@ -1918,9 +1869,8 @@ bool ToonShaderPhong::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, i
     vec4 trans_color(0.0,0.0,0.0,0.0);
     
     Float shadow = 1.0f;
-    vec3 l_dir = vec3(uniform_M * vec4(directional_lights[ii].direction, 0.0));
+    vec3 l_dir = directional_lights[ii].view_direction;
     Float intensity = std::fmax(dot(normal, l_dir),0.0);
-    Float shadow_int = has_shadow_map ? shadowbuffers[ii].get_shadow_intensity() : 0.0;
     if(has_shadow_map && intensity != 0.0) {
       shadow = 0.0f;
       
@@ -1932,13 +1882,8 @@ bool ToonShaderPhong::fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, i
         
         int i = int(sb_p[0]);
         int j = int(sb_p[1]);
-        for(int x = -2; x <= 2; ++x) {
-          for(int y = -2; y <= 2; ++y) {
-            shadow += shadowbuffers[ii].get_color_bounded(i+x,j+y).x > sb_p[2]-bias ? 1.0 : shadow_int;    
-          }    
-        }
-        shadow /= 25;
-        if(diffuse_color.w == 1.0) {
+        shadow = shadowbuffers[ii].pcf25(i,j,sb_p[2]-bias);
+        if(diffuse_color.w == 1.0 && transparency_buffers[ii].has_transparent_samples) {
           for(int x = -2; x <= 2; ++x) {
             for(int y = -2; y <= 2; ++y) {
               trans_color += transparency_buffers[ii].get_color_bounded_a(i+x,j+y);

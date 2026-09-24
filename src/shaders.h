@@ -38,6 +38,8 @@ class IShader {
   public:
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model) = 0;
     virtual bool fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) = 0;
+    virtual bool opaque_depth() const { return false; }
+    virtual Float depth_value(const vec3&, int) const { return 0; }
     // Legacy shader bodies may replace barycentrics with UVs. Keep that mutation
     // in the result, so coverage/visibility inputs remain immutable.
     void shade(const FragmentInput& input, FragmentResult& result) {
@@ -979,6 +981,11 @@ public:
   
   virtual vec4 vertex(int iface, int nthvert, ModelInfo& model);
   virtual bool fragment(vec3& bc,vec4 &color, vec3& pos, vec3& normal, int iface);
+  virtual bool opaque_depth() const { return !has_texture && material.dissolve>=1.0; }
+  virtual Float depth_value(const vec3& bc, int face) const {
+    return vec_varying_tri[face][0].z*bc.x + vec_varying_tri[face][1].z*bc.y +
+      vec_varying_tri[face][2].z*bc.z;
+  }
   vec4 diffuse(vec3 uv) {
     return(has_texture ? vec4(material.diffuse * material.diffuse_intensity,material.dissolve) * trivalue(uv.x,uv.y,texture, nx_t, ny_t, nn_t)  : 
                          vec4(material.diffuse * material.diffuse_intensity,material.dissolve));
