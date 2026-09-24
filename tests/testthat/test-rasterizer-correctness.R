@@ -34,25 +34,6 @@ test_that("SSAO is deterministic across repeated renders", {
   expect_true(all(a$amb >= 0 & a$amb <= 1))
 })
 
-test_that("vertex and object-normal shaders initialize their position transform", {
-  texture = write_raster_texture(c(128L, 128L, 255L))
-  on.exit(unlink(texture))
-  for (type in c("vertex", "diffuse", "phong")) {
-    material = if (type == "vertex") {
-      material_list(type = type)
-    } else {
-      material_list(type = type, normal_texture_location = texture)
-    }
-    scene = sphere_mesh(material = material)
-    a = render_regression(scene, tangent_space_normals = FALSE, debug = "all")
-    b = render_regression(scene, tangent_space_normals = FALSE, debug = "all")
-    expect_identical(a, b)
-    occupied = a$depth != 1
-    expect_true(any(occupied))
-    expect_true(all(a$positionz[occupied] < -2 & a$positionz[occupied] > -5))
-  }
-})
-
 test_that("steep unaliased lines stay at the same x on rectangular images", {
   # Project a vertical line near the right boundary, safely in front of the cube.
   line = matrix(c(0.65, -0.6, 1, 0.65, 0.6, 1, 1, 0, 0), nrow = 1)
@@ -132,5 +113,24 @@ test_that("gray and gray-alpha assets match RGB and RGBA rendering", {
       environment_map = env,
       background_sharpness = 0.1
     ))
+  }
+})
+
+test_that("vertex and object-normal shaders initialize their position transform", {
+  texture = write_raster_texture(c(128L, 128L, 255L))
+  on.exit(unlink(texture))
+  for (type in c("vertex", "diffuse", "phong")) {
+    material = if (type == "vertex") {
+      material_list(type = type)
+    } else {
+      material_list(type = type, normal_texture_location = texture)
+    }
+    scene = sphere_mesh(material = material)
+    a = render_regression(scene, tangent_space_normals = FALSE, debug = "all")
+    b = render_regression(scene, tangent_space_normals = FALSE, debug = "all")
+    expect_identical(a, b)
+    occupied = a$depth != 1
+    expect_true(any(occupied))
+    expect_true(all(a$positionz[occupied] < -2 & a$positionz[occupied] > -5))
   }
 })
