@@ -529,7 +529,15 @@ rasterize_scene = function(
     has_environment_map,
     bg_color,
     transparent_background,
-    verbose
+    verbose,
+    output_mask = if (debug == "all") {
+      31L
+    } else {
+      as.integer(debug == "normals") +
+        2L * as.integer(debug == "position") +
+        4L * as.integer(debug == "uv") +
+        8L * as.integer(debug %in% c("depth", "raw_depth"))
+    }
   )
   print_time(verbose, "Rasterized image")
 

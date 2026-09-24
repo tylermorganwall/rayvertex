@@ -347,3 +347,63 @@ test_that("triangle setup is per primitive while contiguous bins retain overlap"
   expect_equal(unname(counts["count_main_setup_count"]), 2)
   expect_gt(unname(counts["count_main_bin_references"]), 2)
 })
+
+test_that("ordinary output removes unused auxiliary storage without changing images", {
+  args = list(
+    scene = sphere_mesh(),
+    width = 127,
+    height = 91,
+    fsaa = 1,
+    plot = FALSE,
+    lookfrom = c(0, 0, 4),
+    lookat = c(0, 0, 0),
+    shadow_map = FALSE
+  )
+  withr::local_options(cores = 4L)
+  withr::local_envvar(RAYVERTEX_REFERENCE_BUFFERS = "1")
+  reference = do.call(rasterize_scene, args)
+  Sys.unsetenv("RAYVERTEX_REFERENCE_BUFFERS")
+  path = tempfile()
+  withr::local_envvar(RAYVERTEX_PROFILE = path)
+  expect_identical(do.call(rasterize_scene, args), reference)
+  stats = read.csv(path, header = FALSE, col.names = c("name", "value"))
+  expect_equal(
+    stats$value[stats$name == "count_auxiliary_matrix_payload_bytes"],
+    0
+  )
+  for (mode in c("all", "normals", "position", "uv", "raw_depth", "depth")) {
+    Sys.setenv(RAYVERTEX_REFERENCE_BUFFERS = "1")
+    reference = do.call(rasterize_scene, c(args, list(debug = mode)))
+    Sys.unsetenv("RAYVERTEX_REFERENCE_BUFFERS")
+    expect_identical(
+      do.call(rasterize_scene, c(args, list(debug = mode))),
+      reference
+    )
+  }
+})
+
+test_that("parallel background and outline composition match serial screen passes", {
+  texture = tempfile(fileext = ".ppm")
+  on.exit(unlink(texture))
+  writeBin(
+    c(charToRaw("P6\n4 2\n255\n"), as.raw(seq(0, 230, by = 10))),
+    texture
+  )
+  args = list(
+    scene = sphere_mesh(material = material_list(type = "toon")),
+    width = 127,
+    height = 91,
+    fsaa = 1,
+    plot = FALSE,
+    lookfrom = c(0, 0, 4),
+    lookat = c(0, 0, 0),
+    shadow_map = FALSE,
+    environment_map = texture,
+    debug = "all"
+  )
+  withr::local_options(cores = 4L)
+  withr::local_envvar(RAYVERTEX_REFERENCE_SCREEN = "1")
+  reference = do.call(rasterize_scene, args)
+  Sys.unsetenv("RAYVERTEX_REFERENCE_SCREEN")
+  expect_identical(do.call(rasterize_scene, args), reference)
+})

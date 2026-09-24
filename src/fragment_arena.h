@@ -17,19 +17,21 @@ class FragmentArena {
     Float depth;
     std::size_t sequence;
     std::size_t sample;
-    alpha_info value;
+    vec4 color;
   };
   struct Tile {
     std::vector<Fragment> fragments;
+    std::vector<vec3> auxiliary;
     std::size_t max_layers = 0, touched = 0;
   };
   int width_, height_, block_, rows_;
+  unsigned mask_, stride_;
   std::vector<Tile> tiles_;
   std::vector<std::map<Float, alpha_info>> reference_;
 public:
-  FragmentArena(int width, int height, int block = 4)
+  FragmentArena(int width, int height, int block = 4, unsigned mask = 7)
     : width_(width), height_(height), block_(block),
-      rows_(0) {
+      rows_(0), mask_(mask), stride_((mask&1)+((mask>>1)&1)+((mask>>2)&1)) {
     checked_samples(width, height);
     if (block <= 0) throw std::invalid_argument("Invalid fragment block size");
     rows_ = 1 + (height-1)/block;
@@ -40,10 +42,14 @@ public:
   void insert(int x, int y, Float depth, const alpha_info& value) {
     const auto sample = fragment_index(x, y, width_, height_);
     if (!reference_.empty()) { reference_[sample][depth] = value; return; }
-    auto& records = tiles_[y/block_ + static_cast<std::size_t>(rows_)*(x/block_)].fragments;
+    auto& tile = tiles_[y/block_ + static_cast<std::size_t>(rows_)*(x/block_)];
+    auto& records = tile.fragments;
     // std::vector checks growth/size overflow and propagates allocation failure.
     // No reserved layer count, cap, cross-frame retention, or dropped fragments.
-    records.push_back({depth, records.size(), sample, value});
+    records.push_back({depth, records.size(), sample, value.color});
+    if(mask_&1) tile.auxiliary.push_back(value.normal);
+    if(mask_&2) tile.auxiliary.push_back(value.position);
+    if(mask_&4) tile.auxiliary.push_back(value.uv);
   }
   std::size_t size() const { return tiles_.size(); }
   template<class Resolve> void resolve_tile(std::size_t index, Resolve resolve) {
@@ -73,7 +79,12 @@ public:
       if (i && f.sample == records[i-1].sample && f.depth == records[i-1].depth) continue;
       if (!i || f.sample != records[i-1].sample) { ++tile.touched; layers = 0; }
       tile.max_layers = std::max(tile.max_layers, ++layers);
-      resolve(f.sample/height_, f.sample%height_, f.depth, f.value);
+      alpha_info value{f.color,vec3(0),vec3(0),vec3(0)};
+      std::size_t auxiliary=f.sequence*stride_;
+      if(mask_&1) value.normal=tile.auxiliary[auxiliary++];
+      if(mask_&2) value.position=tile.auxiliary[auxiliary++];
+      if(mask_&4) value.uv=tile.auxiliary[auxiliary++];
+      resolve(f.sample/height_, f.sample%height_, f.depth, value);
     }
   }
   template<class Resolve> void resolve(Resolve fn) {
@@ -81,9 +92,16 @@ public:
   }
   std::size_t capacity_bytes() const {
     std::size_t result = tiles_.capacity()*sizeof(Tile);
-    for (const auto& tile : tiles_) result += tile.fragments.capacity()*sizeof(Fragment);
+    for (const auto& tile : tiles_) result += tile.fragments.capacity()*sizeof(Fragment)+tile.auxiliary.capacity()*sizeof(vec3);
     // Reference tree nodes are not included: allocator bookkeeping is unknown.
     return result + reference_.capacity()*sizeof(std::map<Float, alpha_info>);
+  }
+  void release() {
+    for(auto& tile:tiles_) {
+      std::vector<Fragment>().swap(tile.fragments);
+      std::vector<vec3>().swap(tile.auxiliary);
+    }
+    std::vector<std::map<Float,alpha_info>>().swap(reference_);
   }
   std::size_t max_layers() const {
     std::size_t result = 0;

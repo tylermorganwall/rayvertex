@@ -75,4 +75,14 @@ void dispatch_screen_rows(Pool& pool, int workers, int count, Task task) {
   }
   RcppThread::checkUserInterrupt();
 }
+// Tile records and destination samples have the same exclusive ownership.
+// No R callbacks or allocations occur in the resolve workers.
+template<class Pool, class Arena, class Resolve>
+void dispatch_fragment_tiles(Pool& pool,int workers,Arena& arena,Resolve resolve) {
+  if(arena.size()>std::size_t(std::numeric_limits<int>::max()))
+    throw std::overflow_error("Too many transparency tiles");
+  dispatch_screen_rows(pool,workers,int(arena.size()),[&](int tile) {
+    arena.resolve_tile(tile,resolve);
+  });
+}
 #endif

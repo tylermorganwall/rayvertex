@@ -264,10 +264,9 @@ apply_toon_outlines_jfa(Pool& pool, int workers, std::vector<vec3> &color_buffer
   }
 
   // Apply outlines
-  std::vector<vec3> out_colors = color_buffer;
-
-
-  for (int y = 0; y < height; ++y) {
+  // Seed samples belong to their own toon material and are never overwritten
+  // below. Their depth remains immutable while disjoint destinations update.
+  dispatch_screen_rows(pool,workers,height,[&](int y) {
     for (int x = 0; x < width; ++x) {
       std::size_t idx = static_cast<std::size_t>(y) * width + x;
       const JFASeed &s = seeds_curr[idx];
@@ -312,15 +311,14 @@ apply_toon_outlines_jfa(Pool& pool, int workers, std::vector<vec3> &color_buffer
         continue;
       }
 
-      out_colors[idx] = seed_px.outline_color;
+      color_buffer[idx] = seed_px.outline_color;
       int sx = s.x;
       int sy = s.y;
 
       zbuffer(x, y) = zbuffer(sx, sy);
       linear_depth(x, y) = seed_px.depth_view;
     }
-  }
-  color_buffer.swap(out_colors);
+  });
 }
 
 // [[Rcpp::export]]
@@ -364,9 +362,12 @@ List rasterize(List mesh,
                LogicalVector has_refraction, bool environment_map_hdr,
                bool has_environment_map, NumericVector bg_color,
                bool transparent_background,
-               bool verbose) {
+               bool verbose, int output_mask = 31) {
   RasterProfile profile;
   TextureCache texture_cache;
+  const bool reference_buffers=std::getenv("RAYVERTEX_REFERENCE_BUFFERS")!=nullptr;
+  if(reference_buffers) output_mask=31;
+  if(output_mask<0 || output_mask>31) throw std::invalid_argument("Invalid raster output mask");
   const bool reference_scheduler = std::getenv("RAYVERTEX_REFERENCE_SCHEDULER") != nullptr;
   const std::size_t batch_size = raster_batch_size();
   List materials = as<List>(mesh["materials"]);
@@ -379,6 +380,12 @@ List rasterize(List mesh,
       as<double>(material["toon_outline_width"]) > 0;
   }
   has_shadow_map = requirements.shadows;
+  const bool need_normals=(output_mask&1) || calc_ambient || requirements.outlines;
+  const bool need_positions=(output_mask&2) || calc_ambient;
+  const bool need_uv=(output_mask&4);
+  const bool need_linear_depth=(output_mask&8) || requirements.outlines;
+  const bool need_ambient=(output_mask&16) || calc_ambient;
+  const unsigned fragment_mask=unsigned(need_normals)+2*unsigned(need_positions)+4*unsigned(need_uv);
   
   Environment pkg = Environment::namespace_env("rayvertex");
   
@@ -524,16 +531,16 @@ List rasterize(List mesh,
   NumericMatrix zbuffer_depth(has_shadow_map ? shadowdims(0) : 0,
                               has_shadow_map ? shadowdims(1) : 0);
   
-  NumericMatrix abuffer(nx,ny);
+  NumericMatrix abuffer(need_ambient ? nx : 0,need_ambient ? ny : 0);
   
   //Fill ambient occlusion buffer
   std::fill(abuffer.begin(), abuffer.end(), 1.0f ) ;
   
   
   //Position space buffer
-  NumericMatrix xxbuffer(nx,ny);
-  NumericMatrix yybuffer(nx,ny);
-  NumericMatrix zzbuffer(nx,ny);
+  NumericMatrix xxbuffer(need_positions ? nx : 0,need_positions ? ny : 0);
+  NumericMatrix yybuffer(need_positions ? nx : 0,need_positions ? ny : 0);
+  NumericMatrix zzbuffer(need_positions ? nx : 0,need_positions ? ny : 0);
 
   // Material ID buffer (topmost visible material index per pixel)
   IntegerMatrix material_id_buffer(requirements.outlines ? nx : 0, requirements.outlines ? ny : 0);
@@ -541,14 +548,14 @@ List rasterize(List mesh,
   
   
   //Normal space buffer
-  NumericMatrix nxbuffer(nx,ny);
-  NumericMatrix nybuffer(nx,ny);
-  NumericMatrix nzbuffer(nx,ny);
+  NumericMatrix nxbuffer(need_normals ? nx : 0,need_normals ? ny : 0);
+  NumericMatrix nybuffer(need_normals ? nx : 0,need_normals ? ny : 0);
+  NumericMatrix nzbuffer(need_normals ? nx : 0,need_normals ? ny : 0);
   
   //UV buffer
-  NumericMatrix uvxbuffer(nx,ny);
-  NumericMatrix uvybuffer(nx,ny);
-  NumericMatrix uvzbuffer(nx,ny);
+  NumericMatrix uvxbuffer(need_uv ? nx : 0,need_uv ? ny : 0);
+  NumericMatrix uvybuffer(need_uv ? nx : 0,need_uv ? ny : 0);
+  NumericMatrix uvzbuffer(need_uv ? nx : 0,need_uv ? ny : 0);
 
   //Initialize rayimage buffers
   rayimage ambientbuffer(abuffer, nx, ny);
@@ -664,13 +671,15 @@ List rasterize(List mesh,
       throw std::overflow_error("Too many raster triangles");
     total_faces += shape_inds.nrow();
   }
-  std::vector<vec3> vec_varying_intensity(total_faces, vec3(0.0));
+  bool tangent_attributes=reference_buffers, vertex_intensity=reference_buffers;
+  for(int type:typevals) { tangent_attributes |= type==5 || type==7; vertex_intensity |= type==1; }
+  std::vector<vec3> vec_varying_intensity(vertex_intensity ? total_faces : 0, vec3(0.0));
   TriangleAttributes<vec3> vec_varying_uv(total_faces);
   TriangleAttributes<vec4> vec_varying_tri(total_faces);
   TriangleAttributes<vec3> vec_varying_pos(total_faces);
   TriangleAttributes<vec3> vec_varying_world_nrm(total_faces);
-  TriangleAttributes<vec3> vec_varying_ndc_tri(total_faces);
-  TriangleAttributes<vec3> vec_varying_nrm(total_faces);
+  TriangleAttributes<vec3> vec_varying_ndc_tri(tangent_attributes ? total_faces : 0);
+  TriangleAttributes<vec3> vec_varying_nrm(tangent_attributes ? total_faces : 0);
 
   for(int i = 0; i < number_materials; i++) {
     List single_material = as<List>(materials(i));
@@ -1089,13 +1098,13 @@ List rasterize(List mesh,
   
   
   //For alpha transparency
-  FragmentArena alpha_depths(nx, ny, block_size);
+  FragmentArena alpha_depths(nx, ny, block_size, fragment_mask);
   
   //For per-light transparent colors
   std::vector<FragmentArena> alpha_depths_trans;
   alpha_depths_trans.reserve(shadowbuffers.size());
   for (std::size_t i=0; i<shadowbuffers.size(); ++i)
-    alpha_depths_trans.emplace_back(shadowdims(0), shadowdims(1), block_size);
+    alpha_depths_trans.emplace_back(shadowdims(0), shadowdims(1), block_size, 0);
 
   TriangleBins blocks(nx,ny,block_size);
   blocks.triangles.reserve(total_faces);
@@ -1155,7 +1164,7 @@ List rasterize(List mesh,
                                               batch_size, reference_scheduler);
       profile.mark("shadow_" + std::to_string(sb) + "_coverage_shading");
       // Resolve the exact depth-keyed winners, retaining opaque equality.
-      alpha_depth_single.resolve([&](int i, int j, Float z, const alpha_info& fragment) {
+      auto resolve_shadow=[&](int i, int j, Float z, const alpha_info& fragment) {
         if(z <= zbuffer_depth(i,j)) {
           vec4 temp_col = fragment.color;
           vec4 old_color = transparency_buffers[sb].get_color_a(i,j);
@@ -1164,7 +1173,11 @@ List rasterize(List mesh,
           old_color.w = (1-d);
           transparency_buffers[sb].set_color(i,j,old_color);
         }
-      });
+      };
+      dispatch_fragment_tiles(pool,workers,alpha_depth_single,resolve_shadow);
+      if(profile.enabled())
+        profile.count("shadow_"+std::to_string(sb)+"_fragment_capacity_bytes",alpha_depth_single.capacity_bytes());
+      alpha_depth_single.release();
       profile.mark("shadow_" + std::to_string(sb) + "_transparency_resolve");
       std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<Float>::infinity() ) ;
       profile.mark("shadow_" + std::to_string(sb) + "_clear");
@@ -1307,7 +1320,7 @@ List rasterize(List mesh,
   }
 
   profile.mark("lines");
-  alpha_depths.resolve([&](int i, int j, Float z, const alpha_info& fragment) {
+  auto resolve_main=[&](int i, int j, Float z, const alpha_info& fragment) {
     if(z <= zbuffer(i,j)) {
       zbuffer(i,j) = z;
       vec4 temp_col = fragment.color;
@@ -1318,12 +1331,16 @@ List rasterize(List mesh,
       positionbuffer.set_color(i,j,fragment.position);
       uvbuffer.set_color(i,j,fragment.uv);
     }
-  });
+  };
+  dispatch_fragment_tiles(pool,workers,alpha_depths,resolve_main);
 
+  if(profile.enabled()) {
+    profile.count("fragment_capacity_bytes", alpha_depths.capacity_bytes());
+    profile.count("maximum_layers_per_sample", alpha_depths.max_layers());
+    profile.count("transparent_touched_samples", alpha_depths.touched_samples());
+  }
+  alpha_depths.release();
   profile.mark("transparency_resolve");
-  profile.count("fragment_capacity_bytes", alpha_depths.capacity_bytes());
-  profile.count("maximum_layers_per_sample", alpha_depths.max_layers());
-  profile.count("transparent_touched_samples", alpha_depths.touched_samples());
   //Load/blur environment image
   if(has_environment_map) {
     if(background_sharpness != 1.0) {
@@ -1352,7 +1369,7 @@ List rasterize(List mesh,
     vec3 lower_left_corner = origin - half_width *  u - half_height * v - w;
     vec3 horizontal = 2.0f * half_width * u;
     vec3 vertical = 2.0f * half_height * v;
-    for(int i = 0; i < nx; i++) {
+    dispatch_screen_rows(pool,workers,nx,[&](int i) {
       for(int j = 0; j < ny; j++) {
         if(std::isinf(zbuffer(i,j))) {
           Float s = (Float(i)) / Float(nx);
@@ -1366,14 +1383,16 @@ List rasterize(List mesh,
           image.set_color(i,j,ref_color);
         }
       }
-    }
+    });
     profile.mark("environment_fill");
     print_time(verbose, "Blurred environment map" );
   }
   
   // Raster depth remains [0,1], with infinity for uncovered samples.
   // Exported depth retains the legacy [-1,1], background=1 convention.
-  NumericMatrix linear_depth = clone(zbuffer);
+  NumericMatrix linear_depth(0,0);
+  if(need_linear_depth) {
+  linear_depth = clone(zbuffer);
   for(unsigned int i = 0; i < linear_depth.nrow(); i++) {
     for(unsigned int j= 0; j < linear_depth.ncol(); j++) {
       if(std::isinf(linear_depth(i,j))) {
@@ -1386,6 +1405,7 @@ List rasterize(List mesh,
     linear_depth = 2*near_clip*far_clip/(far_clip + near_clip - linear_depth * (far_clip-near_clip));
   else
     linear_depth = near_clip+(linear_depth+1.0)*0.5*(far_clip-near_clip);
+  }
   profile.mark("depth_conversion");
   print_time(verbose, "Calculated linear depth" );
 
@@ -1396,7 +1416,7 @@ List rasterize(List mesh,
     std::vector<vec3> toon_color_buffer(pix_count);
     std::vector<OutlineGBufferPixel> outline_gbuffer(pix_count);
 
-    for (int x = 0; x < nx; ++x) {
+    dispatch_screen_rows(pool,workers,nx,[&](int x) {
       for (int y = 0; y < ny; ++y) {
         std::size_t idx =
             static_cast<std::size_t>(y) * static_cast<std::size_t>(nx) + x;
@@ -1448,7 +1468,7 @@ List rasterize(List mesh,
         px.outline_color = outline_color;
         px.has_outline = (outline_width > (Float)0.0);
       }
-    }
+    });
 
     Float camera_fov_y = fov != 0.0 ? glm::radians((Float)fov) : (Float)0.0;
     Float ortho_view_height = 0.0;
@@ -1460,13 +1480,13 @@ List rasterize(List mesh,
                             camera_fov_y, ortho_view_height, zbuffer, linear_depth);
 
     // Copy the modified colors back into the rayimage
-    for (int x = 0; x < nx; ++x) {
+    dispatch_screen_rows(pool,workers,nx,[&](int x) {
       for (int y = 0; y < ny; ++y) {
         std::size_t idx =
             static_cast<std::size_t>(y) * static_cast<std::size_t>(nx) + x;
         image.set_color(x, y, toon_color_buffer[idx]);
       }
-    }
+    });
 
     profile.mark("outlines");
     print_time(verbose, "Applied toon outline JFA pass" );
@@ -1474,11 +1494,13 @@ List rasterize(List mesh,
 
   profile.mark("remaining_output_setup");
   profile.count("outline_scratch_payload_bytes", requirements.outlines ?
-    checked_samples(nx, ny) * (2*sizeof(vec3) + sizeof(OutlineGBufferPixel) + 2*sizeof(JFASeed)) : 0);
+    checked_samples(nx, ny) * (sizeof(vec3) + sizeof(OutlineGBufferPixel) + 2*sizeof(JFASeed)) : 0);
   profile.count("shadow_matrix_payload_bytes", has_shadow_map ?
     checked_samples(nx_d, ny_d) * sizeof(double) * (1 + 5*directional_lights.size()) : 0);
   profile.count("varying_payload_bytes", static_cast<std::size_t>(total_faces) *
-    (sizeof(vec3) + 5*sizeof(std::array<vec3, 3>) + sizeof(std::array<vec4, 3>)));
+    ((vertex_intensity ? sizeof(vec3) : 0) + (3+2*tangent_attributes)*sizeof(std::array<vec3, 3>) + sizeof(std::array<vec4, 3>)));
+  profile.count("auxiliary_matrix_payload_bytes", checked_samples(nx,ny)*sizeof(double)*
+    (3*need_normals+3*need_positions+3*need_uv+need_linear_depth+need_ambient));
   profile.count("texture_decodes", texture_cache.decodes + (has_environment_map ? 1 : 0));
   profile.count("texture_payload_bytes", texture_cache.payload_bytes);
   profile.count("indexed_positions", indexed ? mesh_verts.nrow() : 0);

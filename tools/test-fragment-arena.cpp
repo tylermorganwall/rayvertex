@@ -34,6 +34,20 @@ int main() {
     assert(count>129 && arena.max_layers()>129);
     assert(arena.touched_samples()==std::size_t(w*h));
   }
+  for(unsigned mask=0;mask<8;++mask) {
+    FragmentArena arena(7,5,4,mask);
+    alpha_info value{vec4(1),vec3(2),vec3(3),vec3(4)};
+    arena.insert(3,2,.5,value);
+    arena.resolve([&](int x,int y,Float z,const alpha_info& result) {
+      assert(x==3 && y==2 && z==.5 && result.color==value.color);
+      assert(result.normal==((mask&1) ? value.normal : vec3(0)));
+      assert(result.position==((mask&2) ? value.position : vec3(0)));
+      assert(result.uv==((mask&4) ? value.uv : vec3(0)));
+    });
+    const auto bytes=arena.capacity_bytes();
+    arena.release();
+    assert(arena.capacity_bytes()<bytes && arena.max_layers()==1);
+  }
   FragmentArena empty(800,800);
   assert(empty.capacity_bytes()<800*800*sizeof(std::map<Float,alpha_info>));
   bool threw=false;

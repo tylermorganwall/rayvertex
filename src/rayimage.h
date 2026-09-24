@@ -20,19 +20,21 @@ class rayimage {
   public:
     rayimage(Rcpp::NumericMatrix &r_, Rcpp::NumericMatrix &g_, Rcpp::NumericMatrix &b_,
              int nx, int ny, Float shadow_map_intensity = 0.0f) : r(r_), g(g_), b(b_), nx(nx), ny(ny),
-             shadow_map_intensity(shadow_map_intensity) {};
+             shadow_map_intensity(shadow_map_intensity), enabled(r_.size()!=0) {};
     rayimage(Rcpp::NumericMatrix &r_, Rcpp::NumericMatrix &g_, Rcpp::NumericMatrix &b_, Rcpp::NumericMatrix &a_,
              int nx, int ny, Float shadow_map_intensity = 0.0f) : r(r_), g(g_), b(b_), a(a_), nx(nx), ny(ny),
-             shadow_map_intensity(shadow_map_intensity) {};
+             shadow_map_intensity(shadow_map_intensity), enabled(r_.size()!=0) {};
     rayimage(Rcpp::NumericMatrix &mat, 
              int nx, int ny, Float shadow_map_intensity = 0.0f) : r(mat), g(mat), b(mat), a(mat), nx(nx), ny(ny),
-             shadow_map_intensity(shadow_map_intensity) {};
+             shadow_map_intensity(shadow_map_intensity), enabled(mat.size()!=0) {};
     void set_color(int i, int j, vec3 col) {
+      if(!enabled) return;
       r(i,j) = col.r;
       g(i,j) = col.g;
       b(i,j) = col.b;
     }
     void set_color(int i, int j, vec4 col) {
+      if(!enabled) return;
       r(i,j) = col.r;
       g(i,j) = col.g;
       b(i,j) = col.b;
@@ -75,6 +77,7 @@ class rayimage {
     
     int nx, ny;
     Float shadow_map_intensity;
+    bool enabled;
 };
 
 

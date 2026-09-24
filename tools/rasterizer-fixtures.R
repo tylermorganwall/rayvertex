@@ -72,6 +72,7 @@ rasterizer_fixture = function(name) {
     shadow = list(scene = sphere_mesh(), shadow_map = TRUE),
     toon = list(scene = sphere_mesh(material = material_list(type = "toon"))),
     shared_textures = rasterizer_shared_textures(),
+    environment = rasterizer_environment(),
     stop("Unknown fixture: ", name)
   )
 }
@@ -99,4 +100,25 @@ rasterizer_shared_textures = function() {
     scene = add_shape(scene, object)
   }
   list(scene = scene, shadow_map = TRUE)
+}
+
+rasterizer_environment = function() {
+  texture = tempfile(fileext = ".ppm")
+  writeBin(
+    c(
+      charToRaw("P6\n512 256\n255\n"),
+      as.raw(rep(c(90, 160, 220), 512L * 256L))
+    ),
+    texture
+  )
+  list(
+    scene = sphere_mesh(
+      material = material_list(
+        reflection_intensity = 0.4,
+        reflection_sharpness = 0.5
+      )
+    ),
+    environment_map = texture,
+    background_sharpness = 0.75
+  )
 }
