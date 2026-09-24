@@ -672,24 +672,11 @@ rasterize_scene = function(
     imagelist$b[imagelist$depth == 1] = bg_color[3]
   }
 
-  final_image = array(0, dim = c(dim(imagelist$r)[1:2], 4))
-  final_image[,, 1] = imagelist$r
-  final_image[,, 2] = imagelist$g
-  final_image[,, 3] = imagelist$b
-  final_image[,, 4] = imagelist$a
-
-  final_image = rayimage::ray_read_image(
-    final_image,
-    assume_colorspace = rayimage::CS_SRGB,
-    assume_white = "D65",
-    source_linear = FALSE
-  ) |>
-    rayimage::render_reorient(
-      transpose = TRUE,
-      flipx = TRUE
-    )
+  final_image = raster_output_image(imagelist)
+  print_time(verbose, "Assembled output")
   if (tonemap != "raw") {
     final_image = rayimage::render_tonemap(final_image, method = tonemap)
+    print_time(verbose, "Tone mapped output")
   }
   if (bloom) {
     final_image = rayimage::render_convolution(final_image, min_value = 1)
@@ -703,7 +690,8 @@ rasterize_scene = function(
     )
     print_time(verbose, "Applied FSAA")
   }
-  final_image = rayimage::render_clamp(final_image)
+  final_image = clamp_raster_image(final_image)
+  print_time(verbose, "Clamped output")
 
   # Image is aleady linear
   if (is.na(filename)) {

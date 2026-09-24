@@ -136,6 +136,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// assemble_raster_output
+Rcpp::NumericVector assemble_raster_output(Rcpp::NumericMatrix red, Rcpp::NumericMatrix green, Rcpp::NumericMatrix blue, Rcpp::NumericMatrix alpha);
+RcppExport SEXP _rayvertex_assemble_raster_output(SEXP redSEXP, SEXP greenSEXP, SEXP blueSEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type red(redSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type green(greenSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type blue(blueSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(assemble_raster_output(red, green, blue, alpha));
+    return rcpp_result_gen;
+END_RCPP
+}
+// clamp_raster_output
+Rcpp::NumericVector clamp_raster_output(Rcpp::NumericVector image);
+RcppExport SEXP _rayvertex_clamp_raster_output(SEXP imageSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type image(imageSEXP);
+    rcpp_result_gen = Rcpp::wrap(clamp_raster_output(image));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rasterize_lines_rcpp
 List rasterize_lines_rcpp(NumericMatrix line_mat, int nx, int ny, NumericVector model_color, NumericVector lookfrom, NumericVector lookat, double fov, double near_clip, double far_clip, NumericVector bounds, NumericVector camera_up, double alpha_line, double line_offset, NumericVector ortho_dims, bool aa_lines);
 RcppExport SEXP _rayvertex_rasterize_lines_rcpp(SEXP line_matSEXP, SEXP nxSEXP, SEXP nySEXP, SEXP model_colorSEXP, SEXP lookfromSEXP, SEXP lookatSEXP, SEXP fovSEXP, SEXP near_clipSEXP, SEXP far_clipSEXP, SEXP boundsSEXP, SEXP camera_upSEXP, SEXP alpha_lineSEXP, SEXP line_offsetSEXP, SEXP ortho_dimsSEXP, SEXP aa_linesSEXP) {
@@ -260,6 +285,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rayvertex_prepared_scene_snapshot", (DL_FUNC) &_rayvertex_prepared_scene_snapshot, 1},
     {"_rayvertex_prepared_scene_info", (DL_FUNC) &_rayvertex_prepared_scene_info, 1},
     {"_rayvertex_prepared_scene_lifetime", (DL_FUNC) &_rayvertex_prepared_scene_lifetime, 0},
+    {"_rayvertex_assemble_raster_output", (DL_FUNC) &_rayvertex_assemble_raster_output, 4},
+    {"_rayvertex_clamp_raster_output", (DL_FUNC) &_rayvertex_clamp_raster_output, 1},
     {"_rayvertex_rasterize_lines_rcpp", (DL_FUNC) &_rayvertex_rasterize_lines_rcpp, 15},
     {"_rayvertex_rasterize", (DL_FUNC) &_rayvertex_rasterize, 51},
     {"_rayvertex_smooth_normals_mesh_rcpp", (DL_FUNC) &_rayvertex_smooth_normals_mesh_rcpp, 2},

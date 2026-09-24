@@ -41,6 +41,14 @@ prepared_scene_lifetime <- function() {
     .Call(`_rayvertex_prepared_scene_lifetime`)
 }
 
+assemble_raster_output <- function(red, green, blue, alpha) {
+    .Call(`_rayvertex_assemble_raster_output`, red, green, blue, alpha)
+}
+
+clamp_raster_output <- function(image) {
+    .Call(`_rayvertex_clamp_raster_output`, image)
+}
+
 rasterize_lines_rcpp <- function(line_mat, nx, ny, model_color, lookfrom, lookat, fov, near_clip, far_clip, bounds, camera_up, alpha_line, line_offset, ortho_dims, aa_lines) {
     .Call(`_rayvertex_rasterize_lines_rcpp`, line_mat, nx, ny, model_color, lookfrom, lookat, fov, near_clip, far_clip, bounds, camera_up, alpha_line, line_offset, ortho_dims, aa_lines)
 }
