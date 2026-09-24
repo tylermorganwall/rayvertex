@@ -19,7 +19,7 @@ def percentile(values, p):
 
 rows, phases = [], []
 for path in sorted(root.glob("*-times.csv")):
-    key = path.name.removesuffix("-times.csv")
+    key = path.name[:-len("-times.csv")]
     samples = list(csv.DictReader(path.open()))
     warm = [float(r["elapsed_ms"]) for r in samples if r["regime"] == "warm"]
     native = [float(r["native_ms"]) for r in csv.DictReader((root / (key + "-native.csv")).open())]

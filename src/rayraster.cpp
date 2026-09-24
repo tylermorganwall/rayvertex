@@ -7,6 +7,7 @@
 
 #include "Rcpp.h"
 
+#ifndef RAYVERTEX_NO_THREADS
 #ifdef __EMSCRIPTEN__
   #ifdef __EMSCRIPTEN_PTHREADS__
     #define HAVE_THREADS
@@ -15,6 +16,7 @@
 #else
   #define HAVE_THREADS
 #endif 
+#endif
 
 
 #define FLOAT_AS_DOUBLE
@@ -48,6 +50,7 @@
 // [[Rcpp::depends(RcppThread)]]
 #include "RcppThread.h"
 #include "dummythreadpool.h"
+#include "raster_scheduler.h"
 
 #include "material.h"
 
@@ -360,6 +363,8 @@ List rasterize(List mesh,
                bool transparent_background,
                bool verbose) {
   RasterProfile profile;
+  const bool reference_scheduler = std::getenv("RAYVERTEX_REFERENCE_SCHEDULER") != nullptr;
+  const std::size_t batch_size = raster_batch_size();
   List materials = as<List>(mesh["materials"]);
   int number_materials = materials.size();
   struct FrameRequirements { bool shadows = false, outlines = false; } requirements;
@@ -1152,6 +1157,15 @@ List rasterize(List mesh,
     }
   }
 
+  #ifdef HAVE_THREADS
+  RcppThread::ThreadPool pool(numbercores > 1 ? numbercores : 0);
+  const int workers = numbercores;
+  #else
+  DummyThreadPool pool;
+  const int workers = 1;
+  #endif
+  std::size_t main_tasks = 0, shadow_tasks = 0;
+  std::vector<RasterCounters> main_counters(profile.enabled() ? blocks.size() : 0);
   profile.mark("bin_and_shadow_shader_allocate");
   if(has_shadow_map) {
     for(unsigned int sb = 0; sb < shadowbuffers.size(); sb++) {
@@ -1223,15 +1237,8 @@ List rasterize(List mesh,
                         alpha_depth_single,
 						nullptr);
       }; 
-      #ifdef HAVE_THREADS
-      RcppThread::ThreadPool pool2(numbercores);
-      #else
-      DummyThreadPool pool2;
-      #endif
-      for(int i = 0; i < nx_blocks_depth*ny_blocks_depth; i++) {
-        pool2.push(task, i);
-      }
-      pool2.join();
+      shadow_tasks += dispatch_raster_blocks(pool, blocks_depth, task, workers,
+                                              batch_size, reference_scheduler);
       for(unsigned int j = 0; j < blocks_depth.size(); j++) {
         for(unsigned int model_num = 0; model_num < models.size(); model_num++ ) {
           blocks_depth[j][model_num].clear();
@@ -1318,7 +1325,7 @@ List rasterize(List mesh,
   profile.mark("main_transform_setup_bins");
   auto task = [&shaders, &models, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
                &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer, &material_id_buffer, &requirements,
-               &alpha_depths] (unsigned int i) {
+               &alpha_depths, &main_counters] (unsigned int i) {
     fill_tri_blocks(blocks[i],
                     ndc_verts,
                     ndc_inv_w,
@@ -1332,18 +1339,12 @@ List rasterize(List mesh,
                     uvbuffer,
                     models, false,
                     alpha_depths,
-					requirements.outlines ? &material_id_buffer : nullptr);
+					requirements.outlines ? &material_id_buffer : nullptr,
+                    main_counters.empty() ? nullptr : &main_counters[i]);
   };
   
-  #ifdef HAVE_THREADS
-  RcppThread::ThreadPool pool(numbercores);
-  #else
-  DummyThreadPool pool;
-  #endif
-  for(int i = 0; i < nx_blocks*ny_blocks; i++) {
-    pool.push(task, i);
-  }
-  pool.join();
+  main_tasks = dispatch_raster_blocks(pool, blocks, task, workers, batch_size,
+                                      reference_scheduler);
   profile.mark("main_coverage_depth_shading");
   print_time(verbose, "Executed pixel shaders" );
   
@@ -1610,7 +1611,8 @@ List rasterize(List mesh,
   profile.count("input_triangles", total_faces);
   profile.count("models", models.size());
   profile.count("materials", mat_info.size());
-  profile.count("main_tasks", blocks.size());
+  profile.count("main_tasks", main_tasks);
+  profile.count("shadow_tasks", shadow_tasks);
   if(profile.enabled()) {
     std::size_t active = 0, refs = 0;
     for(const auto& block : blocks) {
@@ -1621,6 +1623,17 @@ List rasterize(List mesh,
     profile.count("main_active_blocks", active);
     profile.count("main_bin_references", refs);
   }
+  RasterCounters totals;
+  for(const auto& c : main_counters) {
+    totals.candidates += c.candidates; totals.covered += c.covered;
+    totals.early_z += c.early_z; totals.shaded += c.shaded;
+    totals.transparent += c.transparent;
+  }
+  profile.count("coverage_candidates", totals.candidates);
+  profile.count("covered_samples", totals.covered);
+  profile.count("early_z_failures", totals.early_z);
+  profile.count("shader_calls", totals.shaded);
+  profile.count("transparent_fragments", totals.transparent);
   NumericMatrix presentation_depth = clone(zbuffer);
   for(auto& value : presentation_depth) value = std::isinf(value) ? 1.0 : 2*value - 1;
   profile.finish();

@@ -2,6 +2,7 @@
 #define DUMMYTHREADPOOLH
 
 #include <functional>
+#include <cstddef>
 #include <utility>
 
 class DummyThreadPool {
@@ -16,6 +17,11 @@ public:
 
   // The join method: do nothing, since we ran everything immediately
   void join() { }
+  void wait() { }
+  template<class F>
+  void parallelFor(int begin, int end, F f, std::size_t = 0) {
+    for (int i = begin; i < end; ++i) f(i);
+  }
 };
 
 #endif

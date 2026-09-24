@@ -7,6 +7,7 @@
 #include "RcppThread.h"
 #include "alphainfo.h"
 #include "defines.h"
+#include "raster_profile.h"
 
 // static void print_vec(vec3 m);
 // static void print_vec(vec4 m);
@@ -29,7 +30,8 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                      std::vector<ModelInfo> &models,
                      bool depth, 
                      std::vector<std::map<Float, alpha_info> >& alpha_depths,
-                     Rcpp::IntegerMatrix* material_id_buffer);
+                     Rcpp::IntegerMatrix* material_id_buffer,
+                     RasterCounters* counters = nullptr);
 
 
 #endif

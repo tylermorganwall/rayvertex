@@ -75,3 +75,26 @@ test_that("equal-depth surfaces and line ordering are deterministic across worke
     }
   }
 })
+
+test_that("active block batches preserve corrected scalar coverage and ties", {
+  scene = add_shape(cube_mesh(), sphere_mesh(position = c(0.8, 0, 0)))
+  args = list(
+    scene = scene,
+    width = 37,
+    height = 29,
+    fsaa = 1,
+    plot = FALSE,
+    lookfrom = c(0, 0, 4),
+    lookat = c(0, 0, 0),
+    debug = "all",
+    shadow_map_dims = c(33, 25)
+  )
+  withr::local_options(cores = 2L)
+  withr::local_envvar(RAYVERTEX_REFERENCE_SCHEDULER = "1")
+  reference = do.call(rasterize_scene, args)
+  Sys.unsetenv("RAYVERTEX_REFERENCE_SCHEDULER")
+  for (size in c(1, 16, 64, 256)) {
+    withr::local_envvar(RAYVERTEX_BATCH_BLOCKS = as.character(size))
+    expect_identical(do.call(rasterize_scene, args), reference)
+  }
+})

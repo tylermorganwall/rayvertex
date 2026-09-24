@@ -12,7 +12,8 @@ inline Float edgeFunction(const vec3 &a, const vec3 &b, const vec3 &c) {
   return(DifferenceOfProducts((c.x - a.x),(b.y - a.y),(c.y - a.y),(b.x - a.x)));
 }
 
-void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
+template<bool Collect>
+void fill_tri_blocks_impl(std::vector<std::vector<int> >&  block_faces,
                      std::vector<std::vector<std::vector<vec4> >  >& ndc_verts,
                      std::vector<std::vector<std::vector<Float> > >& ndc_inv_w,
                      vec2 min_block_bound,
@@ -26,7 +27,8 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
                      std::vector<ModelInfo> &models,
                      bool depth, 
                      std::vector<std::map<Float, alpha_info> >& alpha_depths,
-                     Rcpp::IntegerMatrix* material_id_buffer) {
+                     Rcpp::IntegerMatrix* material_id_buffer,
+                     RasterCounters* counters) {
   unsigned int ny = image.height();
   bool write_material_ids = (!depth && material_id_buffer != nullptr);
   
@@ -110,11 +112,13 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
             Float w2 = w2_p + (j-ymin) * p_step_13;
             Float w3 = w3_p + (j-ymin) * p_step_21;
             
+            if constexpr (Collect) ++counters->candidates;
             bool inside = culling == 1 ? (w1 >= 0 && w2 >= 0 && w3 >= 0) : 
                           culling == 2 ? (w1 <= 0 && w2 <= 0 && w3 <= 0) :
                           ((w1 >= 0 && w2 >= 0 && w3 >= 0) ||
                            (w1 <= 0 && w2 <= 0 && w3 <= 0));
             if (inside) {
+              if constexpr (Collect) ++counters->covered;
               vec3 bc       = vec3(w1, w2, w3)*inv_area;
               vec3 bc_clip  = vec3(bc.x*v1_ndc_inv_w,
                                    bc.y*v2_ndc_inv_w,
@@ -124,11 +128,16 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
               //Using bc_clip results in wrong zbuffer values here--bug?
               // Float z = v1.z * bc_clip.x + v2.z * bc_clip.y + v3.z * bc_clip.z;
               Float z = v1.z * bc.x + v2.z * bc.y + v3.z * bc.z;
-              if(z > zbuffer(i,j)) continue;
+              if(z > zbuffer(i,j)) {
+                if constexpr (Collect) ++counters->early_z;
+                continue;
+              }
               
+              if constexpr (Collect) ++counters->shaded;
               bool discard = shaders[mat_num]->fragment(bc_clip, color, position, normal, global_face);
               bool is_translucent = shaders[mat_num]->is_translucent();
               if(!discard) {
+                if constexpr (Collect) { if(color.w < 1.0f) ++counters->transparent; }
                 if (depth) {
                   if(color.w >= 1.0f) {
                     zbuffer(i,j) = z;
@@ -179,4 +188,24 @@ void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
       }
     }
   }
+}
+
+void fill_tri_blocks(std::vector<std::vector<int> >&  block_faces,
+                     std::vector<std::vector<std::vector<vec4> >  >& ndc_verts,
+                     std::vector<std::vector<std::vector<Float> > >& ndc_inv_w,
+                     vec2 min_block_bound,
+                     vec2 max_block_bound,
+                     const std::vector<IShader*>& shaders,
+                     Rcpp::NumericMatrix &zbuffer,
+                     rayimage& image,
+                     rayimage& normal_buffer,
+                     rayimage& position_buffer,
+                     rayimage& uv_buffer,
+                     std::vector<ModelInfo> &models,
+                     bool depth,
+                     std::vector<std::map<Float, alpha_info> >& alpha_depths,
+                     Rcpp::IntegerMatrix* material_id_buffer,
+                     RasterCounters* counters) {
+  if(counters) fill_tri_blocks_impl<true>(block_faces, ndc_verts, ndc_inv_w, min_block_bound, max_block_bound, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, models, depth, alpha_depths, material_id_buffer, counters);
+  else fill_tri_blocks_impl<false>(block_faces, ndc_verts, ndc_inv_w, min_block_bound, max_block_bound, shaders, zbuffer, image, normal_buffer, position_buffer, uv_buffer, models, depth, alpha_depths, material_id_buffer, counters);
 }
