@@ -37,6 +37,7 @@
 #include "gtc/matrix_transform.hpp"
 #include "defines.h"
 #include "filltri.h"
+#include "raster_profile.h"
 
 #include "shaders.h"
 #include "rayimage.h"
@@ -356,6 +357,7 @@ List rasterize(List mesh,
                bool has_environment_map, NumericVector bg_color,
                bool transparent_background,
                bool verbose) {
+  RasterProfile profile;
   List materials = as<List>(mesh["materials"]);
   int number_materials = materials.size();
   
@@ -430,6 +432,7 @@ List rasterize(List mesh,
       reflection_maps.push_back(reflection_map);
     }
   }
+  profile.mark("environment_decode");
   print_time(verbose, "Loaded environment maps" );
   
   //Convert R vectors to vec3
@@ -534,6 +537,7 @@ List rasterize(List mesh,
   //Initialize zbuffer
   std::fill(zbuffer.begin(), zbuffer.end(), std::numeric_limits<Float>::infinity() ) ;
   std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<Float>::infinity() ) ;
+  profile.mark("frame_allocate_clear");
   print_time(verbose, "Initialized buffers" );
   
   //Initialize Shadow Map bounds and orientation
@@ -581,6 +585,7 @@ List rasterize(List mesh,
                                                     lightinfo(i,9)));
     }
   }
+  profile.mark("lights_shadow_allocate");
   print_time(verbose, "Initialized shadowmaps" );
   
   
@@ -611,6 +616,7 @@ List rasterize(List mesh,
       transparency_buffers.push_back(trans_buffer_temp);
     }
   }
+  profile.mark("shadow_alpha_allocate");
   print_time(verbose, "Initialized alpha buffers" );
   
   
@@ -1001,6 +1007,7 @@ List rasterize(List mesh,
                                  vec_varying_world_nrm,vec_varying_ndc_tri,vec_varying_nrm,
                                  reflection_map_default, false, false));
   } 
+  profile.mark("shader_setup_asset_decode");
   print_time(verbose, "Initialized shaders" );
   
   
@@ -1046,6 +1053,7 @@ List rasterize(List mesh,
     models.push_back(model);
     running_face_offset += n;
   }
+  profile.mark("model_setup");
   print_time(verbose, "Initialized 3D models" );
   
   
@@ -1143,6 +1151,7 @@ List rasterize(List mesh,
     }
   }
 
+  profile.mark("bin_and_shadow_shader_allocate");
   if(has_shadow_map) {
     for(unsigned int sb = 0; sb < shadowbuffers.size(); sb++) {
       
@@ -1247,6 +1256,7 @@ List rasterize(List mesh,
       std::fill(zbuffer_depth.begin(), zbuffer_depth.end(), std::numeric_limits<Float>::infinity() ) ;
     }
   }
+  profile.mark("shadow_passes");
   print_time(verbose, "Calculated depth buffer(s)" );
   
   
@@ -1304,6 +1314,7 @@ List rasterize(List mesh,
     }
   }
 
+  profile.mark("main_transform_setup_bins");
   auto task = [&shaders, &models, &blocks, &ndc_verts, &ndc_inv_w,  &min_block_bound, &max_block_bound,
                &zbuffer, &image, &normalbuffer, &positionbuffer, &uvbuffer, &material_id_buffer,
                &alpha_depths] (unsigned int i) {
@@ -1332,6 +1343,7 @@ List rasterize(List mesh,
     pool.push(task, i);
   }
   pool.join();
+  profile.mark("main_coverage_depth_shading");
   print_time(verbose, "Executed pixel shaders" );
   
 
@@ -1414,6 +1426,7 @@ List rasterize(List mesh,
         }
       }
     }
+    profile.mark("ssao");
     print_time(verbose, "Calculated AO" );
     
   }
@@ -1461,6 +1474,7 @@ List rasterize(List mesh,
     }
   }
   
+  profile.mark("lines_and_transparency_resolve");
   //Load/blur environment image
   if(has_environment_map) {
     if(background_sharpness != 1.0) {
@@ -1503,6 +1517,7 @@ List rasterize(List mesh,
         }
       }
     }
+    profile.mark("environment_fill");
     print_time(verbose, "Blurred environment map" );
   }
   
@@ -1535,6 +1550,7 @@ List rasterize(List mesh,
     }
   }
   linear_depth = 2*near_clip*far_clip/(far_clip + near_clip - linear_depth * (far_clip-near_clip));
+  profile.mark("depth_conversion");
   print_time(verbose, "Calculated linear depth" );
 
   // Build color buffer and outline g-buffer for JFA
@@ -1625,9 +1641,26 @@ List rasterize(List mesh,
       }
     }
 
-    print_time(verbose, "Applied toon outline JFA pass");
+    profile.mark("outlines");
+    print_time(verbose, "Applied toon outline JFA pass" );
   }
 
+  profile.mark("remaining_output_setup");
+  profile.count("input_triangles", total_faces);
+  profile.count("models", models.size());
+  profile.count("materials", mat_info.size());
+  profile.count("main_tasks", blocks.size());
+  if(profile.enabled()) {
+    std::size_t active = 0, refs = 0;
+    for(const auto& block : blocks) {
+      bool nonempty = false;
+      for(const auto& faces : block) { refs += faces.size(); nonempty |= !faces.empty(); }
+      active += nonempty;
+    }
+    profile.count("main_active_blocks", active);
+    profile.count("main_bin_references", refs);
+  }
+  profile.finish();
   return(List::create(_["r"] = r, _["g"] = g, _["b"] = b, _["a"] = a,
                       _["amb"] = abuffer, _["depth"] = zbuffer, _["linear_depth"] = linear_depth,
                       _["normalx"] = nxbuffer, _["normaly"] = nybuffer, _["normalz"] = nzbuffer,
