@@ -1,0 +1,6 @@
+NULL
+Tracing function "print_time" in package "namespace:rayvertex"
+Tracing function "rasterize" in package "namespace:rayvertex"
+Untracing function "print_time" in package "namespace:rayvertex"
+Untracing function "rasterize" in package "namespace:rayvertex"
+shared_textures-800-800-1-1 median warm ms: 204 
