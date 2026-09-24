@@ -58,6 +58,32 @@ rasterizer_fixture = function(name) {
     ssao = list(scene = sphere_mesh(), ssao = TRUE),
     shadow = list(scene = sphere_mesh(), shadow_map = TRUE),
     toon = list(scene = sphere_mesh(material = material_list(type = "toon"))),
+    shared_textures = rasterizer_shared_textures(),
     stop("Unknown fixture: ", name)
   )
+}
+
+rasterizer_shared_textures = function() {
+  # The asset is generated before rendering, so this is OS-file-cache warm.
+  texture = tempfile(fileext = ".ppm")
+  writeBin(
+    c(
+      charToRaw("P6\n512 512\n255\n"),
+      as.raw(rep(c(90, 160, 220), 512L * 512L))
+    ),
+    texture
+  )
+  scene = NULL
+  for (i in 0:15) {
+    object = cube_mesh(
+      position = c((i %% 4 - 1.5) * 0.55, (i %/% 4 - 1.5) * 0.55, 0),
+      scale = 0.4,
+      material = material_list(
+        texture_location = texture,
+        diffuse_intensity = 0.5 + i / 32
+      )
+    )
+    scene = add_shape(scene, object)
+  }
+  list(scene = scene, shadow_map = TRUE)
 }

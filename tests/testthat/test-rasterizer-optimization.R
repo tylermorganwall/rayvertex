@@ -98,3 +98,93 @@ test_that("active block batches preserve corrected scalar coverage and ties", {
     expect_identical(do.call(rasterize_scene, args), reference)
   }
 })
+
+test_that("main and shadow shaders share decoded canonical texture identities", {
+  texture = tempfile(fileext = ".ppm")
+  writeBin(c(charToRaw("P6\n1 1\n255\n"), as.raw(c(90, 160, 220))), texture)
+  on.exit(unlink(texture))
+  alias = file.path(dirname(texture), ".", basename(texture))
+  scene = add_shape(
+    cube_mesh(material = material_list(texture_location = texture)),
+    cube_mesh(
+      position = c(0.5, 0, 0),
+      material = material_list(
+        texture_location = alias,
+        diffuse_intensity = 0.5
+      )
+    )
+  )
+  path = tempfile()
+  withr::local_envvar(RAYVERTEX_PROFILE = path)
+  rasterize_scene(
+    scene,
+    width = 23,
+    height = 19,
+    fsaa = 1,
+    plot = FALSE,
+    lookfrom = c(0, 0, 4),
+    lookat = c(0, 0, 0),
+    shadow_map_dims = c(17, 19)
+  )
+  stats = read.csv(path, header = FALSE, col.names = c("name", "value"))
+  expect_equal(stats$value[stats$name == "count_texture_decodes"], 1)
+  expect_equal(stats$value[stats$name == "count_texture_payload_bytes"], 12)
+})
+
+test_that("a failed later decode releases earlier shader assets", {
+  valid = tempfile(fileext = ".ppm")
+  invalid = tempfile(fileext = ".tga")
+  writeBin(c(charToRaw("P6\n1 1\n255\n"), as.raw(c(128, 128, 255))), valid)
+  writeBin(charToRaw("not an image"), invalid)
+  on.exit(unlink(c(valid, invalid)))
+  scene = sphere_mesh(
+    material = material_list(
+      texture_location = valid,
+      normal_texture_location = invalid
+    )
+  )
+  for (i in 1:3) {
+    expect_error(
+      rasterize_scene(
+        scene,
+        width = 11,
+        height = 13,
+        fsaa = 1,
+        plot = FALSE,
+        lookat = c(0, 0, 0),
+        shadow_map = FALSE
+      ),
+      "texture loading failed"
+    )
+  }
+})
+
+test_that("coverage counters reconcile on a deliberately simple quad", {
+  scene = construct_mesh(
+    rbind(c(-1, -1, 0), c(1, -1, 0), c(1, 1, 0), c(-1, 1, 0)),
+    rbind(c(0, 1, 2), c(0, 2, 3)),
+    material = material_list(type = "color", culling = "none")
+  )
+  path = tempfile()
+  withr::local_envvar(RAYVERTEX_PROFILE = path)
+  rasterize_scene(
+    scene,
+    width = 9,
+    height = 9,
+    fsaa = 1,
+    plot = FALSE,
+    parallel = FALSE,
+    fov = 0,
+    ortho_dimensions = c(2, 2),
+    lookfrom = c(0, 0, 4),
+    lookat = c(0, 0, 0),
+    shadow_map = FALSE
+  )
+  stats = read.csv(path, header = FALSE, col.names = c("name", "value"))
+  counts = setNames(stats$value, stats$name)
+  # Inclusive shared diagonal: eight of the 64 covered pixels are visited twice.
+  expect_equal(unname(counts["count_covered_samples"]), 72)
+  expect_equal(unname(counts["count_shader_calls"]), 72)
+  expect_equal(unname(counts["count_early_z_failures"]), 0)
+  expect_equal(unname(counts["count_transparent_fragments"]), 0)
+})

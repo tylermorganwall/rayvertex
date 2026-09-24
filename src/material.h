@@ -6,6 +6,8 @@
 #include "defines.h"
 
 
+class TextureCache;
+
 struct material_info {
   vec3 ambient;
   vec3 diffuse;
@@ -38,6 +40,7 @@ struct material_info {
   vec3 toon_outline_color;
   Float reflection_intensity;
   Float sigma;
+  TextureCache* texture_cache = nullptr; // frame owner outlives every shader
 };
 
 #endif

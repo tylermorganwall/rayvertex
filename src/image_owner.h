@@ -11,10 +11,10 @@ struct StbiDeleter {
 // Construction can fail partway through loading a shader's five textures.
 // Each completed decode already has an owner when the next decode begins.
 class ImageOwner {
-  std::unique_ptr<float, StbiDeleter> pixels;
+  std::shared_ptr<float> pixels;
 public:
   ImageOwner() = default;
-  ImageOwner& operator=(float* value) { pixels.reset(value); return *this; }
+  ImageOwner& operator=(std::shared_ptr<float> value) { pixels = std::move(value); return *this; }
   explicit operator bool() const { return pixels != nullptr; }
   operator const float*() const { return pixels.get(); }
 };

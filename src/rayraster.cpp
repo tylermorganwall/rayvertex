@@ -51,6 +51,7 @@
 #include "RcppThread.h"
 #include "dummythreadpool.h"
 #include "raster_scheduler.h"
+#include "texture_cache.h"
 
 #include "material.h"
 
@@ -362,6 +363,7 @@ List rasterize(List mesh,
                bool has_environment_map, NumericVector bg_color,
                bool transparent_background,
                bool verbose) {
+  TextureCache texture_cache;
   RasterProfile profile;
   const bool reference_scheduler = std::getenv("RAYVERTEX_REFERENCE_SCHEDULER") != nullptr;
   const std::size_t batch_size = raster_batch_size();
@@ -746,6 +748,7 @@ List rasterize(List mesh,
       reflection_intensity,
       sigma
     };
+    temp.texture_cache = &texture_cache;
     mat_info.push_back(temp);
 
     IShader* shader;
@@ -936,6 +939,7 @@ List rasterize(List mesh,
     0
   };
   
+  default_mat.texture_cache = &texture_cache;
   mat_info.push_back(default_mat);
   
   //Add default shader to vector
@@ -1608,6 +1612,8 @@ List rasterize(List mesh,
     checked_samples(nx_d, ny_d) * sizeof(double) * (1 + 5*directional_lights.size()) : 0);
   profile.count("varying_payload_bytes", static_cast<std::size_t>(total_faces) *
     (sizeof(vec3) + 5*sizeof(std::array<vec3, 3>) + sizeof(std::array<vec4, 3>)));
+  profile.count("texture_decodes", texture_cache.decodes + (has_environment_map ? 1 : 0));
+  profile.count("texture_payload_bytes", texture_cache.payload_bytes);
   profile.count("input_triangles", total_faces);
   profile.count("models", models.size());
   profile.count("materials", mat_info.size());

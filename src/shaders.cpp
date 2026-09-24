@@ -1,4 +1,5 @@
 #include "shaders.h"
+#include "texture_cache.h"
 
 #include "RcppThread.h"
 #include "stbimageheaders/stb_image.h"
@@ -57,36 +58,36 @@ GouraudShader::GouraudShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
+    texture = material.texture_cache->load(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t);
     if(!texture || nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
   if(material.has_ambient_texture) {
-    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    ambient_texture = material.texture_cache->load(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a);
     if(!ambient_texture || nx_a == 0 || ny_a == 0 || nn_a == 0) {
       throw std::runtime_error("Ambient Texture loading failed");
     }
   }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
+    normal_texture = material.texture_cache->load(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt);
     if(!normal_texture || nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
   }
   if(material.has_specular_texture) {
     has_specular_texture = true;
-    specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 0);
+    specular_texture = material.texture_cache->load(material.specular_texname.get_cstring(),
+                                  &nx_st, &ny_st, &nn_st);
     if(!specular_texture || nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
   }
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
-    emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 0);
+    emissive_texture = material.texture_cache->load(material.emissive_texname.get_cstring(),
+                                  &nx_et, &ny_et, &nn_et);
     if(!emissive_texture || nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -205,36 +206,36 @@ ColorShader::ColorShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
+    texture = material.texture_cache->load(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t);
     if(!texture || nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
   if(material.has_ambient_texture) {
-    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    ambient_texture = material.texture_cache->load(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a);
     if(!ambient_texture || nx_a == 0 || ny_a == 0 || nn_a == 0) {
       throw std::runtime_error("Ambient Texture loading failed");
     }
   }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
+    normal_texture = material.texture_cache->load(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt);
     if(!normal_texture || nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
   }
   if(material.has_specular_texture) {
     has_specular_texture = true;
-    specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 0);
+    specular_texture = material.texture_cache->load(material.specular_texname.get_cstring(),
+                                  &nx_st, &ny_st, &nn_st);
     if(!specular_texture || nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
   }
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
-    emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 0);
+    emissive_texture = material.texture_cache->load(material.emissive_texname.get_cstring(),
+                                  &nx_et, &ny_et, &nn_et);
     if(!emissive_texture || nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -332,36 +333,36 @@ DiffuseShader::DiffuseShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewp
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
+    texture = material.texture_cache->load(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t);
     if(!texture || nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
   if(material.has_ambient_texture) {
-    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    ambient_texture = material.texture_cache->load(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a);
     if(!ambient_texture || nx_a == 0 || ny_a == 0 || nn_a == 0) {
       throw std::runtime_error("Ambient Texture loading failed");
     }
   }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
+    normal_texture = material.texture_cache->load(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt);
     if(!normal_texture || nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
   }
   if(material.has_specular_texture) {
     has_specular_texture = true;
-    specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 0);
+    specular_texture = material.texture_cache->load(material.specular_texname.get_cstring(),
+                                  &nx_st, &ny_st, &nn_st);
     if(!specular_texture || nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
   }
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
-    emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 0);
+    emissive_texture = material.texture_cache->load(material.emissive_texname.get_cstring(),
+                                  &nx_et, &ny_et, &nn_et);
     if(!emissive_texture || nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -508,36 +509,36 @@ OrenNayerShader::OrenNayerShader(Mat& Model, Mat& Projection, Mat& View, vec4& v
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
+    texture = material.texture_cache->load(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t);
     if(!texture || nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
   if(material.has_ambient_texture) {
-    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    ambient_texture = material.texture_cache->load(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a);
     if(!ambient_texture || nx_a == 0 || ny_a == 0 || nn_a == 0) {
       throw std::runtime_error("Ambient Texture loading failed");
     }
   }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
+    normal_texture = material.texture_cache->load(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt);
     if(!normal_texture || nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
   }
   if(material.has_specular_texture) {
     has_specular_texture = true;
-    specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 0);
+    specular_texture = material.texture_cache->load(material.specular_texname.get_cstring(),
+                                  &nx_st, &ny_st, &nn_st);
     if(!specular_texture || nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
   }
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
-    emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 0);
+    emissive_texture = material.texture_cache->load(material.emissive_texname.get_cstring(),
+                                  &nx_et, &ny_et, &nn_et);
     if(!emissive_texture || nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -746,36 +747,36 @@ DiffuseNormalShader::DiffuseNormalShader(Mat& Model, Mat& Projection, Mat& View,
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
+    texture = material.texture_cache->load(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t);
     if(!texture || nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
   if(material.has_ambient_texture) {
-    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    ambient_texture = material.texture_cache->load(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a);
     if(!ambient_texture || nx_a == 0 || ny_a == 0 || nn_a == 0) {
       throw std::runtime_error("Ambient Texture loading failed");
     }
   }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
+    normal_texture = material.texture_cache->load(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt);
     if(!normal_texture || nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
   }
   if(material.has_specular_texture) {
     has_specular_texture = true;
-    specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 0);
+    specular_texture = material.texture_cache->load(material.specular_texname.get_cstring(),
+                                  &nx_st, &ny_st, &nn_st);
     if(!specular_texture || nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
   }
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
-    emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 0);
+    emissive_texture = material.texture_cache->load(material.emissive_texname.get_cstring(),
+                                  &nx_et, &ny_et, &nn_et);
     if(!emissive_texture || nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -920,36 +921,36 @@ DiffuseShaderTangent::DiffuseShaderTangent(Mat& Model, Mat& Projection, Mat& Vie
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
+    texture = material.texture_cache->load(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t);
     if(!texture || nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
   if(material.has_ambient_texture) {
-    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    ambient_texture = material.texture_cache->load(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a);
     if(!ambient_texture || nx_a == 0 || ny_a == 0 || nn_a == 0) {
       throw std::runtime_error("Ambient Texture loading failed");
     }
   }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
+    normal_texture = material.texture_cache->load(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt);
     if(!normal_texture || nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
   }
   if(material.has_specular_texture) {
     has_specular_texture = true;
-    specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 0);
+    specular_texture = material.texture_cache->load(material.specular_texname.get_cstring(),
+                                  &nx_st, &ny_st, &nn_st);
     if(!specular_texture || nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
   }
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
-    emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 0);
+    emissive_texture = material.texture_cache->load(material.emissive_texname.get_cstring(),
+                                  &nx_et, &ny_et, &nn_et);
     if(!emissive_texture || nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -1103,36 +1104,36 @@ PhongShader::PhongShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
+    texture = material.texture_cache->load(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t);
     if(!texture || nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
   if(material.has_ambient_texture) {
-    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    ambient_texture = material.texture_cache->load(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a);
     if(!ambient_texture || nx_a == 0 || ny_a == 0 || nn_a == 0) {
       throw std::runtime_error("Ambient Texture loading failed");
     }
   }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
+    normal_texture = material.texture_cache->load(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt);
     if(!normal_texture || nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
   }
   if(material.has_specular_texture) {
     has_specular_texture = true;
-    specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 0);
+    specular_texture = material.texture_cache->load(material.specular_texname.get_cstring(),
+                                  &nx_st, &ny_st, &nn_st);
     if(!specular_texture || nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
   }
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
-    emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 0);
+    emissive_texture = material.texture_cache->load(material.emissive_texname.get_cstring(),
+                                  &nx_et, &ny_et, &nn_et);
     if(!emissive_texture || nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -1282,36 +1283,36 @@ PhongNormalShader::PhongNormalShader(Mat& Model, Mat& Projection, Mat& View, vec
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
+    texture = material.texture_cache->load(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t);
     if(!texture || nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
   if(material.has_ambient_texture) {
-    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    ambient_texture = material.texture_cache->load(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a);
     if(!ambient_texture || nx_a == 0 || ny_a == 0 || nn_a == 0) {
       throw std::runtime_error("Ambient Texture loading failed");
     }
   }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
+    normal_texture = material.texture_cache->load(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt);
     if(!normal_texture || nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
   }
   if(material.has_specular_texture) {
     has_specular_texture = true;
-    specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 0);
+    specular_texture = material.texture_cache->load(material.specular_texname.get_cstring(),
+                                  &nx_st, &ny_st, &nn_st);
     if(!specular_texture || nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
   }
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
-    emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 0);
+    emissive_texture = material.texture_cache->load(material.emissive_texname.get_cstring(),
+                                  &nx_et, &ny_et, &nn_et);
     if(!emissive_texture || nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -1460,36 +1461,36 @@ PhongShaderTangent::PhongShaderTangent(Mat& Model, Mat& Projection, Mat& View, v
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
+    texture = material.texture_cache->load(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t);
     if(!texture || nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
   if(material.has_ambient_texture) {
-    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    ambient_texture = material.texture_cache->load(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a);
     if(!ambient_texture || nx_a == 0 || ny_a == 0 || nn_a == 0) {
       throw std::runtime_error("Ambient Texture loading failed");
     }
   }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
+    normal_texture = material.texture_cache->load(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt);
     if(!normal_texture || nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
   }
   if(material.has_specular_texture) {
     has_specular_texture = true;
-    specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 0);
+    specular_texture = material.texture_cache->load(material.specular_texname.get_cstring(),
+                                  &nx_st, &ny_st, &nn_st);
     if(!specular_texture || nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
   }
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
-    emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 0);
+    emissive_texture = material.texture_cache->load(material.emissive_texname.get_cstring(),
+                                  &nx_et, &ny_et, &nn_et);
     if(!emissive_texture || nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -1634,7 +1635,7 @@ DepthShader::DepthShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   has_texture = false;
   if(mat_info.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(mat_info.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
+    texture = material.texture_cache->load(mat_info.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t);
     if(!texture || nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
@@ -1699,36 +1700,36 @@ ToonShader::ToonShader(Mat& Model, Mat& Projection, Mat& View, vec4& viewport,
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
+    texture = material.texture_cache->load(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t);
     if(!texture || nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
   if(material.has_ambient_texture) {
-    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    ambient_texture = material.texture_cache->load(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a);
     if(!ambient_texture || nx_a == 0 || ny_a == 0 || nn_a == 0) {
       throw std::runtime_error("Ambient Texture loading failed");
     }
   }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
+    normal_texture = material.texture_cache->load(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt);
     if(!normal_texture || nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
   }
   if(material.has_specular_texture) {
     has_specular_texture = true;
-    specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 0);
+    specular_texture = material.texture_cache->load(material.specular_texname.get_cstring(),
+                                  &nx_st, &ny_st, &nn_st);
     if(!specular_texture || nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
   }
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
-    emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 0);
+    emissive_texture = material.texture_cache->load(material.emissive_texname.get_cstring(),
+                                  &nx_et, &ny_et, &nn_et);
     if(!emissive_texture || nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
@@ -1845,36 +1846,36 @@ ToonShaderPhong::ToonShaderPhong(Mat& Model, Mat& Projection, Mat& View, vec4& v
   has_texture = has_normal_texture = has_specular_texture = has_emissive_texture = false;
   if(material.has_texture) {
     has_texture = true;
-    texture = stbi_loadf(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t, 0);
+    texture = material.texture_cache->load(material.diffuse_texname.get_cstring(), &nx_t, &ny_t, &nn_t);
     if(!texture || nx_t == 0 || ny_t == 0 || nn_t == 0) {
       throw std::runtime_error("Texture loading failed");
     }
   }
   if(material.has_ambient_texture) {
-    ambient_texture = stbi_loadf(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a, 0);
+    ambient_texture = material.texture_cache->load(material.ambient_texname.get_cstring(), &nx_a, &ny_a, &nn_a);
     if(!ambient_texture || nx_a == 0 || ny_a == 0 || nn_a == 0) {
       throw std::runtime_error("Ambient Texture loading failed");
     }
   }
   if(material.has_normal_texture) {
     has_normal_texture = true;
-    normal_texture = stbi_loadf(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt, 0);
+    normal_texture = material.texture_cache->load(material.normal_texname.get_cstring(), &nx_nt, &ny_nt, &nn_nt);
     if(!normal_texture || nx_nt == 0 || ny_nt == 0 || nn_nt == 0) {
       throw std::runtime_error("Normal texture loading failed");
     }
   }
   if(material.has_specular_texture) {
     has_specular_texture = true;
-    specular_texture = stbi_loadf(material.specular_texname.get_cstring(), 
-                                  &nx_st, &ny_st, &nn_st, 0);
+    specular_texture = material.texture_cache->load(material.specular_texname.get_cstring(),
+                                  &nx_st, &ny_st, &nn_st);
     if(!specular_texture || nx_st == 0 || ny_st == 0 || nn_st == 0) {
       throw std::runtime_error("Specular texture loading failed");
     }
   }
   if(material.has_emissive_texture) {
     has_emissive_texture = true;
-    emissive_texture = stbi_loadf(material.emissive_texname.get_cstring(), 
-                                  &nx_et, &ny_et, &nn_et, 0);
+    emissive_texture = material.texture_cache->load(material.emissive_texname.get_cstring(),
+                                  &nx_et, &ny_et, &nn_et);
     if(!emissive_texture || nx_et == 0 || ny_et == 0 || nn_et == 0) {
       throw std::runtime_error("Emissive texture loading failed");
     }
