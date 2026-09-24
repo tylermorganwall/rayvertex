@@ -1,0 +1,19 @@
+Starting clean commit b09385978f40f976e7e97286191d64d16184b7de
+Corrected scalar reference 7f72368bb5dfa05749f2b690155bc19d81e0a74c
+
+57568ca942b3bd6b8c6273d89b4161ff6b62d73b perf: pin renderer baseline and add developer measurements
+ac27b768be956177fc0d31e60ec96e417c564281 fix: establish safe scalar rasterizer ownership and indexing
+49df13ec4967b1db2edd311cca297275957a13b3 perf: remove disabled-pass storage and flatten triangle attributes
+570ee6fdfe72c3f9693ed73b8dd5918362827804 perf: batch active raster blocks and reuse the frame worker pool
+08eecd28c03ab02887665a35e85e95da4631e89b fix: initialize model transforms in scalar shader paths
+0005fb14f3e8ed2cf8e47ff68dcf5c1a3d5ce704 test: order shader regressions after texture fixture helpers
+908b46a8a5f1fae6e44a823637811213a1bdf215 fix: initialize fragment position before object-normal point lighting
+2a90464660af40f74d4c25742ea86435a98dfbe4 fix: initialize object-normal fragment color and normal before lighting
+bddab0fbaed6757231db29c97abccd962219c222 perf: reject hidden fragments before perspective normalization
+56c4b7643ede56cd66f44f1d2447b60d19103518 perf: share immutable texture decodes across frame shaders
+5c7bb8b03c5a585576e4e0db468292717ce21a6e perf: parallelize independent SSAO and jump-flood screen regions
+08cedf17bfdb0f11a676458fb0abf80037477ea9 fix: preserve unnamed material-list results during deduplication
+36e5df0061585263e1c9c3b95b139df4efcc5900 perf: add measured opt-in indexed position transforms
+3bb9586d0e57ae32d08c270379dc5803c7eed803 test: include native teardown and broaden performance diagnostics
+2ba03ec36aee95a464e4b79c9159d1d629c30441 test: add reproducible quality worker batch and memory sweeps
+18751b4f51e79a7bda1a1afad457ad5cab5cd1c0 fix: count both scalar tangent clip transforms in diagnostics

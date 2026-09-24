@@ -1,0 +1,148 @@
+Implementation and harness commits through 18751b4. Final report/artifact commit is excluded.
+
+commit 57568ca942b3bd6b8c6273d89b4161ff6b62d73b
+perf: pin renderer baseline and add developer measurements
+
+ docs/performance/README.md  |  30 ++++++++++
+ src/raster_profile.h        |  47 +++++++++++++++
+ src/rayraster.cpp           |  35 +++++++++++-
+ tools/bench-rasterizer.R    | 135 ++++++++++++++++++++++++++++++++++++++++++++
+ tools/bench-rasterizer.py   |  29 ++++++++++
+ tools/rasterizer-fixtures.R |  63 +++++++++++++++++++++
+ 6 files changed, 338 insertions(+), 1 deletion(-)
+commit ac27b768be956177fc0d31e60ec96e417c564281
+fix: establish safe scalar rasterizer ownership and indexing
+
+ src/filltri.cpp                              |   5 +-
+ src/image_owner.h                            |  21 ++
+ src/line.cpp                                 |  13 +-
+ src/raster_utils.h                           |  53 +++++
+ src/rasterize_lines_rcpp.cpp                 |   7 +-
+ src/rayimage.cpp                             |  16 +-
+ src/rayimage.h                               |   2 +-
+ src/rayraster.cpp                            | 118 ++++------
+ src/shaders.cpp                              | 316 ++++++---------------------
+ src/shaders.h                                | 120 +++++-----
+ tests/testthat/test-rasterizer-correctness.R | 117 ++++++++++
+ tools/bench-rasterizer.R                     |   4 +
+ tools/compare-rasterizer.R                   |  48 ++++
+ tools/test-raster-utils.cpp                  |  30 +++
+ tools/test-rayimage.cpp                      |  24 ++
+ 15 files changed, 497 insertions(+), 397 deletions(-)
+commit 49df13ec4967b1db2edd311cca297275957a13b3
+perf: remove disabled-pass storage and flatten triangle attributes
+
+ R/remove_duplicate_materials.R                |  33 +---
+ src/filltri.cpp                               |   2 +-
+ src/filltri.h                                 |   2 +-
+ src/rayimage.cpp                              |   2 +-
+ src/rayimage.h                                |   2 +-
+ src/rayraster.cpp                             | 201 ++++++++++-----------
+ src/shaders.cpp                               | 144 +++++++--------
+ src/shaders.h                                 | 241 +++++++++++++-------------
+ tests/testthat/test-rasterizer-optimization.R |  77 ++++++++
+ tools/bench-rasterizer.R                      |   2 +-
+ tools/bench-rasterizer.py                     |   4 +-
+ tools/summarize-rasterizer.py                 |  48 +++++
+ 12 files changed, 432 insertions(+), 326 deletions(-)
+commit 570ee6fdfe72c3f9693ed73b8dd5918362827804
+perf: batch active raster blocks and reuse the frame worker pool
+
+ src/dummythreadpool.h                         |   8 +-
+ src/filltri.cpp                               |  35 +++++-
+ src/filltri.h                                 |   6 +-
+ src/raster_scheduler.h                        |  62 +++++++++++
+ src/rayraster.cpp                             |  55 ++++++----
+ tests/testthat/test-rasterizer-optimization.R |  23 ++++
+ tools/rasterizer-parity.R                     | 146 ++++++++++++++++++++++++++
+ tools/summarize-rasterizer.py                 |   2 +-
+ 8 files changed, 309 insertions(+), 28 deletions(-)
+commit 08eecd28c03ab02887665a35e85e95da4631e89b
+fix: initialize model transforms in scalar shader paths
+
+ src/shaders.cpp                              | 26 +++++++++++++-------------
+ tests/testthat/test-rasterizer-correctness.R | 19 +++++++++++++++++++
+ tools/rasterizer-parity.R                    |  5 +++++
+ 3 files changed, 37 insertions(+), 13 deletions(-)
+commit 0005fb14f3e8ed2cf8e47ff68dcf5c1a3d5ce704
+test: order shader regressions after texture fixture helpers
+
+ tests/testthat/test-rasterizer-correctness.R | 38 ++++++++++++++--------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
+commit 908b46a8a5f1fae6e44a823637811213a1bdf215
+fix: initialize fragment position before object-normal point lighting
+
+ src/shaders.cpp                              |  8 ++++++--
+ tests/testthat/test-rasterizer-correctness.R | 24 ++++++++++++++++++++++++
+ tools/rasterizer-parity.R                    |  5 +++++
+ 3 files changed, 35 insertions(+), 2 deletions(-)
+commit 2a90464660af40f74d4c25742ea86435a98dfbe4
+fix: initialize object-normal fragment color and normal before lighting
+
+ src/shaders.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+commit bddab0fbaed6757231db29c97abccd962219c222
+perf: reject hidden fragments before perspective normalization
+
+ src/filltri.cpp                 | 15 +++++++--------
+ tools/bench-rasterizer-memory.R | 28 ++++++++++++++++++++++++++++
+ tools/bench-rasterizer.py       | 11 ++++++++---
+ 3 files changed, 43 insertions(+), 11 deletions(-)
+commit 56c4b7643ede56cd66f44f1d2447b60d19103518
+perf: share immutable texture decodes across frame shaders
+
+ src/image_owner.h                             |   4 +-
+ src/material.h                                |   3 +
+ src/rayraster.cpp                             |   6 +
+ src/shaders.cpp                               | 157 +++++++++++++-------------
+ src/texture_cache.h                           |  63 +++++++++++
+ tests/testthat/test-rasterizer-optimization.R |  90 +++++++++++++++
+ tools/rasterizer-fixtures.R                   |  26 +++++
+ 7 files changed, 269 insertions(+), 80 deletions(-)
+commit 5c7bb8b03c5a585576e4e0db468292717ce21a6e
+perf: parallelize independent SSAO and jump-flood screen regions
+
+ src/raster_scheduler.h                        | 18 ++++++++++++
+ src/raster_utils.h                            | 37 +++++++++++++-----------
+ src/rayraster.cpp                             | 41 ++++++++++++++++++---------
+ src/screen_view.h                             | 17 +++++++++++
+ tests/testthat/test-rasterizer-optimization.R | 21 ++++++++++++++
+ 5 files changed, 104 insertions(+), 30 deletions(-)
+commit 08cedf17bfdb0f11a676458fb0abf80037477ea9
+fix: preserve unnamed material-list results during deduplication
+
+ R/remove_duplicate_materials.R              |  4 ++--
+ tests/testthat/test-material-dedup-compat.R | 11 +++++++++++
+ 2 files changed, 13 insertions(+), 2 deletions(-)
+commit 36e5df0061585263e1c9c3b95b139df4efcc5900
+perf: add measured opt-in indexed position transforms
+
+ src/model.h                                   | 20 +++++++++++
+ src/rayraster.cpp                             | 42 ++++++++++++++++++++++
+ src/shaders.cpp                               | 52 +++++++++++++--------------
+ src/shaders.h                                 | 15 ++++++--
+ tests/testthat/test-rasterizer-optimization.R | 48 +++++++++++++++++++++++++
+ 5 files changed, 146 insertions(+), 31 deletions(-)
+commit 3bb9586d0e57ae32d08c270379dc5803c7eed803
+test: include native teardown and broaden performance diagnostics
+
+ src/raster_profile.h              | 15 ++++++++++--
+ src/rayraster.cpp                 | 10 +++++---
+ tools/bench-rasterizer.R          | 14 ++++++++++-
+ tools/check-rasterizer-lifetime.R | 51 +++++++++++++++++++++++++++++++++++++++
+ tools/profile-rasterizer.R        | 41 +++++++++++++++++++++++++++++++
+ tools/rasterizer-parity.R         | 26 +++++++++++++++++++-
+ 6 files changed, 149 insertions(+), 8 deletions(-)
+commit 2ba03ec36aee95a464e4b79c9159d1d629c30441
+test: add reproducible quality worker batch and memory sweeps
+
+ tools/bench-rasterizer-matrix.py | 52 ++++++++++++++++++++++++++++++++++++++++
+ tools/bench-rasterizer.R         |  1 +
+ tools/summarize-rasterizer.py    |  6 +++++
+ 3 files changed, 59 insertions(+)
+commit 18751b4f51e79a7bda1a1afad457ad5cab5cd1c0
+fix: count both scalar tangent clip transforms in diagnostics
+
+ src/rayraster.cpp                             | 21 ++++++++++++++++++---
+ tests/testthat/test-rasterizer-optimization.R | 27 +++++++++++++++++++++++++++
+ 2 files changed, 45 insertions(+), 3 deletions(-)

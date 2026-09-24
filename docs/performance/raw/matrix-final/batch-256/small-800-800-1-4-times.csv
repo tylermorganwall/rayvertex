@@ -1,0 +1,12 @@
+"case","width","height","fsaa","cores","regime","sample","elapsed_ms"
+"small",800,800,1,4,"process_cold",0,572
+"small",800,800,1,4,"warm",1,352
+"small",800,800,1,4,"warm",2,223
+"small",800,800,1,4,"warm",3,213
+"small",800,800,1,4,"warm",4,239
+"small",800,800,1,4,"warm",5,187
+"small",800,800,1,4,"warm",6,218
+"small",800,800,1,4,"warm",7,183
+"small",800,800,1,4,"warm",8,410
+"small",800,800,1,4,"warm",9,388
+"small",800,800,1,4,"warm",10,388

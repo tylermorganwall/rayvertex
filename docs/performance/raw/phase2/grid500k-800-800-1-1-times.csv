@@ -1,0 +1,7 @@
+"case","width","height","fsaa","cores","regime","sample","elapsed_ms"
+"grid500k",800,800,1,1,"process_cold",0,551
+"grid500k",800,800,1,1,"warm",1,416
+"grid500k",800,800,1,1,"warm",2,432
+"grid500k",800,800,1,1,"warm",3,448
+"grid500k",800,800,1,1,"warm",4,385
+"grid500k",800,800,1,1,"warm",5,445

@@ -1,0 +1,17 @@
+"case","width","height","fsaa","cores","regime","sample","elapsed_ms"
+"occluded",800,800,1,1,"process_cold",0,504
+"occluded",800,800,1,1,"warm",1,361
+"occluded",800,800,1,1,"warm",2,353
+"occluded",800,800,1,1,"warm",3,330
+"occluded",800,800,1,1,"warm",4,352
+"occluded",800,800,1,1,"warm",5,354
+"occluded",800,800,1,1,"warm",6,359
+"occluded",800,800,1,1,"warm",7,352
+"occluded",800,800,1,1,"warm",8,347
+"occluded",800,800,1,1,"warm",9,353
+"occluded",800,800,1,1,"warm",10,348
+"occluded",800,800,1,1,"warm",11,344
+"occluded",800,800,1,1,"warm",12,348
+"occluded",800,800,1,1,"warm",13,371
+"occluded",800,800,1,1,"warm",14,375
+"occluded",800,800,1,1,"warm",15,347

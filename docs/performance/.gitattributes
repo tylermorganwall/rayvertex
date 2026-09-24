@@ -1,0 +1,4 @@
+# Preserve captured command output verbatim, including diagnostic whitespace.
+raw/** -whitespace
+validation/** -whitespace
+changes-by-commit.txt -whitespace

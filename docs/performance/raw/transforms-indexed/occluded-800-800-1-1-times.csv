@@ -1,0 +1,7 @@
+"case","width","height","fsaa","cores","regime","sample","elapsed_ms"
+"occluded",800,800,1,1,"process_cold",0,477
+"occluded",800,800,1,1,"warm",1,349
+"occluded",800,800,1,1,"warm",2,345
+"occluded",800,800,1,1,"warm",3,319
+"occluded",800,800,1,1,"warm",4,340
+"occluded",800,800,1,1,"warm",5,344

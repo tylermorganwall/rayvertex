@@ -1,5 +1,14 @@
 # rayvertex 0.16.1
 
+* Fixed SSAO indexing and blur ownership, rectangular unaliased line indexing,
+  grayscale texture sampling, shader initialization, and environment image
+  lifetime. SSAO images can change as a result of these correctness fixes.
+* Reduced rasterizer allocations, batched active coverage blocks, shared texture
+  decoding within each render, and parallelized SSAO and toon outline propagation.
+  Rendering settings and public R interfaces are preserved. Developer benchmarks,
+  a corrected scalar reference, and measured limitations are documented in
+  `docs/performance/` in the source repository.
+
 * Added `draw_lathe_profile()` to draw radius/height polygons with base R
   mouse input, a live closing-edge preview, an Undo button, and profiles ready
   for `lathe_mesh()`.

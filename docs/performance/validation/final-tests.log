@@ -1,0 +1,29 @@
+NULL
+cran-prep: SSSSS
+displacement_sphere: ...
+draw_lathe_profile: ..........................................Click inside the drawing limits.
+.Click inside the drawing limits.
+.....................................................
+extruded_path_mesh: .....................................................................................................
+extruded_polygon_mesh: ..........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+extrusion-api: .................................................
+lathe_mesh: ..............................................................
+load_obj: S
+material-dedup-compat: .
+rasterizer-correctness: ........................................
+rasterizer-optimization: .................................
+
+══ Skipped ═════════════════════════════════════════════════════════════════════
+1. rescale handles finite and non-finite values ('test-cran-prep.R:2:3') - Reason: On CRAN
+
+2. rasterize_scene position debug path works ('test-cran-prep.R:17:3') - Reason: On CRAN
+
+3. rasterize_scene scales toon outlines for FSAA before rasterizing ('test-cran-prep.R:33:3') - Reason: On CRAN
+
+4. mesh3d_mesh centers the supplied mesh ('test-cran-prep.R:78:3') - Reason: On CRAN
+
+5. text3d_mesh accepts color as a deprecated alias ('test-cran-prep.R:103:3') - Reason: On CRAN
+
+6. load_obj works ('test-load_obj.R:2:3') - Reason: On CRAN
+
+══ DONE ════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,2 @@
+"case","samples","total_ms","cleanup_ms","mean_with_cleanup_ms","fps_with_cleanup"
+"shadow",10,2489,30.0000000000002,248.9,4.01767778224186

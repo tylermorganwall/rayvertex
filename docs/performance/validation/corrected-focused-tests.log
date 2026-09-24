@@ -1,0 +1,13 @@
+NULL
+rasterizer-correctness: .....................1.....
+
+══ Failed ══════════════════════════════════════════════════════════════════════
+── 1. Failure ('test-rasterizer-correctness.R:67:3'): all debug returns and imag
+Expected `inherits(a, "ray_image") || inherits(a, "rayimage")` to be TRUE.
+Differences:
+`actual`:   FALSE
+`expected`: TRUE 
+
+
+══ DONE ════════════════════════════════════════════════════════════════════════
+I believe in you!

@@ -1,0 +1,11 @@
+"case","cores","regime","sample","elapsed_ms"
+"ssao",1,"warm",1,998
+"ssao",1,"warm",2,839
+"ssao",1,"warm",3,946
+"ssao",1,"warm",4,841
+"ssao",1,"warm",5,1035
+"ssao",1,"native",1,609
+"ssao",1,"native",2,589
+"ssao",1,"native",3,569.999999999999
+"ssao",1,"native",4,596
+"ssao",1,"native",5,639.000000000001

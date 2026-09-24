@@ -1,0 +1,2 @@
+"case","samples","total_ms","cleanup_ms","mean_with_cleanup_ms","fps_with_cleanup"
+"grid500k",10,3846,30.0000000000002,384.6,2.60010400416017

@@ -1,0 +1,56 @@
+NULL
+
+══ Testing test-rasterizer-correctness.R ═══════════════════════════════════════
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 0 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 1 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 2 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 3 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 4 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 5 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 6 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 7 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 8 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 9 ]
+ *** caught segfault ***
+address 0x26, cause 'invalid permissions'
+
+Traceback:
+ 1: rasterize(obj, lightinfo, line_mat = line_info, nx = width, ny = height,     model_color = color, lookfrom = lookfrom, lookat = lookat,     fov = fov, typevals = typevals, has_shadow_map = shadow_map,     calc_ambient = ssao, tbn = tangent_space_normals, ambient_radius = ssao_radius,     shadow_map_bias = shadow_map_bias, numbercores = numbercores,     max_indices = max_indices, has_normals_vec = has_norms, has_tex_vec = has_tex,     has_texture, has_ambient_texture, has_bump_texture, has_normal_texture,     has_specular_texture, has_emissive_texture, block_size = block_size,     use_default_material = use_default_material, near_plane,     far_plane, shadow_map_intensity, bounds, shadow_map_dims,     camera_up, alpha_line, line_offset, ortho_dimensions, is_dir_light,     antialias_lines, has_vertex_tex, has_vertex_normals, has_reflection_map,     environment_map, background_sharpness, has_refraction, environment_map_hdr,     has_environment_map, bg_color, transparent_background, verbose)
+ 2: rasterize_scene(scene, width = 31, height = 23, fsaa = 1, plot = FALSE,     parallel = FALSE, lookfrom = c(0, 0, 4), lookat = c(0, 0,         0), shadow_map = FALSE, ...)
+ 3: render_regression(line_info = line, antialias_lines = FALSE,     debug = "all")
+ 4: eval(code, test_env)
+ 5: eval(code, test_env)
+ 6: withCallingHandlers({    eval(code, test_env)    new_expectations <- the$test_expectations > starting_expectations    if (snapshot_skipped) {        skip("On CRAN")    }    else if (!new_expectations && skip_on_empty) {        skip_empty()    }}, expectation = handle_expectation, packageNotFoundError = function(e) {    if (on_cran()) {        skip(paste0("{", e$package, "} is not installed."))    }}, snapshot_on_cran = function(cnd) {    snapshot_skipped <<- TRUE    invokeRestart("muffle_cran_snapshot")}, skip = handle_skip, warning = handle_warning, message = handle_message,     error = handle_error, interrupt = handle_interrupt)
+ 7: doTryCatch(return(expr), name, parentenv, handler)
+ 8: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 9: tryCatchList(expr, classes, parentenv, handlers)
+10: tryCatch(withCallingHandlers({    eval(code, test_env)    new_expectations <- the$test_expectations > starting_expectations    if (snapshot_skipped) {        skip("On CRAN")    }    else if (!new_expectations && skip_on_empty) {        skip_empty()    }}, expectation = handle_expectation, packageNotFoundError = function(e) {    if (on_cran()) {        skip(paste0("{", e$package, "} is not installed."))    }}, snapshot_on_cran = function(cnd) {    snapshot_skipped <<- TRUE    invokeRestart("muffle_cran_snapshot")}, skip = handle_skip, warning = handle_warning, message = handle_message,     error = handle_error, interrupt = handle_interrupt), error = handle_fatal)
+11: doWithOneRestart(return(expr), restart)
+12: withOneRestart(expr, restarts[[1L]])
+13: withRestarts(tryCatch(withCallingHandlers({    eval(code, test_env)    new_expectations <- the$test_expectations > starting_expectations    if (snapshot_skipped) {        skip("On CRAN")    }    else if (!new_expectations && skip_on_empty) {        skip_empty()    }}, expectation = handle_expectation, packageNotFoundError = function(e) {    if (on_cran()) {        skip(paste0("{", e$package, "} is not installed."))    }}, snapshot_on_cran = function(cnd) {    snapshot_skipped <<- TRUE    invokeRestart("muffle_cran_snapshot")}, skip = handle_skip, warning = handle_warning, message = handle_message,     error = handle_error, interrupt = handle_interrupt), error = handle_fatal),     end_test = function() {    })
+14: test_code(code, parent.frame())
+15: test_that("steep unaliased lines stay at the same x on rectangular images",     {        line = matrix(c(0.65, -0.6, 1, 0.65, 0.6, 1, 1, 0, 0),             nrow = 1)        out = render_regression(line_info = line, antialias_lines = FALSE,             debug = "all")        line_pixels = out$r > 0.99 & out$g == 0 & out$b == 0        expect_gt(sum(line_pixels), 5)        expect_length(unique(which(line_pixels, arr.ind = TRUE)[,             1]), 1)    })
+16: eval(code, test_env)
+17: eval(code, test_env)
+18: withCallingHandlers({    eval(code, test_env)    new_expectations <- the$test_expectations > starting_expectations    if (snapshot_skipped) {        skip("On CRAN")    }    else if (!new_expectations && skip_on_empty) {        skip_empty()    }}, expectation = handle_expectation, packageNotFoundError = function(e) {    if (on_cran()) {        skip(paste0("{", e$package, "} is not installed."))    }}, snapshot_on_cran = function(cnd) {    snapshot_skipped <<- TRUE    invokeRestart("muffle_cran_snapshot")}, skip = handle_skip, warning = handle_warning, message = handle_message,     error = handle_error, interrupt = handle_interrupt)
+19: doTryCatch(return(expr), name, parentenv, handler)
+20: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+21: tryCatchList(expr, classes, parentenv, handlers)
+22: tryCatch(withCallingHandlers({    eval(code, test_env)    new_expectations <- the$test_expectations > starting_expectations    if (snapshot_skipped) {        skip("On CRAN")    }    else if (!new_expectations && skip_on_empty) {        skip_empty()    }}, expectation = handle_expectation, packageNotFoundError = function(e) {    if (on_cran()) {        skip(paste0("{", e$package, "} is not installed."))    }}, snapshot_on_cran = function(cnd) {    snapshot_skipped <<- TRUE    invokeRestart("muffle_cran_snapshot")}, skip = handle_skip, warning = handle_warning, message = handle_message,     error = handle_error, interrupt = handle_interrupt), error = handle_fatal)
+23: doWithOneRestart(return(expr), restart)
+24: withOneRestart(expr, restarts[[1L]])
+25: withRestarts(tryCatch(withCallingHandlers({    eval(code, test_env)    new_expectations <- the$test_expectations > starting_expectations    if (snapshot_skipped) {        skip("On CRAN")    }    else if (!new_expectations && skip_on_empty) {        skip_empty()    }}, expectation = handle_expectation, packageNotFoundError = function(e) {    if (on_cran()) {        skip(paste0("{", e$package, "} is not installed."))    }}, snapshot_on_cran = function(cnd) {    snapshot_skipped <<- TRUE    invokeRestart("muffle_cran_snapshot")}, skip = handle_skip, warning = handle_warning, message = handle_message,     error = handle_error, interrupt = handle_interrupt), error = handle_fatal),     end_test = function() {    })
+26: test_code(code = exprs, env = env, reporter = get_reporter() %||%     StopReporter$new())
+27: source_file(path, env = env(env), desc = desc, shuffle = shuffle,     error_call = error_call)
+28: FUN(X[[i]], ...)
+29: lapply(test_paths, test_one_file, env = env, desc = desc, shuffle = shuffle,     error_call = error_call)
+30: doTryCatch(return(expr), name, parentenv, handler)
+31: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+32: tryCatchList(expr, classes, parentenv, handlers)
+33: tryCatch(code, testthat_abort_reporter = function(cnd) {    cat(conditionMessage(cnd), "\n")    NULL})
+34: with_reporter(reporters$multi, lapply(test_paths, test_one_file,     env = env, desc = desc, shuffle = shuffle, error_call = error_call))
+35: test_files_serial(test_dir = test_dir, test_package = test_package,     test_paths = test_paths, load_helpers = load_helpers, reporter = reporter,     env = env, stop_on_failure = stop_on_failure, stop_on_warning = stop_on_warning,     desc = desc, load_package = load_package, shuffle = shuffle,     error_call = error_call)
+36: test_files(test_dir = dirname(path), test_package = package,     test_paths = basename(path), reporter = reporter, desc = desc,     shuffle = shuffle, ...)
+37: testthat::test_file("tests/testthat/test-rasterizer-correctness.R")
+An irrecoverable exception occurred. R is aborting now ...

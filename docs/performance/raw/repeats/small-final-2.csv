@@ -1,0 +1,11 @@
+"case","cores","regime","sample","elapsed_ms"
+"small",1,"warm",1,452
+"small",1,"warm",2,414
+"small",1,"warm",3,421
+"small",1,"warm",4,292
+"small",1,"warm",5,346
+"small",1,"native",1,113
+"small",1,"native",2,35.9999999999996
+"small",1,"native",3,42.9999999999997
+"small",1,"native",4,39.0000000000001
+"small",1,"native",5,55.0000000000002

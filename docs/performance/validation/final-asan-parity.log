@@ -1,0 +1,57 @@
+/Library/Frameworks/R.framework/Versions/4.6/Resources/library/stbimageheaders/include/stbimageheaders/stb_image_resize2.h:3735:11: runtime error: store to misaligned address 0x604000050edc for type 'stbir_uint64' (aka 'unsigned long long'), which requires 8 byte alignment
+0x604000050edc: note: pointer points here
+  40 60 90 3d 00 00 00 00  40 60 90 3d 62 13 1d 3f  2b c1 a1 3e 00 00 00 00  be be be be be be be be
+              ^ 
+==41523==WARNING: external symbolizer didn't start up correctly!
+==41523==WARNING: Can't write to symbolizer at fd 5
+==41523==WARNING: external symbolizer didn't start up correctly!
+==41523==WARNING: Can't write to symbolizer at fd 6
+==41523==WARNING: external symbolizer didn't start up correctly!
+==41523==WARNING: Can't write to symbolizer at fd 7
+==41523==WARNING: external symbolizer didn't start up correctly!
+==41523==WARNING: Can't write to symbolizer at fd 8
+==41523==WARNING: external symbolizer didn't start up correctly!
+==41523==WARNING: Failed to use and restart external symbolizer!
+    #0 0x10ba04d30 in stbir__alloc_internal_mem_and_build_samplers(stbir__sampler*, stbir__sampler*, stbir__contributors*, stbir_pixel_layout, stbir_pixel_layout, int, int, int, int, void*)+0x7ed4 (/private/tmp/rayvertex-optimization/lib-asan/rayvertex/libs/rayvertex.so:arm64+0x2a8d30)
+    #1 0x10b908e4c in stbir_build_samplers_with_splits+0xcd8 (/private/tmp/rayvertex-optimization/lib-asan/rayvertex/libs/rayvertex.so:arm64+0x1ace4c)
+    #2 0x10b909ed8 in stbir_resize_extended+0x110 (/private/tmp/rayvertex-optimization/lib-asan/rayvertex/libs/rayvertex.so:arm64+0x1aded8)
+    #3 0x10b90f540 in stbir_quick_resize_helper(void const*, int, int, int, void*, int, int, int, stbir_pixel_layout, stbir_datatype, stbir_edge, stbir_filter)+0x4f8 (/private/tmp/rayvertex-optimization/lib-asan/rayvertex/libs/rayvertex.so:arm64+0x1b3540)
+    #4 0x10b941d14 in resize_reflection_map(float const*, int, int, float*, int, int, int)+0x84 (/private/tmp/rayvertex-optimization/lib-asan/rayvertex/libs/rayvertex.so:arm64+0x1e5d14)
+    #5 0x10b931e40 in rasterize(Rcpp::Vector<19, Rcpp::PreserveStorage>, Rcpp::Matrix<14, Rcpp::PreserveStorage>, Rcpp::Matrix<14, Rcpp::PreserveStorage>, int, int, Rcpp::Vector<14, Rcpp::PreserveStorage>, Rcpp::Vector<14, Rcpp::PreserveStorage>, Rcpp::Vector<14, Rcpp::PreserveStorage>, double, Rcpp::Vector<13, Rcpp::PreserveStorage>, bool, bool, bool, double, double, int, int, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, int, bool, double, double, double, Rcpp::Vector<14, Rcpp::PreserveStorage>, Rcpp::Vector<13, Rcpp::PreserveStorage>, Rcpp::Vector<14, Rcpp::PreserveStorage>, double, double, Rcpp::Vector<14, Rcpp::PreserveStorage>, Rcpp::Vector<10, Rcpp::PreserveStorage>, bool, Rcpp::Vector<10, Rcpp::PreserveStorage>&, Rcpp::Vector<10, Rcpp::PreserveStorage>&, Rcpp::Vector<10, Rcpp::PreserveStorage>, Rcpp::String, double, Rcpp::Vector<10, Rcpp::PreserveStorage>, bool, bool, Rcpp::Vector<14, Rcpp::PreserveStorage>, bool, bool)+0x22498 (/private/tmp/rayvertex-optimization/lib-asan/rayvertex/libs/rayvertex.so:arm64+0x1d5e40)
+    #6 0x10b765860 in _rayvertex_rasterize+0xae8 (/private/tmp/rayvertex-optimization/lib-asan/rayvertex/libs/rayvertex.so:arm64+0x9860)
+    #7 0x1058a6eb8 in R_doDotCall+0xb78 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0x8aeb8)
+    #8 0x1058a7338 in do_dotcall+0x138 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0x8b338)
+    #9 0x1058ebaa0 in bcEval_loop+0x5060 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xcfaa0)
+    #10 0x1058d8830 in bcEval+0x270 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc830)
+    #11 0x1058d7ee0 in Rf_eval+0x160 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbbee0)
+    #12 0x1058daad8 in R_execClosure+0x318 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbead8)
+    #13 0x1058d9be0 in applyClosure_core+0xa0 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbdbe0)
+    #14 0x1058d83e4 in Rf_eval+0x664 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc3e4)
+    #15 0x105871bf0 in do_docall+0x270 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0x55bf0)
+    #16 0x1058ebaa0 in bcEval_loop+0x5060 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xcfaa0)
+    #17 0x1058d8830 in bcEval+0x270 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc830)
+    #18 0x1058dcbfc in R_compileAndExecute+0x2fc (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xc0bfc)
+    #19 0x1058dbe2c in do_for+0xec (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbfe2c)
+    #20 0x1058d817c in Rf_eval+0x3fc (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc17c)
+    #21 0x1058df544 in do_eval+0x784 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xc3544)
+    #22 0x1058ebaa0 in bcEval_loop+0x5060 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xcfaa0)
+    #23 0x1058d8830 in bcEval+0x270 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc830)
+    #24 0x1058d7ee0 in Rf_eval+0x160 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbbee0)
+    #25 0x1058d8ab4 in forcePromise+0xf4 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbcab4)
+    #26 0x1058d8004 in Rf_eval+0x284 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc004)
+    #27 0x1058df63c in do_withVisible+0x3c (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xc363c)
+    #28 0x10593a80c in do_internal+0x18c (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0x11e80c)
+    #29 0x1058ee270 in bcEval_loop+0x7830 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xd2270)
+    #30 0x1058d8830 in bcEval+0x270 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc830)
+    #31 0x1058d7ee0 in Rf_eval+0x160 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbbee0)
+    #32 0x1058daad8 in R_execClosure+0x318 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbead8)
+    #33 0x1058d9be0 in applyClosure_core+0xa0 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbdbe0)
+    #34 0x1058d83e4 in Rf_eval+0x664 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0xbc3e4)
+    #35 0x10592468c in Rf_ReplIteration+0x40c (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0x10868c)
+    #36 0x105925be0 in run_Rmainloop+0xe0 (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0x109be0)
+    #37 0x105925c4c in Rf_mainloop+0xc (/Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libR.dylib:arm64+0x109c4c)
+    #38 0x10413909c in main+0x1c (/Library/Frameworks/R.framework/Versions/4.6/Resources/bin/exec/R:arm64+0x10000109c)
+    #39 0x1868cab94  (<unknown module>)
+
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior /Library/Frameworks/R.framework/Versions/4.6/Resources/library/stbimageheaders/include/stbimageheaders/stb_image_resize2.h:3735:11 in 
+245 render/debug results passed

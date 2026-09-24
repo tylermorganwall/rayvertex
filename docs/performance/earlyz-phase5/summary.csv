@@ -1,0 +1,3 @@
+case,width,height,fsaa,cores,samples,cold_ms,warm_median_ms,warm_p95_ms,fps,native_median_ms,native_p95_ms,peak_rss_bytes,R_allocation_bytes,profiled_native_median_ms,profiled_native_samples,single_render_peak_rss_bytes
+occluded,800,800,1,1,15,504,352.0,372.2,2.840909090909091,169.0,173.6000000000003,1347846144,570108800,,0,
+small,800,800,1,1,15,328,202.0,211.6,4.9504950495049505,35.9999999999996,38.99999999999997,1095188480,557034032,,0,

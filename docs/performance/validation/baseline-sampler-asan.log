@@ -1,0 +1,81 @@
+=================================================================
+==32491==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x00016f4b6384 at pc 0x000100952b84 bp 0x00016f4b5c70 sp 0x00016f4b5c68
+READ of size 4 at 0x00016f4b6384 thread T0
+==32491==WARNING: external symbolizer didn't start up correctly!
+==32491==WARNING: Can't write to symbolizer at fd 4
+==32491==WARNING: external symbolizer didn't start up correctly!
+==32491==WARNING: Can't write to symbolizer at fd 5
+==32491==WARNING: external symbolizer didn't start up correctly!
+==32491==WARNING: Can't write to symbolizer at fd 6
+==32491==WARNING: external symbolizer didn't start up correctly!
+==32491==WARNING: Can't write to symbolizer at fd 7
+==32491==WARNING: external symbolizer didn't start up correctly!
+==32491==WARNING: Failed to use and restart external symbolizer!
+    #0 0x100952b80 in trivalue(double, double, float*, int, int, int)::$_0::operator()(int, int) const+0x348 (/private/tmp/rayvertex-optimization/test-baseline-rayimage:arm64+0x10000ab80)
+    #1 0x1009516ec in trivalue(double, double, float*, int, int, int)+0x298 (/private/tmp/rayvertex-optimization/test-baseline-rayimage:arm64+0x1000096ec)
+    #2 0x10094cf50 in main+0x3e8 (/private/tmp/rayvertex-optimization/test-baseline-rayimage:arm64+0x100004f50)
+    #3 0x1868cab94  (<unknown module>)
+
+Address 0x00016f4b6384 is located in stack of thread T0 at offset 36 in frame
+    #0 0x10094cb74 in main+0xc (/private/tmp/rayvertex-optimization/test-baseline-rayimage:arm64+0x100004b74)
+
+  This frame has 24 object(s):
+    [32, 36) 'gray' (line 7) <== Memory access at offset 36 overflows this variable
+    [48, 56) 'gray_alpha' (line 8)
+    [80, 92) 'rgb' (line 9)
+    [112, 128) 'rgba' (line 10)
+    [144, 160) 'ref.tmp' (line 11)
+    [176, 224) 'ref.tmp1' (line 11)
+    [256, 272) 'ref.tmp9' (line 12)
+    [288, 320) 'ref.tmp10' (line 12)
+    [352, 384) 'ref.tmp29' (line 13)
+    [416, 448) 'ref.tmp33' (line 13)
+    [480, 512) 'ref.tmp41' (line 14)
+    [544, 576) 'ref.tmp46' (line 14)
+    [608, 640) 'ref.tmp62' (line 15)
+    [672, 704) 'ref.tmp67' (line 15)
+    [736, 768) 'ref.tmp83' (line 16)
+    [800, 832) 'ref.tmp88' (line 16)
+    [864, 896) 'ref.tmp104' (line 17)
+    [928, 952) 'agg.tmp'
+    [992, 1024) 'ref.tmp109' (line 17)
+    [1056, 1072) 'narrow' (line 20)
+    [1088, 1120) 'ref.tmp131' (line 21)
+    [1152, 1184) 'ref.tmp136' (line 21)
+    [1216, 1248) 'ref.tmp152' (line 22)
+    [1280, 1312) 'ref.tmp157' (line 22)
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-buffer-overflow (/private/tmp/rayvertex-optimization/test-baseline-rayimage:arm64+0x10000ab80) in trivalue(double, double, float*, int, int, int)::$_0::operator()(int, int) const+0x348
+Shadow bytes around the buggy address:
+  0x00016f4b6100: f8 f8 f8 f8 f2 f2 f2 f2 f8 f8 f8 f8 f2 f2 f2 f2
+  0x00016f4b6180: 00 f2 f2 f2 04 f2 04 f2 00 00 00 f3 f3 f3 f3 f3
+  0x00016f4b6200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x00016f4b6280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x00016f4b6300: 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1
+=>0x00016f4b6380:[04]f2 00 f2 f2 f2 00 04 f2 f2 00 00 f2 f2 00 00
+  0x00016f4b6400: f2 f2 00 00 00 00 00 00 f2 f2 f2 f2 00 00 f2 f2
+  0x00016f4b6480: 00 00 00 00 f2 f2 f2 f2 00 00 00 00 f2 f2 f2 f2
+  0x00016f4b6500: f8 f8 f8 f8 f2 f2 f2 f2 f8 f8 f8 f8 f2 f2 f2 f2
+  0x00016f4b6580: f8 f8 f8 f8 f2 f2 f2 f2 f8 f8 f8 f8 f2 f2 f2 f2
+  0x00016f4b6600: f8 f8 f8 f8 f2 f2 f2 f2 f8 f8 f8 f8 f2 f2 f2 f2
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==32491==ABORTING

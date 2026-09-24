@@ -1,0 +1,10 @@
+* checking for file ‘/tmp/rayvertex-optimization/delivery-src/DESCRIPTION’ ... OK
+* preparing ‘rayvertex’:
+* checking DESCRIPTION meta-information ... OK
+* cleaning src
+* checking for LF line-endings in source and make files and shell scripts
+* checking for empty or unneeded directories
+Removed empty directory ‘rayvertex/man/figures’
+Removed empty directory ‘rayvertex/tests/testthat/testdata’
+* building ‘rayvertex_0.16.1.tar.gz’
+

@@ -1,0 +1,7 @@
+"case","width","height","fsaa","cores","regime","sample","elapsed_ms"
+"ssao",1920,1080,2,4,"process_cold",0,10782
+"ssao",1920,1080,2,4,"warm",1,11267
+"ssao",1920,1080,2,4,"warm",2,9935
+"ssao",1920,1080,2,4,"warm",3,10846
+"ssao",1920,1080,2,4,"warm",4,9819
+"ssao",1920,1080,2,4,"warm",5,9536

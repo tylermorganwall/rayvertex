@@ -1,0 +1,19 @@
+"label","seconds","interval_ms"
+"Validating Mesh",4.356,NA
+"Pre-processing scene",4.357,1.00000000000033
+"Pre-processed  scene",4.357,0
+"Removed duplicate materials",4.358,0.999999999999446
+"Processed scene bounds",4.359,1.00000000000033
+"Processed texture filenames",4.359,0
+"Processed materials",4.361,1.99999999999978
+"Loaded environment maps",4.361,0
+"Initialized buffers",4.368,7.00000000000056
+"Initialized shadowmaps",4.368,0
+"Initialized alpha buffers",4.368,0
+"Initialized shaders",4.371,3.00000000000011
+"Initialized 3D models",4.372,0.999999999999446
+"Calculated depth buffer(s)",4.383,11.0000000000001
+"Executed pixel shaders",4.443,59.9999999999996
+"Calculated linear depth",4.457,14.0000000000002
+"Rasterized image",4.466,9.00000000000034
+"Display/save image",4.67,204

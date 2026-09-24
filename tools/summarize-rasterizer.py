@@ -49,6 +49,6 @@ for path in sorted(root.glob("*-times.csv")):
 for name, data in [("summary", rows), ("phases", phases)]:
     if data:
         with (out / (name + ".csv")).open("w") as f:
-            writer = csv.DictWriter(f, fieldnames=data[0].keys())
+            writer = csv.DictWriter(f, fieldnames=data[0].keys(), lineterminator="\n")
             writer.writeheader()
             writer.writerows(data)
