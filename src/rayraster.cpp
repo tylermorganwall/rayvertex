@@ -1155,9 +1155,13 @@ List rasterize(List mesh,
         fill_tri_blocks(blocks_depth,i,depth_shader_single,zbuffer_depth,shadowbuff,
                         normalbuffer,positionbuffer,uvbuffer,true,alpha_depth_single,nullptr);
       };
+      RasterScheduleStats shadow_schedule;
       shadow_tasks += dispatch_raster_blocks(pool, blocks_depth, task, workers,
-                                              batch_size, reference_scheduler);
+                                              batch_size, reference_scheduler,
+                                              profile.enabled() ? &shadow_schedule : nullptr);
       profile.mark("shadow_" + std::to_string(sb) + "_coverage_shading");
+      profile.count("shadow_"+std::to_string(sb)+"_schedule_scratch_bytes",shadow_schedule.scratch_bytes);
+      profile.count("shadow_"+std::to_string(sb)+"_macrotiles",shadow_schedule.macrotiles);
       // Resolve the exact depth-keyed winners, retaining opaque equality.
       auto resolve_shadow=[&](int i, int j, Float z, const alpha_info& fragment) {
         if(z <= zbuffer_depth(i,j)) {
@@ -1214,9 +1218,13 @@ List rasterize(List mesh,
                     main_counters.empty() ? nullptr : &main_counters[i],visibility);
   };
 
+  RasterScheduleStats main_schedule;
   main_tasks = dispatch_raster_blocks(pool, blocks, task, workers, batch_size,
-                                      reference_scheduler);
+                                      reference_scheduler,profile.enabled() ? &main_schedule : nullptr);
   profile.mark("main_coverage_depth_shading");
+  profile.count("main_schedule_scratch_bytes",main_schedule.scratch_bytes);
+  profile.count("main_macrotiles",main_schedule.macrotiles);
+  profile.count("main_macrotile_edge",main_schedule.macro_edge);
   print_time(verbose, "Executed pixel shaders" );
   
 

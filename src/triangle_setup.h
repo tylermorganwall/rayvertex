@@ -52,6 +52,9 @@ public:
       columns_(block_count(width,block)), rows_(block_count(height,block)),
       offsets_(checked_samples(columns_,rows_)+1, 0) {}
   std::size_t size() const { return offsets_.size()-1; }
+  int columns() const { return columns_; }
+  int rows() const { return rows_; }
+  int block_size() const { return block_; }
   bool active(std::size_t tile) const { return offsets_[tile]!=offsets_[tile+1]; }
   std::size_t begin(std::size_t tile) const { return offsets_[tile]; }
   std::size_t end(std::size_t tile) const { return offsets_[tile+1]; }

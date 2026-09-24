@@ -7,6 +7,22 @@
 #include <stdexcept>
 #include <vector>
 #include "RcppThread.h"
+#include "raster_macrotiles.h"
+
+struct RasterScheduleStats {
+  std::size_t scratch_bytes=0, macrotiles=0;
+  int macro_edge=0;
+};
+
+inline int raster_macrotile_edge() {
+  const char* setting=std::getenv("RAYVERTEX_MACROTILE_EDGE");
+  if(!setting || !*setting) return 0;
+  char* end=nullptr;
+  long value=std::strtol(setting,&end,10);
+  if(*end || value<0 || value>4096)
+    throw std::invalid_argument("RAYVERTEX_MACROTILE_EDGE must be between 0 and 4096");
+  return static_cast<int>(value);
+}
 
 inline std::size_t raster_batch_size() {
   const char* setting = std::getenv("RAYVERTEX_BATCH_BLOCKS");
@@ -22,17 +38,45 @@ inline std::size_t raster_batch_size() {
 // batching never changes the primitive sequence within a block.
 template<class Pool, class Blocks, class Task>
 std::size_t dispatch_raster_blocks(Pool& pool, const Blocks& blocks, Task task,
-                                  int workers, std::size_t batch_size, bool reference) {
+                                  int workers, std::size_t batch_size, bool reference,
+                                  RasterScheduleStats* stats=nullptr) {
+  if(stats) *stats=RasterScheduleStats{};
   if (reference) {
     for (std::size_t i = 0; i < blocks.size(); ++i) pool.push(task, i);
     pool.wait();
     return blocks.size();
+  }
+  const int macro_edge=raster_macrotile_edge();
+  if(workers>1 && macro_edge>0) {
+    RasterMacrotiles macros(blocks.columns(),blocks.rows(),blocks.block_size(),macro_edge,
+      [&](std::size_t tile) { return blocks.active(tile); });
+    if(stats) {
+      stats->scratch_bytes=macros.capacity_bytes();
+      stats->macrotiles=macros.size();
+      stats->macro_edge=macro_edge;
+    }
+    if(macros.size()>std::size_t(std::numeric_limits<int>::max()))
+      throw std::overflow_error("Too many active raster macrotiles");
+    if(macros.size()==0) return 0;
+    try {
+      pool.parallelFor(0,static_cast<int>(macros.size()),[&](int macro) {
+        for(std::size_t i=macros.begin(macro);i<macros.end(macro);++i)
+          task(macros.block(i));
+      },macros.size());
+      pool.wait();
+    } catch(...) {
+      try { pool.join(); } catch(...) {}
+      throw;
+    }
+    RcppThread::checkUserInterrupt();
+    return macros.size();
   }
   std::vector<std::size_t> active;
   active.reserve(blocks.size());
   for (std::size_t i = 0; i < blocks.size(); ++i) {
     if (blocks.active(i)) active.push_back(i);
   }
+  if(stats) stats->scratch_bytes=active.capacity()*sizeof(std::size_t);
   if (active.empty()) return 0;
   if (workers <= 1) {
     for (std::size_t i = 0; i < active.size(); ++i) {
