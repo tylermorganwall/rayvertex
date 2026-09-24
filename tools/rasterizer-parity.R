@@ -142,10 +142,34 @@ unlink(texture)
 saveRDS(results, args[2])
 if (length(args) >= 3L) {
   reference = readRDS(args[3])
+  # Release builds require exact equality. Sanitized builds may use an explicit
+  # local absolute tolerance; this never changes the renderer or its defaults.
+  tolerance = as.numeric(Sys.getenv("RAYVERTEX_PARITY_TOLERANCE", "0"))
+  parity_equal = function(a, b) {
+    if (identical(a, b)) {
+      return(TRUE)
+    }
+    if (tolerance == 0 || !identical(attributes(a), attributes(b))) {
+      return(FALSE)
+    }
+    if (is.list(a) && is.list(b)) {
+      return(all(mapply(parity_equal, a, b)))
+    }
+    if (!is.double(a) || !is.double(b)) {
+      return(FALSE)
+    }
+    finite = is.finite(a)
+    if (
+      !identical(finite, is.finite(b)) || !identical(a[!finite], b[!finite])
+    ) {
+      return(FALSE)
+    }
+    all(abs(a[finite] - b[finite]) <= tolerance)
+  }
   failures = names(results)[
     !vapply(
       names(results),
-      function(n) identical(results[[n]], reference[[n]]),
+      function(n) parity_equal(results[[n]], reference[[n]]),
       TRUE
     )
   ]

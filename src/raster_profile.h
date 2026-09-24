@@ -16,6 +16,7 @@ class RasterProfile {
   const char* path;
   Clock::time_point start, last;
   std::vector<std::pair<std::string, double>> records;
+  bool completed = false;
 public:
   RasterProfile() : path(std::getenv("RAYVERTEX_PROFILE")) {
     if (enabled()) start = last = Clock::now();
@@ -30,9 +31,19 @@ public:
   void count(const std::string& name, double value) {
     if (enabled()) records.emplace_back("count_" + name, value);
   }
-  void finish() {
+  // The profiler is the first frame local, so its destructor sees buffer and
+  // shader teardown as well. Failed renders do not emit completed-frame rows.
+  void finish() { completed = true; last = enabled() ? Clock::now() : last; }
+  ~RasterProfile() noexcept {
+    if (!completed || !enabled()) return;
+    try { write_records(); } catch (...) { /* diagnostics must not break a render */ }
+  }
+private:
+  void write_records() {
     if (!enabled()) return;
-    const double total = std::chrono::duration<double, std::milli>(Clock::now()-start).count();
+    auto end = Clock::now();
+    records.emplace_back("native_teardown", std::chrono::duration<double, std::milli>(end-last).count());
+    const double total = std::chrono::duration<double, std::milli>(end-start).count();
     std::ofstream output(path, std::ios::app);
     output << std::setprecision(12);
     for (const auto& record : records) output << record.first << ',' << record.second << '\n';

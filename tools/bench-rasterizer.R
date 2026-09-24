@@ -127,10 +127,22 @@ write.csv(
   row.names = FALSE
 )
 Sys.setenv(RAYVERTEX_PROFILE = profile_path)
-for (i in seq_len(reps)) {
+diagnostic_reps = as.integer(Sys.getenv(
+  "RAYVERTEX_DIAGNOSTIC_REPS",
+  as.character(reps)
+))
+profiled_ms = numeric(diagnostic_reps)
+for (i in seq_len(diagnostic_reps)) {
+  start = proc.time()[["elapsed"]]
   invisible(do.call(rayvertex:::rasterize, bench_native_args))
+  profiled_ms[i] = (proc.time()[["elapsed"]] - start) * 1000
 }
 Sys.unsetenv("RAYVERTEX_PROFILE")
+write.csv(
+  data.frame(sample = seq_len(diagnostic_reps), profiled_ms),
+  file.path(out, paste0(key, "-profile-overhead.csv")),
+  row.names = FALSE
+)
 cat(
   key,
   "median warm ms:",

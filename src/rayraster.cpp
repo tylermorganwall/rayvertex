@@ -365,8 +365,8 @@ List rasterize(List mesh,
                bool has_environment_map, NumericVector bg_color,
                bool transparent_background,
                bool verbose) {
-  TextureCache texture_cache;
   RasterProfile profile;
+  TextureCache texture_cache;
   const bool reference_scheduler = std::getenv("RAYVERTEX_REFERENCE_SCHEDULER") != nullptr;
   const std::size_t batch_size = raster_batch_size();
   List materials = as<List>(mesh["materials"]);
@@ -1697,12 +1697,14 @@ List rasterize(List mesh,
   profile.count("transparent_fragments", totals.transparent);
   NumericMatrix presentation_depth = clone(zbuffer);
   for(auto& value : presentation_depth) value = std::isinf(value) ? 1.0 : 2*value - 1;
-  profile.finish();
-  return(List::create(_["r"] = r, _["g"] = g, _["b"] = b, _["a"] = a,
+  List output = List::create(_["r"] = r, _["g"] = g, _["b"] = b, _["a"] = a,
                       _["amb"] = abuffer, _["depth"] = presentation_depth, _["linear_depth"] = linear_depth,
                       _["normalx"] = nxbuffer, _["normaly"] = nybuffer, _["normalz"] = nzbuffer,
                       _["positionx"] = xxbuffer, _["positiony"] = yybuffer, _["positionz"] = zzbuffer,
-                      _["uvx"] = uvxbuffer, _["uvy"] = uvybuffer, _["uvz"] = uvzbuffer));
+                      _["uvx"] = uvxbuffer, _["uvy"] = uvybuffer, _["uvz"] = uvzbuffer);
+  profile.mark("native_output_assembly");
+  profile.finish();
+  return output;
 }
 
 #endif
