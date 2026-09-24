@@ -13,6 +13,7 @@
 #include "material.h"
 #include "image_owner.h"
 #include <array>
+#include <cstdlib>
 
 template<class T> using TriangleAttributes = std::vector<std::array<T, 3>>;
 
@@ -36,6 +37,7 @@ struct FragmentResult {
 
 class IShader {
   public:
+    const bool tangent_algebra=std::getenv("RAYVERTEX_TANGENT_ALGEBRA")!=nullptr;
     virtual vec4 vertex(int iface, int nthvert, ModelInfo& model) = 0;
     virtual bool fragment(vec3& bc, vec4 &color, vec3& pos, vec3& normal, int iface) = 0;
     virtual bool opaque_depth() const { return false; }

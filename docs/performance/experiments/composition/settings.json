@@ -1,0 +1,24 @@
+{
+  "libraries": {
+    "before": "/tmp/rayvertex-optimization/lib-normal-cache",
+    "after": "/tmp/rayvertex-optimization/lib-composition"
+  },
+  "cases": [
+    "small",
+    "grid1m",
+    "ssao",
+    "shadow",
+    "toon",
+    "environment"
+  ],
+  "width": 800,
+  "height": 800,
+  "fsaa": 1,
+  "cores": 1,
+  "warm_samples": 3,
+  "sustained_frames": 5,
+  "visibility": null,
+  "indexed_transforms": null,
+  "prepared_after": null,
+  "prepared_all": null
+}

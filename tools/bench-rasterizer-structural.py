@@ -19,6 +19,8 @@ cases = os.environ.get('RAYVERTEX_STRUCTURAL_CASES', 'small,grid1m,alpha4,alpha1
     'fsaa': 1, 'cores': 1, 'warm_samples': 3, 'sustained_frames': 5,
     'visibility': os.environ.get('RAYVERTEX_VISIBILITY'),
     'indexed_transforms': os.environ.get('RAYVERTEX_INDEXED_TRANSFORMS'),
+    'normal_cache': os.environ.get('RAYVERTEX_NORMAL_CACHE'),
+    'tangent_algebra': os.environ.get('RAYVERTEX_TANGENT_ALGEBRA'),
     'prepared_after': os.environ.get('RAYVERTEX_PREPARED_AFTER'),
     'prepared_all': os.environ.get('RAYVERTEX_PREPARED'),
 }, indent=2) + '\n')
