@@ -28,10 +28,13 @@ jobs:
           extra-packages: any::testthat
           needs: check
       - name: Build the retained corrected scalar source
-        shell: bash
+        shell: Rscript {0}
         run: |
-          mkdir -p "$RUNNER_TEMP/scalar-source"
-          git archive 811143b | tar -x -C "$RUNNER_TEMP/scalar-source"
+          root = normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/")
+          archive = file.path(root, "scalar.tar")
+          stopifnot(system2("git", c("archive", "811143b", shQuote(paste0("--output=", archive)))) == 0)
+          dir.create(file.path(root, "scalar-source"))
+          untar(archive, exdir = file.path(root, "scalar-source"), tar = "internal")
       - name: Package tests and same-platform scalar comparisons
         shell: Rscript {0}
         run: |
