@@ -742,3 +742,20 @@ rasterize_scene(
 </code></pre>
 
 <img src="man/figures/README-line7-1.png" width="100%" />
+
+
+## Development source builds
+
+The [Build R source package workflow](https://github.com/tylermorganwall/rayvertex/actions/workflows/source-build.yaml)
+builds and verifies an R source tarball for each branch. Branch and pull-request
+builds provide a downloadable Actions artifact, retained for 30 days.
+
+After this workflow is merged, successful `main` builds also publish a durable
+[latest successful source download](https://github.com/tylermorganwall/rayvertex/releases/tag/source-main).
+Use the linked `.tar.gz` release asset, not GitHub's automatically generated
+Source code archives. The filename identifies the package version, branch, full
+commit SHA, run ID, and build attempt. Download verification must pass before
+the latest-successful link changes; older assets remain available.
+
+These are development source packages, not CRAN releases or compiled binaries.
+They still require the package's R dependencies and native build tools to install.
