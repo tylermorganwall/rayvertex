@@ -1,7 +1,7 @@
 #ifndef MODELH
 #define MODELH
 
-#include "glm.hpp"
+#include <glm/glm.hpp>
 #include "Rcpp.h"
 #include "rayimage.h"
 #include "defines.h"

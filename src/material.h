@@ -1,7 +1,7 @@
 #ifndef MATERIALH
 #define MATERIALH
 
-#include "glm.hpp"
+#include <glm/glm.hpp>
 #include "Rcpp.h"
 #include "defines.h"
 

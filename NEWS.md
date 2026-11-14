@@ -1,3 +1,7 @@
+# rayvertex (development version)
+
+* Use GLM 1.0.1 from `glmheaders` and remove the bundled GLM headers.
+
 # rayvertex 0.16.1
 
 * Added `draw_lathe_profile()` to draw radius/height polygons with base R

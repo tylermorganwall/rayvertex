@@ -1,6 +1,6 @@
 #include "calctangents.h"
 #include "defines.h"
-#include "glm.hpp"
+#include <glm/glm.hpp>
 #include "assert.h"
 using namespace Rcpp;
 

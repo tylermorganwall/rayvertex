@@ -1,7 +1,7 @@
 #ifndef DEFINESH
 #define DEFINESH
 
-#include "glm.hpp"
+#include <glm/glm.hpp>
 
 // #ifndef FLOAT_AS_DOUBLE
 // typedef float Float;

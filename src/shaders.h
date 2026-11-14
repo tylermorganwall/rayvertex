@@ -1,11 +1,11 @@
 #ifndef SHADERSH
 #define SHADERSH
 
-#include "glm.hpp"
+#include <glm/glm.hpp>
 #include "model.h"
-#include "gtc/matrix_transform.hpp"
-#include "gtc/matrix_access.hpp"
-#include "gtc/matrix_inverse.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_access.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 #include "light.h"
 #include "defines.h"
 #include "rayimage.h"

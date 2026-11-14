@@ -33,8 +33,8 @@
 #include "stbimageheaders/stb_image.h"
 #include "stbimageheaders/stb_image_resize2.h"
 #include <memory>
-#include "glm.hpp"
-#include "gtc/matrix_transform.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "defines.h"
 #include "filltri.h"
 
