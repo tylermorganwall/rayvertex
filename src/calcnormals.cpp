@@ -1,5 +1,5 @@
 #include "calcnormals.h"
-#include "glm.hpp"
+#include <glm/glm.hpp>
 #include "defines.h"
 #include "Rcpp.h"
 

@@ -1,9 +1,9 @@
 #ifndef LIGHTH
 #define LIGHTH
 
-#include "glm.hpp"
+#include <glm/glm.hpp>
 #include "defines.h"
-#include "gtc/matrix_transform.hpp"
+#include <glm/gtc/matrix_transform.hpp>
 
 class Light {
 public:

@@ -14,8 +14,8 @@
 #include <algorithm>
 #include <utility>
 #include <memory>
-#include "glm.hpp"
-#include "gtc/matrix_transform.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "defines.h"
 #include "filltri.h"
 

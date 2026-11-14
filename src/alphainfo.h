@@ -1,7 +1,7 @@
 #ifndef ALPHAINFOH
 #define ALPHAINFOH
 
-#include "glm.hpp"  
+#include <glm/glm.hpp>
 #include "defines.h"
 
 struct alpha_info {

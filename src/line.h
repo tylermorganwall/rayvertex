@@ -2,7 +2,7 @@
 #define LINEH
 
 #include "Rcpp.h"
-#include "glm.hpp"
+#include <glm/glm.hpp>
 #include "rayimage.h"
 #include "alphainfo.h"
 #include "defines.h"

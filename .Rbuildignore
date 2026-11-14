@@ -26,4 +26,5 @@
 ^compile_commands\.json$
 ^\.cache$
 ^todo\.txt$
+^air\.toml$
 ^.vscode$

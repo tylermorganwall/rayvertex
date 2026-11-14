@@ -1,7 +1,7 @@
 #include "loopsubdiv.h"
 #include <set>
 #include <map>
-#include "glm.hpp"
+#include <glm/glm.hpp>
 #include "Rcpp.h"
 #include <queue>
 #include <memory>

@@ -1,7 +1,7 @@
 #ifndef RAYVERTEX_GBUFFERH
 #define RAYVERTEX_GBUFFERH
 
-#include "glm.hpp"
+#include <glm/glm.hpp>
 #include "defines.h"
 
 struct OutlineGBufferPixel {

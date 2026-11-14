@@ -1,7 +1,7 @@
 #ifndef FILLTRIH
 #define FILLTRIH
 
-#include "glm.hpp"
+#include <glm/glm.hpp>
 #include "Rcpp.h"
 #include "shaders.h"
 #include "RcppThread.h"
